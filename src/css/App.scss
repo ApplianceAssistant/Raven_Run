@@ -1,0 +1,133 @@
+/* App.scss */
+
+/* Reset some default styles for better consistency */
+body,
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Global styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+}
+
+/* Header styles */
+header {
+  background-color: #333;
+  color: #fff;
+  padding: 10px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+
+  .menu {
+    display: flex;
+    align-items: center;
+
+    .mobile-menu {
+      font-size: 24px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .desktop-menu {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+
+      li {
+        margin-right: 20px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+
+      a {
+        color: #fff;
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:hover {
+          color: #e6e6e6;
+        }
+      }
+    }
+  }
+}
+
+/* Sidebar styles */
+.sidebar {
+  background-color: #333;
+  color: #fff;
+  width: 200px;
+  position: fixed;
+  top: 0;
+  left: -200px;
+  height: 100%;
+  z-index: 101;
+  transition: left 0.3s ease-in-out;
+  box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.2);
+
+  &.show {
+    left: 0;
+  }
+
+  .sidebar-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+  }
+
+  .close-icon {
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    padding: 15px 20px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #444;
+    }
+
+    &:last-child {
+      border-top: 1px solid #555;
+    }
+
+    a {
+      color: #fff;
+      text-decoration: none;
+    }
+  }
+}
+
+/* Content area styles */
+.content {
+  margin-top: 60px; /* Adjust to match the header height */
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #fff;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
