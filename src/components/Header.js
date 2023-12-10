@@ -1,78 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import '../css/Header.scss';
 
 function Header() {
-  const [showSidebar, setShowSidebar] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const sidebarRef = useRef(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const routes = [
-    { path: '/', label: 'Home' },
-    { path: '/about', label: 'About' },
-    { path: '/contact', label: 'Contact' },
-  ];
-
-  const handleSidebarToggle = () => {
-    setShowSidebar(!showSidebar);
-  };
-
-  const handleOutsideClick = (e) => {
-    if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
-      setShowSidebar(false);
-    }
-  };
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 500);
-    };
-
-    window.addEventListener('resize', handleResize);
-    setIsMobile(window.innerWidth < 500);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isMobile) {
-      document.addEventListener('mousedown', handleOutsideClick);
-    } else {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, [isMobile]);
-
-  const renderMenuItems = () => {
-    return routes.map((route) => (
-      <li key={route.path}>
-        <Link to={route.path}>{route.label}</Link>
-      </li>
-    ));
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
-    <header>
-      <nav>
-        {isMobile ? (
-          <div className={`menu mobile-menu`}>
-            <span className="menu-icon" onClick={handleSidebarToggle}>
-              {showSidebar ? '✕' : '☰'}
-            </span>
-            {showSidebar && (
-              <div className={`sidebar`} ref={sidebarRef}>
-                <ul>{renderMenuItems()}</ul>
-              </div>
-            )}
-          </div>
-        ) : (
-          <ul className={`desktop-menu`}>{renderMenuItems()}</ul>
-        )}
+    <header className="header">
+      <div className="logo">
+        <Link to="/">Raven Run</Link> {/* Replace with your logo or brand name */}
+      </div>
+      <nav className={isMenuOpen ? "nav-menu open" : "nav-menu"}>
+        <ul>
+          <li><Link to="/" onClick={toggleMenu}>Home</Link></li>
+          <li><Link to="/about" onClick={toggleMenu}>About</Link></li>
+          <li><Link to="/contact" onClick={toggleMenu}>Contact</Link></li>
+        </ul>
       </nav>
+      <div className="menu-toggle" onClick={toggleMenu}>
+        {isMenuOpen ? '✕' : '☰'}
+      </div>
     </header>
   );
 }

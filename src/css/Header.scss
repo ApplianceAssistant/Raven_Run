@@ -1,6 +1,61 @@
-/* Header.scss */
 .header {
-    background-color: #333;
-    color: #fff;
-    /* Add more styles here */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  color: white;
+  padding: 0 20px;
+
+  .logo {
+    font-size: 1.5em;
+
+    a {
+      color: white;
+      text-decoration: none;
+    }
   }
+
+  .nav-menu {
+    ul {
+      list-style: none;
+      display: flex;
+
+      li {
+        margin: 0 10px;
+
+        a {
+          color: white;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+
+    &.open {
+      // Example for a mobile view
+      position: absolute;
+      top: 100%; // Position right below the header
+      left: 0;
+      right: 0;
+      background-color: #333; // Same as the header for a consistent look
+      display: block;
+
+      ul {
+        display: block; // Stack the links vertically
+        text-align: center; // Center-align the text
+
+        li {
+          padding: 10px 0; // Add some padding for touch targets
+        }
+      }
+    }
+  }
+
+  .menu-toggle {
+    cursor: pointer;
+    font-size: 1.5em;
+  }
+}
