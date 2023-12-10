@@ -2,7 +2,11 @@
 import React from 'react';
 
 function About() {
-  return <div>Learn More About Us</div>;
+  return <div className="main-container">
+    <div className="home content">
+      <h1>Tell us a story..</h1>
+    </div>
+  </div>
 }
 
 export default About;

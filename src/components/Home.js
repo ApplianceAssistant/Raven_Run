@@ -9,7 +9,6 @@ function Home() {
   const toggleModal = () => {
     setShowModal(!showModal);
   };
-
   // Function to handle saving the form data
   const handleSave = () => {
     // Implement your save logic here
@@ -38,28 +37,29 @@ function Home() {
   }, [showModal]);
 
   return (
-    <div className="home">
+    <div className="main-container">
+      <div className="home content">
         <h1>Welcome to Ravens Run!</h1>
-      <button onClick={toggleModal}>Show Modal</button>
-
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content" ref={modalRef}>
-            <span className="close-icon" onClick={toggleModal}>
-              &#x2716;
-            </span>
-            <h2>Modal Title</h2>
-            <p>Modal Content:</p>
-            <textarea
-              rows="4"
-              cols="50"
-              value={modalContent}
-              onChange={(e) => setModalContent(e.target.value)}
-            />
-            <button onClick={handleSave}>Save</button>
+        <button onClick={toggleModal}>Show Modal</button>
+        {showModal && (
+          <div className="modal">
+            <div className="modal-content" ref={modalRef}>
+              <span className="close-icon" onClick={toggleMenu}>
+                &#x2716;
+              </span>
+              <h2>Modal Title</h2>
+              <p>Modal Content:</p>
+              <textarea
+                rows="4"
+                cols="50"
+                value={modalContent}
+                onChange={(e) => setModalContent(e.target.value)}
+              />
+              <button onClick={handleSave}>Save</button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
