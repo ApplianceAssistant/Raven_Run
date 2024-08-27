@@ -1,1 +1,72 @@
-node_modules
+# Dependency directories
+/node_modules
+/.pnp
+.pnp.js
+
+#git files
+.git/
+
+#vscode files
+.vscode/
+
+# Testing directories
+/coverage
+
+# Production build
+/build
+
+# Miscellaneous
+.DS_Store
+.env.local
+.env.development
+.env.test
+.env.production.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.user
+*.suo
+*.cache
+*.log
+*.sql
+*.dat
+*.sublime-project
+*.sublime-workspace
+*.idea
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+*.gitignore
+*.gitattributes
+*.DS_Store
+
+# System files
+Thumbs.db
+desktop.ini
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+!.pnp.*
+
+# ESLint
+.eslintcache
+
+# Parcel
+.cache
+dist
+.cache-loader
+
