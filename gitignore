@@ -3,6 +3,13 @@
 /.pnp
 .pnp.js
 
+#git files
+.gitignore
+.git/
+
+#vscode files
+.vscode/
+
 # Testing directories
 /coverage
 
