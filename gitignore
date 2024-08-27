@@ -4,7 +4,6 @@
 .pnp.js
 
 #git files
-.gitignore
 .git/
 
 #vscode files
