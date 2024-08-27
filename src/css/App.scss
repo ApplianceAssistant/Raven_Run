@@ -1,160 +1,148 @@
 /* App.scss */
+@import 'variables';
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;700&display=swap');
 
-/* Reset some default styles for better consistency */
-body,
-h1,
-h2,
-h3,
-p {
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* Global styles */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
+  font-family: 'Crimson Text', serif;
+  line-height: 1.6;
+  color: $text-color;
+  background: $darker-bg;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-ul {
-  list-style-type: none;
-  margin: auto;
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
 }
-/* Header styles */
-header {
-  background-color: #333;
-  color: #fff;
-  padding: 5px 0;
+
+// Animated background
+.app::before,
+.app::after {
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-  height: 30px;
-  .menu-icon {
-    margin: 10px;
-    font-size: 1.2em;
-    font-weight: 600;
-  }
+  bottom: 0;
+  z-index: -1;
 }
-/* Sidebar styles */
-.sidebar {
-  background-color: #333;
-  color: #fff;
-  width: 200px;
+
+.app::before {
+  background: $spooky-gradient;
+}
+
+.app::after {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23000000" fill-opacity="0.1" width="100" height="100"/><rect fill="%23000000" fill-opacity="0.1" width="50" height="50"/></svg>');
+  background-size: 100px 100px;
+  animation: backgroundMove 30s linear infinite;
+}
+
+@keyframes backgroundMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 100px 100px; }
+}
+
+// Floating mist effect
+.mist {
   position: fixed;
   top: 0;
-  left: -200px;
-  height: 100%;
-  z-index: 101;
-  transition: left 0.3s ease-in-out;
-  box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.2);
-
-  &.show {
-    left: 0;
-  }
-
-  .sidebar-header {
-    display: flex;
-    justify-content: flex-end;
-    padding: 10px;
-  }
-
-  .close-icon {
-    font-size: 20px;
-    cursor: pointer;
-  }
-
-  ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
-
-
-  li {
-    padding: 15px 20px;
-    transition: background-color 0.2s;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #444;
-    }
-
-    &:last-child {
-      border-top: 1px solid #555;
-    }
-
-    a {
-      color: #fff;
-      text-decoration: none;
-    }
-  }
-}
-/* Define styles for the mobile menu */
-.menu {
-  position: relative; /* Ensure it can contain the sidebar */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  pointer-events: none;
 }
 
-/* Define styles for the menu icon */
-.menu-icon {
-  cursor: pointer;
+.mist::before,
+.mist::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="2" /><feComponentTransfer><feFuncR type="linear" slope="0" intercept="0" /><feFuncG type="linear" slope="0" intercept="0" /><feFuncB type="linear" slope="0" intercept="0" /><feFuncA type="linear" slope="0.5" intercept="0" /></feComponentTransfer></filter><rect width="200" height="200" filter="url(%23f)" opacity="0.3" /></svg>');
+  background-size: 800px 800px;
+  opacity: 0.3;
 }
 
-/* Define styles for the sidebar (initially hidden) */
-.sidebar {
-  position: absolute; /* Position it relative to the parent .menu */
-  top: 0;
-  left: -200px; /* Initially hidden to the left */
-  width: 200px; /* Width of the sidebar */
-  height: 100%;
-  background-color: #333;
-  transition: transform 0.3s ease-in-out; /* Add a smooth transition for the transform property */
+.mist::before {
+  animation: mistMove 60s linear infinite;
 }
 
-/* When the sidebar is shown (transformed to 0) */
-.menu.mobile-menu .sidebar {
-  transform: translateX(0);
+.mist::after {
+  animation: mistMove 40s linear infinite reverse;
 }
 
-/* Styles for the sidebar content (navigation links) */
-.sidebar ul {
-  list-style: none;
-  padding: 0;
+@keyframes mistMove {
+  0% { transform: translateZ(0) translateX(0) translateY(0); }
+  100% { transform: translateZ(0) translateX(20%) translateY(10%); }
 }
 
-.sidebar li {
-  padding: 10px;
-}
-
-/* Define styles for the menu icon when the sidebar is open */
-.menu.mobile-menu.show-sidebar .menu-icon {
-  content: '✕'; /* Display '✕' when the sidebar is open */
-}
-
-/* Content area styles */
-.main-container {
-  margin:auto;
-  margin-top: 60px;
-  width: 100%;
-}
-.content {
-  margin: 0 auto;
+.main-content {
+  flex: 1;
   padding: 20px;
-  max-width: 1200px;
-  background-color: #fffef9;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 60px;
+  @include spooky-transition;
+
+  @include respond-to($breakpoint-md) {
+    padding: 40px;
+  }
 }
 
-nav ul  {
-  display: flex;
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: rgba($darker-bg, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: $eerie-shadow;
+  @include spooky-transition;
+
+  @include respond-to($breakpoint-md) {
+    padding: 40px;
+  }
 }
-nav ul li a {
-  margin-right: 20px;
-  list-style: none;
-  color: white; 
+
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 20px;
+  color: $spooky-accent;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+a {
+  color: $link-color;
+  text-decoration: none;
+  @include spooky-transition;
+
+  &:hover {
+    color: lighten($link-color, 15%);
+    text-shadow: 0 0 5px rgba($link-color, 0.5);
+  }
+}
+
+button {
+  cursor: pointer;
+  background: $accent-gradient;
+  color: $text-color;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  @include spooky-transition;
+
+  &:hover {
+    background: darken($spooky-accent, 10%);
+    box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+  }
 }

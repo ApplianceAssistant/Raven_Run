@@ -1,0 +1,32 @@
+// _variables.scss
+
+// Spooky Colors
+$dark-bg: #121212;
+$darker-bg: #0a0a0a;
+$spooky-accent: #7d1e1e;
+$text-color: #e0e0e0;
+$link-color: #b35959;
+
+// Gradients
+$spooky-gradient: linear-gradient(to bottom, $dark-bg, $darker-bg);
+$accent-gradient: linear-gradient(to right, $spooky-accent, darken($spooky-accent, 10%));
+
+// Shadows
+$eerie-shadow: 0 0 20px rgba(123, 30, 30, 0.3);
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-mobile: $breakpoint-md - 1;
+
+// Mixins
+@mixin respond-to($breakpoint) {
+  @media (min-width: $breakpoint) {
+    @content;
+  }
+}
+
+@mixin spooky-transition {
+  transition: all 0.3s ease-in-out;
+}

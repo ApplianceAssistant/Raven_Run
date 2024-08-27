@@ -1,0 +1,98 @@
+@import 'variables';
+
+.lobby {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba($darker-bg, 0.8);
+  border-radius: 10px;
+  box-shadow: $eerie-shadow;
+
+  h2 {
+    text-align: center;
+    color: $spooky-accent;
+    margin-bottom: 20px;
+    font-size: 2.5em;
+    text-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+  }
+
+  p {
+    text-align: center;
+    color: $text-color;
+    font-size: 1.2em;
+    margin-bottom: 30px;
+  }
+
+  .game-list {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+    .game-item {
+      background-color: rgba($dark-bg, 0.7);
+      padding: 15px;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba($spooky-accent, 0.3);
+      }
+
+      h3 {
+        color: $spooky-accent;
+        margin-bottom: 10px;
+      }
+
+      p {
+        font-size: 0.9em;
+        margin-bottom: 10px;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: $spooky-accent;
+        color: $text-color;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: darken($spooky-accent, 10%);
+        }
+      }
+    }
+  }
+
+  .create-game-btn {
+    display: block;
+    width: 200px;
+    margin: 30px auto 0;
+    padding: 15px;
+    background-color: $link-color;
+    color: $text-color;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: darken($link-color, 10%);
+      box-shadow: 0 0 15px rgba($link-color, 0.5);
+    }
+  }
+}
+
+// Add a subtle pulsating effect to the lobby
+@keyframes lobbyPulse {
+  0% { box-shadow: 0 0 20px rgba($spooky-accent, 0.3); }
+  50% { box-shadow: 0 0 30px rgba($spooky-accent, 0.5); }
+  100% { box-shadow: 0 0 20px rgba($spooky-accent, 0.3); }
+}
+
+.lobby {
+  animation: lobbyPulse 4s infinite;
+}
