@@ -15,7 +15,7 @@ body {
   background: $darker-bg;
   min-height: 100vh;
   overflow-x: hidden;
-  font-size: 1em;
+  font-size: 1.1em;
 }
 
 .app {
@@ -48,10 +48,23 @@ body {
 }
 
 @keyframes randomMove {
-  0%, 100% { transform: translate(0, 0); }
-  25% { transform: translate(100px, 50px); }
-  50% { transform: translate(-50px, 100px); }
-  75% { transform: translate(75px, -75px); }
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(100px, 50px);
+  }
+
+  50% {
+    transform: translate(-50px, 100px);
+  }
+
+  75% {
+    transform: translate(75px, -75px);
+  }
 }
 
 // Content wrapper for centering
@@ -65,40 +78,203 @@ body {
 
 // Oval content area
 .oval-content {
-  background: radial-gradient(
-    ellipse at center,
-    rgba(248, 248, 247, 0.397) 25%,
-    rgba(239, 253, 253, 0.315) 35%,
-    rgba(180, 226, 247, 0.123) 60%,
-    rgba(255, 255, 255, 0.0) 100%
-  );
+  background: radial-gradient(ellipse at center,
+      rgba(248, 248, 247, 0.397) 25%,
+      rgba(239, 253, 253, 0.315) 35%,
+      rgba(180, 226, 247, 0.123) 60%,
+      rgba(255, 255, 255, 0.0) 100%);
   border-radius: 50% / 50%;
-  padding: 60px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
+  overflow: visible;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   text-align: center;
-  box-shadow: 0 0 40px rgba(255,255,255,0.1);
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
-  width: 40vw;
-  height: 70vh;
-  max-width: 700px;
-  max-height: 1000px;
+  width: 60vw;
+  height: 80vh;
+  max-width: 600px;
+  max-height: 1500px;
+  position: relative;
+  top: 40px;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  &::before {
+    background: radial-gradient(ellipse at center,
+        rgba(248, 248, 247, 0.2) 0%,
+        rgba(239, 253, 253, 0.15) 35%,
+        rgba(180, 226, 247, 0.1) 70%,
+        rgba(255, 255, 255, 0.0) 100%);
+    animation:
+      fluctuateSize 5s ease-in-out infinite,
+      fluctuatePosition 7s ease-in-out infinite,
+      fluctuateIntensity 7s ease-in-out infinite;
+  }
+
+  &::after {
+    background: radial-gradient(ellipse at center,
+        rgba(248, 248, 247, 0.1) 0%,
+        rgba(239, 253, 253, 0.08) 35%,
+        rgba(180, 226, 247, 0.05) 70%,
+        rgba(255, 255, 255, 0.0) 100%);
+    animation:
+      fluctuateSize 7s ease-in-out infinite reverse,
+      fluctuatePosition 7s ease-in-out infinite reverse,
+      fluctuateIntensity 10s ease-in-out infinite;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    flex-grow: 1;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .contentHeader {
+    padding: 10px 0;
+    line-height: 1.1;
+    z-index: 2;
+    transition: all 0.3s ease;
+  }
+
+  .bodyContent {
+    min-width: 200px;
+    overflow-y: auto;
+    padding: 20px 20px 40px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .scroll-indicator {
+    position: relative;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    padding: 5px 0;
+
+    &.visible {
+      opacity: 1;
+    }
+
+    .arrow {
+      font-size: 24px;
+      color: $text-color;
+      display: none;
+      animation: verticalShake 1s ease-in-out infinite;
+
+      &.active {
+        display: inline-block;
+      }
+    }
+  }
 }
 
-// Responsive adjustments
-@media (max-width: 768px) {
-  .oval-content {
-    width: 80vw;
-    height: 60vh;
-    padding: 40px;
+@keyframes fluctuateSize {
+
+  0%,
+  100% {
+    transform: scale(1);
   }
+
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes fluctuateIntensity {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes fluctuatePosition {
+
+  0%,
+  100% {
+    transform: translate(5, 5);
+  }
+
+  25% {
+    transform: translate(3px, 5px);
+  }
+
+  50% {
+    transform: translate(-5px, 4px);
+  }
+
+  75% {
+    transform: translate(4px, -5px);
+  }
+}
+
+@keyframes verticalShake {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  25% {
+    transform: translateY(-3px);
+  }
+
+  75% {
+    transform: translateY(3px);
+  }
+}
+
+@keyframes verticalShake {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  25% {
+    transform: translateY(-5px);
+  }
+
+  75% {
+    transform: translateY(5px);
+  }
+}
+
+.scroll-indicator .arrow {
+  animation: verticalShake 1s ease-in-out infinite;
 }
 
 // Button styles
 button {
-  font-size: 1em;
   padding: 10px 22px;
   margin: 10px;
   background-color: $spooky-accent;
@@ -115,60 +291,34 @@ button {
 }
 
 // Increase heading sizes
-h1 { font-size: 2.5em; margin-bottom: 20px; color: rgb(0, 0, 0); }
-h2 { font-size: 2em; margin-bottom: 15px; color: $spooky-accent; }
-h3 { font-size: 1.75em; margin-bottom: 10px; color: $spooky-accent; }
-p { font-size: 1.2em; margin-bottom: 10px; }
-label { font-size: 1.2em; margin-bottom: 10px; padding: 5px; }
-
-// Common styles for all pages
-.page-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  text-align: center;
-  
-  p {
-    max-width: 80%;
-    margin-bottom: 15px;
-  }
+h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: rgb(255, 255, 255);
 }
 
-// Specific styles for components if needed
-.about-content, .contact-content, .create-account-content, .lobby-content {
-  @extend .page-content;
+h2 {
+  font-size: 2em;
+  margin-bottom: 15px;
+  color: rgb(255, 255, 255);
 }
 
-.oval-content {
-  position: relative;
-  overflow: hidden;
+h3 {
+  font-size: 1.75em;
+  margin-bottom: 10px;
+  color: rgb(255, 255, 255);
+}
 
-  h1, h2 {
-    color: lighten($text-color, 15%);
-    text-shadow: 0 0 5px rgba($darker-bg, 0.5);
-  }
+p {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  color: rgb(255, 255, 255);
+}
 
-  .content-wrapper {
-    max-height: calc(100% - 60px); // Adjust based on header height
-    overflow-y: auto;
-    scrollbar-width: none; // Hide scrollbar for Firefox
-    -ms-overflow-style: none; // Hide scrollbar for IE/Edge
-
-    &::-webkit-scrollbar {
-      display: none; // Hide scrollbar for Chrome/Safari
-    }
-  }
-
-  .scroll-indicator {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
+label {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  padding: 5px;
 }
 
 // Form styles
@@ -179,7 +329,6 @@ form {
 
   label {
     color: $text-color;
-    font-size: 1.1em;
     margin-bottom: 5px;
   }
 
@@ -189,7 +338,6 @@ form {
     border-radius: 5px;
     background-color: rgba($dark-bg, 0.7);
     color: $text-color;
-    font-size: 1em;
     transition: all 0.3s ease;
 
     &:focus {
@@ -201,7 +349,6 @@ form {
 
 // Button styles
 @mixin button-base {
-  font-size: 1em;
   padding: 10px 22px;
   margin: 10px;
   border: none;
@@ -212,21 +359,21 @@ form {
 
 .button {
   @include button-base;
-  
+
   &-primary {
     background-color: $spooky-accent;
     color: $text-color;
-    
+
     &:hover {
       background-color: darken($spooky-accent, 10%);
     }
   }
-  
+
   &-secondary {
     background-color: $dark-bg;
     color: $text-color;
     border: 2px solid $spooky-accent;
-    
+
     &:hover {
       background-color: $spooky-accent;
     }
@@ -238,23 +385,70 @@ form {
   &-group {
     margin-bottom: 15px;
   }
-  
+
   &-label {
     display: block;
     margin-bottom: 5px;
     color: $text-color;
   }
-  
+
   &-input {
     width: 100%;
     padding: 10px;
     border: 1px solid $spooky-accent;
     background-color: rgba($dark-bg, 0.7);
     color: $text-color;
-    
+
     &:focus {
       outline: none;
       box-shadow: 0 0 5px rgba($spooky-accent, 0.5);
     }
+  }
+}
+
+//lobby styles
+.path-list {
+  list-style-type: none;
+  padding: 0;
+
+  .path-item {
+    margin-bottom: 10px;
+
+    &.disabled button {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: $spooky-accent;
+      color: $text-color;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      &:hover:not(:disabled) {
+        background-color: darken($spooky-accent, 10%);
+      }
+
+      .day-only-indicator {
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+    }
+  }
+}
+
+.time-indicator {
+  margin-top: 20px;
+  font-size: 0.9em;
+
+  .day-night-indicator {
+    margin-left: 10px;
   }
 }

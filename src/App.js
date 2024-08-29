@@ -7,6 +7,7 @@ import Contact from './components/Contact';
 import CreateAccount from './components/CreateAccount';
 import Lobby from './components/Lobby';
 import './css/App.scss';
+import { handleScroll } from './utils/utils';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -15,6 +16,20 @@ function App() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  useEffect(() => {
+    // Toggle body class when menu opens/closes
+    if (isMenuOpen) {
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.classList.remove('menu-open');
+    }
+
+    // Cleanup function to remove class when component unmounts
+    return () => {
+      document.body.classList.remove('menu-open');
+    };
+  }, [isMenuOpen]);
+  
   useEffect(() => {
     // Create moving background elements
     const movingBackground = document.createElement('div');
@@ -34,11 +49,18 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const bodyContent = document.querySelector('.bodyContent');
+    bodyContent.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial check
+    return () => bodyContent.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <Router>
       <div className="app">
         <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
-        <div className="oval-container">
+        <div>
           <main className="main-content">
             <Routes>
               <Route path="/" element={<Home />} />
