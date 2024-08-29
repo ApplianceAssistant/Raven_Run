@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLongArrowUp, faLongArrowDown, faArrowsV, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,6 +10,12 @@ function Lobby() {
     { name: "Mall", dayOnly: false }
   ]);
 
+  const navigate = useNavigate();
+
+  const handlePathSelect = (pathName) => {
+    navigate(`/path/${pathName}`);
+  };
+  
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -40,7 +47,7 @@ function Lobby() {
             <ul className="path-list">
               {paths.map((path, index) => (
                 <li key={index} className={`path-item ${path.dayOnly && isCloseToNight() ? 'disabled' : ''}`}>
-                  <button disabled={path.dayOnly && isCloseToNight()}>
+                  <button onClick={() => handlePathSelect(path.name)} disabled={path.dayOnly && isCloseToNight()}>
                     {path.name}
                     {path.dayOnly && (
                       <span className="day-only-indicator">

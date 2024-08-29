@@ -6,6 +6,7 @@ import About from './components/About';
 import Contact from './components/Contact';
 import CreateAccount from './components/CreateAccount';
 import Lobby from './components/Lobby';
+import PathPage from './components/PathPage';
 import './css/App.scss';
 import { handleScroll } from './utils/utils';
 
@@ -29,7 +30,7 @@ function App() {
       document.body.classList.remove('menu-open');
     };
   }, [isMenuOpen]);
-  
+
   useEffect(() => {
     // Create moving background elements
     const movingBackground = document.createElement('div');
@@ -68,6 +69,7 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/create-account" element={<CreateAccount />} />
               <Route path="/lobby" element={<Lobby />} />
+              <Route path="/path/:pathName" element={<PathPage />} />
             </Routes>
           </main>
         </div>

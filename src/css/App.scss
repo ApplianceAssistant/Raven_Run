@@ -452,3 +452,130 @@ form {
     margin-left: 10px;
   }
 }
+
+//pash page styles
+.path-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.path-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.main-oval {
+  position: absolute;
+  width: 60vw;
+  height: 80vh;
+  max-width: 600px;
+  max-height: 1500px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(248, 248, 247, 0.397) 25%,
+    rgba(239, 253, 253, 0.315) 35%,
+    rgba(180, 226, 247, 0.123) 60%,
+    rgba(255, 255, 255, 0.0) 100%
+  );
+  border-radius: 50% / 50%;
+  transition: all 0.5s ease;
+  
+  &.fade-out {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+.page-text {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease;
+  
+  &.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  h1 {
+    margin-bottom: 20px;
+  }
+
+  p {
+    margin-bottom: 10px;
+  }
+}
+
+.spirit-guide {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  background: rgba($spooky-accent, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.5s ease;
+
+  &.active {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .inner-oval {
+    width: 40px;
+    height: 40px;
+    background: $spooky-accent;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+}
+
+@keyframes pulsateNeutral {
+  0% {
+    transform: scale(0.95) translateY(0);
+    border-radius: 50%;
+  }
+  50% {
+    transform: scale(1.05) translateY(-2px);
+    border-radius: 40%;
+  }
+  100% {
+    transform: scale(0.95) translateY(0);
+    border-radius: 50%;
+  }
+}
+
+@keyframes fluctuateNeutral {
+  0% {
+    opacity: 0.6;
+    box-shadow: 0 0 5px rgba($spooky-accent, 0.3);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+  }
+  100% {
+    opacity: 0.6;
+    box-shadow: 0 0 5px rgba($spooky-accent, 0.3);
+  }
+}
+
+@keyframes pulsateActive {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
+@keyframes fluctuateActive {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
