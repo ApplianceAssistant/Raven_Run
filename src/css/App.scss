@@ -15,7 +15,7 @@ body {
   background: $darker-bg;
   min-height: 100vh;
   overflow-x: hidden;
-  font-size: 18px;
+  font-size: 1em;
 }
 
 .app {
@@ -67,10 +67,10 @@ body {
 .oval-content {
   background: radial-gradient(
     ellipse at center,
-    rgba(255, 255, 255, 0.315) 20%,
-    rgba(223, 255, 255, 0.315) 30%,
-    rgba(230, 243, 118, 0.05) 60%,
-    rgba(255, 32, 32, 0) 100%
+    rgba(248, 248, 247, 0.397) 25%,
+    rgba(239, 253, 253, 0.315) 35%,
+    rgba(180, 226, 247, 0.123) 60%,
+    rgba(255, 255, 255, 0.0) 100%
   );
   border-radius: 50% / 50%;
   padding: 60px;
@@ -81,9 +81,9 @@ body {
   text-align: center;
   box-shadow: 0 0 40px rgba(255,255,255,0.1);
   transition: all 0.3s ease;
-  width: 30vw;
+  width: 40vw;
   height: 70vh;
-  max-width: 500px;
+  max-width: 700px;
   max-height: 1000px;
 }
 
@@ -96,17 +96,30 @@ body {
   }
 }
 
-// Increase button size
+// Button styles
 button {
-  font-size: 18px;
-  padding: 12px 24px;
+  font-size: 1em;
+  padding: 10px 22px;
   margin: 10px;
+  background-color: $spooky-accent;
+  color: $text-color;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: darken($spooky-accent, 10%);
+    box-shadow: 0 0 15px rgba($spooky-accent, 0.7);
+  }
 }
 
 // Increase heading sizes
-h1 { font-size: 2.5em; margin-bottom: 20px; color: $spooky-accent-B; }
+h1 { font-size: 2.5em; margin-bottom: 20px; color: rgb(0, 0, 0); }
 h2 { font-size: 2em; margin-bottom: 15px; color: $spooky-accent; }
 h3 { font-size: 1.75em; margin-bottom: 10px; color: $spooky-accent; }
+p { font-size: 1.2em; margin-bottom: 10px; }
+label { font-size: 1.2em; margin-bottom: 10px; padding: 5px; }
 
 // Common styles for all pages
 .page-content {
@@ -128,4 +141,120 @@ h3 { font-size: 1.75em; margin-bottom: 10px; color: $spooky-accent; }
   @extend .page-content;
 }
 
-// Add any additional styles here
+.oval-content {
+  position: relative;
+  overflow: hidden;
+
+  h1, h2 {
+    color: lighten($text-color, 15%);
+    text-shadow: 0 0 5px rgba($darker-bg, 0.5);
+  }
+
+  .content-wrapper {
+    max-height: calc(100% - 60px); // Adjust based on header height
+    overflow-y: auto;
+    scrollbar-width: none; // Hide scrollbar for Firefox
+    -ms-overflow-style: none; // Hide scrollbar for IE/Edge
+
+    &::-webkit-scrollbar {
+      display: none; // Hide scrollbar for Chrome/Safari
+    }
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+}
+
+// Form styles
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  label {
+    color: $text-color;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+  }
+
+  input {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba($dark-bg, 0.7);
+    color: $text-color;
+    font-size: 1em;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+    }
+  }
+}
+
+// Button styles
+@mixin button-base {
+  font-size: 1em;
+  padding: 10px 22px;
+  margin: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.button {
+  @include button-base;
+  
+  &-primary {
+    background-color: $spooky-accent;
+    color: $text-color;
+    
+    &:hover {
+      background-color: darken($spooky-accent, 10%);
+    }
+  }
+  
+  &-secondary {
+    background-color: $dark-bg;
+    color: $text-color;
+    border: 2px solid $spooky-accent;
+    
+    &:hover {
+      background-color: $spooky-accent;
+    }
+  }
+}
+
+// Form styles
+.form {
+  &-group {
+    margin-bottom: 15px;
+  }
+  
+  &-label {
+    display: block;
+    margin-bottom: 5px;
+    color: $text-color;
+  }
+  
+  &-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid $spooky-accent;
+    background-color: rgba($dark-bg, 0.7);
+    color: $text-color;
+    
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 5px rgba($spooky-accent, 0.5);
+    }
+  }
+}
