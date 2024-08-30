@@ -52,6 +52,7 @@ function App() {
 
   useEffect(() => {
     const bodyContent = document.querySelector('.bodyContent');
+    if(!bodyContent) return;
     bodyContent.addEventListener('scroll', handleScroll);
     handleScroll(); // Initial check
     return () => bodyContent.removeEventListener('scroll', handleScroll);
