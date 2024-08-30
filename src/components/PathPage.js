@@ -73,7 +73,6 @@ function PathPage() {
         <div className={`main-oval ${transitionComplete ? 'fade-out' : ''}`}></div>
         <div className={`page-text ${transitionComplete ? 'fade-in' : ''}`}>
           <h1>{pathName}</h1>
-          <p>Welcome to {pathName}! Your adventure begins here.</p>
           {distance !== null && (
             <p>Distance to target: {distance.toFixed(2)} km</p>
           )}

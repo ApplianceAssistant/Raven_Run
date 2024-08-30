@@ -6,7 +6,7 @@ import { faHandPointUp, faHandPointDown, faHandsUpDown } from '@fortawesome/free
 
 //function to detect the need for content scrolling
 export function handleScroll() {
-  const contentWrapper = document.querySelector('.oval-content');
+  const contentWrapper = document.querySelector('.spirit-guide-large');
   const contentHeader = document.querySelector('.contentHeader');
   const bodyContent = document.querySelector('.bodyContent');
   const scrollIndicator = document.querySelector('.scroll-indicator');

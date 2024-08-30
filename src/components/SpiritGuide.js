@@ -21,7 +21,7 @@ function SpiritGuide({ distance }) {
   const intensity = getIntensity();
 
   return (
-    <div className={`spirit-guide ${isActive ? 'active' : ''}`}>
+    <div className={`spirit-guide-small ${isActive ? 'active' : ''}`}>
       <div className="inner-oval" style={{
         animation: isActive 
           ? `pulsateActive ${2 / intensity}s ease-in-out infinite alternate, 

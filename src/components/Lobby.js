@@ -39,7 +39,7 @@ function Lobby() {
 
   return (
     <div className="content-wrapper">
-      <div className="oval-content">
+      <div className="spirit-guide-large">
         <div className="content">
           <h1 className="contentHeader">Lobby</h1>
           <div className="bodyContent">

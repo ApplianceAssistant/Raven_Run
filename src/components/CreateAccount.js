@@ -22,8 +22,8 @@ function CreateAccount() {
 
   return (
     <div className="content-wrapper">
-      <div className="oval-content">
-        <div className="create-account-content">
+      <div className="spirit-guide-large">
+        <div className="bodyContent center">
           <h1>Gather Your Courage</h1>
           <form onSubmit={handleSubmit}>
             <div>
