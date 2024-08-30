@@ -8,6 +8,7 @@ import CreateAccount from './components/CreateAccount';
 import Lobby from './components/Lobby';
 import PathPage from './components/PathPage';
 import './css/App.scss';
+import './css/SpiritGuide.scss';
 import { handleScroll } from './utils/utils';
 
 function App() {
@@ -62,18 +63,16 @@ function App() {
     <Router>
       <div className="app">
         <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
-        <div>
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/create-account" element={<CreateAccount />} />
-              <Route path="/lobby" element={<Lobby />} />
-              <Route path="/path/:pathName" element={<PathPage />} />
-            </Routes>
-          </main>
-        </div>
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/create-account" element={<CreateAccount />} />
+            <Route path="/lobby" element={<Lobby />} />
+            <Route path="/path/:pathName" element={<PathPage />} />
+          </Routes>
+        </main>
       </div>
     </Router>
   );
