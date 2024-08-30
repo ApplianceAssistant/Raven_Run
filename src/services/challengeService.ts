@@ -1,21 +1,4 @@
-const challenges = [
-    {
-      id: '1',
-      type: 'multipleChoice',
-      title: 'History Question',
-      description: 'Who was the first President of the United States?',
-      options: ['George Washington', 'Thomas Jefferson', 'John Adams', 'Benjamin Franklin'],
-      correctAnswer: 'George Washington',
-      feedbackTexts: {
-        correct: 'Correct! George Washington was indeed the first President.',
-        incorrect: [
-          'Not quite. Try again!',
-          `That's not right. Here's a hint: He was a general in the Revolutionary War.`,
-        ]
-      }
-    },
-    // ... more challenges
-  ];
+import { challenges } from '../data/challenges.ts';
   
   export function getChallenges() {
     return challenges;

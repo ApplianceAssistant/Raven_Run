@@ -41,7 +41,8 @@ function App() {
       element.className = 'moving-element';
       element.style.left = `${Math.random() * 100}%`;
       element.style.top = `${Math.random() * 100}%`;
-      element.style.animationDelay = `${Math.random() * 10}s`;
+
+      element.style.animationDelay = `${Math.random() * 7}s`;
       movingBackground.appendChild(element);
     }
     document.body.appendChild(movingBackground);

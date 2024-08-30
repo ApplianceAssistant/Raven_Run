@@ -6,7 +6,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 body {
@@ -43,7 +43,11 @@ body {
   position: absolute;
   width: 10px;
   height: 10px;
-  background: rgba($spot, 0.2);
+  background: radial-gradient(ellipse at center,
+      rgba(248, 248, 247, 0.35) 25%,
+      rgba(239, 253, 253, 0.35) 35%,
+      rgba(180, 226, 247, 0.25) 60%,
+      rgba(255, 255, 255, 0.0) 100%);
   border-radius: 50%;
   animation: randomMove 10s infinite;
 }
@@ -133,6 +137,7 @@ body {
     }
   }
 }
+
 .scroll-indicator .arrow {
   animation: verticalShake 1s ease-in-out infinite;
 }
@@ -197,7 +202,9 @@ form {
     margin-bottom: 5px;
   }
 
-  input {
+  // General styles for all input types and textarea
+  input,
+  textarea {
     padding: 10px;
     margin: 10px;
     border: none;
@@ -211,6 +218,24 @@ form {
       box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
     }
   }
+
+  // Specific styles for text-like inputs and textarea
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="reset"]):not([type="button"]):not([type="file"]),
+  textarea {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  // Ensure non-text inputs also get the focus effect
+  input[type="number"] {
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+    }
+  }
+
+
 }
 
 // Button styles
@@ -246,31 +271,6 @@ form {
   }
 }
 
-// Form styles
-.form {
-  &-group {
-    margin-bottom: 15px;
-  }
-
-  &-label {
-    display: block;
-    margin-bottom: 5px;
-    color: $text-color;
-  }
-
-  &-input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid $spooky-accent;
-    background-color: rgba($dark-bg, 0.7);
-    color: $text-color;
-
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 5px rgba($spooky-accent, 0.5);
-    }
-  }
-}
 
 //lobby styles
 .path-list {
@@ -335,32 +335,82 @@ form {
   position: relative;
 }
 
-.page-text {
-  text-align: center;
+.path-title {
+  margin-bottom: 20px;
+  color: rgba($spooky-accent, 1);
+  opacity: 0;
+}
+
+.challengeBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.5s ease;
-  
+
   &.fade-in {
     opacity: 1;
     transform: translateY(0);
   }
 
-  h1 {
+  .challenge {
     margin-bottom: 20px;
+    padding: 20px;
+    background-color: $dark-bg;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
   }
 
-  p {
+  .challenge-title {
+    font-size: 1.5em;
     margin-bottom: 10px;
+    color: $spooky-accent;
+  }
+
+  .challenge-description {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: $text-color;
+  }
+
+  .challenge-button {
+    @include button-base;
+    background-color: $spooky-accent;
+    color: $text-color;
+
+    &:hover {
+      background-color: darken($spooky-accent, 10%);
+    }
+  }
+
+  .challengeFeedback {
+    margin-top: 20px;
+    font-size: 1.2em;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    height: 0;
+    overflow: hidden;
+  }
+  
+  .challengeFeedback.visible {
+    opacity: 1;
+    height: auto;
+    margin-bottom: 20px;
   }
 }
-.page-text.visible {
+.visible {
   opacity: 1;
 }
 
 .center {
   margin: auto;
 }
+
 .clearMargin {
   margin: unset;
 }

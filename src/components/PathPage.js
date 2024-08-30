@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import Header from './Header';
 import SpiritGuide from './SpiritGuide';
 import { Challenge } from './Challenge';
 import { getChallenges } from '../services/challengeService.ts';
@@ -35,7 +34,7 @@ function PathPage() {
     // Trigger spirit guide transition to small guide
     setIsSpiritGuideSmall(true);
     // Trigger text fade-in after spirit guide transition
-    const textFadeTimer = setTimeout(() => setTextVisible(true), 500);
+    const textFadeTimer = setTimeout(() => setTextVisible(true), 700);
 
     return () => {
       clearInterval(locationInterval);
@@ -71,12 +70,10 @@ function PathPage() {
 return (
   <div className="path-page">
     <main className="path-content">
-      <div className={`page-text ${textVisible ? 'visible' : ''}`}>
-        <h1>{pathName}</h1>
+    <h1 className={`path-title ${textVisible ? 'visible' : ''}`}>{pathName}</h1>
         {distance !== null && (
-          <p>Distance to target: {distance.toFixed(2)} km</p>
+          <p className="distance-notice">Distance to target: {distance.toFixed(2)} km</p>
         )}
-      </div>
       {currentChallenge && (
         <Challenge
           challenge={currentChallenge}

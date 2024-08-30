@@ -21,7 +21,7 @@ export const challenges: Challenge[] = [
     type: 'latLong',
     title: 'Geography Challenge',
     description: 'What are the coordinates of the Eiffel Tower?',
-    correctAnswer: [48.8584, 2.2945],
+    correctAnswer: [48, 2],
     feedbackTexts: {
       correct: `Excellent! You've pinpointed the Eiffel Tower.`,
       incorrect: [

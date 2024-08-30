@@ -1,19 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { checkAnswer, getRandomIncorrectFeedback } from '../services/challengeService.ts';
 
 export const Challenge = ({ challenge, onComplete }) => {
   const [answer, setAnswer] = useState('');
   const [feedback, setFeedback] = useState(null);
+  const [isFeedbackVisible, setIsFeedbackVisible] = useState(false);
+  const [textVisible, setTextVisible] = useState(false);
+
+  useEffect(() => {
+    const textFadeTimer = setTimeout(() => setTextVisible(true), 700);
+    return () => clearTimeout(textFadeTimer);
+  }, []);
+
+  useEffect(() => {
+    let fadeOutTimer;
+    if (feedback) {
+      setIsFeedbackVisible(true);
+      const feedbackLength = feedback.length;
+      const fadeOutDelay = Math.min(Math.max(feedbackLength * 100, 5000), 7000); // 5-7 seconds based on length
+      fadeOutTimer = setTimeout(() => setIsFeedbackVisible(false), fadeOutDelay);
+    }
+    return () => clearTimeout(fadeOutTimer);
+  }, [feedback]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const correct = checkAnswer(challenge, answer);
     setFeedback(correct ? challenge.feedbackTexts.correct : getRandomIncorrectFeedback(challenge));
-    onComplete(correct);
+    
+    // Delay onComplete for correct answers
+    if (correct) {
+      setTimeout(() => onComplete(correct), 2000);  // 2-second delay
+    } else {
+      onComplete(correct);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setAnswer(e.target.value);
+    setIsFeedbackVisible(false);
   };
 
   return (
-    <div>
+    <div className={`challengeBody ${textVisible ? 'visible' : ''}`}>
       <h2>{challenge.title}</h2>
       <p>{challenge.description}</p>
       <form onSubmit={handleSubmit}>
@@ -53,7 +82,11 @@ export const Challenge = ({ challenge, onComplete }) => {
         )}
         <button type="submit">Submit</button>
       </form>
-      {feedback && <p>{feedback}</p>}
+      {feedback && (
+        <p className={`challengeFeedback ${isFeedbackVisible ? 'visible' : ''}`}>
+          {feedback}
+        </p>
+      )}
     </div>
   );
 };
