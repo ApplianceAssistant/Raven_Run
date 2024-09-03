@@ -358,9 +358,7 @@ form {
   .challenge {
     margin-bottom: 20px;
     padding: 20px;
-    background-color: $dark-bg;
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
     width: 100%;
     max-width: 500px;
     text-align: center;
@@ -376,6 +374,8 @@ form {
     font-size: 1.2em;
     margin-bottom: 10px;
     color: $text-color;
+    padding: 20px;
+    max-width: 500px;
   }
 
   .challenge-button {
@@ -395,12 +395,21 @@ form {
     transition: opacity 0.5s ease-in-out;
     height: 0;
     overflow: hidden;
+    padding: 20px;
+    max-width: 500px;
   }
   
   .challengeFeedback.visible {
     opacity: 1;
     height: auto;
     margin-bottom: 20px;
+  }
+
+  .story-text {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    padding: 20px;
+    max-width: 500px;
   }
 }
 .visible {

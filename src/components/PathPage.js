@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import SpiritGuide from './SpiritGuide';
 import { Challenge } from './Challenge';
-import { getChallenges } from '../services/challengeService.ts';
+import { getChallenges, resetFeedbackCycle } from '../services/challengeService.ts';
 import { checkServerConnectivity, getUserLocation } from '../utils/utils';
 
 function PathPage() {
@@ -29,11 +29,13 @@ function PathPage() {
     fetchUserLocation();
     const locationInterval = setInterval(fetchUserLocation, 60000);
 
-    setChallenges(getChallenges());
+    const fetchedChallenges = getChallenges();
+    setChallenges(fetchedChallenges);
 
-    // Trigger spirit guide transition to small guide
+    // Reset feedback cycle for all challenges when the path is loaded
+    fetchedChallenges.forEach(challenge => resetFeedbackCycle(challenge.id));
+
     setIsSpiritGuideSmall(true);
-    // Trigger text fade-in after spirit guide transition
     const textFadeTimer = setTimeout(() => setTextVisible(true), 700);
 
     return () => {
@@ -43,21 +45,12 @@ function PathPage() {
   }, []);
 
   useEffect(() => {
-    if (userLocation && targetLocation) {
-      const dist = calculateDistance(userLocation, targetLocation);
-      setDistance(dist);
-    }
-  }, [userLocation, targetLocation]);
-
-  useEffect(() => {
     if (challenges.length > 0 && challengeIndex < challenges.length) {
       setCurrentChallenge(challenges[challengeIndex]);
+      // Reset feedback cycle when moving to a new challenge
+      resetFeedbackCycle(challenges[challengeIndex].id);
     }
   }, [challenges, challengeIndex]);
-
-  const calculateDistance = (loc1, loc2) => {
-    // ... (keep the existing calculateDistance function)
-  };
 
   const handleChallengeComplete = (correct) => {
     if (correct) {
@@ -65,25 +58,23 @@ function PathPage() {
     }
   };
 
-  
-
-return (
-  <div className="path-page">
-    <main className="path-content">
-    <h1 className={`path-title ${textVisible ? 'visible' : ''}`}>{pathName}</h1>
+  return (
+    <div className="path-page">
+      <main className="path-content">
+        <h1 className={`path-title ${textVisible ? 'visible' : ''}`}>{pathName}</h1>
         {distance && (
           <p className="distance-notice">Distance to target: {distance.toFixed(2)} km</p>
         )}
-      {currentChallenge && (
-        <Challenge
-          challenge={currentChallenge}
-          onComplete={handleChallengeComplete}
-        />
-      )}
-    </main>
-    <SpiritGuide isSmall={isSpiritGuideSmall} distance={distance} />
-  </div>
-);
+        {currentChallenge && (
+          <Challenge
+            challenge={currentChallenge}
+            onComplete={handleChallengeComplete}
+          />
+        )}
+      </main>
+      <SpiritGuide isSmall={isSpiritGuideSmall} distance={distance} />
+    </div>
+  );
 }
 
 export default PathPage;
