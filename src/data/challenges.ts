@@ -18,7 +18,7 @@ export const challenges: Challenge[] = [
       "The road is known for its steep drops and sharp turns.",
       "The phantom driver may be in a hurry to make their tee time."
     ],
-    completionFeedback: `Congratulations you survived the phantom driver!`,
+    completionFeedback: `You survived the phantom driver!`,
     repeatable: false
   },
   {
@@ -30,7 +30,7 @@ export const challenges: Challenge[] = [
     options: [`An Occurrence at Owl Creek Bridge`, `The Monkey's Paw`, `The Legend of Sleepy Hollow`, `Mezzotint`],
     correctAnswer: 'The Legend of Sleepy Hollow',
     feedbackTexts: {
-      correct: '',
+      correct: 'Your on fire! The Legend of Sleepy Hollow is the correct!',
       incorrect: [
         'Try again!',
         'Keep trying, only two options left!',

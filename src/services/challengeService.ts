@@ -56,6 +56,8 @@ function degToRad(deg: number): number {
 }
 
 export function checkAnswer(challenge: Challenge, answer: any): boolean {
+  console.log("challenge", challenge, " isMultipleChoiceChallenge: ", isMultipleChoiceChallenge(challenge), " isTrueFalseChallenge: ", isTrueFalseChallenge(challenge));
+  console.log("answer", answer);
   if (isStoryChallenge(challenge)) {
     return true; // Stories are always considered "correct"
   }

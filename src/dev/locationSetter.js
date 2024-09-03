@@ -8,6 +8,7 @@ const DevLocationSetter = ({ onLocationSet }) => {
     e.preventDefault();
     const lat = parseFloat(latitude);
     const lng = parseFloat(longitude);
+    console.warn("set lat: ", lat, " lng: ", lng);
     if (!isNaN(lat) && !isNaN(lng)) {
       onLocationSet({ latitude: lat, longitude: lng });
     } else {
