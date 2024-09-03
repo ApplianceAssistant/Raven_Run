@@ -6,14 +6,18 @@ import { handleScroll } from '../utils/utils';
 function About() {
   useEffect(() => {
     // Call handleScroll after the component mounts
-    handleScroll();
+    const contentWrapper = document.querySelector('.spirit-guide-large');
+    const contentHeader = document.querySelector('.contentHeader');
+    const bodyContent = document.querySelector('.bodyContent');
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator);
 
     // Set up the scroll event listener
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator));
 
     // Clean up the event listener when the component unmounts
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator));
     };
   }, []);
   return (

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { checkLocationReached, getNextLocationHint, checkAnswer, getNextIncorrectFeedback } from '../services/challengeService.ts';
+import ScrollableContent from './ScrollableContent';
 
 export const Challenge = ({ challenge, onComplete, userLocation }) => {
   const [feedback, setFeedback] = useState('');
@@ -29,7 +30,9 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
       if (checkLocationReached(challenge, userLocation)) {
         setIsLocationReached(true);
         clearInterval(intervalId);
-        handleTravelComplete();
+        if (challenge.completionFeedback) {
+          setFeedback(challenge.completionFeedback);
+        }
       }
     }, 5000);
 
@@ -51,7 +54,12 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
   };
 
   const handleInputChange = (e) => {
-    setAnswer(e.target.value);
+    let value = e.target.value;
+    // Convert "true" and "false" strings to booleans for trueFalse challenges
+    if (challenge.type === 'trueFalse') {
+      value = value === 'true';
+    }
+    setAnswer(value);
     setFeedback('');
     setIsCorrect(false);
   };
@@ -95,14 +103,23 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
         </div>
       )}
       {hint && <p className="hint">{hint}</p>}
+      {isLocationReached && (
+        <div className="button-container">
+          <button onClick={handleContinue} className="continue-button">Continue</button>
+        </div>
+      )}
     </div>
   );
 
   const renderStoryChallenge = () => (
-    <div>
+    <>
+    <ScrollableContent maxHeight="400px">
       <div className="story-text">{challenge.storyText}</div>
-      <button onClick={handleContinue}>Continue</button>
+    </ScrollableContent>
+    <div className="button-container">
+      <button onClick={handleContinue} className="continue-button">Continue</button>
     </div>
+    </>
   );
 
   const renderMultipleChoiceChallenge = () => (
@@ -128,7 +145,7 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
         <input
           type="radio"
           value="true"
-          checked={answer === "true"}
+          checked={answer === true}
           onChange={handleInputChange}
         />
         True
@@ -137,7 +154,7 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
         <input
           type="radio"
           value="false"
-          checked={answer === "false"}
+          checked={answer === false}
           onChange={handleInputChange}
         />
         False

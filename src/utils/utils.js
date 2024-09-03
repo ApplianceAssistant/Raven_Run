@@ -5,11 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandPointUp, faHandPointDown, faHandsUpDown } from '@fortawesome/free-solid-svg-icons';
 
 //function to detect the need for content scrolling
-export function handleScroll() {
-  const contentWrapper = document.querySelector('.spirit-guide-large');
-  const contentHeader = document.querySelector('.contentHeader');
-  const bodyContent = document.querySelector('.bodyContent');
-  const scrollIndicator = document.querySelector('.scroll-indicator');
+export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator) {
   
   if (contentWrapper && contentHeader && bodyContent && scrollIndicator) {
     const isScrollable = bodyContent.scrollHeight > bodyContent.clientHeight;

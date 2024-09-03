@@ -52,7 +52,7 @@ export const challenges: Challenge[] = [
         'A sanatorium is actually a facility for treating long-term illnesses and convalescence care, not necessarily mental illness.',
       ]
     },
-    repeatable: true
+    repeatable: false
   },
   {
     id: '3',
