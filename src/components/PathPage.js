@@ -71,7 +71,7 @@ return (
   <div className="path-page">
     <main className="path-content">
     <h1 className={`path-title ${textVisible ? 'visible' : ''}`}>{pathName}</h1>
-        {distance !== null && (
+        {distance && (
           <p className="distance-notice">Distance to target: {distance.toFixed(2)} km</p>
         )}
       {currentChallenge && (

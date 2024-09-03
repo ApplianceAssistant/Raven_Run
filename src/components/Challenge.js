@@ -27,7 +27,7 @@ export const Challenge = ({ challenge, onComplete }) => {
     e.preventDefault();
     const correct = checkAnswer(challenge, answer);
     setFeedback(correct ? challenge.feedbackTexts.correct : getRandomIncorrectFeedback(challenge));
-    
+
     // Delay onComplete for correct answers
     if (correct) {
       setTimeout(() => onComplete(correct), 2000);  // 2-second delay
@@ -59,7 +59,7 @@ export const Challenge = ({ challenge, onComplete }) => {
             </label>
           ))
         )}
-        {challenge.type === 'latLong' && (
+        {challenge.type === 'trueFalse' && (
           <>
             <input
               type="number"
