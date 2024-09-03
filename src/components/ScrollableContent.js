@@ -33,9 +33,6 @@ const ScrollableContent = ({ children, maxHeight = '300px', className = '' }) =>
 
   return (
     <div ref={contentWrapperRef} className={`scrollable-content ${className}`}>
-      <div ref={contentHeaderRef} className="contentHeader">
-        {/* You can add a header here if needed */}
-      </div>
       <div 
         ref={bodyContentRef}
         className="bodyContent" 

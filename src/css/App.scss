@@ -95,8 +95,8 @@ body {
 }
 
 .contentHeader {
-  padding: 10px 0;
-  line-height: 1.1;
+  padding-bottom: 20px;
+  line-height: 1;
   z-index: 2;
   transition: all 0.3s ease;
 }
@@ -175,6 +175,42 @@ body {
   animation: verticalShake 1s ease-in-out infinite;
 }
 
+.story-challenge {
+  position: relative;
+
+  .story-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .5rem;
+  }
+
+  .text-to-speech {
+    display: flex;
+    align-items: center;
+
+    .speak-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: $text-color;
+      margin-right: 0.5rem;
+
+      &:hover {
+        color: darken($text-color, 15%);
+      }
+    }
+
+    select {
+      padding: 0.3rem;
+      border-radius: 4px;
+      background-color: $dark-bg;
+      color: $text-color;
+      border: 1px solid $text-color;
+    }
+  }
+}
 // Button styles
 button {
   padding: 10px 30px;
@@ -534,5 +570,7 @@ form {
 }
 
 .button-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
   display: flex;
 }

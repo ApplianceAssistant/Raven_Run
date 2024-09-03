@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { checkLocationReached, getNextLocationHint, checkAnswer, getNextIncorrectFeedback } from '../services/challengeService.ts';
 import ScrollableContent from './ScrollableContent';
+import TextToSpeech from './TextToSpeech';
 
 export const Challenge = ({ challenge, onComplete, userLocation }) => {
   const [feedback, setFeedback] = useState('');
@@ -112,14 +113,14 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
   );
 
   const renderStoryChallenge = () => (
-    <>
-    <ScrollableContent maxHeight="400px">
-      <div className="story-text">{challenge.storyText}</div>
-    </ScrollableContent>
-    <div className="button-container">
-      <button onClick={handleContinue} className="continue-button">Continue</button>
+    <div className="story-challenge">
+      <ScrollableContent maxHeight="400px">
+        <div className="story-text">{challenge.storyText}</div>
+      </ScrollableContent>
+      <div className="button-container">
+        <button onClick={handleContinue}>Continue</button>
+      </div>
     </div>
-    </>
   );
 
   const renderMultipleChoiceChallenge = () => (
@@ -187,8 +188,9 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
   return (
     <div className={`challengeBody ${textVisible ? 'visible' : ''}`}>
       <h2>{challenge.title}</h2>
-      <p className="challenge-description">{challenge.description}</p>
-      <p className="challenge-question">{challenge.question}</p>
+      {challenge.type === 'story' && <TextToSpeech text={challenge.storyText} />}
+      {challenge.description && <p className="challenge-description">{challenge.description}</p>}
+      {challenge.question && <p className="challenge-question">{challenge.question}</p>}
       {renderChallenge()}
       <p className={`feedback ${feedback ? 'visible' : ''} ${isCorrect ? 'green' : ''}`}>{feedback}</p>
     </div>
