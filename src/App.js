@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './components/Home';
@@ -7,58 +7,64 @@ import Contact from './components/Contact';
 import CreateAccount from './components/CreateAccount';
 import Lobby from './components/Lobby';
 import PathPage from './components/PathPage';
+import DevLocationSetter from './dev/locationSetter';
+import { getUserLocation } from './utils/utils';
 import './css/App.scss';
 import './css/SpiritGuide.scss';
-import { handleScroll } from './utils/utils';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [useDevLocation, setUseDevLocation] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const fetchUserLocation = useCallback(async () => {
+    try {
+      const location = await getUserLocation();
+      setUserLocation(location);
+    } catch (error) {
+      console.error("Error getting user location:", error);
+      // Attempt to retrieve location from localStorage as a fallback
+      const storedLocation = localStorage.getItem('userLocation');
+      if (storedLocation) {
+        setUserLocation(JSON.parse(storedLocation));
+      }
+    }
+  }, []);
+
   useEffect(() => {
-    // Toggle body class when menu opens/closes
-    if (isMenuOpen) {
-      document.body.classList.add('menu-open');
+    let locationInterval;
+    console.warn("useDevLocation: ", useDevLocation);
+    if (useDevLocation) {
+      fetchUserLocation();
+      locationInterval = setInterval(fetchUserLocation, 60000);
+    }
+
+    return () => {
+      if (locationInterval) clearInterval(locationInterval);
+    };
+  }, [useDevLocation, fetchUserLocation]);
+
+  const handleDevLocationSet = (location) => {
+    setUserLocation(location);
+    localStorage.setItem('userLocation', JSON.stringify(location));
+  };
+
+  const toggleDevMode = () => {
+    setUseDevLocation(!useDevLocation);
+    if (!useDevLocation) {
+      // Switching to real location mode
+      setUserLocation(null);
+      localStorage.removeItem('userLocation');
+      fetchUserLocation(); // Immediately fetch the real location
     } else {
-      document.body.classList.remove('menu-open');
+      // Switching to dev location mode
+      setUserLocation(null); // Reset location when switching to dev mode
     }
-
-    // Cleanup function to remove class when component unmounts
-    return () => {
-      document.body.classList.remove('menu-open');
-    };
-  }, [isMenuOpen]);
-
-  useEffect(() => {
-    // Create moving background elements
-    const movingBackground = document.createElement('div');
-    movingBackground.className = 'moving-background';
-    for (let i = 0; i < 20; i++) {
-      const element = document.createElement('div');
-      element.className = 'moving-element';
-      element.style.left = `${Math.random() * 100}%`;
-      element.style.top = `${Math.random() * 100}%`;
-
-      element.style.animationDelay = `${Math.random() * 7}s`;
-      movingBackground.appendChild(element);
-    }
-    document.body.appendChild(movingBackground);
-
-    return () => {
-      document.body.removeChild(movingBackground);
-    };
-  }, []);
-
-  useEffect(() => {
-    const bodyContent = document.querySelector('.bodyContent');
-    if(!bodyContent) return;
-    bodyContent.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial check
-    return () => bodyContent.removeEventListener('scroll', handleScroll);
-  }, []);
+  };
 
   return (
     <Router>
@@ -71,9 +77,17 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/create-account" element={<CreateAccount />} />
             <Route path="/lobby" element={<Lobby />} />
-            <Route path="/path/:pathName" element={<PathPage />} />
+            <Route path="/path/:pathName" element={<PathPage userLocation={userLocation} />} />
           </Routes>
         </main>
+        {process.env.NODE_ENV === 'development' && (
+          <div className="dev-tools">
+            <button onClick={toggleDevMode} className="dev-toggle-btn">
+              {useDevLocation ? 'Use Real Location' : 'Use Dev Location'}
+            </button>
+            {useDevLocation && <DevLocationSetter onLocationSet={handleDevLocationSet} />}
+          </div>
+        )}
       </div>
     </Router>
   );

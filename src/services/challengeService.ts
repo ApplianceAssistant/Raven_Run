@@ -26,13 +26,19 @@ export function resetHintCycle(challengeId: string): void {
 
 export function checkLocationReached(challenge: Challenge, userLocation: {latitude: number, longitude: number}): boolean {
   if (isTravelChallenge(challenge)) {
-    const distance = calculateDistance(userLocation, challenge.targetLocation);
+    const distance = calculateDistance(userLocation, challenge.targetLocation) || false;
+    if(distance === false) {
+      return false;
+    }
     return distance <= challenge.radius;
   }
   return false;
 }
 
 function calculateDistance(loc1: {latitude: number, longitude: number}, loc2: {latitude: number, longitude: number}): number {
+  if(!loc1 || !loc2) {
+    return 0;
+  }
   const R = 6371; // Radius of the Earth in kilometers
   const dLat = degToRad(loc2.latitude - loc1.latitude);
   const dLon = degToRad(loc2.longitude - loc1.longitude);

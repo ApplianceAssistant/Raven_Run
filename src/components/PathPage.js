@@ -5,9 +5,8 @@ import { Challenge } from './Challenge';
 import { getChallenges, resetFeedbackCycle } from '../services/challengeService.ts';
 import { checkServerConnectivity, getUserLocation } from '../utils/utils';
 
-function PathPage() {
+function PathPage({ userLocation }) {
   const { pathName } = useParams();
-  const [userLocation, setUserLocation] = useState(null);
   const [targetLocation, setTargetLocation] = useState({ latitude: 0, longitude: 0 });
   const [distance, setDistance] = useState(null);
   const [isSpiritGuideSmall, setIsSpiritGuideSmall] = useState(false);
@@ -17,29 +16,15 @@ function PathPage() {
   const [textVisible, setTextVisible] = useState(false);
 
   useEffect(() => {
-    const fetchUserLocation = async () => {
-      try {
-        const location = await getUserLocation();
-        setUserLocation(location);
-      } catch (error) {
-        console.error("Error getting user location:", error);
-      }
-    };
-
-    fetchUserLocation();
-    const locationInterval = setInterval(fetchUserLocation, 60000);
-
     const fetchedChallenges = getChallenges();
     setChallenges(fetchedChallenges);
 
-    // Reset feedback cycle for all challenges when the path is loaded
     fetchedChallenges.forEach(challenge => resetFeedbackCycle(challenge.id));
 
     setIsSpiritGuideSmall(true);
     const textFadeTimer = setTimeout(() => setTextVisible(true), 700);
 
     return () => {
-      clearInterval(locationInterval);
       clearTimeout(textFadeTimer);
     };
   }, []);
@@ -47,7 +32,6 @@ function PathPage() {
   useEffect(() => {
     if (challenges.length > 0 && challengeIndex < challenges.length) {
       setCurrentChallenge(challenges[challengeIndex]);
-      // Reset feedback cycle when moving to a new challenge
       resetFeedbackCycle(challenges[challengeIndex].id);
     }
   }, [challenges, challengeIndex]);
@@ -69,6 +53,7 @@ function PathPage() {
           <Challenge
             challenge={currentChallenge}
             onComplete={handleChallengeComplete}
+            userLocation={userLocation}
           />
         )}
       </main>
