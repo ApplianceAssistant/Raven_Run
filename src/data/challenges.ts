@@ -30,7 +30,7 @@ export const challenges: Challenge[] = [
     options: [`An Occurrence at Owl Creek Bridge`, `The Monkey's Paw`, `The Legend of Sleepy Hollow`, `Mezzotint`],
     correctAnswer: 'The Legend of Sleepy Hollow',
     feedbackTexts: {
-      correct: 'Your on fire! The Legend of Sleepy Hollow is the correct!',
+      correct: 'Correct! The Legend of Sleepy Hollow is correct!',
       incorrect: [
         'Try again!',
         'Keep trying, only two options left!',
@@ -47,7 +47,7 @@ export const challenges: Challenge[] = [
     question:'A Sanatorium is a facility for treating mental illness.',
     correctAnswer: false,
     feedbackTexts: {
-      correct: `No tricking you! A sanatorium is actually a facility for treating long-term illnesses and convalescence care, not mental illness.`,
+      correct: `Correct! A sanatorium is actually a facility for treating long-term illnesses and convalescence care, not mental illness.`,
       incorrect: [
         'A sanatorium is actually a facility for treating long-term illnesses and convalescence care, not necessarily mental illness.',
       ]
@@ -66,6 +66,24 @@ export const challenges: Challenge[] = [
     "Do you see the butterflies? They're so beautiful..."
     With those words, Lily's eyes closed for the last time, her struggle finally at an end. The nurse brushed away a tear, hoping that wherever Lily had gone, it was indeed filled with beautiful butterflies, far from the pain and suffering of Waverly Hills.`,
     repeatable: false
+  },
+  {
+    id: '4',
+    type: 'multipleChoice',
+    title: 'How well did you pay attention?',
+    description: ``,
+    question: `Who did Lily call to in her last moments?`,
+    options: [`God`, `Her favorite doctor`, `Her mother`, `Favorite Nurse`],
+    correctAnswer: 'Favorite Nurse',
+    feedbackTexts: {
+      correct: 'Correct! Her favorite nurse!',
+      incorrect: [
+        'Try again!',
+        'Keep trying, only two options left!',
+        `Nope, surely you will get it this time!`,
+      ]
+    },
+    repeatable: true
   },
   // Add more challenges here...
 ];

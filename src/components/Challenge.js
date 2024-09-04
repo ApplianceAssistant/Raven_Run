@@ -68,8 +68,15 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const correct = checkAnswer(challenge, answer);
-    setFeedback(correct ? challenge.feedbackTexts.correct : getNextIncorrectFeedback(challenge));
     setIsCorrect(correct);
+    const feedbackText = correct ? challenge.feedbackTexts.correct : getNextIncorrectFeedback(challenge);
+    setFeedback(feedbackText);
+    
+    if (!challenge.repeatable && correct === false) {
+      // For non-repeatable challenges or trueFalse, always show feedback and enable continuing
+      console.log("wrong but we are moving on");
+      //setIsFeedbackVisible(true);
+    }
   };
 
   const handleContinue = () => {
@@ -177,7 +184,7 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
 
   const renderActionButton = () => (
     <div className="button-container">
-      {isCorrect ? (
+      {(isCorrect || !challenge.repeatable || (challenge.type === 'trueFalse' && feedback)) ? (
         <button onClick={handleContinue} className="continue-button">Continue</button>
       ) : (
         <button type="submit" className="submit-button">Submit</button>
