@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLongArrowUp, faLongArrowDown, faArrowsV } from '@fortawesome/free-solid-svg-icons';
 
 function CreateAccount() {
   const [username, setUsername] = useState('');
@@ -20,9 +22,9 @@ function CreateAccount() {
 
   return (
     <div className="content-wrapper">
-      <div className="oval-content">
-        <div className="create-account-content">
-          <h2>Create an Account</h2>
+      <div className="spirit-guide-large">
+        <div className="bodyContent center">
+          <h1>Gather Your Courage</h1>
           <form onSubmit={handleSubmit}>
             <div>
               <label htmlFor="username">Username:</label>
@@ -44,7 +46,7 @@ function CreateAccount() {
                 required
               />
             </div>
-            <button type="submit">Create Account</button>
+            <button type="submit">Pledge</button>
           </form>
         </div>
       </div>

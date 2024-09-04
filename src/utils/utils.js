@@ -1,6 +1,43 @@
 // src/utils/utils.js
 
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHandPointUp, faHandPointDown, faHandsUpDown } from '@fortawesome/free-solid-svg-icons';
+
+//function to detect the need for content scrolling
+export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator) {
+  
+  if (contentWrapper && contentHeader && bodyContent && scrollIndicator) {
+    const isScrollable = bodyContent.scrollHeight > bodyContent.clientHeight;
+    const isScrolledToTop = bodyContent.scrollTop === 0;
+    const isScrolledToBottom = bodyContent.scrollTop + bodyContent.clientHeight >= bodyContent.scrollHeight - 20;
+    
+    // Handle fixed header
+    if (isScrollable && bodyContent.scrollTop > 0) {
+      contentHeader.classList.add('fixed');
+    } else {
+      contentHeader.classList.remove('fixed');
+    }
+    
+    // Handle scroll indicator
+    if (isScrollable) {
+      scrollIndicator.classList.add('visible');
+      const arrows = scrollIndicator.querySelectorAll('.arrow');
+      
+      arrows.forEach(arrow => arrow.classList.remove('active'));
+      
+      if (isScrolledToTop) {
+        scrollIndicator.querySelector('.arrow.down').classList.add('active');
+      } else if (isScrolledToBottom) {
+        scrollIndicator.querySelector('.arrow.up').classList.add('active');
+      } else {
+        scrollIndicator.querySelector('.arrow.updown').classList.add('active');
+      }
+    } else {
+      scrollIndicator.classList.remove('visible');
+    }
+  }
+}
 
 // Function to get user's location
 export const getUserLocation = () => {
