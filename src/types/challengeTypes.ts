@@ -26,6 +26,7 @@ interface StoryChallenge extends BaseChallenge {
 interface MultipleChoiceChallenge extends BaseChallenge {
   type: 'multipleChoice';
   options: string[];
+  hints: string[]; // Array of hints to help find the location
   correctAnswer: string;
   feedbackTexts: FeedbackTexts;
 }
@@ -53,7 +54,7 @@ interface TravelChallenge extends BaseChallenge {
   };
   radius: number; // in meters
   question: string;
-  locationHints: string[]; // Array of hints to help find the location
+  hints: string[]; // Array of hints to help find the location
   completionFeedback: string; // Feedback shown when the location is reached
   repeatable: boolean;
 }

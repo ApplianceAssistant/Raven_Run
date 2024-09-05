@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import SpiritGuide from './SpiritGuide';
 import { Challenge } from './Challenge';
-import { getChallenges, resetFeedbackCycle } from '../services/challengeService.ts';
-import { checkServerConnectivity, getUserLocation } from '../utils/utils';
+import { getChallenges, getPathName, resetFeedbackCycle } from '../services/challengeService.ts';
+import { checkServerConnectivity, getUserLocation, calculateDistance } from '../utils/utils.js';
 
 function PathPage({ userLocation }) {
-  const { pathName } = useParams();
-  const [targetLocation, setTargetLocation] = useState({ latitude: 0, longitude: 0 });
+  const { pathId } = useParams();
+  const [pathName, setPathName] = useState('');
+  const [targetLocation, setTargetLocation] = useState(null);
   const [distance, setDistance] = useState(null);
   const [isSpiritGuideSmall, setIsSpiritGuideSmall] = useState(false);
   const [currentChallenge, setCurrentChallenge] = useState(null);
@@ -16,8 +17,10 @@ function PathPage({ userLocation }) {
   const [textVisible, setTextVisible] = useState(false);
 
   useEffect(() => {
-    const fetchedChallenges = getChallenges();
+    const numericPathId = parseInt(pathId, 10);
+    const fetchedChallenges = getChallenges(numericPathId);
     setChallenges(fetchedChallenges);
+    setPathName(getPathName(numericPathId));
 
     fetchedChallenges.forEach(challenge => resetFeedbackCycle(challenge.id));
 
@@ -27,27 +30,54 @@ function PathPage({ userLocation }) {
     return () => {
       clearTimeout(textFadeTimer);
     };
-  }, []);
+  }, [pathId]);
 
   useEffect(() => {
     if (challenges.length > 0 && challengeIndex < challenges.length) {
-      setCurrentChallenge(challenges[challengeIndex]);
-      resetFeedbackCycle(challenges[challengeIndex].id);
+      const challenge = challenges[challengeIndex];
+      setCurrentChallenge(challenge);
+      resetFeedbackCycle(challenge.id);
+      if (challenge.type === 'travel' && challenge.targetLocation) {
+        setTargetLocation(challenge.targetLocation);
+      }
     }
   }, [challenges, challengeIndex]);
+
+  useEffect(() => {
+    console.warn("User location: ", userLocation , " Target location: ", targetLocation);
+    if (userLocation && targetLocation) {
+      const distanceInMeters = calculateDistance(userLocation, targetLocation);
+      const distanceInMiles = (distanceInMeters / 1609.344).toFixed(2);
+      const distanceInKilometers = (distanceInMeters / 1000).toFixed(2);
+      if (distanceInMiles >= 0.1) {
+        // If distance is 0.1 miles or more, display in miles
+        setDistance({
+          value: distanceInMiles,
+          unit: 'miles'
+        });
+      } else {
+        // If distance is less than 0.1 miles, display in feet
+        const distanceInFeet = (distanceInMiles * 5280).toFixed(2);
+        setDistance({
+          value: Math.round(distanceInFeet),
+          unit: 'feet'
+        });
+      }
+    }
+  }, [userLocation, targetLocation]);
 
   const handleChallengeComplete = (correct) => {
     if (correct) {
       setChallengeIndex(prevIndex => prevIndex + 1);
     }
   };
-
+  console.log("distance: ", distance);
   return (
     <div className="path-page">
       <main className="path-content">
         <h1 className={`path-title ${textVisible ? 'visible' : ''}`}>{pathName}</h1>
-        {distance && (
-          <p className="distance-notice">Distance to target: {distance.toFixed(2)} km</p>
+        {distance !== null && (
+          <p className="distance-notice">Distance to target: {distance.value} {distance.unit}</p>
         )}
         {currentChallenge && (
           <Challenge

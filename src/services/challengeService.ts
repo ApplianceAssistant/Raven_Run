@@ -1,20 +1,30 @@
-import { Challenge, isStoryChallenge, isMultipleChoiceChallenge, isTrueFalseChallenge, isTravelChallenge  } from '../types/challengeTypes.ts';
-import { challenges } from '../data/challenges.ts';
+import { Challenge, isStoryChallenge, isMultipleChoiceChallenge, isTrueFalseChallenge, isTravelChallenge  } from '../types/challengeTypes';
+import { calculateDistance } from '../utils/utils';
+import { paths } from '../data/challenges';
 
-export function getChallenges() {
-  // This function remains unchanged
-  // It should return the challenges from your data source
-  return challenges;
+export function getPath(pathId: number) {
+  return paths.find(path => path.id === pathId);
+}
+
+export function getChallenges(pathId: number): Challenge[] {
+  const path = getPath(pathId);
+  return path ? path.challenges : [];
+}
+
+export function getPathName(pathId: number): string {
+  const path = getPath(pathId);
+  //return unknown path and back to loby button
+  return path ? path.name : 'Unknown Path';
 }
 
 const hintIndexMap = new Map<string, number>();
 
 export function getNextLocationHint(challenge: Challenge): string {
-  if (isTravelChallenge(challenge) && challenge.locationHints.length > 0) {
+  if (isTravelChallenge(challenge) && challenge.hints.length > 0) {
     let hintIndex = hintIndexMap.get(challenge.id) ?? -1;
-    hintIndex = (hintIndex + 1) % challenge.locationHints.length;
+    hintIndex = (hintIndex + 1) % challenge.hints.length;
     hintIndexMap.set(challenge.id, hintIndex);
-    return challenge.locationHints[hintIndex];
+    return challenge.hints[hintIndex];
   }
   return "No hints available.";
 }
@@ -23,41 +33,22 @@ export function resetHintCycle(challengeId: string): void {
   hintIndexMap.delete(challengeId);
 }
 
+
+
 export function checkLocationReached(challenge: Challenge, userLocation: {latitude: number, longitude: number}): boolean {
-  if (isTravelChallenge(challenge)) {
-    const distance = calculateDistance(userLocation, challenge.targetLocation) || false;
-    if(distance === false) {
-      return false;
-    }
-    return distance <= challenge.radius;
+  if (!isTravelChallenge(challenge) || !challenge.targetLocation || !challenge.radius) {
+    return false;
   }
-  return false;
-}
 
-function calculateDistance(loc1: {latitude: number, longitude: number}, loc2: {latitude: number, longitude: number}): number {
-  if(!loc1 || !loc2) {
-    return 0;
+  if (!userLocation || typeof userLocation.latitude !== 'number' || typeof userLocation.longitude !== 'number') {
+    return false;
   }
-  const R = 6371; // Radius of the Earth in kilometers
-  const dLat = degToRad(loc2.latitude - loc1.latitude);
-  const dLon = degToRad(loc2.longitude - loc1.longitude);
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(degToRad(loc1.latitude)) * Math.cos(degToRad(loc2.latitude)) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  const distance = R * c; // Distance in kilometers
-  return distance * 1000; // Convert to meters
-}
 
-function degToRad(deg: number): number {
-  return deg * (Math.PI/180);
+  const distance = calculateDistance(userLocation, challenge.targetLocation);
+  return distance <= challenge.radius;
 }
 
 export function checkAnswer(challenge: Challenge, answer: any): boolean {
-  console.log("challenge", challenge, " isMultipleChoiceChallenge: ", isMultipleChoiceChallenge(challenge), " isTrueFalseChallenge: ", isTrueFalseChallenge(challenge));
-  console.log("answer", answer);
-
   if (isStoryChallenge(challenge)) {
     return true; // Stories are always considered "correct"
   }
@@ -111,4 +102,10 @@ export function canDisplayChallenge(challenge: Challenge, hasBeenDisplayed: bool
   return true; // Non-story challenges can always be displayed
 }
 
+export default {
+  checkLocationReached,
+  getNextLocationHint,
+  checkAnswer,
+  getNextIncorrectFeedback
+};
 // You can add more functions here as needed for challenge management

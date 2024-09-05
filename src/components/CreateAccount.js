@@ -26,7 +26,7 @@ function CreateAccount() {
         <div className="bodyContent center">
           <h1>Gather Your Courage</h1>
           <form onSubmit={handleSubmit}>
-            <div>
+            <div className="account-field">
               <label htmlFor="username">Username:</label>
               <input
                 type="text"
@@ -36,7 +36,7 @@ function CreateAccount() {
                 required
               />
             </div>
-            <div>
+            <div className="account-field">
               <label htmlFor="password">Password:</label>
               <input
                 type="password"
@@ -46,7 +46,7 @@ function CreateAccount() {
                 required
               />
             </div>
-            <button type="submit">Pledge</button>
+            <button type="submit">Create Account</button>
           </form>
         </div>
       </div>
