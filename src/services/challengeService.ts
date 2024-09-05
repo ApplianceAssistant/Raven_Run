@@ -10,7 +10,6 @@ export function getChallenges() {
 const hintIndexMap = new Map<string, number>();
 
 export function getNextLocationHint(challenge: Challenge): string {
-  console.log("challenge", challenge);
   if (isTravelChallenge(challenge) && challenge.locationHints.length > 0) {
     let hintIndex = hintIndexMap.get(challenge.id) ?? -1;
     hintIndex = (hintIndex + 1) % challenge.locationHints.length;
