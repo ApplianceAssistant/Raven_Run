@@ -97,3 +97,23 @@ export const startLocationUpdates = (interval = 300000) => { // Default: update 
 export const stopLocationUpdates = (intervalId) => {
   clearInterval(intervalId);
 };
+
+export function calculateDistance(loc1, loc2) {
+  if(!loc1 || !loc2) {
+    return 0;
+  }
+  const R = 6371; // Radius of the Earth in kilometers
+  const dLat = degToRad(loc2.latitude - loc1.latitude);
+  const dLon = degToRad(loc2.longitude - loc1.longitude);
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(degToRad(loc1.latitude)) * Math.cos(degToRad(loc2.latitude)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c; // Distance in kilometers
+  return distance * 1000; // Convert to meters
+}
+
+function degToRad(deg) {
+  return deg * (Math.PI/180);
+}

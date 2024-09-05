@@ -28,7 +28,7 @@ function App() {
     
     const elements = [];
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 15; i++) {
       const element = document.createElement('div');
       element.className = 'moving-element';
       
@@ -37,7 +37,7 @@ function App() {
       element.style.top = `${Math.random() * 100}%`;
       
       // Set random animation delays
-      element.style.animationDelay = `${Math.random() * 10}s`;
+      element.style.animationDelay = `${Math.random() * 20}s`;
       element.style.animationDuration = `${Math.random() * 4 + 6}s`; // 6-10s duration
       
       movingBackground.appendChild(element);
@@ -107,7 +107,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/create-account" element={<CreateAccount />} />
             <Route path="/lobby" element={<Lobby />} />
-            <Route path="/path/:pathName" element={<PathPage userLocation={userLocation} />} />
+            <Route path="/path/:pathId" element={<PathPage userLocation={userLocation} />} />
           </Routes>
         </main>
         {process.env.NODE_ENV === 'development' && (
