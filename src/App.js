@@ -67,12 +67,10 @@ function App() {
 
   useEffect(() => {
     let locationInterval;
-    console.warn("useDevLocation: ", useDevLocation);
-    if (useDevLocation) {
+    if (!useDevLocation) {
       fetchUserLocation();
-      locationInterval = setInterval(fetchUserLocation, 60000);
+      locationInterval = setInterval(fetchUserLocation, 15000);
     }
-
     return () => {
       if (locationInterval) clearInterval(locationInterval);
     };
