@@ -9,6 +9,9 @@
 #vscode files
 .vscode/
 
+#.env files
+.env
+
 # Testing directories
 /coverage
 

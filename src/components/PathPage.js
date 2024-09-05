@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import SpiritGuide from './SpiritGuide';
 import { Challenge } from './Challenge';
 import { getChallenges, getPathName, resetFeedbackCycle } from '../services/challengeService.ts';
-import { checkServerConnectivity, getUserLocation, calculateDistance } from '../utils/utils.js';
+import { getUserLocation, calculateDistance } from '../utils/utils.js';
 
 function PathPage({ userLocation }) {
   const { pathId } = useParams();
@@ -15,6 +15,7 @@ function PathPage({ userLocation }) {
   const [challenges, setChallenges] = useState([]);
   const [challengeIndex, setChallengeIndex] = useState(0);
   const [textVisible, setTextVisible] = useState(false);
+
 
   useEffect(() => {
     const numericPathId = parseInt(pathId, 10);
