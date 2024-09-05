@@ -40,15 +40,6 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
     return () => clearInterval(intervalId);
   };
 
-  const handleTravelComplete = () => {
-    if (challenge.completionFeedback) {
-      setFeedback(challenge.completionFeedback);
-      setIsCorrect(true);
-    } else {
-      handleContinue();
-    }
-  };
-
   const handleGetHint = () => {
     const newHint = getNextLocationHint(challenge);
     setHint(newHint);
@@ -71,7 +62,7 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
     setIsCorrect(correct);
     const feedbackText = correct ? challenge.feedbackTexts.correct : getNextIncorrectFeedback(challenge);
     setFeedback(feedbackText);
-    
+
     if (!challenge.repeatable && correct === false) {
       // For non-repeatable challenges or trueFalse, always show feedback and enable continuing
       console.log("wrong but we are moving on");
@@ -209,7 +200,10 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
     <div className={`challengeBody ${textVisible ? 'visible' : ''}`}>
       <h2>{challenge.title}</h2>
       {challenge.type === 'story' && <TextToSpeech text={challenge.storyText} />}
-      {challenge.description && <p className="challenge-description">{challenge.description}</p>}
+      {challenge.type === 'travel' && <TextToSpeech text={challenge.description} />}
+      <ScrollableContent maxHeight="400px">
+        {challenge.description && <p className="challenge-description">{challenge.description}</p>}
+      </ScrollableContent>
       {challenge.question && <p className="challenge-question">{challenge.question}</p>}
       {renderChallenge()}
       <p className={`feedback ${feedback ? 'visible' : ''} ${isCorrect ? 'green' : ''}`}>{feedback}</p>

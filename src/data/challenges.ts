@@ -32,7 +32,7 @@ What am I?`,
   {
     id: '1',
     type: 'travel',
-    title: 'Silent Knowledge',
+    title: 'Herbal Wards Needed',
     description: `In Simpsonville, where stories unfold,
 Stands a cottage, quaint and old.
 Its walls are white as morning frost,
