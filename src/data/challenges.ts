@@ -4,25 +4,68 @@ export const challenges: Challenge[] = [
   {
     id: '0',
     type: 'travel',
-    title: 'Road Trip To Oblivion',
-    description: `Keep a close eye on your rearview mirror. It is well known by Louisville residents that a phantom driver frequents this area, pursuing travelers and attempting to force them off the more than thirty-foot drop to their deaths and into eternity.`,
-    question: `Discover the name of the road that is said to be haunted by a phantom driver?`,
+    title: 'Silent Knowledge',
+    description: `I'm a silent forest of knowledge,
+Where whispers echo through time.
+My branches hold countless stories,
+Yet I never speak a rhyme.
+I'm guarded by patient keepers,
+Who help explorers find their way.
+My treasures are freely borrowed,
+But must return another day.
+What am I?`,
+    question: `Travel to the location described in the riddle.`,
     targetLocation: {
-      latitude: 38.3628781,
-      longitude: -85.5354653
+      latitude: 38.2123131,
+      longitude: -85.2201708
     },
     radius: 1000,
     locationHints: [
-      "This road is located near Prospect, Kentucky.",
-      "It shares its name with a famous ghost story.",
-      "The road is known for its steep drops and sharp turns.",
-      "The phantom driver may be in a hurry to make their tee time."
+      "My inhabitants are often spine-chilling.",
+      "I'm a place where you can travel the world without moving your feet",
+      "My visitors often judge my contents by their covers.",
+      "I'm home to both fact and fiction, side by side."
     ],
-    completionFeedback: `You survived the phantom driver!`,
+    completionFeedback: `Excellent deduction! Your keen insight will be invaluable on your journey to the haunted road.`,
     repeatable: false
   },
   {
     id: '1',
+    type: 'travel',
+    title: 'Silent Knowledge',
+    description: `In Simpsonville, where stories unfold,
+Stands a cottage, quaint and old.
+Its walls are white as morning frost,
+In lavender fields, it seems lost.
+Windows wink with candlelight,
+Scenting dreams throughout the night.
+A humble abode with magic inside,
+Where herbal wonders do reside.
+Thyme passes slowly 'round its door,
+Sage whispers secrets from days of yore.
+But one bloom rules this aromatic bower,
+Lending its name and mystic power.
+Not grand in size, yet great in fame,
+Two adjectives and a flower form its name.
+What am I, this enchanted dwelling,
+Where purple magic is always swelling?`,
+    question: `Travel to the location described in the riddle.`,
+    targetLocation: {
+      latitude: 38.2216154,
+      longitude: -85.344623
+    },
+    radius: 1000,
+    locationHints: [
+      "My name suggests a modest hill, though I'm flat on the ground.",
+      "Butterflies mistake me for a fragrant bloom in the town.",
+      "Bees buzz around me, thinking I'm part of their lavender store.",
+      "My color is reminiscent of clouds, not the flower I'm named for."
+    ],
+    completionFeedback: `You've proven yourself a true master of magical dwellings and herbal enigmas.`,
+    repeatable: false
+  },
+  {
+    id: '2',
     type: 'multipleChoice',
     title: 'What is the name of the haunted road?',
     description: ``,
@@ -40,11 +83,11 @@ export const challenges: Challenge[] = [
     repeatable: true
   },
   {
-    id: '2',
+    id: '3',
     type: 'trueFalse',
     title: 'Waverly Hills Sanatorium',
     description: '',
-    question:'A Sanatorium is a facility for treating mental illness.',
+    question: 'A Sanatorium is a facility for treating mental illness.',
     correctAnswer: false,
     feedbackTexts: {
       correct: `Correct! A sanatorium is actually a facility for treating long-term illnesses and convalescence care, not mental illness.`,
@@ -55,7 +98,7 @@ export const challenges: Challenge[] = [
     repeatable: false
   },
   {
-    id: '3',
+    id: '4',
     type: 'story',
     title: 'The Haunting of Waverly Hills',
     description: '',
@@ -68,7 +111,7 @@ export const challenges: Challenge[] = [
     repeatable: false
   },
   {
-    id: '4',
+    id: '5',
     type: 'multipleChoice',
     title: 'How well did you pay attention?',
     description: ``,

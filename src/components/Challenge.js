@@ -86,6 +86,19 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
     }, 500);
   };
 
+  const handleSkip = () => {
+    setTextVisible(false);
+    setTimeout(() => {
+      onComplete(true);
+    }, 500);
+  };
+
+  const renderSkipButton = () => (
+    <div className="button-container">
+      <button onClick={handleSkip} className="skip-button">Skip Challenge</button>
+    </div>
+  );
+
   const renderChallenge = () => {
     switch (challenge.type) {
       case 'travel':
@@ -200,6 +213,7 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
       {challenge.question && <p className="challenge-question">{challenge.question}</p>}
       {renderChallenge()}
       <p className={`feedback ${feedback ? 'visible' : ''} ${isCorrect ? 'green' : ''}`}>{feedback}</p>
+      {renderSkipButton()}
     </div>
   );
 };

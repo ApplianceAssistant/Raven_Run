@@ -21,6 +21,36 @@ function App() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  useEffect(() => {
+    // Create moving background elements
+    const movingBackground = document.createElement('div');
+    movingBackground.className = 'moving-background';
+    
+    const elements = [];
+
+    for (let i = 0; i < 20; i++) {
+      const element = document.createElement('div');
+      element.className = 'moving-element';
+      
+      // Initial position
+      element.style.left = `${Math.random() * 100}%`;
+      element.style.top = `${Math.random() * 100}%`;
+      
+      // Set random animation delays
+      element.style.animationDelay = `${Math.random() * 10}s`;
+      element.style.animationDuration = `${Math.random() * 4 + 6}s`; // 6-10s duration
+      
+      movingBackground.appendChild(element);
+      elements.push(element);
+    }
+    
+    document.body.appendChild(movingBackground);
+
+    return () => {
+      document.body.removeChild(movingBackground);
+    };
+  }, []);
+  
   const fetchUserLocation = useCallback(async () => {
     try {
       const location = await getUserLocation();
