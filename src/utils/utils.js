@@ -4,6 +4,14 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandPointUp, faHandPointDown, faHandsUpDown } from '@fortawesome/free-solid-svg-icons';
 
+export const API_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://crowtours.com' 
+  : 'http://localhost:3000';
+
+  //debugger;
+  console.log('Current environment:', process.env.NODE_ENV);
+  console.log('API_URL:', API_URL);
+
 //function to detect the need for content scrolling
 export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator) {
   
@@ -69,21 +77,37 @@ export const updateUserLocation = () => {
 };
 
 // Function to check server connectivity and measure response time
-export const checkServerConnectivity = async (serverUrl = 'YOUR_SERVER_URL_HERE') => {
+export const checkServerConnectivity = async () => {
   const startTime = Date.now();
   try {
-    await axios.get(serverUrl);
+    const response = await axios.get(`${API_URL}/api/db-test`);
+    console.log("response: ", response);
     const endTime = Date.now();
     const responseTime = endTime - startTime;
-    return {
-      isConnected: true,
-      responseTime: responseTime
-    };
+    
+    if (response.data && response.data.status === 'success') {
+      return {
+        isConnected: true,
+        isDatabaseConnected: true,
+        responseTime: responseTime,
+        message: response.data.message
+      };
+    } else {
+      return {
+        isConnected: true,
+        isDatabaseConnected: false,
+        responseTime: responseTime,
+        message: 'Server is up, but database connection failed'
+      };
+    }
   } catch (error) {
+    console.error('Server connectivity check failed:', error);
     return {
       isConnected: false,
+      isDatabaseConnected: false,
       responseTime: null,
-      error: error.message
+      error: error.message,
+      message: 'Failed to connect to the server'
     };
   }
 };
