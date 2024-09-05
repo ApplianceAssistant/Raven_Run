@@ -42,7 +42,6 @@ function Lobby() {
       <div className="spirit-guide-large">
         <div className="content">
           <h2 className="contentHeader">Select your path</h2>
-          <div className="bodyContent">
             <ScrollableContent maxHeight="400px">
               <ul className="path-list">
                 
@@ -70,7 +69,6 @@ function Lobby() {
                 {isDaytime() ? ' Day' : ' Night'}
               </span>
             </p>
-          </div>
           <div className="scroll-indicator">
             <FontAwesomeIcon icon={faLongArrowUp} className="arrow up" />
             <FontAwesomeIcon icon={faArrowsV} className="arrow updown" />
