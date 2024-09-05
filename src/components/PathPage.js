@@ -45,40 +45,40 @@ function PathPage({ userLocation }) {
   }, [challenges, challengeIndex]);
 
   useEffect(() => {
-    console.warn("User location: ", userLocation , " Target location: ", targetLocation);
     if (userLocation && targetLocation) {
-      const distanceInMeters = calculateDistance(userLocation, targetLocation);
-      const distanceInMiles = (distanceInMeters / 1609.344).toFixed(2);
-      const distanceInKilometers = (distanceInMeters / 1000).toFixed(2);
-      if (distanceInMiles >= 0.1) {
-        // If distance is 0.1 miles or more, display in miles
-        setDistance({
-          value: distanceInMiles,
-          unit: 'miles'
-        });
-      } else {
-        // If distance is less than 0.1 miles, display in feet
-        const distanceInFeet = (distanceInMiles * 5280).toFixed(2);
-        setDistance({
-          value: Math.round(distanceInFeet),
-          unit: 'feet'
-        });
-      }
+      updateDistance(userLocation, targetLocation);
     }
   }, [userLocation, targetLocation]);
+
+  const updateDistance = (userLoc, targetLoc) => {
+    const distanceInMeters = calculateDistance(userLoc, targetLoc);
+    const distanceInMiles = (distanceInMeters / 1609.344).toFixed(2);
+    if (distanceInMiles >= 0.1) {
+      setDistance({
+        value: distanceInMiles,
+        unit: 'miles'
+      });
+    } else {
+      const distanceInFeet = Math.round(distanceInMiles * 5280);
+      setDistance({
+        value: distanceInFeet,
+        unit: 'feet'
+      });
+    }
+  };
 
   const handleChallengeComplete = (correct) => {
     if (correct) {
       setChallengeIndex(prevIndex => prevIndex + 1);
+      onLocationUpdate(); // Fetch new location when challenge is completed
     }
   };
-  console.log("distance: ", distance);
   return (
     <div className="path-page">
       <main className="path-content">
         <h1 className={`path-title ${textVisible ? 'visible' : ''}`}>{pathName}</h1>
         {distance !== null && (
-          <p className="distance-notice">Distance to target: {distance.value} {distance.unit}</p>
+          <p className="distance-notice">Distance to target: <span id="distanceToTarget">{distance.value}</span> <span id="distanceToTargetUnit">{distance.unit}</span></p>
         )}
         {currentChallenge && (
           <Challenge

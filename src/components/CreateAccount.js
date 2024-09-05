@@ -11,7 +11,6 @@ function CreateAccount() {
     message: ''
   });
   
-  console.log('Attempting to access:', `${API_URL}/api/db-test`);
   useEffect(() => {
     const checkConnection = async () => {
       const status = await checkServerConnectivity();
