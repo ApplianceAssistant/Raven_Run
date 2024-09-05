@@ -9,7 +9,6 @@
         rgba(180, 226, 247, 0.123) 60%,
         rgba(255, 255, 255, 0.0) 100%);
     border-radius: 50% / 50%;
-    padding: 20px;
     display: flex;
     flex-direction: column;
     overflow: visible;
@@ -18,13 +17,13 @@
     text-align: center;
     box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
-    width: 60vw;
+    width: 70vw;
     min-width: 260px;
-    height: 80vh;
+    height: 75vh;
     max-width: 600px;
     max-height: 1500px;
     position: relative;
-    top: 40px;
+    top: 20px;
   
     &::before,
     &::after {

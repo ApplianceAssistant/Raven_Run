@@ -34,7 +34,6 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: $darker-bg;
   z-index: -2;
   overflow: hidden;
 }
@@ -49,26 +48,30 @@ body {
       rgba(180, 226, 247, 0.25) 60%,
       rgba(255, 255, 255, 0.0) 100%);
   border-radius: 50%;
-  animation: randomMove 10s infinite;
+  animation: move 10s infinite;
 }
 
-@keyframes randomMove {
-
-  0%,
-  100% {
-    transform: translate(0, 0);
+@keyframes sizeChange {
+  0%, 100% {
+    transform: scale(1);
   }
-
-  25% {
-    transform: translate(100px, 50px);
-  }
-
   50% {
-    transform: translate(-50px, 100px);
+    transform: scale(1.5);
   }
+}
 
+@keyframes move {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(100px, 100px) scale(1.5);
+  }
+  50% {
+    transform: translate(-50px, 50px) scale(1);
+  }
   75% {
-    transform: translate(75px, -75px);
+    transform: translate(50px, -50px) scale(1.5);
   }
 }
 
@@ -104,7 +107,7 @@ body {
 .bodyContent {
   min-width: 200px;
   overflow-y: auto;
-  padding: 20px 20px 40px;
+  padding: 10px;
   scrollbar-width: none;
   -ms-overflow-style: none;
 
