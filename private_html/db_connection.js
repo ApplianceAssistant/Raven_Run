@@ -1,12 +1,9 @@
 const mysql = require('mysql2/promise');
-const path = require('path');
-const dbConfig = require(path.join(__dirname, '..', 'db_config'));
-
-const pool = mysql.createPool(dbConfig);
+const dbConfig = require('./db_config');
 
 async function getDbConnection() {
   try {
-    const connection = await pool.getConnection();
+    const connection = await mysql.createConnection(dbConfig);
     return connection;
   } catch (error) {
     console.error('Database connection failed:', error);

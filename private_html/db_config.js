@@ -1,14 +1,9 @@
-const mysql = require('mysql2/promise');
-const dbConfig = require('./db_config');
+require('dotenv').config();
 
-async function getDbConnection() {
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-    return connection;
-  } catch (error) {
-    console.error('Database connection failed:', error);
-    throw new Error('Unable to connect to the database');
-  }
-}
-
-module.exports = { getDbConnection };
+module.exports = {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 3306
+};
