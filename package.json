@@ -6,7 +6,7 @@
   "proxy": "https://crowtours.com",
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && rsync -av build/ . && rm -rf build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "server": "node private_html/server/server.js",

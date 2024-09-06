@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Navigate to the project directory
-cd /home/master/applications/CrowTours/public_html
+# Ensure we're in the correct directory
+if [[ ! "$PWD" == */public_html ]]; then
+    echo "This script must be run from the public_html directory."
+    exit 1
+fi
 
 # Install dependencies
 npm install
@@ -15,12 +18,19 @@ if [ ! -d "build" ]; then
     exit 1
 fi
 
+# Create a backup of current deployment
+echo "Creating backup..."
+timestamp=$(date +%Y%m%d_%H%M%S)
+mkdir -p "../backups/$timestamp"
+cp -R index.html asset-manifest.json static "../backups/$timestamp/" 2>/dev/null
+
 # Move build files to the public_html directory
 mv build/* .
 mv build/.* . 2>/dev/null
 rmdir build
 
-# Optionally, remove source files to save space
+# Clean up
+echo "Cleaning up..."
 rm -rf src
 
-echo "Deployment completed"
+echo "Deployment completed successfully."
