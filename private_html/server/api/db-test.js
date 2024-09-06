@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
     await connection.release(); // Release the connection back to the pool
     res.json({ status: 'success', message: 'Database connection successful', data: rows });
   } catch (error) {
-    console.error('Database connection test failed:', error);
+    console.error('database connection test failed:', error);
     res.status(500).json({ status: 'error', message: 'Database connection failed', error: error.message });
   }
 });
