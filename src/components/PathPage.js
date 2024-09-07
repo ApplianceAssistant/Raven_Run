@@ -15,7 +15,6 @@ function PathPage() {
   const targetLocationRef = useRef(null);
   const distanceRef = useRef(null);
   const isSpiritGuideSmallRef = useRef(false);
-  const currentChallengeRef = useRef(null);
 
   const distanceElementRef = useRef(null);
   const distanceNoticeRef = useRef(null);
@@ -91,9 +90,8 @@ function PathPage() {
   useEffect(() => {
     if (challenges.length > 0 && challengeIndex < challenges.length) {
       const challenge = challenges[challengeIndex];
-      currentChallengeRef.current = challenge;
       resetFeedbackCycle(challenge.id);
-      if (challenge.type === 'travel' && challenge.targetLocation) {
+      if (challenge.targetLocation) {
         targetLocationRef.current = challenge.targetLocation;
       } else {
         targetLocationRef.current = null;
@@ -102,11 +100,16 @@ function PathPage() {
     }
   }, [challenges, challengeIndex, updateDistance]);
 
-  const handleChallengeComplete = (correct) => {
+  const handleChallengeComplete = useCallback((correct) => {
+    console.warn("handleChallengeComplete:", correct);
     if (correct) {
+      console.log("setChallengeIndex:", challengeIndex + 1);
+      console.warn("next challenge:", challenges[challengeIndex + 1]);
       setChallengeIndex(prevIndex => prevIndex + 1);
     }
-  };
+  }, [challengeIndex, challenges]);
+
+  const currentChallenge = challenges[challengeIndex];
 
   return (
     <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
@@ -115,9 +118,10 @@ function PathPage() {
         <p className="distance-notice" style={{ display: 'none' }}>
           Distance to target: <span id="distanceToTarget"></span> <span id="distanceToTargetUnit"></span>
         </p>
-        {currentChallengeRef.current && (
+        {currentChallenge && (
           <Challenge
-            challenge={currentChallengeRef.current}
+            key={challengeIndex}
+            challenge={currentChallenge}
             onComplete={handleChallengeComplete}
             userLocation={getCurrentLocation()}
           />
