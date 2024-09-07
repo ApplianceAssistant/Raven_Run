@@ -51,8 +51,8 @@ function CreateAccount() {
   
       // Optionally, you can store the user data in your app's state or local storage here
   
-      // Redirect to lobby
-      navigate('/lobby');
+      // Redirect to home page
+      navigate('/');
     } catch (error) {
       console.error('Error creating account:', error);
       alert('Failed to create account. Please try again.');

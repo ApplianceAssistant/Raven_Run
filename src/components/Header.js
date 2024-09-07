@@ -2,7 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../css/Header.scss';
 
-function Header({ isMenuOpen, toggleMenu }) {
+function Header({ isMenuOpen, toggleMenu, isLoggedIn }) {
+  //update this to check if logged in. for testing set as true
+  isLoggedIn = true;
+  const menuItems = isLoggedIn
+    ? ['Home', 'Settings', 'About', 'Contact', 'Lobby', 'Create']
+    : ['Home', 'Create Account', 'About', 'Contact'];
+
   return (
     <>
       <header className="header">
@@ -11,9 +17,9 @@ function Header({ isMenuOpen, toggleMenu }) {
         </div>
         <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <ul>
-            {['Home', 'About', 'Contact'].map((item, index) => (
+            {menuItems.map((item, index) => (
               <li key={item} className={isMenuOpen ? 'open' : ''} style={{transitionDelay: `${index * 0.1}s`}}>
-                <Link to={item === 'Home' ? '/' : `/${item.toLowerCase()}`} onClick={toggleMenu}>
+                <Link to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} onClick={toggleMenu}>
                   {item}
                 </Link>
               </li>
@@ -28,6 +34,5 @@ function Header({ isMenuOpen, toggleMenu }) {
     </>
   );
 }
- 
 
 export default Header;

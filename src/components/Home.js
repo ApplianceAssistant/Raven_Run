@@ -23,7 +23,7 @@ function Home() {
           <div className="content">
             <div className="bodyContent">
               <div className="button-container">
-                <button onClick={handleJoin} className="join-button">Join</button>
+                <button onClick={handleJoin} className="join-button">Create Account</button>
                 <button onClick={handleEnter} className="enter-button">Enter</button>
               </div>
               <h1>At Your Own Risk</h1>
