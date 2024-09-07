@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../App';  // Adjust the import path as needed
 import '../css/Header.scss';
 
-function Header({ isMenuOpen, toggleMenu, isLoggedIn }) {
-  //update this to check if logged in. for testing set as true
-  isLoggedIn = true;
+function Header({ isMenuOpen, toggleMenu }) {
+  const { isLoggedIn } = useContext(AuthContext);
+
   const menuItems = isLoggedIn
-    ? ['Home', 'Settings', 'About', 'Contact', 'Lobby', 'Create']
+    ? ['Home', 'Settings', 'About', 'Contact', 'Create']
     : ['Home', 'Create Account', 'About', 'Contact'];
 
   return (
