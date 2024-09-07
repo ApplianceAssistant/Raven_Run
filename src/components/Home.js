@@ -19,7 +19,7 @@ function Home() {
     <>
       <div className="background"></div>
       <div className="content-wrapper">
-        <div className="spirit-guide-large">
+        <div className="spirit-guide large">
           <div className="content">
             <div className="bodyContent">
               <div className="button-container">

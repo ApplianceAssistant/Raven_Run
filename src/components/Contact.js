@@ -5,7 +5,7 @@ import { faLongArrowUp, faLongArrowDown, faArrowsV } from '@fortawesome/free-sol
 function Contact() {
   return (
     <div className="content-wrapper">
-      <div className="spirit-guide-large">
+      <div className="spirit-guide large">
         <div className="content">
           <h1 className="contentHeader">Have a Question?</h1>
           <div className="bodyContent">

@@ -9,10 +9,11 @@ function PathPage() {
   const { pathId } = useParams();
   const [pathName, setPathName] = useState('');
   const [challenges, setChallenges] = useState([]);
-  const [challengeIndex, setChallengeIndex] = useState(0);
-  const [contentVisible, setContentVisible] = useState(false);
-  const [challengeVisible, setChallengeVisible] = useState(true);
+  const [challengeIndex, setChallengeIndex] = useState(-1);
+  const [contentVisible, setContentVisible] = useState(true);
+  const [challengeVisible, setChallengeVisible] = useState(false);
   const [isSpiritGuideSmall, setIsSpiritGuideSmall] = useState(false);
+  const [isFirstChallenge, setIsFirstChallenge] = useState(true);
   const [distance, setDistance] = useState(null);
 
   const targetLocationRef = useRef(null);
@@ -26,7 +27,7 @@ function PathPage() {
       const distanceInMiles = (distanceInMeters / 1609.344).toFixed(2);
       const newDistance = parseFloat(distanceInMiles);
       setDistance(newDistance);
-      
+
       if (distanceInMiles >= 0.1) {
         updateDistanceDisplay(distanceInMiles, 'miles');
       } else {
@@ -48,7 +49,7 @@ function PathPage() {
     if (!distanceElementRef.current) {
       distanceElementRef.current = document.getElementById('distanceToTarget');
     }
-    
+
     if (distanceNoticeRef.current && distanceElementRef.current) {
       distanceElementRef.current.textContent = value;
       distanceElementRef.current.nextElementSibling.textContent = unit;
@@ -66,20 +67,16 @@ function PathPage() {
 
     addLocationListener(updateDistance);
 
-    // Trigger fade-in effect
-    const fadeInTimer = setTimeout(() => {
-      setContentVisible(true);
-      setIsSpiritGuideSmall(true);
-    }, 1000);
+    //loading the first challenge
+    setChallengeIndex(0);
 
     return () => {
-      clearTimeout(fadeInTimer);
       removeLocationListener(updateDistance);
     };
   }, [pathId, updateDistance]);
 
   useEffect(() => {
-    if (challenges.length > 0 && challengeIndex < challenges.length) {
+    if (challengeIndex >= 0 && challenges.length > 0) {
       const challenge = challenges[challengeIndex];
       resetFeedbackCycle(challenge.id);
       if (challenge.targetLocation) {
@@ -88,14 +85,25 @@ function PathPage() {
         targetLocationRef.current = null;
       }
       updateDistance();
+
+      if (isFirstChallenge) {
+        // Trigger spirit guide transition
+        setIsSpiritGuideSmall(true);
+        setTimeout(() => {
+          setChallengeVisible(true);
+        }, 500); // Show challenge after spirit guide starts transitioning
+      } else {
+        setChallengeVisible(true);
+      }
     }
-  }, [challenges, challengeIndex, updateDistance]);
+  }, [challenges, challengeIndex, isFirstChallenge, updateDistance]);
 
   const handleChallengeComplete = useCallback((correct) => {
     if (correct) {
       setChallengeVisible(false); // Start fade-out
       setTimeout(() => {
         setChallengeIndex(prevIndex => prevIndex + 1);
+        setIsFirstChallenge(false);
         setTimeout(() => {
           setChallengeVisible(true); // Start fade-in for new challenge
         }, 50);
@@ -106,24 +114,31 @@ function PathPage() {
   const currentChallenge = challenges[challengeIndex];
 
   return (
-    <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
-      <main className="path-content">
-        <h1 className="path-title">{pathName}</h1>
-        <p className="distance-notice" style={{ display: 'none' }}>
-          Distance to target: <span id="distanceToTarget"></span> <span id="distanceToTargetUnit"></span>
-        </p>
-        <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
-          {currentChallenge && (
-            <Challenge
-              key={challengeIndex}
-              challenge={currentChallenge}
-              onComplete={handleChallengeComplete}
-              userLocation={getCurrentLocation()}
-            />
-          )}
-        </div>
-      </main>
-      <SpiritGuide isSmall={isSpiritGuideSmall} distance={distance} />
+    <div className="content-wrapper">
+      <SpiritGuide
+          isSmall={isSpiritGuideSmall}
+          distance={distance}
+          isFirstTransition={isFirstChallenge && isSpiritGuideSmall}
+        />
+      <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
+        <main className="path-content">
+          <h1 className="path-title">{pathName}</h1>
+          <p className="distance-notice" style={{ display: 'none' }}>
+            Distance to target: <span id="distanceToTarget"></span> <span id="distanceToTargetUnit"></span>
+          </p>
+          <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
+            {currentChallenge && (
+              <Challenge
+                key={challengeIndex}
+                challenge={currentChallenge}
+                onComplete={handleChallengeComplete}
+                userLocation={getCurrentLocation()}
+              />
+            )}
+          </div>
+        </main>
+        
+      </div>
     </div>
   );
 }

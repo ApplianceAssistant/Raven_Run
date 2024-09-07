@@ -61,7 +61,7 @@ function CreateAccount() {
 
   return (
     <div className="content-wrapper">
-      <div className="spirit-guide-large">
+      <div className="spirit-guide large">
         <div className="bodyContent center">
           <h1>Gather Your Courage</h1>
           {!serverStatus.isConnected && (

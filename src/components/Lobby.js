@@ -39,7 +39,7 @@ function Lobby() {
   };
   return (
     <div className="content-wrapper">
-      <div className="spirit-guide-large">
+      <div className="spirit-guide large">
         <div className="content">
           <h2 className="contentHeader">Select your path</h2>
             <ScrollableContent maxHeight="400px">

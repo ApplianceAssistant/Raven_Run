@@ -6,7 +6,7 @@ import { handleScroll } from '../utils/utils';
 function About() {
   useEffect(() => {
     // Call handleScroll after the component mounts
-    const contentWrapper = document.querySelector('.spirit-guide-large');
+    const contentWrapper = document.querySelector('.spirit-guide large');
     const contentHeader = document.querySelector('.contentHeader');
     const bodyContent = document.querySelector('.bodyContent');
     const scrollIndicator = document.querySelector('.scroll-indicator');
@@ -22,7 +22,7 @@ function About() {
   }, []);
   return (
     <div className="content-wrapper">
-      <div className="spirit-guide-large">
+      <div className="spirit-guide large">
         <div className="content">
           <h1 className="contentHeader">Like to play games?</h1>
           <div className="bodyContent">
