@@ -10,7 +10,7 @@ function PathPage() {
   const [pathName, setPathName] = useState('');
   const [challenges, setChallenges] = useState([]);
   const [challengeIndex, setChallengeIndex] = useState(0);
-  const [textVisible, setTextVisible] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
 
   const targetLocationRef = useRef(null);
   const distanceRef = useRef(null);
@@ -19,7 +19,7 @@ function PathPage() {
 
   const distanceElementRef = useRef(null);
   const distanceNoticeRef = useRef(null);
-  
+
   const updateDistance = useCallback(() => {
     const userLocation = getCurrentLocation();
     if (userLocation && targetLocationRef.current) {
@@ -38,13 +38,11 @@ function PathPage() {
         };
       }
       
-      // Update DOM directly
       requestAnimationFrame(() => {
         updateDistanceDisplay();
       });
     } else {
       distanceRef.current = null;
-      // Hide distance notice
       requestAnimationFrame(() => {
         if (distanceNoticeRef.current) {
           distanceNoticeRef.current.style.display = 'none';
@@ -60,6 +58,7 @@ function PathPage() {
     if (!distanceElementRef.current) {
       distanceElementRef.current = document.getElementById('distanceToTarget');
     }
+    
     if (distanceNoticeRef.current && distanceElementRef.current && distanceRef.current) {
       distanceElementRef.current.textContent = distanceRef.current.value;
       distanceElementRef.current.nextElementSibling.textContent = distanceRef.current.unit;
@@ -76,13 +75,15 @@ function PathPage() {
     fetchedChallenges.forEach(challenge => resetFeedbackCycle(challenge.id));
 
     isSpiritGuideSmallRef.current = true;
-    const textFadeTimer = setTimeout(() => setTextVisible(true), 700);
-
-    // Add location listener
     addLocationListener(updateDistance);
 
+    // Trigger fade-in effect
+    const fadeInTimer = setTimeout(() => setContentVisible(true), 100);
+
+    updateDistanceDisplay();
+
     return () => {
-      clearTimeout(textFadeTimer);
+      clearTimeout(fadeInTimer);
       removeLocationListener(updateDistance);
     };
   }, [pathId, updateDistance]);
@@ -108,11 +109,11 @@ function PathPage() {
   };
 
   return (
-    <div className="path-page">
+    <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
       <main className="path-content">
-        <h1 className={`path-title ${textVisible ? 'visible' : ''}`}>{pathName}</h1>
-        <p className="distance-notice" ref={distanceNoticeRef} style={{ display: 'none' }}>
-          Distance to target: <span id="distanceToTarget" ref={distanceElementRef}></span> <span id="distanceToTargetUnit"></span>
+        <h1 className="path-title">{pathName}</h1>
+        <p className="distance-notice" style={{ display: 'none' }}>
+          Distance to target: <span id="distanceToTarget"></span> <span id="distanceToTargetUnit"></span>
         </p>
         {currentChallengeRef.current && (
           <Challenge
