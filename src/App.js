@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './components/Home';
@@ -20,6 +20,36 @@ function App() {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  useEffect(() => {
+    // Create moving background elements
+    const movingBackground = document.createElement('div');
+    movingBackground.className = 'moving-background';
+
+    const elements = [];
+
+    for (let i = 0; i < 15; i++) {
+      const element = document.createElement('div');
+      element.className = 'moving-element';
+
+      // Initial position
+      element.style.left = `${Math.random() * 100}%`;
+      element.style.top = `${Math.random() * 100}%`;
+
+      // Set random animation delays
+      element.style.animationDelay = `${Math.random() * 20}s`;
+      element.style.animationDuration = `${Math.random() * 4 + 6}s`; // 6-10s duration
+
+      movingBackground.appendChild(element);
+      elements.push(element);
+    }
+
+    document.body.appendChild(movingBackground);
+
+    return () => {
+      document.body.removeChild(movingBackground);
+    };
+  }, []);
 
   const handleDevLocationSet = (location) => {
     // Update the current location in utils.js
