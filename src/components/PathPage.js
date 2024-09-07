@@ -11,6 +11,7 @@ function PathPage() {
   const [challenges, setChallenges] = useState([]);
   const [challengeIndex, setChallengeIndex] = useState(0);
   const [contentVisible, setContentVisible] = useState(false);
+  const [challengeVisible, setChallengeVisible] = useState(true);
 
   const targetLocationRef = useRef(null);
   const distanceRef = useRef(null);
@@ -101,14 +102,16 @@ function PathPage() {
   }, [challenges, challengeIndex, updateDistance]);
 
   const handleChallengeComplete = useCallback((correct) => {
-    console.warn("handleChallengeComplete:", correct);
     if (correct) {
-      console.log("setChallengeIndex:", challengeIndex + 1);
-      console.warn("next challenge:", challenges[challengeIndex + 1]);
-      setChallengeIndex(prevIndex => prevIndex + 1);
+      setChallengeVisible(false); // Start fade-out
+      setTimeout(() => {
+        setChallengeIndex(prevIndex => prevIndex + 1);
+        setTimeout(() => {
+          setChallengeVisible(true); // Start fade-in for new challenge
+        }, 50);
+      }, 500); // Wait for fade-out to complete
     }
-  }, [challengeIndex, challenges]);
-
+  }, []);
   const currentChallenge = challenges[challengeIndex];
 
   return (
@@ -118,14 +121,16 @@ function PathPage() {
         <p className="distance-notice" style={{ display: 'none' }}>
           Distance to target: <span id="distanceToTarget"></span> <span id="distanceToTargetUnit"></span>
         </p>
-        {currentChallenge && (
-          <Challenge
-            key={challengeIndex}
-            challenge={currentChallenge}
-            onComplete={handleChallengeComplete}
-            userLocation={getCurrentLocation()}
-          />
-        )}
+        <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
+          {currentChallenge && (
+            <Challenge
+              key={challengeIndex}
+              challenge={currentChallenge}
+              onComplete={handleChallengeComplete}
+              userLocation={getCurrentLocation()}
+            />
+          )}
+        </div>
       </main>
       <SpiritGuide isSmall={isSpiritGuideSmallRef.current} distance={distanceRef.current} />
     </div>

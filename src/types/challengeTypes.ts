@@ -15,7 +15,7 @@ interface BaseChallenge {
   id: string;
   type: string;
   title: string;
-  description: string;
+  description?: string;
   question?: string;
   hints?: string[];
   feedbackTexts?: FeedbackTexts;

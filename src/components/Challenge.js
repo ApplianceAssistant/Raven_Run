@@ -19,7 +19,8 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
     setHint('');
     setIsLocationReached(false);
 
-    const textFadeTimer = setTimeout(() => setTextVisible(true), 700);
+    // Trigger fade-in effect
+    const textFadeTimer = setTimeout(() => setTextVisible(true), 300);
 
     if (canDisplayDistance(challenge)) {
       checkTravelChallenge();
