@@ -48,7 +48,23 @@ export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollI
 }
 
 // Function to get user's location
-export const getUserLocation = () => {
+let currentLocation = null;
+let locationListeners = [];
+
+export function addLocationListener(listener) {
+  locationListeners.push(listener);
+}
+
+export function removeLocationListener(listener) {
+  locationListeners = locationListeners.filter(l => l !== listener);
+}
+
+export function getCurrentLocation() {
+  return currentLocation;
+}
+
+// Function to get user's location
+function getUserLocation() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject(new Error('Geolocation is not supported by your browser'));
@@ -69,12 +85,23 @@ export const getUserLocation = () => {
       );
     }
   });
-};
+}
 
-// Function to update user's location
-export const updateUserLocation = () => {
-  return getUserLocation();
-};
+export async function updateUserLocation() {
+  console.warn("Updating user location...");
+  try {
+    const location = await getUserLocation();
+    currentLocation = location;
+    locationListeners.forEach(listener => listener(location));
+  } catch (error) {
+    console.error("Error updating user location:", error);
+  }
+}
+
+export function startLocationUpdates(interval = 15000) {
+  updateUserLocation(); // Initial update
+  return setInterval(updateUserLocation, interval);
+}
 
 // Function to check server connectivity and measure response time
 export const checkServerConnectivity = async () => {
@@ -110,11 +137,6 @@ export const checkServerConnectivity = async () => {
       message: 'Failed to connect to the server'
     };
   }
-};
-
-// Function to periodically update location
-export const startLocationUpdates = (interval = 300000) => { // Default: update every 5 minutes
-  return setInterval(updateUserLocation, interval);
 };
 
 // Function to stop location updates

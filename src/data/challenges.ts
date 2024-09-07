@@ -25,8 +25,8 @@ export const paths: Path[] = [
           What am I?`,
         question: `Travel to the location described in the riddle.`,
         targetLocation: {
-          latitude: 38.2123131,
-          longitude: -85.2201708
+          latitude: 38.2126684,
+          longitude: -85.2195733
         },
         radius: 50,
         hints: [
@@ -41,37 +41,28 @@ export const paths: Path[] = [
       {
         id: '1',
         type: 'travel',
-        title: 'Herbal Wards',
-        description: `In Simpsonville, where stories unfold,
-          Stands a cottage, quaint and old.
-          Its walls are white as morning frost,
-          In lavender fields, it seems lost.
-          Windows wink with candlelight,
-          Scenting dreams throughout the night.
-          A humble abode with magic inside,
-          Where herbal wonders do reside.
-          Thyme passes slowly 'round its door,
-          Sage whispers secrets from days of yore.
-          But one bloom rules this aromatic bower,
-          Lending its name and mystic power.
-          Not grand in size, yet great in fame,
-          Two adjectives and a flower form its name.
-          What am I, this enchanted dwelling,
-          Where purple magic is always swelling?`,
-        question: `Travel to the location described in the riddle.`,
+        title: 'Wooden Guardian',
+        description: `Gnarled and twisted, I stand alone,
+        My branches reach o'er weathered stone.
+        Silent guardian of those long passed,
+        I've watched time's river flowing fast.
+        My roots run deep where memories lie,
+        What am I, beneath this ageless sky?
+            What am I?`,
+        question: `find the ancent guardian described in the riddle.`,
         targetLocation: {
-          latitude: 38.2216154,
-          longitude: -85.344623
+          latitude: 38.2122824,
+          longitude: -85.2202533
         },
-        radius: 50,
+        radius: 15,
         hints: [
-          "My name suggests a modest hill, though I'm flat on the ground.",
-          "Butterflies mistake me for a fragrant bloom in the town.",
-          "If your famished, grab some refreshments at the cafe.",
-          "My color is reminiscent of clouds, not the flower I'm named for."
+          "Look for something that's been standing for a very long time.",
+          "Quiet and contemplative.",
+          "I'm natural as is what happens to all mankind.",
+          "Think about what might grow and change shape over many years while remaining in the same spot."
         ],
-        completionFeedback: `You've proven yourself a true master of magical dwellings and herbal enigmas.`,
-        repeatable: false
+        completionFeedback: `Congratulations! Maybe you can learn something from the ancient guardian's wisdom.`,
+        repeatable: false,
       },
       {
         id: '2',
@@ -110,6 +101,41 @@ export const paths: Path[] = [
       },
       {
         id: '3',
+        type: 'travel',
+        title: 'Herbal Wards',
+        description: `In Simpsonville, where stories unfold,
+          Stands a cottage, quaint and old.
+          Its walls are white as morning frost,
+          In lavender fields, it seems lost.
+          Windows wink with candlelight,
+          Scenting dreams throughout the night.
+          A humble abode with magic inside,
+          Where herbal wonders do reside.
+          Thyme passes slowly 'round its door,
+          Sage whispers secrets from days of yore.
+          But one bloom rules this aromatic bower,
+          Lending its name and mystic power.
+          Not grand in size, yet great in fame,
+          Two adjectives and a flower form its name.
+          What am I, this enchanted dwelling,
+          Where purple magic is always swelling?`,
+        question: `Travel to the location described in the riddle.`,
+        targetLocation: {
+          latitude: 38.2216154,
+          longitude: -85.344623
+        },
+        radius: 50,
+        hints: [
+          "My name suggests a modest hill, though I'm flat on the ground.",
+          "Butterflies mistake me for a fragrant bloom in the town.",
+          "If your famished, grab some refreshments at the cafe.",
+          "My color is reminiscent of clouds, not the flower I'm named for."
+        ],
+        completionFeedback: `You've proven yourself a true master of magical dwellings and herbal enigmas.`,
+        repeatable: false
+      },
+      {
+        id: '4',
         type: 'multipleChoice',
         title: 'Echoes of the Past (Fiction)',
         description: ``,
@@ -133,7 +159,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: '4',
+        id: '5',
         type: 'trueFalse',
         title: 'Waverly Hills Sanatorium',
         description: '',
@@ -148,7 +174,7 @@ export const paths: Path[] = [
         repeatable: false
       },
       {
-        id: '5',
+        id: '6',
         type: 'story',
         title: 'The Haunting of Waverly Hills',
         description: '',
@@ -161,7 +187,7 @@ export const paths: Path[] = [
         repeatable: false
       },
       {
-        id: '5',
+        id: '7',
         type: 'multipleChoice',
         title: 'How well did you pay attention?',
         description: ``,
