@@ -12,46 +12,36 @@ function PathPage() {
   const [challengeIndex, setChallengeIndex] = useState(0);
   const [contentVisible, setContentVisible] = useState(false);
   const [challengeVisible, setChallengeVisible] = useState(true);
+  const [isSpiritGuideSmall, setIsSpiritGuideSmall] = useState(false);
+  const [distance, setDistance] = useState(null);
 
   const targetLocationRef = useRef(null);
-  const distanceRef = useRef(null);
-  const isSpiritGuideSmallRef = useRef(false);
-
-  const distanceElementRef = useRef(null);
   const distanceNoticeRef = useRef(null);
+  const distanceElementRef = useRef(null);
 
   const updateDistance = useCallback(() => {
     const userLocation = getCurrentLocation();
     if (userLocation && targetLocationRef.current) {
       const distanceInMeters = calculateDistance(userLocation, targetLocationRef.current);
       const distanceInMiles = (distanceInMeters / 1609.344).toFixed(2);
+      const newDistance = parseFloat(distanceInMiles);
+      setDistance(newDistance);
+      
       if (distanceInMiles >= 0.1) {
-        distanceRef.current = {
-          value: distanceInMiles,
-          unit: 'miles'
-        };
+        updateDistanceDisplay(distanceInMiles, 'miles');
       } else {
         const distanceInFeet = Math.round(distanceInMiles * 5280);
-        distanceRef.current = {
-          value: distanceInFeet,
-          unit: 'feet'
-        };
+        updateDistanceDisplay(distanceInFeet, 'feet');
       }
-      
-      requestAnimationFrame(() => {
-        updateDistanceDisplay();
-      });
     } else {
-      distanceRef.current = null;
-      requestAnimationFrame(() => {
-        if (distanceNoticeRef.current) {
-          distanceNoticeRef.current.style.display = 'none';
-        }
-      });
+      setDistance(null);
+      if (distanceNoticeRef.current) {
+        distanceNoticeRef.current.style.display = 'none';
+      }
     }
   }, []);
 
-  const updateDistanceDisplay = () => {
+  const updateDistanceDisplay = (value, unit) => {
     if (!distanceNoticeRef.current) {
       distanceNoticeRef.current = document.querySelector('.distance-notice');
     }
@@ -59,9 +49,9 @@ function PathPage() {
       distanceElementRef.current = document.getElementById('distanceToTarget');
     }
     
-    if (distanceNoticeRef.current && distanceElementRef.current && distanceRef.current) {
-      distanceElementRef.current.textContent = distanceRef.current.value;
-      distanceElementRef.current.nextElementSibling.textContent = distanceRef.current.unit;
+    if (distanceNoticeRef.current && distanceElementRef.current) {
+      distanceElementRef.current.textContent = value;
+      distanceElementRef.current.nextElementSibling.textContent = unit;
       distanceNoticeRef.current.style.display = 'block';
     }
   };
@@ -74,13 +64,13 @@ function PathPage() {
 
     fetchedChallenges.forEach(challenge => resetFeedbackCycle(challenge.id));
 
-    isSpiritGuideSmallRef.current = true;
     addLocationListener(updateDistance);
 
     // Trigger fade-in effect
-    const fadeInTimer = setTimeout(() => setContentVisible(true), 100);
-
-    updateDistanceDisplay();
+    const fadeInTimer = setTimeout(() => {
+      setContentVisible(true);
+      setIsSpiritGuideSmall(true);
+    }, 1000);
 
     return () => {
       clearTimeout(fadeInTimer);
@@ -112,6 +102,7 @@ function PathPage() {
       }, 500); // Wait for fade-out to complete
     }
   }, []);
+
   const currentChallenge = challenges[challengeIndex];
 
   return (
@@ -132,7 +123,7 @@ function PathPage() {
           )}
         </div>
       </main>
-      <SpiritGuide isSmall={isSpiritGuideSmallRef.current} distance={distanceRef.current} />
+      <SpiritGuide isSmall={isSpiritGuideSmall} distance={distance} />
     </div>
   );
 }

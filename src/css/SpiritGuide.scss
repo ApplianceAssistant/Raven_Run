@@ -124,10 +124,10 @@
 
   .spirit-guide-small {
     background: radial-gradient(ellipse at center,
-        rgba(248, 248, 247, 0.6) 25%,
-        rgba(239, 253, 253, 0.5) 35%,
-        rgba(180, 226, 247, 0.2) 60%,
-        rgba(255, 255, 255, 0.0) 100%);
+      rgba(var(--spirit-guide-color, 248, 248, 247), 0.6) 25%,
+      rgba(var(--spirit-guide-color, 239, 253, 253), 0.5) 35%,
+      rgba(var(--spirit-guide-color, 180, 226, 247), 0.2) 60%,
+      rgba(var(--spirit-guide-color, 255, 255, 255), 0.0) 100%);
     border-radius: 50% / 50%;
     padding: 20px;
     display: flex;
@@ -136,7 +136,7 @@
     align-items: center;
     justify-content: space-between;
     text-align: center;
-    box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 40px rgba(var(--spirit-guide-color, 255, 255, 255), 0.1);
     transition: all 0.3s ease;
     width: 10vw;
     min-width: 40px;
@@ -161,26 +161,32 @@
   
     &::before {
       background: radial-gradient(ellipse at center,
-          rgba(248, 248, 247, 0.2) 0%,
-          rgba(239, 253, 253, 0.15) 35%,
-          rgba(180, 226, 247, 0.1) 70%,
-          rgba(255, 255, 255, 0.0) 100%);
+        rgba(var(--spirit-guide-color, 248, 248, 247), 0.2) 0%,
+        rgba(var(--spirit-guide-color, 239, 253, 253), 0.15) 35%,
+        rgba(var(--spirit-guide-color, 180, 226, 247), 0.1) 70%,
+        rgba(var(--spirit-guide-color, 255, 255, 255), 0.0) 100%);
       animation:
-        fluctuateSize 5s ease-in-out infinite,
-        fluctuatePosition 7s ease-in-out infinite,
-        fluctuateIntensity 7s ease-in-out infinite;
+        fluctuateSize calc(5s / var(--spirit-guide-intensity, 1)) ease-in-out infinite,
+        fluctuatePosition calc(7s / var(--spirit-guide-intensity, 1)) ease-in-out infinite,
+        fluctuateIntensity calc(7s / var(--spirit-guide-intensity, 1)) ease-in-out infinite;
     }
   
     &::after {
       background: radial-gradient(ellipse at center,
-          rgba(248, 248, 247, 0.1) 0%,
-          rgba(239, 253, 253, 0.08) 35%,
-          rgba(180, 226, 247, 0.05) 70%,
-          rgba(255, 255, 255, 0.0) 100%);
+        rgba(var(--spirit-guide-color, 248, 248, 247), 0.1) 0%,
+        rgba(var(--spirit-guide-color, 239, 253, 253), 0.08) 35%,
+        rgba(var(--spirit-guide-color, 180, 226, 247), 0.05) 70%,
+        rgba(var(--spirit-guide-color, 255, 255, 255), 0.0) 100%);
       animation:
-        fluctuateSize 7s ease-in-out infinite reverse,
-        fluctuatePosition 7s ease-in-out infinite reverse,
-        fluctuateIntensity 10s ease-in-out infinite;
+        fluctuateSize calc(7s / var(--spirit-guide-intensity, 1)) ease-in-out infinite reverse,
+        fluctuatePosition calc(7s / var(--spirit-guide-intensity, 1)) ease-in-out infinite reverse,
+        fluctuateIntensity calc(10s / var(--spirit-guide-intensity, 1)) ease-in-out infinite;
+    }
+  
+    &.active {
+      animation:
+        pulsateActive calc(2s / var(--spirit-guide-intensity, 1)) ease-in-out infinite alternate,
+        fluctuateActive calc(3s / var(--spirit-guide-intensity, 1)) ease-in-out infinite alternate;
     }
   }
   
@@ -215,8 +221,14 @@
   }
   
   @keyframes pulsateActive {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.1); }
+    0% { 
+      transform: scale(1);
+      box-shadow: 0 0 10px rgba(var(--spirit-guide-color, 255, 255, 255), 0.3);
+    }
+    100% { 
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(var(--spirit-guide-color, 255, 255, 255), 0.5);
+    }
   }
   
   @keyframes fluctuateActive {
