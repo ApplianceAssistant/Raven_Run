@@ -19,11 +19,9 @@ function PathPage() {
 
   const distanceElementRef = useRef(null);
   const distanceNoticeRef = useRef(null);
-
+  
   const updateDistance = useCallback(() => {
     const userLocation = getCurrentLocation();
-    console.log("users location", userLocation);
-    console.log("target location", targetLocationRef.current);
     if (userLocation && targetLocationRef.current) {
       const distanceInMeters = calculateDistance(userLocation, targetLocationRef.current);
       const distanceInMiles = (distanceInMeters / 1609.344).toFixed(2);
@@ -42,11 +40,7 @@ function PathPage() {
       
       // Update DOM directly
       requestAnimationFrame(() => {
-        if (distanceElementRef.current && distanceNoticeRef.current) {
-          distanceElementRef.current.textContent = distanceRef.current.value;
-          distanceElementRef.current.nextElementSibling.textContent = distanceRef.current.unit;
-          distanceNoticeRef.current.style.display = 'block';
-        }
+        updateDistanceDisplay();
       });
     } else {
       distanceRef.current = null;
@@ -58,6 +52,20 @@ function PathPage() {
       });
     }
   }, []);
+
+  const updateDistanceDisplay = () => {
+    if (!distanceNoticeRef.current) {
+      distanceNoticeRef.current = document.querySelector('.distance-notice');
+    }
+    if (!distanceElementRef.current) {
+      distanceElementRef.current = document.getElementById('distanceToTarget');
+    }
+    if (distanceNoticeRef.current && distanceElementRef.current && distanceRef.current) {
+      distanceElementRef.current.textContent = distanceRef.current.value;
+      distanceElementRef.current.nextElementSibling.textContent = distanceRef.current.unit;
+      distanceNoticeRef.current.style.display = 'block';
+    }
+  };
 
   useEffect(() => {
     const numericPathId = parseInt(pathId, 10);
