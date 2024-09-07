@@ -15,7 +15,6 @@ function Settings() {
     // Set up the scroll event listener
     window.addEventListener('scroll', handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator));
 
-    // Clean up the event listener when the component unmounts
     return () => {
       window.removeEventListener('scroll', handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator));
     };
