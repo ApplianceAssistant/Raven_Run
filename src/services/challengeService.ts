@@ -1,6 +1,9 @@
-import { Challenge, isStoryChallenge, isMultipleChoiceChallenge, isTrueFalseChallenge, isTravelChallenge  } from '../types/challengeTypes';
+import { Challenge, hasTargetLocation, hasHints } from '../types/challengeTypes';
 import { calculateDistance } from '../utils/utils';
 import { paths } from '../data/challenges';
+
+// Map to keep track of hint indices for each challenge
+const hintIndexMap = new Map<string, number>();
 
 export function getPath(pathId: number) {
   return paths.find(path => path.id === pathId);
@@ -13,18 +16,15 @@ export function getChallenges(pathId: number): Challenge[] {
 
 export function getPathName(pathId: number): string {
   const path = getPath(pathId);
-  //return unknown path and back to loby button
   return path ? path.name : 'Unknown Path';
 }
 
-const hintIndexMap = new Map<string, number>();
-
 export function getNextLocationHint(challenge: Challenge): string {
-  if (isTravelChallenge(challenge) && challenge.hints.length > 0) {
+  if (hasHints(challenge)) {
     let hintIndex = hintIndexMap.get(challenge.id) ?? -1;
-    hintIndex = (hintIndex + 1) % challenge.hints.length;
+    hintIndex = (hintIndex + 1) % challenge.hints!.length;
     hintIndexMap.set(challenge.id, hintIndex);
-    return challenge.hints[hintIndex];
+    return challenge.hints![hintIndex];
   }
   return "No hints available.";
 }
@@ -33,10 +33,8 @@ export function resetHintCycle(challengeId: string): void {
   hintIndexMap.delete(challengeId);
 }
 
-
-
 export function checkLocationReached(challenge: Challenge, userLocation: {latitude: number, longitude: number}): boolean {
-  if (!isTravelChallenge(challenge) || !challenge.targetLocation || !challenge.radius) {
+  if (!hasTargetLocation(challenge) || !challenge.radius) {
     return false;
   }
 
@@ -44,68 +42,67 @@ export function checkLocationReached(challenge: Challenge, userLocation: {latitu
     return false;
   }
 
-  const distance = calculateDistance(userLocation, challenge.targetLocation);
+  const distance = calculateDistance(userLocation, challenge.targetLocation!);
   return distance <= challenge.radius;
 }
 
 export function checkAnswer(challenge: Challenge, answer: any): boolean {
-  if (isStoryChallenge(challenge)) {
-    return true; // Stories are always considered "correct"
+  switch (challenge.type) {
+    case 'story':
+      return true; // Stories are always considered "correct"
+    case 'multipleChoice':
+    case 'textInput':
+      return challenge.correctAnswer === answer;
+    case 'trueFalse':
+      return challenge.correctAnswer === answer;
+    default:
+      return false;
   }
-
-  if (isMultipleChoiceChallenge(challenge)) {
-    return challenge.correctAnswer === answer;
-  }
-
-  if (isTrueFalseChallenge(challenge)) {
-    // Ensure both are compared as booleans
-    return challenge.correctAnswer === answer;
-  }
-
-  // Add more conditions for other challenge types
-
-  // If no conditions are met, consider it incorrect
-  return false;
 }
 
 const lastFeedbackIndexMap = new Map<string, number>();
 
 export function getNextIncorrectFeedback(challenge: Challenge): string {
-  
   if (challenge.feedbackTexts && challenge.feedbackTexts.incorrect && challenge.feedbackTexts.incorrect.length > 0) {
     const incorrectFeedbacks = challenge.feedbackTexts.incorrect;
-    // Get the last index used for this challenge, or -1 if it's the first time
     let lastIndex = lastFeedbackIndexMap.get(challenge.id) ?? -1;
-    
-    // Increment the index, wrapping around to 0 if we've reached the end
     let nextIndex = (lastIndex + 1) % incorrectFeedbacks.length;
-    
-    // Store the new index
     lastFeedbackIndexMap.set(challenge.id, nextIndex);
-    
-    // Return the feedback at the new index
     return incorrectFeedbacks[nextIndex];
   }
-
-  return 'Incorrect. Try again.'; // Default message if no specific feedback is available
+  return 'Incorrect. Try again.';
 }
 
-// You may want to add a function to reset the feedback cycle for a challenge
 export function resetFeedbackCycle(challengeId: string): void {
   lastFeedbackIndexMap.delete(challengeId);
 }
 
 export function canDisplayChallenge(challenge: Challenge, hasBeenDisplayed: boolean): boolean {
-  if (isStoryChallenge(challenge)) {
+  if (challenge.type === 'story') {
     return challenge.repeatable || !hasBeenDisplayed;
   }
   return true; // Non-story challenges can always be displayed
 }
 
+export function canDisplayHints(challenge: Challenge): boolean {
+  return hasHints(challenge);
+}
+
+export function canDisplayDistance(challenge: Challenge): boolean {
+  return hasTargetLocation(challenge);
+}
+
 export default {
-  checkLocationReached,
+  getPath,
+  getChallenges,
+  getPathName,
   getNextLocationHint,
+  resetHintCycle,
+  checkLocationReached,
   checkAnswer,
-  getNextIncorrectFeedback
+  getNextIncorrectFeedback,
+  resetFeedbackCycle,
+  canDisplayChallenge,
+  canDisplayHints,
+  canDisplayDistance
 };
-// You can add more functions here as needed for challenge management

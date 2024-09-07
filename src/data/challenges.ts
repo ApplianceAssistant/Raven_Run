@@ -141,7 +141,7 @@ export const paths: Path[] = [
         description: ``,
         question: `What ominous event occurred in Simpsonville on a moonless night in 1902, forever changing the town's destiny?`,
         options: [`The Mysterious Disappearance at Todd's Point Church`, `The Vanishing of the Midnight Train`, `The Great Fire at Simpsonville Asylum`, `The Disappearance of Mayor Elijah Blackwood`],
-        correctAnswer: 'The Legend of Sleepy Hollow',
+        correctAnswer: 'The Vanishing of the Midnight Train',
         hints: [
           "Some say time itself was altered that fateful evening.",
           "The old town records are suspiciously incomplete for that year.",
