@@ -32,7 +32,6 @@ function Home() {
                 )}
               </div>
               <h1>At Your Own Risk</h1>
-              <p>Debug: isLoggedIn = {String(isLoggedIn)}</p>
             </div>
             <div className="scroll-indicator">
               <FontAwesomeIcon icon={faLongArrowUp} className="arrow up" />

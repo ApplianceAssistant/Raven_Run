@@ -212,11 +212,7 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
         {challenge.description && <p className="challenge-description">{challenge.description}</p>}
       </ScrollableContent>
       {challenge.question && <p className="challenge-question">{challenge.question}</p>}
-      {canDisplayDistance(challenge) && (
-        <p className="distance-notice">
-          Distance to target: <span id="distanceToTarget"></span> <span id="distanceToTargetUnit"></span>
-        </p>
-      )}
+      
       {renderChallenge()}
       {canDisplayHints(challenge) && (
         <div className="button-container">

@@ -78,6 +78,14 @@ function PathPage() {
   useEffect(() => {
     if (challengeIndex >= 0 && challenges.length > 0) {
       const challenge = challenges[challengeIndex];
+      console.log("challenge: ", challenge);
+      if(!challenge){
+        //they have finnished the path.
+        //display a message in the and return to the home page
+        alert("Congratulations! You have completed the path.");
+        window.location.href = '/';
+        return;
+      }
       resetFeedbackCycle(challenge.id);
       if (challenge.targetLocation) {
         targetLocationRef.current = challenge.targetLocation;
