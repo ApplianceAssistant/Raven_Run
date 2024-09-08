@@ -25,6 +25,8 @@ function About() {
         <div className="content">
           <h1 className="contentHeader">Like to play games?</h1>
           <div className="bodyContent">
+            <h3>This is a for fun project in progress!</h3>
+            <h2>Check back soon for updates.</h2>
             <p>What's more fun than unraveling a mystery with friends?</p>
             <p>Beware, the guides are not to be trusted! They volunteered, but we are unsure of their origin or intentions.
               They are known to be intentionally misleading and often speak half-truths or outright lies.</p>
