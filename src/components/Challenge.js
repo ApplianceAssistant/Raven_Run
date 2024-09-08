@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { checkLocationReached, getNextLocationHint, checkAnswer, getNextIncorrectFeedback } from '../services/challengeService.ts';
+import { checkLocationReached, getNextLocationHint, checkAnswer, getNextIncorrectFeedback, canDisplayHints, canDisplayDistance } from '../services/challengeService.ts';
 import ScrollableContent from './ScrollableContent';
 import TextToSpeech from './TextToSpeech';
 
@@ -16,10 +16,13 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
     setFeedback('');
     setIsCorrect(false);
     setAnswer('');
+    setHint('');
+    setIsLocationReached(false);
 
-    const textFadeTimer = setTimeout(() => setTextVisible(true), 700);
+    // Trigger fade-in effect
+    const textFadeTimer = setTimeout(() => setTextVisible(true), 300);
 
-    if (challenge.type === 'travel') {
+    if (canDisplayDistance(challenge)) {
       checkTravelChallenge();
     }
 
@@ -47,7 +50,6 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
 
   const handleInputChange = (e) => {
     let value = e.target.value;
-    // Convert "true" and "false" strings to booleans for trueFalse challenges
     if (challenge.type === 'trueFalse') {
       value = value === 'true';
     }
@@ -63,10 +65,10 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
     const feedbackText = correct ? challenge.feedbackTexts.correct : getNextIncorrectFeedback(challenge);
     setFeedback(feedbackText);
 
-    if (!challenge.repeatable && correct === false) {
-      // For non-repeatable challenges or trueFalse, always show feedback and enable continuing
-      console.log("wrong but we are moving on");
-      //setIsFeedbackVisible(true);
+    if (correct || (!challenge.repeatable && challenge.type !== 'travel')) {
+      setTimeout(() => {
+        onComplete(correct);
+      }, 2000);
     }
   };
 
@@ -102,6 +104,8 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
         return renderTrueFalseChallenge();
       case 'textInput':
         return renderTextInputChallenge();
+      case 'areaSearch':
+        return renderAreaSearchChallenge();
       default:
         return <p>Unsupported challenge type</p>;
     }
@@ -109,12 +113,6 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
 
   const renderTravelChallenge = () => (
     <div>
-      {!isLocationReached && (
-        <div className="button-container">
-          <button onClick={handleGetHint} className="hint-button">Get Hint</button>
-        </div>
-      )}
-      {hint && <p className="hint">{hint}</p>}
       {isLocationReached && (
         <div className="button-container">
           <button onClick={handleContinue} className="continue-button">Continue</button>
@@ -186,6 +184,15 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
     </form>
   );
 
+  const renderAreaSearchChallenge = () => (
+    <div>
+      {challenge.clues.map((clue, index) => (
+        <p key={index} className="clue">{clue}</p>
+      ))}
+      {renderActionButton()}
+    </div>
+  );
+
   const renderActionButton = () => (
     <div className="button-container">
       {(isCorrect || !challenge.repeatable || (challenge.type === 'trueFalse' && feedback)) ? (
@@ -205,7 +212,14 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
         {challenge.description && <p className="challenge-description">{challenge.description}</p>}
       </ScrollableContent>
       {challenge.question && <p className="challenge-question">{challenge.question}</p>}
+      
       {renderChallenge()}
+      {canDisplayHints(challenge) && (
+        <div className="button-container">
+          <button onClick={handleGetHint} className="hint-button">Get Hint</button>
+        </div>
+      )}
+      {hint && <p className="hint">{hint}</p>}
       <p className={`feedback ${feedback ? 'visible' : ''} ${isCorrect ? 'green' : ''}`}>{feedback}</p>
       {renderSkipButton()}
     </div>

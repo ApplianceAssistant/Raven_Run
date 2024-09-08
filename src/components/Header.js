@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../App';  // Adjust the import path as needed
 import '../css/Header.scss';
 
 function Header({ isMenuOpen, toggleMenu }) {
+  const { isLoggedIn } = useContext(AuthContext);
+
+  const menuItems = isLoggedIn
+    ? ['Home', 'Settings', 'About', 'Contact', 'Create']
+    : ['Home', 'Create Account', 'About', 'Contact'];
+
   return (
     <>
       <header className="header">
@@ -11,9 +18,9 @@ function Header({ isMenuOpen, toggleMenu }) {
         </div>
         <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <ul>
-            {['Home', 'About', 'Contact'].map((item, index) => (
+            {menuItems.map((item, index) => (
               <li key={item} className={isMenuOpen ? 'open' : ''} style={{transitionDelay: `${index * 0.1}s`}}>
-                <Link to={item === 'Home' ? '/' : `/${item.toLowerCase()}`} onClick={toggleMenu}>
+                <Link to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} onClick={toggleMenu}>
                   {item}
                 </Link>
               </li>
@@ -28,6 +35,5 @@ function Header({ isMenuOpen, toggleMenu }) {
     </>
   );
 }
- 
 
 export default Header;

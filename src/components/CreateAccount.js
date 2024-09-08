@@ -51,8 +51,8 @@ function CreateAccount() {
   
       // Optionally, you can store the user data in your app's state or local storage here
   
-      // Redirect to lobby
-      navigate('/lobby');
+      // Redirect to home page
+      navigate('/');
     } catch (error) {
       console.error('Error creating account:', error);
       alert('Failed to create account. Please try again.');
@@ -61,7 +61,7 @@ function CreateAccount() {
 
   return (
     <div className="content-wrapper">
-      <div className="spirit-guide-large">
+      <div className="spirit-guide large">
         <div className="bodyContent center">
           <h1>Gather Your Courage</h1>
           {!serverStatus.isConnected && (

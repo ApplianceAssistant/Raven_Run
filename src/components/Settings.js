@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLongArrowUp, faLongArrowDown, faArrowsV } from '@fortawesome/free-solid-svg-icons';
 import { handleScroll } from '../utils/utils';
 
-function About() {
+function Settings() {
   useEffect(() => {
     // Call handleScroll after the component mounts
     const contentWrapper = document.querySelector('.spirit-guide large');
@@ -23,14 +23,9 @@ function About() {
     <div className="content-wrapper">
       <div className="spirit-guide large">
         <div className="content">
-          <h1 className="contentHeader">Like to play games?</h1>
+          <h1 className="contentHeader">Your Settings</h1>
           <div className="bodyContent">
-            <h3>This is a for fun project in progress!</h3>
-            <h2>Check back soon for updates.</h2>
-            <p>What's more fun than unraveling a mystery with friends?</p>
-            <p>Beware, the guides are not to be trusted! They volunteered, but we are unsure of their origin or intentions.
-              They are known to be intentionally misleading and often speak half-truths or outright lies.</p>
-            <p>All the more reason to trust the friends by your side to solve each puzzle and discover the truth!</p>
+            <p>This is where you can update your settings and preferences</p>
           </div>
           <div className="scroll-indicator">
             <FontAwesomeIcon icon={faLongArrowUp} className="arrow up" />
@@ -43,4 +38,4 @@ function About() {
   );
 }
 
-export default About;
+export default Settings;

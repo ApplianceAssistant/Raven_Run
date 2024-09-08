@@ -48,30 +48,27 @@ body {
       rgba(180, 226, 247, 0.25) 60%,
       rgba(255, 255, 255, 0.0) 100%);
   border-radius: 50%;
-  animation: move 10s infinite;
+  animation: move 15s infinite;
+  opacity: 0;
 }
 
-@keyframes sizeChange {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.5);
-  }
-}
-
+//create second move animation
 @keyframes move {
   0%, 100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(.3);
+    opacity: 0.2;
   }
   25% {
-    transform: translate(100px, 100px) scale(1.5);
+    transform: translate(100px, 150px) scale(.9);
+    opacity: .4;
   }
   50% {
-    transform: translate(-50px, 50px) scale(1);
+    transform: translate(-100px, 50px) scale(1.2);
+    opacity: 0.6;
   }
   75% {
-    transform: translate(50px, -50px) scale(1.5);
+    transform: translate(50px, -100px) scale(1);
+    opacity: 0.5;
   }
 }
 
@@ -207,14 +204,6 @@ body {
         color: darken($text-color, 15%);
       }
     }
-
-    select {
-      padding: 0.3rem;
-      border-radius: 4px;
-      background-color: $dark-bg;
-      color: $text-color;
-      border: 1px solid $text-color;
-    }
   }
 }
 // Button styles
@@ -230,6 +219,14 @@ button {
   &:hover {
     background-color: darken($spooky-accent, 10%);
     box-shadow: 0 0 15px rgba($spooky-accent, 0.7);
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
   }
 }
 
@@ -278,7 +275,8 @@ form {
 
   // General styles for all input types and textarea
   input,
-  textarea {
+  textarea,
+  text {
     padding: 10px;
     margin: 10px;
     border: none;
@@ -291,10 +289,31 @@ form {
       outline: none;
       box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
     }
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
+    }
   }
 
+  select {
+    padding: 0.3rem;
+    border-radius: 4px;
+    background-color: $dark-bg;
+    color: $text-color;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+    }
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
+    }
+  }
+  
+
   // Specific styles for text-like inputs and textarea
-  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="reset"]):not([type="button"]):not([type="file"]),
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="reset"]):not([type="button"]):not([type="file"]:not([type="select"])),
   textarea {
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -306,6 +325,10 @@ form {
     &:focus {
       outline: none;
       box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+    }
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
     }
   }
 
@@ -343,6 +366,7 @@ form {
       background-color: $spooky-accent;
     }
   }
+  
 }
 
 
@@ -399,6 +423,12 @@ form {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.7s ease-in-out;
+
+  &.content-visible {
+    opacity: 1;
+  }
 }
 
 .path-content {
@@ -414,6 +444,24 @@ form {
   margin-bottom: 20px;
   color: rgba($spooky-accent, 1);
   opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+
+  .content-visible & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.distance-notice {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+
+  .content-visible & {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 //dev styles
@@ -490,6 +538,18 @@ form {
 .next-button:hover {
   background-color: #007B9A;
 }
+
+.challenge-wrapper {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .challengeBody {
   display: flex;
   flex-direction: column;
@@ -497,13 +557,17 @@ form {
   justify-content: center;
   opacity: 0;
   transform: translateY(20px);
-  transition: all 0.5s ease;
+  transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
 
-  &.fade-in {
+  .content-visible & {
     opacity: 1;
     transform: translateY(0);
   }
 
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
   .challenge {
     margin-bottom: 20px;
     padding: 20px;
@@ -565,6 +629,21 @@ form {
     max-width: 500px;
   }
 }
+
+.content-visible {
+  .path-title {
+    transition-delay: 0.2s;
+  }
+
+  .distance-notice {
+    transition-delay: 0.4s;
+  }
+
+  .challengeBody {
+    transition-delay: 0.6s;
+  }
+}
+
 .visible {
   opacity: 1;
 }
