@@ -29,7 +29,7 @@ export function getNextLocationHint(challenge: Challenge): string {
   return "No hints available.";
 }
 
-export function resetHintCycle(challengeId: string): void {
+export function resetHintCycle(challengeId: number): void {
   hintIndexMap.delete(challengeId);
 }
 

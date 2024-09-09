@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import SpiritGuide from './SpiritGuide';
 import { Challenge } from './Challenge';
 import { getChallenges, getPathName, resetFeedbackCycle } from '../services/challengeService.ts';
+import ScrollableContent from './ScrollableContent';
 import { calculateDistance, getCurrentLocation, addLocationListener, removeLocationListener } from '../utils/utils.js';
 
 function PathPage() {
@@ -79,7 +80,7 @@ function PathPage() {
     if (challengeIndex >= 0 && challenges.length > 0) {
       const challenge = challenges[challengeIndex];
       console.log("challenge: ", challenge);
-      if(!challenge){
+      if (!challenge) {
         //they have finnished the path.
         //display a message in the and return to the home page
         alert("Congratulations! You have completed the path.");
@@ -124,15 +125,14 @@ function PathPage() {
   return (
     <div className="content-wrapper">
       <SpiritGuide
-          isSmall={isSpiritGuideSmall}
-          distance={distance}
-          isFirstTransition={isFirstChallenge && isSpiritGuideSmall}
-        />
+        isSmall={isSpiritGuideSmall}
+        distance={distance}
+        isFirstTransition={isFirstChallenge && isSpiritGuideSmall}
+      />
       <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
         <main className="path-content">
-          <h1 className="path-title">{pathName}</h1>
           <p className="distance-notice" style={{ display: 'none' }}>
-            Distance to target: <span id="distanceToTarget"></span> <span id="distanceToTargetUnit"></span>
+            Distance: <span id="distanceToTarget"></span> <span id="distanceToTargetUnit"></span>
           </p>
           <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
             {currentChallenge && (
@@ -145,7 +145,6 @@ function PathPage() {
             )}
           </div>
         </main>
-        
       </div>
     </div>
   );

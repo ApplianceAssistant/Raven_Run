@@ -100,5 +100,8 @@ export function hasTargetLocation(challenge: Challenge): boolean {
 }
 
 export function hasHints(challenge: Challenge): boolean {
+  if(!challenge) {
+    return false;
+  }
   return !!challenge.hints && challenge.hints.length > 0;
 }

@@ -87,9 +87,7 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
   };
 
   const renderSkipButton = () => (
-    <div className="button-container">
-      <button onClick={handleSkip} className="skip-button">Skip Challenge</button>
-    </div>
+    <button onClick={handleSkip} className="skip-button">Skip</button>
   );
 
   const renderChallenge = () => {
@@ -112,23 +110,17 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
   };
 
   const renderTravelChallenge = () => (
-    <div>
+    <>
       {isLocationReached && (
-        <div className="button-container">
-          <button onClick={handleContinue} className="continue-button">Continue</button>
-        </div>
+        <button onClick={handleContinue} className="continue-button">Continue</button>
       )}
-    </div>
+    </>
   );
 
   const renderStoryChallenge = () => (
     <div className="story-challenge">
-      <ScrollableContent maxHeight="400px">
-        <div className="story-text">{challenge.storyText}</div>
-      </ScrollableContent>
-      <div className="button-container">
-        <button onClick={handleContinue}>Continue</button>
-      </div>
+      <div className="story-text">{challenge.storyText}</div>
+      <button onClick={handleContinue}>Continue</button>
     </div>
   );
 
@@ -191,37 +183,38 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
       ))}
       {renderActionButton()}
     </div>
-  );
+  );    
 
   const renderActionButton = () => (
-    <div className="button-container">
+    <>
       {(isCorrect || !challenge.repeatable || (challenge.type === 'trueFalse' && feedback)) ? (
         <button onClick={handleContinue} className="continue-button">Continue</button>
       ) : (
         <button type="submit" className="submit-button">Submit</button>
       )}
-    </div>
+    </>
   );
 
   return (
-    <div className={`challengeBody ${textVisible ? 'visible' : ''}`}>
-      <h2>{challenge.title}</h2>
+    <>
+      <div className={`challengeBody ${textVisible ? 'visible' : ''}`}>
+        <h2>{challenge.title}</h2>
+        <ScrollableContent maxHeight="60vh">
+          {challenge.description && <p className="challenge-description">{challenge.description}</p>}
+          {challenge.question && <p className="challenge-question">{challenge.question}</p>}
+          {renderChallenge()}
+        </ScrollableContent>
+        {hint && <p className="hint">{hint}</p>}
+        <p className={`feedback ${feedback ? 'visible' : ''} ${isCorrect ? 'green' : ''}`}>{feedback}</p>
+      </div>
+      <div className="button-container-bottom">
       {challenge.type === 'story' && <TextToSpeech text={challenge.storyText} />}
       {challenge.type === 'travel' && <TextToSpeech text={challenge.description} />}
-      <ScrollableContent maxHeight="400px">
-        {challenge.description && <p className="challenge-description">{challenge.description}</p>}
-      </ScrollableContent>
-      {challenge.question && <p className="challenge-question">{challenge.question}</p>}
-      
-      {renderChallenge()}
-      {canDisplayHints(challenge) && (
-        <div className="button-container">
-          <button onClick={handleGetHint} className="hint-button">Get Hint</button>
-        </div>
-      )}
-      {hint && <p className="hint">{hint}</p>}
-      <p className={`feedback ${feedback ? 'visible' : ''} ${isCorrect ? 'green' : ''}`}>{feedback}</p>
-      {renderSkipButton()}
-    </div>
+        {canDisplayHints(challenge) && (
+          <button onClick={handleGetHint} className="hint-button">Hint</button>
+        )}
+        {renderSkipButton()}
+      </div>
+    </>
   );
 };

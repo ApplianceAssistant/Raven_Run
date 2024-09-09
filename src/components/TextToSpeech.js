@@ -11,7 +11,7 @@ const TextToSpeech = ({ text }) => {
     const loadVoices = () => {
       const availableVoices = window.speechSynthesis.getVoices();
       setVoices(availableVoices);
-      setSelectedVoice(availableVoices[2]); // Default to first voice
+      setSelectedVoice(availableVoices[0]); // Default to first voice
     };
 
     loadVoices();
@@ -38,7 +38,7 @@ const TextToSpeech = ({ text }) => {
       <button onClick={handleSpeak} className="speak-button">
         <FontAwesomeIcon icon={isSpeaking ? faVolumeMute : faVolumeUp} />
       </button>
-
+    
     </div>
   );
 };
