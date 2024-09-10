@@ -8,6 +8,7 @@ import {
   updateChallengeState,
   shouldDisplaySubmitButton,
   shouldDisplayContinueButton,
+  shouldDisplaySkipButton,
   handleSubmit,
   getNextHintState,
   canDisplayHints,
@@ -89,6 +90,14 @@ function PathPage() {
     setChallengeState(prevState => getNextHintState(currentChallenge, prevState));
   };
 
+  const handleSkipClick = () => {
+    setContentVisible(false);
+    setChallengeVisible(false);
+    setTimeout(() => {
+      setChallengeIndex(prevIndex => prevIndex + 1);
+    }, 500);
+  };
+
   const renderButtons = () => {
     if (!currentChallenge) return null;
 
@@ -105,6 +114,9 @@ function PathPage() {
         )}
         {shouldDisplayContinueButton(currentChallenge, challengeState) && (
           <button onClick={handleContinueClick} className="continue-button">Continue</button>
+        )}
+        {shouldDisplaySkipButton(currentChallenge, challengeState) && (
+          <button onClick={handleSkipClick} className="skip-button">Skip</button>
         )}
       </div>
     );

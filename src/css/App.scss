@@ -242,6 +242,41 @@ button {
     box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
   }
 }
+.submit-button {
+  background-color: rgb(1, 94, 1);
+  color: $text-color;
+
+  &:hover {
+    background-color: darken($spooky-accent, 10%);
+  }
+}
+
+.hint-button{
+  background-color: rgb(150, 98, 3);
+
+  &:hover {
+    background-color: darken($spooky-accent, 10%);
+    color:$text-color;
+    box-shadow: 0 0 15px rgba($spooky-accent, 0.7);
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
+  }
+}
+
+.continue-button {
+  background-color: rgb(1, 94, 1);
+  color: $text-color;
+
+  &:hover {
+    background-color: darken($spooky-accent, 10%);
+  }
+}
 
 /* If you want to ensure buttons are the same width */
 .join-button,

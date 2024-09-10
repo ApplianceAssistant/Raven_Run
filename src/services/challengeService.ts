@@ -49,7 +49,25 @@ export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
 
 // New function to check if the continue button should be displayed
 export function shouldDisplayContinueButton(challenge: Challenge, state: ChallengeState): boolean {
-  return (state.isCorrect || !challenge.repeatable || (challenge.type === 'trueFalse' && state.feedback !== ''));
+  switch (challenge.type) {
+    case 'story':
+      return state.textVisible; // Story is complete when text has been displayed
+    case 'trueFalse':
+      return state.isAnswerSelected && (state.isCorrect || (hasTargetLocation(challenge) && state.isLocationReached));
+    case 'multipleChoice':
+    case 'textInput':
+      return state.isCorrect;
+    case 'travel':
+    case 'areaSearch':
+      return hasTargetLocation(challenge) && state.isLocationReached;
+    default:
+      return false; // For any other challenge types
+  }
+}
+
+// Add a new function for the skip button
+export function shouldDisplaySkipButton(challenge: Challenge, state: ChallengeState): boolean {
+  return !shouldDisplayContinueButton(challenge, state);
 }
 
 // New function to handle submit action
@@ -198,4 +216,5 @@ export default {
   getNextHintState,
   updateDistance,
   shouldDisplayDistanceNotice,
+  shouldDisplaySkipButton,
 };

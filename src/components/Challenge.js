@@ -36,7 +36,7 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
       case 'areaSearch':
         return renderAreaSearchChallenge();
       default:
-        return <p>Unsupported challenge type</p>;
+        return null;
     }
   };
 

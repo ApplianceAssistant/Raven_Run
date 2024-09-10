@@ -15,7 +15,7 @@ export const paths: Path[] = [
     dayOnly: false,
     challenges: [
       {
-        id: 0,
+        id: '0',
         type: 'travel',
         title: 'Silent Knowledge',
         description: `I'm a silent forest of knowledge,
@@ -43,7 +43,7 @@ export const paths: Path[] = [
         repeatable: false,
       },
       {
-        id: 1,
+        id: '1',
         type: 'travel',
         title: 'Wooden Guardian',
         description: `Gnarled and twisted, I stand alone,
@@ -69,7 +69,7 @@ export const paths: Path[] = [
         repeatable: false,
       },
       {
-        id: 2,
+        id: '2',
         type: 'travel',
         title: 'Herbal Wards',
         description: `In Simpsonville, where stories unfold,
@@ -104,7 +104,7 @@ export const paths: Path[] = [
         repeatable: false
       },
       {
-        id: 3,
+        id: '3',
         type: 'multipleChoice',
         title: 'Echoes of the Past (Fiction)',
         description: ``,
@@ -128,7 +128,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: 4,
+        id: '4',
         type: 'trueFalse',
         title: 'Waverly Hills Sanatorium',
         description: '',
@@ -143,7 +143,7 @@ export const paths: Path[] = [
         repeatable: false
       },
       {
-        id: 5,
+        id: '5',
         type: 'story',
         title: 'The Haunting of Waverly Hills',
         description: '',
@@ -156,7 +156,7 @@ export const paths: Path[] = [
         repeatable: false
       },
       {
-        id: 6,
+        id: '6',
         type: 'multipleChoice',
         title: 'How well did you pay attention?',
         description: ``,
@@ -184,7 +184,7 @@ export const paths: Path[] = [
     dayOnly: false,
     challenges: [
       {
-      id: 0,
+      id: '0',
       type: 'travel',
       title: 'Wooden Guardian',
       description: `Gnarled and twisted, I stand alone,
@@ -218,7 +218,7 @@ export const paths: Path[] = [
     dayOnly: true,
     challenges: [
       {
-      id: 1,
+      id: '1',
       type: 'travel',
       title: 'Wooden Guardian',
       description: `Gnarled and twisted, I stand alone,
