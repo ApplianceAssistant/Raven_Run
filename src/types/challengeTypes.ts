@@ -12,7 +12,7 @@ export interface Location {
 
 // Base challenge type
 interface BaseChallenge {
-  id: number;
+  id: string;
   type: string;
   title: string;
   description?: string;

@@ -2,6 +2,58 @@ import { Challenge, hasTargetLocation, hasHints } from '../types/challengeTypes'
 import { calculateDistance } from '../utils/utils';
 import { paths } from '../data/challenges';
 
+// Define the ChallengeState interface
+export interface ChallengeState {
+  isLocationReached: boolean;
+  answer: string | boolean;
+  hint: string;
+  isCorrect: boolean;
+  feedback: string;
+  isAnswerSelected: boolean;
+  textVisible: boolean;
+}
+
+// Update the initializeChallengeState function to include textVisible
+export function initializeChallengeState(): ChallengeState {
+  return {
+    isLocationReached: false,
+    answer: '',
+    hint: '',
+    isCorrect: false,
+    feedback: '',
+    isAnswerSelected: false,
+    textVisible: false,
+  };
+}
+
+// New function to check if the continue button should be displayed
+export function shouldDisplayContinueButton(challenge: Challenge, state: ChallengeState): boolean {
+  return (state.isCorrect || !challenge.repeatable || (challenge.type === 'trueFalse' && state.feedback !== ''));
+}
+
+// New function to handle submit action
+export function handleSubmit(challenge: Challenge, state: ChallengeState): ChallengeState {
+  const isCorrect = checkAnswer(challenge, state.answer);
+  const feedbackText = isCorrect 
+    ? challenge.feedbackTexts?.correct || 'Correct!'
+    : getNextIncorrectFeedback(challenge);
+
+  return {
+    ...state,
+    isCorrect,
+    feedback: feedbackText,
+  };
+}
+
+// New function to get the next hint
+export function getNextHintState(challenge: Challenge, currentState: ChallengeState): ChallengeState {
+  if (hasHints(challenge)) {
+    const nextHint = getNextHint(challenge);
+    return { ...currentState, hint: nextHint };
+  }
+  return currentState;
+}
+
 // Map to keep track of hint indices for each challenge
 const hintIndexMap = new Map<string, number>();
 
@@ -19,7 +71,7 @@ export function getPathName(pathId: number): string {
   return path ? path.name : 'Unknown Path';
 }
 
-export function getNextLocationHint(challenge: Challenge): string {
+export function getNextHint(challenge: Challenge): string {
   if (hasHints(challenge)) {
     let hintIndex = hintIndexMap.get(challenge.id) ?? -1;
     hintIndex = (hintIndex + 1) % challenge.hints!.length;
@@ -29,11 +81,11 @@ export function getNextLocationHint(challenge: Challenge): string {
   return "No hints available.";
 }
 
-export function resetHintCycle(challengeId: number): void {
+export function resetHintCycle(challengeId: string): void {
   hintIndexMap.delete(challengeId);
 }
 
-export function checkLocationReached(challenge: Challenge, userLocation: {latitude: number, longitude: number}): boolean {
+export function checkLocationReached(challenge: Challenge, userLocation: { latitude: number, longitude: number }): boolean {
   if (!hasTargetLocation(challenge) || !challenge.radius) {
     return false;
   }
@@ -52,7 +104,6 @@ export function checkAnswer(challenge: Challenge, answer: any): boolean {
       return true; // Stories are always considered "correct"
     case 'multipleChoice':
     case 'textInput':
-      return challenge.correctAnswer === answer;
     case 'trueFalse':
       return challenge.correctAnswer === answer;
     default:
@@ -92,17 +143,36 @@ export function canDisplayDistance(challenge: Challenge): boolean {
   return hasTargetLocation(challenge);
 }
 
+export function updateChallengeState(challenge: Challenge, currentState: ChallengeState, updates: Partial<ChallengeState>): ChallengeState {
+  const newState = { ...currentState, ...updates };
+  
+  if (updates.answer !== undefined) {
+    newState.isAnswerSelected = true;
+    newState.feedback = '';
+  }
+
+  return newState;
+}
+
+export function shouldDisplaySubmitButton(challenge: Challenge, state: ChallengeState): boolean {
+  return state.isAnswerSelected && !state.isCorrect;
+}
+
 export default {
   getPath,
   getChallenges,
   getPathName,
-  getNextLocationHint,
-  resetHintCycle,
   checkLocationReached,
   checkAnswer,
   getNextIncorrectFeedback,
   resetFeedbackCycle,
   canDisplayChallenge,
   canDisplayHints,
-  canDisplayDistance
+  canDisplayDistance,
+  initializeChallengeState,
+  updateChallengeState,
+  shouldDisplaySubmitButton,
+  shouldDisplayContinueButton,
+  handleSubmit,
+  getNextHintState,
 };
