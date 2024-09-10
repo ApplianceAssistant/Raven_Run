@@ -436,9 +436,9 @@ form {
   }
 }
 
-//pash page styles
+//path page styles
 .path-page {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   opacity: 0;
@@ -691,7 +691,13 @@ form {
   display: flex;
   flex-wrap: wrap;
   justify-content: center; /* Center the buttons horizontally */
-  gap: 10px; 
+  gap: 10px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+
+  &.visible {
+    opacity: 1;
+  }
 }
 .account-field {
   display: flex;

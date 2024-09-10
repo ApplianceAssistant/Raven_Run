@@ -28,6 +28,7 @@ function PathPage() {
   const [challengeVisible, setChallengeVisible] = useState(false);
   const [distanceInfo, setDistanceInfo] = useState({ distance: null, displayValue: '', unit: '' });
   const distanceIntervalRef = useRef(null);
+  const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
 
   useEffect(() => {
     const numericPathId = parseInt(pathId, 10);
@@ -41,10 +42,12 @@ function PathPage() {
       setChallengeState(initializeChallengeState());
       setContentVisible(false);
       setChallengeVisible(false);
+      setButtonContainerVisible(false);
       setTimeout(() => {
         setContentVisible(true);
         setTimeout(() => {
           setChallengeVisible(true);
+          setButtonContainerVisible(true);
         }, 300); // Delay challenge visibility
       }, 100); // Delay to trigger transition
 
@@ -52,6 +55,7 @@ function PathPage() {
       if (distanceIntervalRef.current) {
         clearInterval(distanceIntervalRef.current);
       }
+
       if (shouldDisplayDistanceNotice(challenges[challengeIndex])) {
         distanceIntervalRef.current = setInterval(() => {
           const newDistanceInfo = updateDistance(challenges[challengeIndex]);
@@ -102,7 +106,7 @@ function PathPage() {
     if (!currentChallenge) return null;
 
     return (
-      <div className="button-container-bottom">
+      <div className={`button-container-bottom ${buttonContainerVisible ? 'visible' : ''}`}>
         {(currentChallenge.description || currentChallenge.storyText) &&
           <TextToSpeech text={currentChallenge.description || currentChallenge.storyText} />
         }
@@ -129,9 +133,8 @@ function PathPage() {
           Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span> <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
         </p>
       )}
-
-      <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
-        <div className="spirit-guide large">
+      <div className="spirit-guide large">
+        <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
           <main className="path-content content">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
               {currentChallenge && (
