@@ -1,5 +1,5 @@
 import { Challenge, hasTargetLocation, hasHints } from '../types/challengeTypes';
-import { calculateDistance } from '../utils/utils';
+import { calculateDistance, getCurrentLocation } from '../utils/utils';
 import { paths } from '../data/challenges';
 
 // Define the ChallengeState interface
@@ -24,6 +24,27 @@ export function initializeChallengeState(): ChallengeState {
     isAnswerSelected: false,
     textVisible: false,
   };
+}
+
+export function updateDistance(challenge: Challenge): { distance: number | null, displayValue: string, unit: string } {
+  const userLocation = getCurrentLocation();
+  if (userLocation && hasTargetLocation(challenge)) {
+    const distanceInMeters = calculateDistance(userLocation, challenge.targetLocation!);
+    const distanceInMiles = (distanceInMeters / 1609.344).toFixed(2);
+    const newDistance = parseFloat(distanceInMiles);
+
+    if (newDistance >= 0.1) {
+      return { distance: newDistance, displayValue: distanceInMiles, unit: 'miles' };
+    } else {
+      const distanceInFeet = Math.round(newDistance * 5280);
+      return { distance: newDistance, displayValue: distanceInFeet.toString(), unit: 'feet' };
+    }
+  }
+  return { distance: null, displayValue: '', unit: '' };
+}
+
+export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
+  return hasTargetLocation(challenge) && typeof challenge.radius === 'number';
 }
 
 // New function to check if the continue button should be displayed
@@ -175,4 +196,6 @@ export default {
   shouldDisplayContinueButton,
   handleSubmit,
   getNextHintState,
+  updateDistance,
+  shouldDisplayDistanceNotice,
 };

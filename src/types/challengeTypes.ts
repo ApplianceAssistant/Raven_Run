@@ -96,12 +96,9 @@ export function isAreaSearchChallenge(challenge: Challenge): challenge is AreaSe
 }
 
 export function hasTargetLocation(challenge: Challenge): boolean {
-  return !!challenge.targetLocation;
+  return !!challenge && !!challenge.targetLocation;
 }
 
 export function hasHints(challenge: Challenge): boolean {
-  if(!challenge) {
-    return false;
-  }
-  return !!challenge.hints && challenge.hints.length > 0;
+  return !!challenge && Array.isArray(challenge.hints) && challenge.hints.length > 0;
 }

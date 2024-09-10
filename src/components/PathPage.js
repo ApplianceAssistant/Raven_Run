@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Challenge } from './Challenge';
 import {
@@ -11,7 +11,8 @@ import {
   handleSubmit,
   getNextHintState,
   canDisplayHints,
-  canDisplayDistance
+  updateDistance,
+  shouldDisplayDistanceNotice
 } from '../services/challengeService.ts';
 import { getCurrentLocation } from '../utils/utils.js';
 import TextToSpeech from './TextToSpeech';
@@ -24,6 +25,8 @@ function PathPage() {
   const [challengeState, setChallengeState] = useState(initializeChallengeState());
   const [contentVisible, setContentVisible] = useState(false);
   const [challengeVisible, setChallengeVisible] = useState(false);
+  const [distanceInfo, setDistanceInfo] = useState({ distance: null, displayValue: '', unit: '' });
+  const distanceIntervalRef = useRef(null);
 
   useEffect(() => {
     const numericPathId = parseInt(pathId, 10);
@@ -43,7 +46,24 @@ function PathPage() {
           setChallengeVisible(true);
         }, 300); // Delay challenge visibility
       }, 100); // Delay to trigger transition
+
+      // Clear previous interval and start new one for distance updates
+      if (distanceIntervalRef.current) {
+        clearInterval(distanceIntervalRef.current);
+      }
+      if (shouldDisplayDistanceNotice(challenges[challengeIndex])) {
+        distanceIntervalRef.current = setInterval(() => {
+          const newDistanceInfo = updateDistance(challenges[challengeIndex]);
+          setDistanceInfo(newDistanceInfo);
+        }, 2000);
+      }
     }
+
+    return () => {
+      if (distanceIntervalRef.current) {
+        clearInterval(distanceIntervalRef.current);
+      }
+    };
   }, [challengeIndex, challenges]);
 
   const currentChallenge = challenges[challengeIndex];
@@ -71,7 +91,7 @@ function PathPage() {
 
   const renderButtons = () => {
     if (!currentChallenge) return null;
-    
+
     return (
       <div className="button-container-bottom">
         {(currentChallenge.description || currentChallenge.storyText) &&
@@ -92,10 +112,11 @@ function PathPage() {
 
   return (
     <div className="content-wrapper">
-      <p className={`distance-notice ${contentVisible ? 'visible' : ''}`} 
-         style={{ display: currentChallenge && canDisplayDistance(currentChallenge) ? 'block' : 'none' }}>
-        Distance: <span id="distanceToTarget"></span> <span id="distanceToTargetUnit"></span>
-      </p>
+      {shouldDisplayDistanceNotice(currentChallenge) && (
+        <p className={`distance-notice ${contentVisible ? 'visible' : ''}`}>
+          Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span> <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
+        </p>
+      )}
 
       <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
         <div className="spirit-guide large">
@@ -105,7 +126,7 @@ function PathPage() {
                 <Challenge
                   key={challengeIndex}
                   challenge={currentChallenge}
-                  challengeState={{...challengeState, textVisible: challengeVisible}}
+                  challengeState={{ ...challengeState, textVisible: challengeVisible }}
                   onStateChange={handleStateChange}
                   userLocation={getCurrentLocation()}
                 />
