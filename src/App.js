@@ -9,8 +9,8 @@ import PathPage from './components/PathPage';
 import Settings from './components/Settings';
 import Create from './components/GameCreator';
 import Header from './components/Header';
-import DevLocationSetter from './dev/locationSetter';
 import { startLocationUpdates, stopLocationUpdates, getCurrentLocation, updateUserLocation } from './utils/utils';
+//import DevLocationSetter from './dev/locationSetter';
 import './css/App.scss';
 import './css/SpiritGuide.scss';
 
@@ -141,14 +141,7 @@ function App() {
               )}
             </Routes>
           </main>
-          {process.env.NODE_ENV === 'development' && (
-            <div className="dev-tools">
-              <button onClick={toggleDevMode} className="dev-toggle-btn">
-                {useDevLocation ? 'Use Real Location' : 'Use Dev Location'}
-              </button>
-              {useDevLocation && <DevLocationSetter onLocationSet={handleDevLocationSet} />}
-            </div>
-          )}
+
         </div>
       </Router>
     </AuthContext.Provider>

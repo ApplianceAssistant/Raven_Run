@@ -18,19 +18,17 @@ if [ ! -d "build" ]; then
     exit 1
 fi
 
-# Create a backup of current deployment
-echo "Creating backup..."
-timestamp=$(date +%Y%m%d_%H%M%S)
-mkdir -p "../backups/$timestamp"
-cp -R index.html asset-manifest.json static "../backups/$timestamp/" 2>/dev/null
+# Remove existing static directory and other files that will be replaced
+echo "Removing existing files..."
+rm -rf static index.html asset-manifest.json
 
 # Move build files to the public_html directory
+echo "Moving new files..."
 mv build/* .
-mv build/.* . 2>/dev/null
-rmdir build
+mv build/.* . 2>/dev/null || true  # Don't error if no hidden files
 
 # Clean up
 echo "Cleaning up..."
-rm -rf src
+rm -rf build src
 
 echo "Deployment completed successfully."

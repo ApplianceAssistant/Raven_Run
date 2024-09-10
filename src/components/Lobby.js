@@ -3,13 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ScrollableContent from './ScrollableContent';
 import { faLongArrowUp, faLongArrowDown, faArrowsV, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { paths } from '../data/challenges';
 
-function Lobby() {
-  const [paths, setPaths] = useState([
-    { id: 0, name: "Down Town", dayOnly: false },
-    { id: 1, name: "The Woods", dayOnly: true },
-    { id: 3, name: "Maul", dayOnly: true }
-  ]);
+function Lobby() {  
 
   const navigate = useNavigate();
 

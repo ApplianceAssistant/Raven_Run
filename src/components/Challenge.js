@@ -1,101 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { checkLocationReached, getNextLocationHint, checkAnswer, getNextIncorrectFeedback, canDisplayHints, canDisplayDistance } from '../services/challengeService.ts';
+import React, { useEffect } from 'react';
+import { checkLocationReached, canDisplayDistance } from '../services/challengeService.ts';
 import ScrollableContent from './ScrollableContent';
-import TextToSpeech from './TextToSpeech';
 
-export const Challenge = ({ challenge, onComplete, userLocation }) => {
-  const [feedback, setFeedback] = useState('');
-  const [isLocationReached, setIsLocationReached] = useState(false);
-  const [hint, setHint] = useState('');
-  const [answer, setAnswer] = useState('');
-  const [isCorrect, setIsCorrect] = useState(false);
-  const [textVisible, setTextVisible] = useState(false);
-
+export const Challenge = ({ challenge, userLocation, challengeState, onStateChange }) => {
   useEffect(() => {
-    setTextVisible(false);
-    setFeedback('');
-    setIsCorrect(false);
-    setAnswer('');
-    setHint('');
-    setIsLocationReached(false);
-
-    // Trigger fade-in effect
-    const textFadeTimer = setTimeout(() => setTextVisible(true), 300);
-
     if (canDisplayDistance(challenge)) {
       checkTravelChallenge();
     }
-
-    return () => clearTimeout(textFadeTimer);
   }, [challenge, userLocation]);
 
   const checkTravelChallenge = () => {
     const intervalId = setInterval(() => {
       if (checkLocationReached(challenge, userLocation)) {
-        setIsLocationReached(true);
+        onStateChange({ isLocationReached: true });
         clearInterval(intervalId);
         if (challenge.completionFeedback) {
-          setFeedback(challenge.completionFeedback);
+          onStateChange({ feedback: challenge.completionFeedback });
         }
       }
-    }, 5000);
+    }, 2000);
 
     return () => clearInterval(intervalId);
   };
 
-  const handleGetHint = () => {
-    const newHint = getNextLocationHint(challenge);
-    setHint(newHint);
-  };
-
-  const handleInputChange = (e) => {
-    let value = e.target.value;
-    if (challenge.type === 'trueFalse') {
-      value = value === 'true';
-    }
-    setAnswer(value);
-    setFeedback('');
-    setIsCorrect(false);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const correct = checkAnswer(challenge, answer);
-    setIsCorrect(correct);
-    const feedbackText = correct ? challenge.feedbackTexts.correct : getNextIncorrectFeedback(challenge);
-    setFeedback(feedbackText);
-
-    if (correct || (!challenge.repeatable && challenge.type !== 'travel')) {
-      setTimeout(() => {
-        onComplete(correct);
-      }, 2000);
-    }
-  };
-
-  const handleContinue = () => {
-    setTextVisible(false);
-    setTimeout(() => {
-      onComplete(true);
-    }, 500);
-  };
-
-  const handleSkip = () => {
-    setTextVisible(false);
-    setTimeout(() => {
-      onComplete(true);
-    }, 500);
-  };
-
-  const renderSkipButton = () => (
-    <div className="button-container">
-      <button onClick={handleSkip} className="skip-button">Skip Challenge</button>
-    </div>
-  );
-
   const renderChallenge = () => {
     switch (challenge.type) {
-      case 'travel':
-        return renderTravelChallenge();
       case 'story':
         return renderStoryChallenge();
       case 'multipleChoice':
@@ -107,55 +36,47 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
       case 'areaSearch':
         return renderAreaSearchChallenge();
       default:
-        return <p>Unsupported challenge type</p>;
+        return null;
     }
   };
 
-  const renderTravelChallenge = () => (
-    <div>
-      {isLocationReached && (
-        <div className="button-container">
-          <button onClick={handleContinue} className="continue-button">Continue</button>
-        </div>
-      )}
-    </div>
-  );
+  const handleInputChange = (e) => {
+    let value = e.target.value;
+    if (challenge.type === 'trueFalse') {
+      value = value === 'true';
+    }
+    onStateChange({ answer: value });
+  };
 
   const renderStoryChallenge = () => (
     <div className="story-challenge">
-      <ScrollableContent maxHeight="400px">
-        <div className="story-text">{challenge.storyText}</div>
-      </ScrollableContent>
-      <div className="button-container">
-        <button onClick={handleContinue}>Continue</button>
-      </div>
+      <div className="story-text">{challenge.storyText}</div>
     </div>
   );
 
   const renderMultipleChoiceChallenge = () => (
-    <form onSubmit={handleSubmit}>
+    <form>
       {challenge.options.map(option => (
         <label key={option}>
           <input
             type="radio"
             value={option}
-            checked={answer === option}
+            checked={challengeState.answer === option}
             onChange={handleInputChange}
           />
           {option}
         </label>
       ))}
-      {renderActionButton()}
     </form>
   );
 
   const renderTrueFalseChallenge = () => (
-    <form onSubmit={handleSubmit}>
+    <form>
       <label>
         <input
           type="radio"
           value="true"
-          checked={answer === true}
+          checked={challengeState.answer === true}
           onChange={handleInputChange}
         />
         True
@@ -164,23 +85,21 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
         <input
           type="radio"
           value="false"
-          checked={answer === false}
+          checked={challengeState.answer === false}
           onChange={handleInputChange}
         />
         False
       </label>
-      {renderActionButton()}
     </form>
   );
 
   const renderTextInputChallenge = () => (
-    <form onSubmit={handleSubmit}>
+    <form>
       <input
         type="text"
-        value={answer}
+        value={challengeState.answer}
         onChange={handleInputChange}
       />
-      {renderActionButton()}
     </form>
   );
 
@@ -189,39 +108,23 @@ export const Challenge = ({ challenge, onComplete, userLocation }) => {
       {challenge.clues.map((clue, index) => (
         <p key={index} className="clue">{clue}</p>
       ))}
-      {renderActionButton()}
-    </div>
-  );
-
-  const renderActionButton = () => (
-    <div className="button-container">
-      {(isCorrect || !challenge.repeatable || (challenge.type === 'trueFalse' && feedback)) ? (
-        <button onClick={handleContinue} className="continue-button">Continue</button>
-      ) : (
-        <button type="submit" className="submit-button">Submit</button>
-      )}
     </div>
   );
 
   return (
-    <div className={`challengeBody ${textVisible ? 'visible' : ''}`}>
+    <div className={`challengeBody ${challengeState.textVisible ? 'visible' : ''}`}>
+      <ScrollableContent maxHeight="60vh">
       <h2>{challenge.title}</h2>
-      {challenge.type === 'story' && <TextToSpeech text={challenge.storyText} />}
-      {challenge.type === 'travel' && <TextToSpeech text={challenge.description} />}
-      <ScrollableContent maxHeight="400px">
+      <div className="challenge-content">
         {challenge.description && <p className="challenge-description">{challenge.description}</p>}
+        {challenge.question && <p className="challenge-question">{challenge.question}</p>}
+        {renderChallenge()}
+      </div>
       </ScrollableContent>
-      {challenge.question && <p className="challenge-question">{challenge.question}</p>}
-      
-      {renderChallenge()}
-      {canDisplayHints(challenge) && (
-        <div className="button-container">
-          <button onClick={handleGetHint} className="hint-button">Get Hint</button>
-        </div>
-      )}
-      {hint && <p className="hint">{hint}</p>}
-      <p className={`feedback ${feedback ? 'visible' : ''} ${isCorrect ? 'green' : ''}`}>{feedback}</p>
-      {renderSkipButton()}
+      <div className="feedback-hint-area">
+        {challengeState.hint && <p className="hint">{challengeState.hint}</p>}
+        <p className={`feedback ${challengeState.feedback ? 'visible' : ''} ${challengeState.isCorrect ? 'green' : ''}`}>{challengeState.feedback}</p>
+      </div>
     </div>
   );
 };

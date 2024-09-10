@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLongArrowUp, faLongArrowDown, faArrowsV } from '@fortawesome/free-solid-svg-icons';
+import ScrollableContent from './ScrollableContent';
 import { handleScroll } from '../utils/utils';
 
 function About() {
@@ -24,22 +23,19 @@ function About() {
       <div className="spirit-guide large">
         <div className="content">
           <h1 className="contentHeader">Like to play games?</h1>
-          <div className="bodyContent">
-            <h3>This is a for fun project in progress!</h3>
-            <h2>Check back soon for updates.</h2>
+          <ScrollableContent>
+            <div className="bodyContent">
+              <h3>Project in progress!
+              Check back soon for updates.</h3>
             <p>What's more fun than unraveling a mystery with friends?</p>
             <p>Beware, the guides are not to be trusted! They volunteered, but we are unsure of their origin or intentions.
               They are known to be intentionally misleading and often speak half-truths or outright lies.</p>
             <p>All the more reason to trust the friends by your side to solve each puzzle and discover the truth!</p>
-          </div>
-          <div className="scroll-indicator">
-            <FontAwesomeIcon icon={faLongArrowUp} className="arrow up" />
-            <FontAwesomeIcon icon={faArrowsV} className="arrow updown" />
-            <FontAwesomeIcon icon={faLongArrowDown} className="arrow down" />
-          </div>
         </div>
-      </div>
+      </ScrollableContent>
     </div>
+      </div >
+    </div >
   );
 }
 

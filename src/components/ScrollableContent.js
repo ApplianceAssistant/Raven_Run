@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLongArrowUp, faLongArrowDown, faArrowsV } from '@fortawesome/free-solid-svg-icons';
 import { handleScroll } from '../utils/utils';
 
-const ScrollableContent = ({ children, maxHeight = '300px', className = '' }) => {
+const ScrollableContent = ({ children, maxHeight = '60vh', className = '' }) => {
   const contentWrapperRef = useRef(null);
   const contentHeaderRef = useRef(null);
   const bodyContentRef = useRef(null);
@@ -35,7 +35,7 @@ const ScrollableContent = ({ children, maxHeight = '300px', className = '' }) =>
     <div ref={contentWrapperRef} className={`scrollable-content ${className}`}>
       <div 
         ref={bodyContentRef}
-        className="bodyContent" 
+        className="bodyContent"
         style={{ maxHeight, overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {children}

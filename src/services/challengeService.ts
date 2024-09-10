@@ -1,6 +1,97 @@
 import { Challenge, hasTargetLocation, hasHints } from '../types/challengeTypes';
-import { calculateDistance } from '../utils/utils';
+import { calculateDistance, getCurrentLocation } from '../utils/utils';
 import { paths } from '../data/challenges';
+
+// Define the ChallengeState interface
+export interface ChallengeState {
+  isLocationReached: boolean;
+  answer: string | boolean;
+  hint: string;
+  isCorrect: boolean;
+  feedback: string;
+  isAnswerSelected: boolean;
+  textVisible: boolean;
+}
+
+// Update the initializeChallengeState function to include textVisible
+export function initializeChallengeState(): ChallengeState {
+  return {
+    isLocationReached: false,
+    answer: '',
+    hint: '',
+    isCorrect: false,
+    feedback: '',
+    isAnswerSelected: false,
+    textVisible: false,
+  };
+}
+
+export function updateDistance(challenge: Challenge): { distance: number | null, displayValue: string, unit: string } {
+  const userLocation = getCurrentLocation();
+  if (userLocation && hasTargetLocation(challenge)) {
+    const distanceInMeters = calculateDistance(userLocation, challenge.targetLocation!);
+    const distanceInMiles = (distanceInMeters / 1609.344).toFixed(2);
+    const newDistance = parseFloat(distanceInMiles);
+
+    if (newDistance >= 0.1) {
+      return { distance: newDistance, displayValue: distanceInMiles, unit: 'miles' };
+    } else {
+      const distanceInFeet = Math.round(newDistance * 5280);
+      return { distance: newDistance, displayValue: distanceInFeet.toString(), unit: 'feet' };
+    }
+  }
+  return { distance: null, displayValue: '', unit: '' };
+}
+
+export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
+  return hasTargetLocation(challenge) && typeof challenge.radius === 'number';
+}
+
+// New function to check if the continue button should be displayed
+export function shouldDisplayContinueButton(challenge: Challenge, state: ChallengeState): boolean {
+  switch (challenge.type) {
+    case 'story':
+      return state.textVisible; // Story is complete when text has been displayed
+    case 'trueFalse':
+      return state.isAnswerSelected && (state.isCorrect || (hasTargetLocation(challenge) && state.isLocationReached));
+    case 'multipleChoice':
+    case 'textInput':
+      return state.isCorrect;
+    case 'travel':
+    case 'areaSearch':
+      return hasTargetLocation(challenge) && state.isLocationReached;
+    default:
+      return false; // For any other challenge types
+  }
+}
+
+// Add a new function for the skip button
+export function shouldDisplaySkipButton(challenge: Challenge, state: ChallengeState): boolean {
+  return !shouldDisplayContinueButton(challenge, state);
+}
+
+// New function to handle submit action
+export function handleSubmit(challenge: Challenge, state: ChallengeState): ChallengeState {
+  const isCorrect = checkAnswer(challenge, state.answer);
+  const feedbackText = isCorrect 
+    ? challenge.feedbackTexts?.correct || 'Correct!'
+    : getNextIncorrectFeedback(challenge);
+
+  return {
+    ...state,
+    isCorrect,
+    feedback: feedbackText,
+  };
+}
+
+// New function to get the next hint
+export function getNextHintState(challenge: Challenge, currentState: ChallengeState): ChallengeState {
+  if (hasHints(challenge)) {
+    const nextHint = getNextHint(challenge);
+    return { ...currentState, hint: nextHint };
+  }
+  return currentState;
+}
 
 // Map to keep track of hint indices for each challenge
 const hintIndexMap = new Map<string, number>();
@@ -19,7 +110,7 @@ export function getPathName(pathId: number): string {
   return path ? path.name : 'Unknown Path';
 }
 
-export function getNextLocationHint(challenge: Challenge): string {
+export function getNextHint(challenge: Challenge): string {
   if (hasHints(challenge)) {
     let hintIndex = hintIndexMap.get(challenge.id) ?? -1;
     hintIndex = (hintIndex + 1) % challenge.hints!.length;
@@ -33,7 +124,7 @@ export function resetHintCycle(challengeId: string): void {
   hintIndexMap.delete(challengeId);
 }
 
-export function checkLocationReached(challenge: Challenge, userLocation: {latitude: number, longitude: number}): boolean {
+export function checkLocationReached(challenge: Challenge, userLocation: { latitude: number, longitude: number }): boolean {
   if (!hasTargetLocation(challenge) || !challenge.radius) {
     return false;
   }
@@ -52,7 +143,6 @@ export function checkAnswer(challenge: Challenge, answer: any): boolean {
       return true; // Stories are always considered "correct"
     case 'multipleChoice':
     case 'textInput':
-      return challenge.correctAnswer === answer;
     case 'trueFalse':
       return challenge.correctAnswer === answer;
     default:
@@ -92,17 +182,39 @@ export function canDisplayDistance(challenge: Challenge): boolean {
   return hasTargetLocation(challenge);
 }
 
+export function updateChallengeState(challenge: Challenge, currentState: ChallengeState, updates: Partial<ChallengeState>): ChallengeState {
+  const newState = { ...currentState, ...updates };
+  
+  if (updates.answer !== undefined) {
+    newState.isAnswerSelected = true;
+    newState.feedback = '';
+  }
+
+  return newState;
+}
+
+export function shouldDisplaySubmitButton(challenge: Challenge, state: ChallengeState): boolean {
+  return state.isAnswerSelected && !state.isCorrect;
+}
+
 export default {
   getPath,
   getChallenges,
   getPathName,
-  getNextLocationHint,
-  resetHintCycle,
   checkLocationReached,
   checkAnswer,
   getNextIncorrectFeedback,
   resetFeedbackCycle,
   canDisplayChallenge,
   canDisplayHints,
-  canDisplayDistance
+  canDisplayDistance,
+  initializeChallengeState,
+  updateChallengeState,
+  shouldDisplaySubmitButton,
+  shouldDisplayContinueButton,
+  handleSubmit,
+  getNextHintState,
+  updateDistance,
+  shouldDisplayDistanceNotice,
+  shouldDisplaySkipButton,
 };

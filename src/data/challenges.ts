@@ -4,13 +4,15 @@ interface Path {
   id: number;
   name: string;
   description: string;
+  dayOnly: boolean;
   challenges: Challenge[];
 }
 export const paths: Path[] = [
   {
     id: 0,
-    name: "Down Town",
-    description: "Explore the heart of Simpsonville, where history and mystery intertwine.",
+    name: "Down Town (in development)",
+    description: "Explore Shelby County, where history and mystery intertwine.",
+    dayOnly: false,
     challenges: [
       {
         id: '0',
@@ -60,7 +62,7 @@ export const paths: Path[] = [
         hints: [
           "Look for something that's been standing for a very long time.",
           "Quiet and contemplative.",
-          "I'm natural as is what happens to all mankind.",
+          "I'm natural, as is what happens to all mankind.",
           "Think about what might grow and change shape over many years while remaining in the same spot."
         ],
         completionFeedback: `Congratulations! Maybe you can learn something from the ancient guardian's wisdom.`,
@@ -175,4 +177,72 @@ export const paths: Path[] = [
       }
     ]
   },
+  {
+    id: 1,
+    name: "The Woods (in development)",
+    description: "Go off the beaten path to find a some of the area's more reclusive mysteries.",
+    dayOnly: false,
+    challenges: [
+      {
+      id: '0',
+      type: 'travel',
+      title: 'Wooden Guardian',
+      description: `Gnarled and twisted, I stand alone,
+        My branches reach o'er weathered stone.
+        Silent guardian of those long passed,
+        I've watched time's river flowing fast.
+        My roots run deep where memories lie,
+        What am I, beneath this ageless sky?
+            What am I?`,
+      question: `find the ancent guardian described in the riddle.`,
+      targetLocation: {
+        latitude: 38.2122824,
+        longitude: -85.2202533
+      },
+      radius: 15,
+      hints: [
+        "Look for something that's been standing for a very long time.",
+        "Quiet and contemplative.",
+        "I'm natural, as is what happens to all mankind.",
+        "Think about what might grow and change shape over many years while remaining in the same spot."
+      ],
+      completionFeedback: `Congratulations! Maybe you can learn something from the ancient guardian's wisdom.`,
+      repeatable: false,
+    },
+    ]
+  },
+  {
+    id: 2,
+    name: "The City (in development)",
+    description: "Navigate the urban jungle to find the hidden gems.",
+    dayOnly: true,
+    challenges: [
+      {
+      id: '1',
+      type: 'travel',
+      title: 'Wooden Guardian',
+      description: `Gnarled and twisted, I stand alone,
+        My branches reach o'er weathered stone.
+        Silent guardian of those long passed,
+        I've watched time's river flowing fast.
+        My roots run deep where memories lie,
+        What am I, beneath this ageless sky?
+            What am I?`,
+      question: `find the ancent guardian described in the riddle.`,
+      targetLocation: {
+        latitude: 38.2122824,
+        longitude: -85.2202533
+      },
+      radius: 15,
+      hints: [
+        "Look for something that's been standing for a very long time.",
+        "Quiet and contemplative.",
+        "I'm natural, as is what happens to all mankind.",
+        "Think about what might grow and change shape over many years while remaining in the same spot."
+      ],
+      completionFeedback: `Congratulations! Maybe you can learn something from the ancient guardian's wisdom.`,
+      repeatable: false,
+    },
+    ]
+  }
 ];
