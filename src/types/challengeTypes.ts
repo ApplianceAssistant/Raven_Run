@@ -10,6 +10,13 @@ export interface Location {
   longitude: number;
 }
 
+//interface for media content
+interface MediaContent {
+  type: 'image' | 'video' | 'audio';
+  url: string;
+  altText?: string; // For accessibility
+}
+
 // Base challenge type
 interface BaseChallenge {
   id: string;
@@ -17,6 +24,7 @@ interface BaseChallenge {
   title: string;
   description?: string;
   question?: string;
+  mediaContent?: MediaContent; // New field for media content
   hints?: string[];
   feedbackTexts?: FeedbackTexts;
   repeatable: boolean;
@@ -101,4 +109,20 @@ export function hasTargetLocation(challenge: Challenge): boolean {
 
 export function hasHints(challenge: Challenge): boolean {
   return !!challenge && Array.isArray(challenge.hints) && challenge.hints.length > 0;
+}
+
+export function hasMediaContent(challenge: Challenge): boolean {
+  return !!challenge && !!challenge.mediaContent;
+}
+
+export function isImageContent(mediaContent: MediaContent): boolean {
+  return mediaContent.type === 'image';
+}
+
+export function isVideoContent(mediaContent: MediaContent): boolean {
+  return mediaContent.type === 'video';
+}
+
+export function isAudioContent(mediaContent: MediaContent): boolean {
+  return mediaContent.type === 'audio';
 }
