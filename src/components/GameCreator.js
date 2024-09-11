@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLongArrowUp, faLongArrowDown, faArrowsV } from '@fortawesome/free-solid-svg-icons';
+import ScrollableContent from './ScrollableContent';
 import { handleScroll, addLocationListener, removeLocationListener, getCurrentLocation, updateUserLocation } from '../utils/utils';
 
 const GameCreator = () => {
