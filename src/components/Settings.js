@@ -9,7 +9,7 @@ function Settings() {
       <div className="spirit-guide large">
         <div className="content">
           <h1 className="contentHeader">Your Settings</h1>
-          <ScrollableContent>
+          <ScrollableContent maxHeight="60vh">
             <p>This is where you can update your settings and preferences</p>
           </ScrollableContent>
         </div>

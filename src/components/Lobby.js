@@ -38,7 +38,7 @@ function Lobby() {
       <div className="spirit-guide large">
         <div className="content">
           <h2 className="contentHeader">Select your path</h2>
-            <ScrollableContent maxHeight="400px">
+            <ScrollableContent maxHeight="60vh">
               <ul className="path-list">
                 {paths.map((path) => (
                   <li key={path.id} className={`path-item ${path.dayOnly && isCloseToNight() ? 'disabled' : ''}`}>

@@ -8,7 +8,7 @@ function About() {
       <div className="spirit-guide large">
         <div className="content">
           <h1 className="contentHeader">Like to play games?</h1>
-          <ScrollableContent max-height="400px">
+          <ScrollableContent maxHeight="60vh">
             <h3>Project in progress!
               Check back soon for updates.</h3>
             <p>What's more fun than unraveling a mystery with friends?</p>
