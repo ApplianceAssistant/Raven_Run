@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ScrollableContent from './ScrollableContent';
 import ToggleSwitch from './ToggleSwitch';
+import VoiceSelector from './VoiceSelector';
 
-const Settings = () => {
+function Settings() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
     return savedMode ? JSON.parse(savedMode) : true;
@@ -29,6 +30,7 @@ const Settings = () => {
                 onToggle={handleModeToggle}
                 label={isDarkMode ? "Dark Mode" : "Light Mode"}
               />
+              <VoiceSelector />
               <p>More settings coming soon...</p>
             </div>
           </ScrollableContent>
@@ -36,6 +38,6 @@ const Settings = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Settings;
