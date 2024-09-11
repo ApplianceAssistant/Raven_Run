@@ -5,6 +5,8 @@ const VoiceSelector = () => {
   const [selectedVoice, setSelectedVoice] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
+  const DEFAULT_VOICE = 'Google UK English Male';
+
   useEffect(() => {
     const loadVoices = () => {
       const availableVoices = window.speechSynthesis.getVoices();
@@ -15,8 +17,16 @@ const VoiceSelector = () => {
         if (savedVoiceURI && availableVoices.some(voice => voice.voiceURI === savedVoiceURI)) {
           setSelectedVoice(savedVoiceURI);
         } else {
-          setSelectedVoice(availableVoices[0].voiceURI);
-          localStorage.setItem('selectedVoiceURI', availableVoices[0].voiceURI);
+          // Try to set the default voice
+          const defaultVoice = availableVoices.find(voice => voice.name === DEFAULT_VOICE && voice.lang === 'en-GB');
+          if (defaultVoice) {
+            setSelectedVoice(defaultVoice.voiceURI);
+            localStorage.setItem('selectedVoiceURI', defaultVoice.voiceURI);
+          } else {
+            // If default voice is not available, fall back to the first voice
+            setSelectedVoice(availableVoices[0].voiceURI);
+            localStorage.setItem('selectedVoiceURI', availableVoices[0].voiceURI);
+          }
         }
         setIsLoading(false);
       }
