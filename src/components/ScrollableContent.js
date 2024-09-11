@@ -1,19 +1,33 @@
-import React, { useRef, useEffect } from 'react';
-import { handleScroll } from '../utils/utils'; // Adjust the import path as needed
+import React, { useRef, useEffect, useState } from 'react';
 
 const ScrollableContent = ({ children, maxHeight, bottomPadding = '50px' }) => {
   const contentRef = useRef(null);
-  const scrollIndicatorRef = useRef(null);
+  const [scrollState, setScrollState] = useState('none');
 
   useEffect(() => {
     const content = contentRef.current;
-    const scrollIndicator = scrollIndicatorRef.current;
 
-    const handleScrollEvent = () => handleScroll(null, null, content, scrollIndicator);
+    const handleScrollEvent = () => {
+      if (content) {
+        const { scrollTop, scrollHeight, clientHeight } = content;
+        
+        if (scrollHeight <= clientHeight) {
+          setScrollState('none');
+        } else if (scrollTop === 0) {
+          setScrollState('down');
+        } else if (scrollTop + clientHeight >= scrollHeight) {
+          setScrollState('up');
+        } else {
+          setScrollState('both');
+        }
+      }
+    };
 
     if (content) {
       content.addEventListener('scroll', handleScrollEvent);
+      // Initial check
       handleScrollEvent();
+      // Re-check after a short delay to account for dynamic content
       setTimeout(handleScrollEvent, 100);
     }
 
@@ -33,11 +47,13 @@ const ScrollableContent = ({ children, maxHeight, bottomPadding = '50px' }) => {
       >
         {children}
       </div>
-      <div ref={scrollIndicatorRef} className="scroll-indicator">
-        <div className="arrow up">▲</div>
-        <div className="arrow updown">↕</div>
-        <div className="arrow down">▼</div>
-      </div>
+      {scrollState !== 'none' && (
+        <div className={`scroll-indicator ${scrollState}`}>
+          {scrollState !== 'down' && <div className="arrow up">▲</div>}
+          {scrollState === 'both' && <div className="arrow updown">↕</div>}
+          {scrollState !== 'up' && <div className="arrow down">▼</div>}
+        </div>
+      )}
     </div>
   );
 };

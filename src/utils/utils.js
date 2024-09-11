@@ -26,20 +26,23 @@ export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollI
     } else {
       contentHeader.classList.remove('fixed');
     }
-    
+    console.warn("isScrollable: ", isScrollable);
     // Handle scroll indicator
     if (isScrollable) {
-      scrollIndicator.classList.add('visible');
       const arrows = scrollIndicator.querySelectorAll('.arrow');
-      
       arrows.forEach(arrow => arrow.classList.remove('active'));
-      
       if (isScrolledToTop) {
-        scrollIndicator.querySelector('.arrow.down').classList.add('active');
+        scrollIndicator.querySelector('.arrow.down').classList.add('visible', 'active');
+        scrollIndicator.querySelector('.arrow.up').classList.remove('visible', 'active');
+        scrollIndicator.querySelector('.arrow.updown').classList.remove('active', 'visible');
       } else if (isScrolledToBottom) {
-        scrollIndicator.querySelector('.arrow.up').classList.add('active');
+        scrollIndicator.querySelector('.arrow.up').classList.add('active', 'visible');
+        scrollIndicator.querySelector('.arrow.updown').classList.remove('active', 'visible');
+        scrollIndicator.querySelector('.arrow.down').classList.remove('active', 'visible');
       } else {
-        scrollIndicator.querySelector('.arrow.updown').classList.add('active');
+        scrollIndicator.querySelector('.arrow.updown').classList.add('active', 'visible');
+        scrollIndicator.querySelector('.arrow.up').remove('active', 'visible');
+        scrollIndicator.querySelector('.arrow.down').remove('active', 'visible');
       }
     } else {
       scrollIndicator.classList.remove('visible');
