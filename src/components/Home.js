@@ -33,11 +33,6 @@ function Home() {
               </div>
               <h1>At Your Own Risk</h1>
             </div>
-            <div className="scroll-indicator">
-              <FontAwesomeIcon icon={faLongArrowUp} className="arrow up" />
-              <FontAwesomeIcon icon={faArrowsV} className="arrow updown" />
-              <FontAwesomeIcon icon={faLongArrowDown} className="arrow down" />
-            </div>
           </div>
         </div>
       </div>

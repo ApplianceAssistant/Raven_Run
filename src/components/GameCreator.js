@@ -1,28 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLongArrowUp, faLongArrowDown, faArrowsV } from '@fortawesome/free-solid-svg-icons';
-import { handleScroll } from '../utils/utils';
+import { handleScroll, addLocationListener, removeLocationListener, getCurrentLocation, updateUserLocation } from '../utils/utils';
 
 const GameCreator = () => {
   const [game, setGame] = useState({ id: 0, name: '', description: '', challenges: [] });
   const [showChallengeCreator, setShowChallengeCreator] = useState(false);
   const [currentChallenge, setCurrentChallenge] = useState(null);
-
-  useEffect(() => {
-    const contentWrapper = document.querySelector('.spirit-guide.large');
-    const contentHeader = document.querySelector('.contentHeader');
-    const bodyContent = document.querySelector('.bodyContent');
-    const scrollIndicator = document.querySelector('.scroll-indicator');
-    
-    const scrollHandler = () => handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator);
-    
-    scrollHandler(); // Call initially
-    window.addEventListener('scroll', scrollHandler);
-
-    return () => {
-      window.removeEventListener('scroll', scrollHandler);
-    };
-  }, []);
+  const [showLocation, setShowLocation] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
 
   const handleCreateGame = () => {
     if (game.name.trim() === '') {
@@ -65,6 +51,13 @@ const GameCreator = () => {
     setShowChallengeCreator(false);
   };
 
+  const toggleLocationDisplay = () => {
+    setShowLocation(!showLocation);
+    if (!showLocation) {
+      updateUserLocation(); // Refresh location when showing
+    }
+  };
+
   return (
     <div className="content-wrapper">
       <div className="spirit-guide large">
@@ -104,13 +97,22 @@ const GameCreator = () => {
                     </div>
                   ))}
                 </div>
-                <div className="button-container">
+                <div className="button-container-bottom">
                   <button onClick={handleAddChallenge}>Add Challenge</button>
                   <button onClick={() => setGame({ ...game, id: 0 })}>Edit Game Info</button>
+                  <button onClick={toggleLocationDisplay}>
+                    {showLocation ? 'Hide Location' : 'Show Location'}
+                  </button>
                 </div>
+                {showLocation && userLocation && (
+                  <div className="location-display">
+                    <p>Current Location:</p>
+                    <p>Latitude: {userLocation.latitude.toFixed(6)}</p>
+                    <p>Longitude: {userLocation.longitude.toFixed(6)}</p>
+                  </div>
+                )}
               </div>
             )}
-
             {showChallengeCreator && (
               <ChallengeCreator
                 challenge={currentChallenge}
@@ -119,11 +121,6 @@ const GameCreator = () => {
                 onBack={() => setShowChallengeCreator(false)}
               />
             )}
-          </div>
-          <div className="scroll-indicator">
-            <FontAwesomeIcon icon={faLongArrowUp} className="arrow up" />
-            <FontAwesomeIcon icon={faArrowsV} className="arrow updown" />
-            <FontAwesomeIcon icon={faLongArrowDown} className="arrow down" />
           </div>
         </div>
       </div>

@@ -8,14 +8,9 @@ function Contact() {
       <div className="spirit-guide large">
         <div className="content">
           <h1 className="contentHeader">Have a Question?</h1>
-          <div className="bodyContent">
+          <ScrollableContent maxHeight="400px">
             <p>Don't we all.</p>
-          </div>
-          <div className="scroll-indicator">
-            <FontAwesomeIcon icon={faLongArrowUp} className="arrow up" />
-            <FontAwesomeIcon icon={faArrowsV} className="arrow updown" />
-            <FontAwesomeIcon icon={faLongArrowDown} className="arrow down" />
-          </div>
+          </ScrollableContent>
         </div>
       </div>
     </div>
