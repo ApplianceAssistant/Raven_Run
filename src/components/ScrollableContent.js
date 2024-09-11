@@ -1,49 +1,42 @@
-import React, { useEffect, useRef } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLongArrowUp, faLongArrowDown, faArrowsV } from '@fortawesome/free-solid-svg-icons';
-import { handleScroll } from '../utils/utils';
+import React, { useRef, useEffect } from 'react';
+import { handleScroll } from '../utils/utils'; // Adjust the import path as needed
 
-const ScrollableContent = ({ children, maxHeight = '60vh', className = '' }) => {
-  const contentWrapperRef = useRef(null);
-  const contentHeaderRef = useRef(null);
-  const bodyContentRef = useRef(null);
+const ScrollableContent = ({ children, maxHeight, bottomPadding = '50px' }) => {
+  const contentRef = useRef(null);
   const scrollIndicatorRef = useRef(null);
 
   useEffect(() => {
-    const contentWrapper = contentWrapperRef.current;
-    const contentHeader = contentHeaderRef.current;
-    const bodyContent = bodyContentRef.current;
+    const content = contentRef.current;
     const scrollIndicator = scrollIndicatorRef.current;
 
-    const handleScrollWrapper = () => {
-      handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator);
-    };
+    const handleScrollEvent = () => handleScroll(null, null, content, scrollIndicator);
 
-    if (bodyContent) {
-      bodyContent.addEventListener('scroll', handleScrollWrapper);
-      handleScrollWrapper(); // Initial check
+    if (content) {
+      content.addEventListener('scroll', handleScrollEvent);
+      handleScrollEvent();
+      setTimeout(handleScrollEvent, 100);
     }
 
     return () => {
-      if (bodyContent) {
-        bodyContent.removeEventListener('scroll', handleScrollWrapper);
+      if (content) {
+        content.removeEventListener('scroll', handleScrollEvent);
       }
     };
   }, []);
 
   return (
-    <div ref={contentWrapperRef} className={`scrollable-content ${className}`}>
+    <div className="scrollable-content">
       <div 
-        ref={bodyContentRef}
-        className="bodyContent"
-        style={{ maxHeight, overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        ref={contentRef} 
+        className="bodyContent" 
+        style={{ maxHeight, paddingBottom: bottomPadding }}
       >
         {children}
       </div>
       <div ref={scrollIndicatorRef} className="scroll-indicator">
-        <FontAwesomeIcon icon={faLongArrowUp} className="arrow up" />
-        <FontAwesomeIcon icon={faArrowsV} className="arrow updown" />
-        <FontAwesomeIcon icon={faLongArrowDown} className="arrow down" />
+        <div className="arrow up">▲</div>
+        <div className="arrow updown">↕</div>
+        <div className="arrow down">▼</div>
       </div>
     </div>
   );

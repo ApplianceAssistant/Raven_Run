@@ -13,7 +13,7 @@ function SpiritGuide({ isSmall, distance, isFirstTransition }) {
 
   return (
     <div 
-      className={`spirit-guide ${isSmall ? 'small' : 'large'} ${isFirstTransition ? 'transitioning' : ''} ${isActive ? 'active' : ''}`}
+      className={`spirit-guide large ${isActive ? 'active' : ''}`}
       style={{
         '--spirit-guide-red': red,
         '--spirit-guide-green': green,

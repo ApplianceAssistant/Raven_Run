@@ -30,6 +30,14 @@ function PathPage() {
   const distanceIntervalRef = useRef(null);
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
 
+  const getRefreshInterval = (distance) => {
+    console.log("distance: ", distance);
+    if (distance === null) return 15000; // Default to 15 seconds if distance is unknown
+    if (distance <= 1) return 5000; // 5 seconds when less than 1 mile
+    if (distance <= 2) return 10000; // 10 seconds when between 1 and 2 miles
+    return 15000; // 15 seconds when more than 2 miles away
+  };
+  
   useEffect(() => {
     const numericPathId = parseInt(pathId, 10);
     const fetchedChallenges = getChallenges(numericPathId);
@@ -55,18 +63,25 @@ function PathPage() {
       if (distanceIntervalRef.current) {
         clearInterval(distanceIntervalRef.current);
       }
-
+      
       if (shouldDisplayDistanceNotice(challenges[challengeIndex])) {
-        distanceIntervalRef.current = setInterval(() => {
+        const updateDistanceWithDynamicInterval = () => {
           const newDistanceInfo = updateDistance(challenges[challengeIndex]);
           setDistanceInfo(newDistanceInfo);
-        }, 2000);
+          
+          // Set up the next interval
+          const nextInterval = getRefreshInterval(newDistanceInfo.distance);
+          distanceIntervalRef.current = setTimeout(updateDistanceWithDynamicInterval, nextInterval);
+        };
+
+        // Initial update and interval set
+        updateDistanceWithDynamicInterval();
       }
     }
 
     return () => {
       if (distanceIntervalRef.current) {
-        clearInterval(distanceIntervalRef.current);
+        clearTimeout(distanceIntervalRef.current);
       }
     };
   }, [challengeIndex, challenges]);
