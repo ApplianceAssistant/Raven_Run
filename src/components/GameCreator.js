@@ -1,30 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { saveGame, getGames, deleteGame, getCharacterCount, isValidGame, GameTypes } from '../services/gameCreatorService';
+import { saveGame, getGames, deleteGame, isValidGame } from '../services/gameCreatorService';
 import ChallengeCreator from './ChallengeCreator';
-import PathStructure from './PathStructure';
+import PathDisplay from './PathDisplay';
+import { saveGameToLocalStorage, getGameFromLocalStorage, updateChallengeInLocalStorage } from '../utils/localStorageUtils';
 
 const GameCreator = () => {
-  const [game, setGame] = useState({ id: 0, name: '', description: '', challenges: [] });
+  const [game, setGame] = useState(getGameFromLocalStorage() || { id: 0, name: '', description: '', challenges: [] });
+  const [currentChallenge, setCurrentChallenge] = useState(null);
   const [showChallengeCreator, setShowChallengeCreator] = useState(false);
-  const [showPathStructure, setShowPathStructure] = useState(false);
-  const [descriptionCharCount, setDescriptionCharCount] = useState(500);
-  const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
-
-  const MAX_DESCRIPTION_LENGTH = 500;
+  const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    setDescriptionCharCount(getCharacterCount(game.description, MAX_DESCRIPTION_LENGTH));
-  }, [game.description]);
-
-  useEffect(() => {
-    setButtonContainerVisible(game.name.trim() !== '' || showChallengeCreator || showPathStructure);
-  }, [game.name, showChallengeCreator, showPathStructure]);
+    if (game.id !== 0) {
+      saveGameToLocalStorage(game);
+    }
+  }, [game]);
 
   const handleCreateGame = () => {
     if (isValidGame(game)) {
       const newGame = { ...game, id: Date.now() };
-      saveGame(newGame);
       setGame(newGame);
+      saveGameToLocalStorage(newGame);
     } else {
       alert('Please enter a game title');
     }
@@ -35,50 +32,108 @@ const GameCreator = () => {
       deleteGame(game.id);
       setGame({ id: 0, name: '', description: '', challenges: [] });
       setShowChallengeCreator(false);
-      setShowPathStructure(false);
+      setCurrentChallenge(null);
+      setIsEditing(false);
+    }
+  };
+
+  const handleDeleteChallenge = () => {
+    if (currentChallenge) {
+      const updatedChallenges = game.challenges.filter(c => c.id !== currentChallenge.id);
+      const updatedGame = { ...game, challenges: updatedChallenges };
+      setGame(updatedGame);
+      saveGameToLocalStorage(updatedGame);
+      setCurrentChallenge(null);
+      setShowChallengeCreator(false);
+      setIsEditing(false);
     }
   };
 
   const handleNext = () => {
-    if (!showChallengeCreator) {
-      setShowChallengeCreator(true);
+    if (currentChallenge) {
+      let updatedChallenges;
+      if (isEditing) {
+        updatedChallenges = game.challenges.map(c => 
+          c.id === currentChallenge.id ? currentChallenge : c
+        );
+      } else {
+        updatedChallenges = [...game.challenges, currentChallenge];
+      }
+      const updatedGame = { ...game, challenges: updatedChallenges };
+      setGame(updatedGame);
+      saveGameToLocalStorage(updatedGame);
     }
-  };
-
-  const handleNextChallenge = (updatedGame) => {
-    setGame(updatedGame);
-    // You can add any additional logic here if needed
+    
+    // Reset for a new challenge
+    setCurrentChallenge({
+      id: Date.now().toString(),
+      type: '',
+      title: '',
+      description: '',
+      question: '',
+      hints: [''],
+      feedbackTexts: { correct: '', incorrect: [''] },
+      options: [''],
+      correctAnswer: '',
+      repeatable: false,
+      targetLocation: { latitude: 0, longitude: 0 },
+      radius: 0,
+      completionFeedback: '',
+      clues: [''],
+    });
+    setAllRequiredFieldsFilled(false);
+    setIsEditing(false);
   };
 
   const handleBack = () => {
-    if (showPathStructure) {
-      setShowPathStructure(false);
-      setShowChallengeCreator(true);
-    } else if (showChallengeCreator) {
-      setShowChallengeCreator(false);
-    }
-  };
-
-  const handleFinish = () => {
-    saveGame(game);
-    setShowPathStructure(true);
     setShowChallengeCreator(false);
+    setCurrentChallenge(null);
+    setIsEditing(false);
   };
 
-  const handleChallengeClick = (challengeId) => {
-    setShowPathStructure(false);
+  const handleChallengeUpdate = (updatedChallenge) => {
+    setCurrentChallenge(updatedChallenge);
+    updateChallengeInLocalStorage(updatedChallenge);
+  };
+
+  const handleRequiredFieldsCheck = (allFilled) => {
+    setAllRequiredFieldsFilled(allFilled);
+  };
+
+  const handleCreateNewChallenge = () => {
+    setCurrentChallenge({
+      id: Date.now().toString(),
+      type: '',
+      title: '',
+      description: '',
+      question: '',
+      hints: [''],
+      feedbackTexts: { correct: '', incorrect: [''] },
+      options: [''],
+      correctAnswer: '',
+      repeatable: false,
+      targetLocation: { latitude: 0, longitude: 0 },
+      radius: 0,
+      completionFeedback: '',
+      clues: [''],
+    });
     setShowChallengeCreator(true);
-    // Find the challenge and set it as the current challenge in ChallengeCreator
-    // You'll need to modify ChallengeCreator to accept an initial challenge state
+    setIsEditing(false);
+  };
+
+  const handleEditChallenge = (challenge) => {
+    setCurrentChallenge(challenge);
+    setShowChallengeCreator(true);
+    setIsEditing(true);
+    setAllRequiredFieldsFilled(true); // Assume all fields are filled for an existing challenge
   };
 
   const renderButtons = () => {
     return (
-      <div className={`button-container-bottom ${buttonContainerVisible ? 'visible' : ''}`}>
-        {(showChallengeCreator || showPathStructure) && <button onClick={handleBack}>Back</button>}
-        {!showChallengeCreator && !showPathStructure && game.name.trim() !== '' && <button onClick={handleNext}>Next</button>}
-        {game.id !== 0 && <button onClick={handleDeleteGame}>Delete</button>}
-        {showChallengeCreator && <button onClick={handleFinish}>Finish</button>}
+      <div className="button-container-bottom">
+        {showChallengeCreator && <button onClick={handleBack}>Back</button>}
+        {currentChallenge && currentChallenge.type && <button onClick={handleDeleteChallenge}>Delete</button>}
+        {allRequiredFieldsFilled && <button onClick={handleNext}>{isEditing ? 'Update' : 'Next'}</button>}
       </div>
     );
   };
@@ -87,45 +142,17 @@ const GameCreator = () => {
     <div className="content-wrapper">
       <div className="spirit-guide large">
         <div className="content">
-          {!showChallengeCreator && !showPathStructure ? (
-            <>
-              <h1 className="contentHeader">Create Your Own Path</h1>
-              <div className="bodyContent center">
-                <form onSubmit={(e) => { e.preventDefault(); handleCreateGame(); }}>
-                  <div className="account-field">
-                    <label htmlFor="gameName">Path Title:</label>
-                    <input
-                      type="text"
-                      id="gameName"
-                      value={game.name}
-                      onChange={(e) => setGame({ ...game, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="account-field">
-                    <label htmlFor="gameDescription">Path Description:</label>
-                    <textarea
-                      id="gameDescription"
-                      value={game.description}
-                      onChange={(e) => setGame({ ...game, description: e.target.value })}
-                    />
-                    <div className="char-count">
-                      {descriptionCharCount} characters remaining
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </>
-          ) : showChallengeCreator ? (
-            <ChallengeCreator 
+          {!showChallengeCreator ? (
+            <PathDisplay 
               game={game}
-              setGame={setGame}
-              onNext={handleNextChallenge}
+              onCreateNewChallenge={handleCreateNewChallenge}
+              onEditChallenge={handleEditChallenge}
             />
           ) : (
-            <PathStructure 
-              game={game}
-              onChallengeClick={handleChallengeClick}
+            <ChallengeCreator 
+              challenge={currentChallenge}
+              onUpdate={handleChallengeUpdate}
+              onRequiredFieldsCheck={handleRequiredFieldsCheck}
             />
           )}
         </div>

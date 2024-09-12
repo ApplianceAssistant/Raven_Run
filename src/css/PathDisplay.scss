@@ -1,0 +1,62 @@
+// PathDisplay.scss
+
+.path-display {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  
+    h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+  
+    h3 {
+      font-size: 20px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+  
+    .challenge-list {
+      list-style-type: none;
+      padding: 0;
+  
+      .challenge-item {
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+  
+        .challenge-number {
+          font-weight: bold;
+          margin-right: 10px;
+        }
+  
+        .challenge-title {
+          flex-grow: 1;
+        }
+  
+        .challenge-type {
+          font-style: italic;
+          color: #666;
+        }
+      }
+    }
+  
+    .create-challenge-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+  
+      &:hover {
+        background-color: #45a049;
+      }
+    }
+  }

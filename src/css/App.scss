@@ -715,6 +715,5 @@ form {
 .char-count {
   text-align: right;
   font-size: 0.8em;
-  color: $text-color;
-  margin-top: 5px;
+  @include theme-aware('color', $text-color, $light-text-color);
 }
