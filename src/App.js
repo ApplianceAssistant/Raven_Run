@@ -88,12 +88,6 @@ function App() {
     };
   }, []);
 
-  const handleDevLocationSet = (location) => {
-    // Update the current location in utils.js
-    updateUserLocation(location);
-    localStorage.setItem('userLocation', JSON.stringify(location));
-  };
-
   const toggleDevMode = () => {
     setUseDevLocation((prevUseDevLocation) => {
       if (prevUseDevLocation) {

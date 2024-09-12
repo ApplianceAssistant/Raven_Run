@@ -6,24 +6,34 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: $text-color
+  @include theme-aware('color', $text-color, $light-text-color);
 }
 
 html {
   overflow: hidden;
+  font-family: 'Crimson Text', serif;
+}
+
+body {
+  font-size: 1.3rem;
+  font-family: 'Crimson Text', serif;
+  line-height: 1.2;
+  background: $darker-bg !important;
+  color: $text-color;
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  &.light-mode {
+    background: $light-bg !important;
+    color: $light-text-color;
+  }
 }
 
 label {
   margin-bottom: 5px;
 }
-
-body {
-  font-family: 'Crimson Text', serif;
-  line-height: 1.3;
-  background: $darker-bg;
-  min-height: 100vh;
-  overflow-x: hidden;
-  font-size: 1.2rem;
+h1,h2,h3{
+  padding: 15px;
 }
 
 .app {
@@ -57,6 +67,14 @@ body {
   border-radius: 50%;
   animation: move 15s infinite;
   opacity: 0;
+
+  .light-mode & {
+    background: radial-gradient(ellipse at center,
+      rgba(0, 0, 0, 0.15) 25%,
+      rgba(0, 0, 0, 0.15) 35%,
+      rgba(0, 0, 0, 0.1) 60%,
+      rgba(255, 255, 255, 0.0) 100%);
+  }
 }
 
 //create second move animation
@@ -101,6 +119,7 @@ body {
 }
 
 .contentHeader {
+  @include theme-aware('color', $text-color, $light-text-color);
   padding-bottom: 20px;
   line-height: 1;
   z-index: 2;
@@ -122,12 +141,25 @@ body {
   }
 }
 
+.challenge-question {
+  margin:10px;
+}
 .scrollable-content {
   position: relative;
+  width: 100%;
 
   .bodyContent {
+    min-width: 200px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px;
+    padding-bottom: 50px;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
     &::-webkit-scrollbar {
       display: none;
     }
@@ -135,53 +167,48 @@ body {
 
   .scroll-indicator {
     position: absolute;
-    bottom: 10px;
+    bottom: -25px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    padding: 5px 0;
     
     .arrow {
-      font-size: 20px;
-      color: $text-color;
+      font-size: 24px;
+      @include theme-aware('color', $text-color, $light-text-color);
       opacity: 0.7;
       transition: opacity 0.3s ease;
-
+      animation: verticalShake 1s ease-in-out infinite;
+      
       &:hover {
         opacity: 1;
       }
     }
-  }
-}
 
-.scroll-indicator {
-  position: relative;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  padding: 5px 0;
-
-  &.visible {
-    opacity: 1;
-  }
-
-  .arrow {
-    font-size: 24px;
-    color: $text-color;
-    display: none;
-    animation: verticalShake 1s ease-in-out infinite;
-
-    &.active {
+    &.up .arrow.up,
+    &.down .arrow.down,
+    &.both .arrow.updown {
       display: inline-block;
+    }
+
+    &.up .arrow.down,
+    &.up .arrow.updown,
+    &.down .arrow.up,
+    &.down .arrow.updown,
+    &.both .arrow.up,
+    &.both .arrow.down {
+      display: none;
     }
   }
 }
 
-.scroll-indicator .arrow {
-  animation: verticalShake 1s ease-in-out infinite;
+@keyframes verticalShake {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .hint {
@@ -209,8 +236,7 @@ body {
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 1.5rem;
-      color: $text-color;
+      @include theme-aware('color', $text-color, $light-text-color);
       margin-right: 0.5rem;
 
       &:hover {
@@ -221,25 +247,27 @@ body {
 }
 // Button styles
 button {
+  @include theme-aware('background-color', $spooky-accent, $lighter-bg);
+  @include theme-aware('color', $text-color, $light-text-color);
+  @include theme-aware('border-color', $spooky-accent, $light-text-color);
+  border-style: solid;
+  border-width: 1px;
   padding: 10px 30px;
-  background-color: $spooky-accent;
-  color: $text-color;
-  border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: darken($spooky-accent, 10%);
-    box-shadow: 0 0 15px rgba($spooky-accent, 0.7);
+    @include theme-aware('background-color', darken($spooky-accent, 10%), darken($lighter-bg, 10%));
+    @include theme-aware('box-shadow', 0 0 15px rgba($spooky-accent, 0.7), 0 0 15px rgba($light-text-color, 0.7));
   }
   &:focus {
     outline: none;
-    box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+    @include theme-aware('box-shadow', 0 0 10px rgba($spooky-accent, 0.5), 0 0 10px rgba($light-text-color, 0.5));
   }
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
+    @include theme-aware('box-shadow', 0 0 25px rgba($spooky-accent, 0.9), 0 0 25px rgba($light-text-color, 0.9));
   }
 }
 .submit-button {
@@ -256,7 +284,7 @@ button {
 
   &:hover {
     background-color: darken($spooky-accent, 10%);
-    color:$text-color;
+    @include theme-aware('color', $text-color, $light-text-color);
     box-shadow: 0 0 15px rgba($spooky-accent, 0.7);
   }
   &:focus {
@@ -271,7 +299,7 @@ button {
 
 .continue-button {
   background-color: rgb(1, 94, 1);
-  color: $text-color;
+  @include theme-aware('color', $text-color, $light-text-color);
 
   &:hover {
     background-color: darken($spooky-accent, 10%);
@@ -288,35 +316,24 @@ button {
 form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
+  font-size: 1.2rem;;
 
   // General styles for all input types and textarea
   input,
   textarea,
-  text {
+  text,
+  select {
+    font-family: 'Crimson Text', serif;
     padding: 10px;
     margin: 10px;
-    border: none;
     border-radius: 5px;
-    background-color: rgba($dark-bg, 0.7);
-    color: $text-color;
+    @include theme-aware('background-color', rgba($dark-bg, 0.7), rgba($lighter-bg, 0.7));
+    @include theme-aware('color', $text-color, $light-text-color);
+    @include theme-aware('border-color', $text-color, $light-text-color);
+    border-style: solid;
+    border-width: 1px;
     transition: all 0.3s ease;
-
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
-    }
-    &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
-    }
-  }
-
-  select {
-    padding: 0.3rem;
-    border-radius: 4px;
-    background-color: $dark-bg;
-    color: $text-color;
 
     &:focus {
       outline: none;
@@ -362,31 +379,6 @@ form {
   transition: all 0.3s ease;
 }
 
-.button {
-  @include button-base;
-
-  &-primary {
-    background-color: $spooky-accent;
-    color: $text-color;
-
-    &:hover {
-      background-color: darken($spooky-accent, 10%);
-    }
-  }
-
-  &-secondary {
-    background-color: $dark-bg;
-    color: $text-color;
-    border: 2px solid $spooky-accent;
-
-    &:hover {
-      background-color: $spooky-accent;
-    }
-  }
-  
-}
-
-
 //lobby styles
 .path-list {
   list-style-type: none;
@@ -404,8 +396,8 @@ form {
     button {
       width: 100%;
       padding: 10px;
-      background-color: $spooky-accent;
-      color: $text-color;
+      @include theme-aware('background-color', $spooky-accent, $lighter-bg);
+      @include theme-aware('color', $text-color, $light-text-color);
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -416,7 +408,7 @@ form {
       align-items: center;
 
       &:hover:not(:disabled) {
-        background-color: darken($spooky-accent, 10%);
+        @include theme-aware('background-color', darken($spooky-accent, 10%), darken($lighter-bg, 10%));
       }
 
       .day-only-indicator {
@@ -438,7 +430,6 @@ form {
 
 //path page styles
 .path-page {
-  height: 100vh;
   display: flex;
   flex-direction: column;
   opacity: 0;
@@ -450,6 +441,7 @@ form {
 }
 
 .path-content {
+  margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
@@ -472,6 +464,7 @@ form {
 }
 
 .distance-notice {
+  margin-bottom: 20px;;
   text-align: center;
   opacity: 0;
   transform: translateY(20px);
@@ -483,79 +476,11 @@ form {
   }
 }
 
-//dev styles
-.dev-tools {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 10px;
-  border-radius: 5px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.dev-toggle-btn {
-  margin-bottom: 10px;
-  padding: 5px 10px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.dev-toggle-btn:hover {
-  background-color: #45a049;
-}
-
-.dev-location-setter {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.dev-location-setter input {
-  margin-bottom: 5px;
-  padding: 5px;
-  width: 100%;
-}
-
-.dev-location-setter button {
-  padding: 5px 10px;
-  background-color: #008CBA;
-  color: white;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.dev-location-setter button:hover {
-  background-color: #007B9A;
-}
-
 .completion-feedback {
   text-align: center;
   margin-top: 20px;
   font-weight: bold;
   color: #4CAF50; /* Or any color that fits your design */
-}
-
-.next-button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: #008CBA; /* Or any color that fits your design */
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.next-button:hover {
-  background-color: #007B9A;
 }
 
 .challenge-wrapper {
@@ -599,27 +524,18 @@ form {
   .challenge-title {
     font-size: 1.5em;
     margin-bottom: 10px;
-    color: $spooky-accent;
+    @include theme-aware('color', $spooky-accent, $light-accent);
   }
 
   .challenge-description {
     font-size: 1.2em;
     margin-bottom: 10px;
-    color: $text-color;
+    @include theme-aware('color', $text-color, $light-text-color);
     padding: 20px;
   }
 
-  .challenge-button {
-    @include button-base;
-    background-color: $spooky-accent;
-    color: $text-color;
-
-    &:hover {
-      background-color: darken($spooky-accent, 10%);
-    }
-  }
-
   .feedback {
+    @include theme-aware('color', $text-color, $light-text-color);
     text-align: center;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -706,18 +622,99 @@ form {
   label {
     margin-bottom: 0px;
   }
+}
 
-  input {
+.voice-selector {
+  margin: 20px 0;
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    @include theme-aware('color', $text-color, $light-text-color);
+  }
+
+  .stylized-select {
+    width: 100%;
     padding: 10px;
-    border: none;
     border-radius: 5px;
-    background-color: rgba($dark-bg, 0.7);
-    color: $text-color;
-    transition: all 0.3s ease;
+    @include theme-aware('background-color', $dark-bg, $light-bg);
+    @include theme-aware('color', $text-color, $light-text-color);
+    @include theme-aware('border', 1px solid $spooky-accent, 1px solid $light-accent);
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 1em;
 
     &:focus {
       outline: none;
-      box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+      @include theme-aware('box-shadow', 0 0 0 2px $spooky-accent, 0 0 0 2px $light-accent);
     }
   }
+}
+/* Existing styles... */
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: $darker-bg;
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+
+  h2 {
+    margin: 0;
+    color: $text-color;
+  }
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: $text-color;
+
+  &:hover {
+    color: darken($text-color, 20%);
+  }
+}
+
+.modal-body {
+  color: $text-color;
+
+  ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+  }
+}
+
+/* Character count styles */
+.char-count {
+  text-align: right;
+  font-size: 0.8em;
+  color: $text-color;
+  margin-top: 5px;
 }

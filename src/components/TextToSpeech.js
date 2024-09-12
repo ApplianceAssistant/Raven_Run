@@ -1,44 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
 
 const TextToSpeech = ({ text }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [voices, setVoices] = useState([]);
   const [selectedVoice, setSelectedVoice] = useState(null);
+  const sentencesRef = useRef([]);
+  const currentSentenceIndexRef = useRef(0);
 
   useEffect(() => {
-    const loadVoices = () => {
-      const availableVoices = window.speechSynthesis.getVoices();
-      setVoices(availableVoices);
-      setSelectedVoice(availableVoices[0]); // Default to first voice
+    const loadVoice = () => {
+      const voices = window.speechSynthesis.getVoices();
+      const savedVoiceURI = localStorage.getItem('selectedVoiceURI');
+      if (savedVoiceURI) {
+        const voice = voices.find(v => v.voiceURI === savedVoiceURI);
+        setSelectedVoice(voice || voices[0]);
+      } else {
+        setSelectedVoice(voices[0]);
+      }
     };
 
-    loadVoices();
+    loadVoice();
     if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.onvoiceschanged = loadVoices;
+      window.speechSynthesis.onvoiceschanged = loadVoice;
     }
+
+    return () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
   }, []);
 
-  const handleSpeak = () => {
-    if (!isSpeaking) {
-      const utterance = new SpeechSynthesisUtterance(text);
+  useEffect(() => {
+    // Split text into sentences whenever it changes
+    sentencesRef.current = text.match(/[^.!?]+[.!?]+/g) || [text];
+    currentSentenceIndexRef.current = 0;
+  }, [text]);
+
+  const speakNextSentence = useCallback(() => {
+    if (currentSentenceIndexRef.current < sentencesRef.current.length) {
+      const utterance = new SpeechSynthesisUtterance(sentencesRef.current[currentSentenceIndexRef.current]);
       utterance.voice = selectedVoice;
-      utterance.onend = () => setIsSpeaking(false);
+      
+      utterance.onend = () => {
+        currentSentenceIndexRef.current++;
+        speakNextSentence();
+      };
+
+      utterance.onerror = (event) => {
+        console.error('SpeechSynthesisUtterance error', event);
+        setIsSpeaking(false);
+      };
+
       window.speechSynthesis.speak(utterance);
+    } else {
+      setIsSpeaking(false);
+    }
+  }, [selectedVoice]);
+
+  const handleSpeak = useCallback(() => {
+    if (!isSpeaking) {
+      currentSentenceIndexRef.current = 0;
       setIsSpeaking(true);
+      speakNextSentence();
     } else {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
     }
-  };
+  }, [isSpeaking, speakNextSentence]);
 
   return (
     <div className="text-to-speech">
       <button onClick={handleSpeak} className="speak-button">
         <FontAwesomeIcon icon={isSpeaking ? faVolumeMute : faVolumeUp} />
       </button>
-    
     </div>
   );
 };
