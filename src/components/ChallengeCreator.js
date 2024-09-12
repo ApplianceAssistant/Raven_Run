@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { challengeTypeConfig } from '../config/challengeTypeConfig';
 import { Challenge } from '../types/challengeTypes';
-import '../css/ChallengeCreator.scss';
+import '../css/GameCreator.scss';
 import ScrollableContent from './ScrollableContent';
 
 const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
@@ -93,39 +93,45 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     switch (fieldConfig.type) {
       case 'text':
         return (
-          <input
-            type="text"
-            name={fieldName}
-            value={value}
-            onChange={handleInputChange}
-            placeholder={fieldConfig.label}
-            required={fieldConfig.required}
-          />
+          <div className="field-container">
+            <input
+              type="text"
+              name={fieldName}
+              value={value}
+              onChange={handleInputChange}
+              placeholder={fieldConfig.label}
+              required={fieldConfig.required}
+            />
+          </div>
         );
       case 'textarea':
         return (
-          <textarea
-            name={fieldName}
-            value={value}
-            onChange={handleInputChange}
-            placeholder={fieldConfig.label}
-            required={fieldConfig.required}
-          />
+          <div className="field-container">
+            <textarea
+              name={fieldName}
+              value={value}
+              onChange={handleInputChange}
+              placeholder={fieldConfig.label}
+              required={fieldConfig.required}
+            />
+          </div>
         );
       case 'number':
         return (
-          <input
-            type="number"
-            name={fieldName}
-            value={value}
-            onChange={handleInputChange}
-            placeholder={fieldConfig.label}
-            required={fieldConfig.required}
-          />
+          <div className="field-container">
+            <input
+              type="number"
+              name={fieldName}
+              value={value}
+              onChange={handleInputChange}
+              placeholder={fieldConfig.label}
+              required={fieldConfig.required}
+            />
+          </div>
         );
       case 'boolean':
         return (
-          <label className="checkbox-label">
+          <div className="field-container">
             <input
               type="checkbox"
               name={fieldName}
@@ -133,11 +139,11 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
               onChange={(e) => handleInputChange({ target: { name: fieldName, value: e.target.checked } })}
             />
             {fieldConfig.label}
-          </label>
+          </div>
         );
       case 'array':
         return (
-          <div className="array-field">
+          <div className="array-field field-container">
             {value.map((item, index) => (
               <div key={index} className="array-item">
                 <input
@@ -154,7 +160,7 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
         );
       case 'location':
         return (
-          <div className="location-field">
+          <div className="location-field field-container">
             <input
               type="number"
               name={`${fieldName}.latitude`}
@@ -198,7 +204,7 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     <div className="challenge-creator">
       <h2>Create a Challenge</h2>
       <form>
-        <div className="challenge-type-selector">
+        <div className="challenge-type-selector field-container">
           <label htmlFor="challengeType">Challenge Type:</label>
           <select
             id="challengeType"

@@ -1,53 +1,93 @@
 // src/utils/localStorageUtils.js
 
-const GAME_STORAGE_KEY = 'ravenRunGame';
+const GAME_STORAGE_KEY = 'Custom_Games';
+const SECRET_KEY = 'your-secret-key'; // Replace with a secure key
+
+// Simple XOR encryption/decryption function
+const xorEncryptDecrypt = (text, key) => {
+  let result = '';
+  for (let i = 0; i < text.length; i++) {
+    result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  }
+  return result;
+};
+
+export const encryptData = (data) => {
+  const jsonString = JSON.stringify(data);
+  return btoa(xorEncryptDecrypt(jsonString, SECRET_KEY));
+};
+
+export const decryptData = (encryptedData) => {
+  const decrypted = xorEncryptDecrypt(atob(encryptedData), SECRET_KEY);
+  return JSON.parse(decrypted);
+};
 
 export const saveGameToLocalStorage = (game) => {
   try {
-    const serializedGame = JSON.stringify(game);
-    localStorage.setItem(GAME_STORAGE_KEY, serializedGame);
+    let games = getGamesFromLocalStorage();
+    const index = games.findIndex(g => g.id === game.id);
+    if (index !== -1) {
+      games[index] = game;
+    } else {
+      games.push(game);
+    }
+    const encryptedGames = encryptData(games);
+    localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
   } catch (error) {
     console.error('Error saving game to localStorage:', error);
   }
 };
 
-export const getGameFromLocalStorage = () => {
+export const getGamesFromLocalStorage = () => {
   try {
-    const serializedGame = localStorage.getItem(GAME_STORAGE_KEY);
-    if (serializedGame === null) {
-      return null;
+    const encryptedGames = localStorage.getItem(GAME_STORAGE_KEY);
+    if (encryptedGames === null) {
+      return [];
     }
-    return JSON.parse(serializedGame);
+    return decryptData(encryptedGames);
   } catch (error) {
-    console.error('Error getting game from localStorage:', error);
-    return null;
+    console.error('Error getting games from localStorage:', error);
+    return [];
   }
 };
 
-export const updateChallengeInLocalStorage = (challenge) => {
+export const updateChallengeInLocalStorage = (gameId, challenge) => {
   try {
-    const game = getGameFromLocalStorage();
-    if (!game) {
+    const games = getGamesFromLocalStorage();
+    const gameIndex = games.findIndex(g => g.id === gameId);
+    if (gameIndex === -1) {
       throw new Error('No game found in localStorage');
     }
     
-    const challengeIndex = game.challenges.findIndex(c => c.id === challenge.id);
+    const challengeIndex = games[gameIndex].challenges.findIndex(c => c.id === challenge.id);
     if (challengeIndex === -1) {
-      game.challenges.push(challenge);
+      games[gameIndex].challenges.push(challenge);
     } else {
-      game.challenges[challengeIndex] = challenge;
+      games[gameIndex].challenges[challengeIndex] = challenge;
     }
     
-    saveGameToLocalStorage(game);
+    const encryptedGames = encryptData(games);
+    localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
   } catch (error) {
     console.error('Error updating challenge in localStorage:', error);
   }
 };
 
-export const clearGameFromLocalStorage = () => {
+export const deleteGameFromLocalStorage = (gameId) => {
+  try {
+    let games = getGamesFromLocalStorage();
+    games = games.filter(game => game.id !== gameId);
+    const encryptedGames = encryptData(games);
+    localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
+  } catch (error) {
+    console.error('Error deleting game from localStorage:', error);
+  }
+};
+
+export const clearGamesFromLocalStorage = () => {
   try {
     localStorage.removeItem(GAME_STORAGE_KEY);
   } catch (error) {
-    console.error('Error clearing game from localStorage:', error);
+    console.error('Error clearing games from localStorage:', error);
   }
 };

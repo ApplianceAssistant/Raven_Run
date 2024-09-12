@@ -30,10 +30,10 @@ body {
 }
 
 label {
-  margin-bottom: 5px;
+  margin-bottom: 0px;
 }
 h1,h2,h3{
-  padding: 15px;
+  padding: 5px;
 }
 
 .app {
@@ -249,9 +249,7 @@ h1,h2,h3{
 button {
   @include theme-aware('background-color', $spooky-accent, $lighter-bg);
   @include theme-aware('color', $text-color, $light-text-color);
-  @include theme-aware('border-color', $spooky-accent, $light-text-color);
-  border-style: solid;
-  border-width: 1px;
+  border: none;
   padding: 10px 30px;
   border-radius: 5px;
   cursor: pointer;
@@ -618,10 +616,6 @@ form {
 .account-field {
   display: flex;
   flex-direction: column;
-
-  label {
-    margin-bottom: 0px;
-  }
 }
 
 .voice-selector {
@@ -629,7 +623,6 @@ form {
 
   label {
     display: block;
-    margin-bottom: 5px;
     @include theme-aware('color', $text-color, $light-text-color);
   }
 
