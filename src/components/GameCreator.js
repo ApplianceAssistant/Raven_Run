@@ -1,187 +1,136 @@
 import React, { useState, useEffect } from 'react';
-import ScrollableContent from './ScrollableContent';
-import { handleScroll, addLocationListener, removeLocationListener, getCurrentLocation, updateUserLocation } from '../utils/utils';
+import { saveGame, getGames, deleteGame, getCharacterCount, isValidGame, GameTypes } from '../services/gameCreatorService';
+import ChallengeCreator from './ChallengeCreator';
+import PathStructure from './PathStructure';
 
 const GameCreator = () => {
   const [game, setGame] = useState({ id: 0, name: '', description: '', challenges: [] });
   const [showChallengeCreator, setShowChallengeCreator] = useState(false);
-  const [currentChallenge, setCurrentChallenge] = useState(null);
-  const [showLocation, setShowLocation] = useState(false);
-  const [userLocation, setUserLocation] = useState(null);
+  const [showPathStructure, setShowPathStructure] = useState(false);
+  const [descriptionCharCount, setDescriptionCharCount] = useState(500);
+  const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
+
+  const MAX_DESCRIPTION_LENGTH = 500;
+
+  useEffect(() => {
+    setDescriptionCharCount(getCharacterCount(game.description, MAX_DESCRIPTION_LENGTH));
+  }, [game.description]);
+
+  useEffect(() => {
+    setButtonContainerVisible(game.name.trim() !== '' || showChallengeCreator || showPathStructure);
+  }, [game.name, showChallengeCreator, showPathStructure]);
 
   const handleCreateGame = () => {
-    if (game.name.trim() === '') {
-      alert('Please enter a game title');
-      return;
-    }
-    setGame({ ...game, id: Date.now() });
-  };
-
-  const handleAddChallenge = () => {
-    setShowChallengeCreator(true);
-    setCurrentChallenge(null);
-  };
-
-  const handleEditChallenge = (challenge) => {
-    setCurrentChallenge(challenge);
-    setShowChallengeCreator(true);
-  };
-
-  const handleSaveChallenge = (challenge) => {
-    if (currentChallenge) {
-      setGame({
-        ...game,
-        challenges: game.challenges.map(c => c.id === challenge.id ? challenge : c)
-      });
+    if (isValidGame(game)) {
+      const newGame = { ...game, id: Date.now() };
+      saveGame(newGame);
+      setGame(newGame);
     } else {
-      setGame({
-        ...game,
-        challenges: [...game.challenges, { ...challenge, id: Date.now().toString() }]
-      });
+      alert('Please enter a game title');
     }
+  };
+
+  const handleDeleteGame = () => {
+    if (game.id) {
+      deleteGame(game.id);
+      setGame({ id: 0, name: '', description: '', challenges: [] });
+      setShowChallengeCreator(false);
+      setShowPathStructure(false);
+    }
+  };
+
+  const handleNext = () => {
+    if (!showChallengeCreator) {
+      setShowChallengeCreator(true);
+    }
+  };
+
+  const handleNextChallenge = (updatedGame) => {
+    setGame(updatedGame);
+    // You can add any additional logic here if needed
+  };
+
+  const handleBack = () => {
+    if (showPathStructure) {
+      setShowPathStructure(false);
+      setShowChallengeCreator(true);
+    } else if (showChallengeCreator) {
+      setShowChallengeCreator(false);
+    }
+  };
+
+  const handleFinish = () => {
+    saveGame(game);
+    setShowPathStructure(true);
     setShowChallengeCreator(false);
   };
 
-  const handleDeleteChallenge = (challengeId) => {
-    setGame({
-      ...game,
-      challenges: game.challenges.filter(c => c.id !== challengeId)
-    });
-    setShowChallengeCreator(false);
+  const handleChallengeClick = (challengeId) => {
+    setShowPathStructure(false);
+    setShowChallengeCreator(true);
+    // Find the challenge and set it as the current challenge in ChallengeCreator
+    // You'll need to modify ChallengeCreator to accept an initial challenge state
   };
 
-  const toggleLocationDisplay = () => {
-    setShowLocation(!showLocation);
-    if (!showLocation) {
-      updateUserLocation(); // Refresh location when showing
-    }
+  const renderButtons = () => {
+    return (
+      <div className={`button-container-bottom ${buttonContainerVisible ? 'visible' : ''}`}>
+        {(showChallengeCreator || showPathStructure) && <button onClick={handleBack}>Back</button>}
+        {!showChallengeCreator && !showPathStructure && game.name.trim() !== '' && <button onClick={handleNext}>Next</button>}
+        {game.id !== 0 && <button onClick={handleDeleteGame}>Delete</button>}
+        {showChallengeCreator && <button onClick={handleFinish}>Finish</button>}
+      </div>
+    );
   };
 
   return (
     <div className="content-wrapper">
       <div className="spirit-guide large">
         <div className="content">
-          <h1 className="contentHeader">Create Your Own Path</h1>
-          <div className="bodyContent center">
-            {!game.id ? (
-              <form onSubmit={(e) => { e.preventDefault(); handleCreateGame(); }}>
-                <div className="account-field">
-                  <label htmlFor="gameName">Game Title:</label>
-                  <input
-                    type="text"
-                    id="gameName"
-                    value={game.name}
-                    onChange={(e) => setGame({ ...game, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="account-field">
-                  <label htmlFor="gameDescription">Game Description:</label>
-                  <textarea
-                    id="gameDescription"
-                    value={game.description}
-                    onChange={(e) => setGame({ ...game, description: e.target.value })}
-                  />
-                </div>
-                <button type="submit">Create Game</button>
-              </form>
-            ) : (
-              <div className="game-editor">
-                <h2>{game.name}</h2>
-                <p>{game.description}</p>
-                <div className="challenge-list">
-                  {game.challenges.map((challenge) => (
-                    <div key={challenge.id} className="challenge-item" onClick={() => handleEditChallenge(challenge)}>
-                      {challenge.title || challenge.type}
-                    </div>
-                  ))}
-                </div>
-                <div className="button-container-bottom">
-                  <button onClick={handleAddChallenge}>Add Challenge</button>
-                  <button onClick={() => setGame({ ...game, id: 0 })}>Edit Game Info</button>
-                  <button onClick={toggleLocationDisplay}>
-                    {showLocation ? 'Hide Location' : 'Show Location'}
-                  </button>
-                </div>
-                {showLocation && userLocation && (
-                  <div className="location-display">
-                    <p>Current Location:</p>
-                    <p>Latitude: {userLocation.latitude.toFixed(6)}</p>
-                    <p>Longitude: {userLocation.longitude.toFixed(6)}</p>
+          {!showChallengeCreator && !showPathStructure ? (
+            <>
+              <h1 className="contentHeader">Create Your Own Path</h1>
+              <div className="bodyContent center">
+                <form onSubmit={(e) => { e.preventDefault(); handleCreateGame(); }}>
+                  <div className="account-field">
+                    <label htmlFor="gameName">Path Title:</label>
+                    <input
+                      type="text"
+                      id="gameName"
+                      value={game.name}
+                      onChange={(e) => setGame({ ...game, name: e.target.value })}
+                      required
+                    />
                   </div>
-                )}
+                  <div className="account-field">
+                    <label htmlFor="gameDescription">Path Description:</label>
+                    <textarea
+                      id="gameDescription"
+                      value={game.description}
+                      onChange={(e) => setGame({ ...game, description: e.target.value })}
+                    />
+                    <div className="char-count">
+                      {descriptionCharCount} characters remaining
+                    </div>
+                  </div>
+                </form>
               </div>
-            )}
-            {showChallengeCreator && (
-              <ChallengeCreator
-                challenge={currentChallenge}
-                onSave={handleSaveChallenge}
-                onDelete={handleDeleteChallenge}
-                onBack={() => setShowChallengeCreator(false)}
-              />
-            )}
-          </div>
+            </>
+          ) : showChallengeCreator ? (
+            <ChallengeCreator 
+              game={game}
+              setGame={setGame}
+              onNext={handleNextChallenge}
+            />
+          ) : (
+            <PathStructure 
+              game={game}
+              onChallengeClick={handleChallengeClick}
+            />
+          )}
         </div>
       </div>
-    </div>
-  );
-};
-
-const ChallengeCreator = ({ challenge, onSave, onDelete, onBack }) => {
-  const [challengeData, setChallengeData] = useState(challenge || { type: '', title: '' });
-
-  const handleSave = () => {
-    onSave(challengeData);
-  };
-
-  const handleDelete = () => {
-    if (challenge) {
-      onDelete(challenge.id);
-    } else {
-      onBack();
-    }
-  };
-
-  return (
-    <div className="challenge-creator">
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-        <div className="account-field">
-          <label htmlFor="challengeType">Challenge Type:</label>
-          <select
-            id="challengeType"
-            value={challengeData.type}
-            onChange={(e) => setChallengeData({ ...challengeData, type: e.target.value })}
-            required
-          >
-            <option value="">Select challenge type</option>
-            <option value="story">Story</option>
-            <option value="multipleChoice">Multiple Choice</option>
-            <option value="trueFalse">True/False</option>
-            <option value="textInput">Text Input</option>
-            <option value="travel">Travel</option>
-            <option value="areaSearch">Area Search</option>
-          </select>
-        </div>
-
-        {challengeData.type && (
-          <div className="account-field">
-            <label htmlFor="challengeTitle">Challenge Title:</label>
-            <input
-              type="text"
-              id="challengeTitle"
-              value={challengeData.title}
-              onChange={(e) => setChallengeData({ ...challengeData, title: e.target.value })}
-              required
-            />
-          </div>
-        )}
-
-        <div className="button-container">
-          <button type="submit">Save</button>
-          <button type="button" onClick={handleDelete}>Delete</button>
-          <button type="button" onClick={onBack}>Back</button>
-        </div>
-      </form>
+      {renderButtons()}
     </div>
   );
 };
