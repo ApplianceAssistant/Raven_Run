@@ -3,7 +3,7 @@ import '../css/ToggleSwitch.scss';
 
 const ToggleSwitch = ({ isChecked, onToggle, label }) => {
   return (
-    <div className="toggle-switch">
+    <div className="toggle-switch-container">
       <label className="switch">
         <input
           type="checkbox"
