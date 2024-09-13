@@ -3,8 +3,6 @@ import { challengeTypeConfig } from '../config/challengeTypeConfig';
 import { Challenge } from '../types/challengeTypes';
 import '../css/GameCreator.scss';
 import ScrollableContent from './ScrollableContent';
-import ModifyChallengeModal from './ModifyChallengeModal';
-import ToggleSwitch from './ToggleSwitch';
 
 const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
   const [currentChallenge, setCurrentChallenge] = useState(challenge || {
@@ -24,9 +22,6 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     clues: [''],
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newChallengeType, setNewChallengeType] = useState('');
-
   useEffect(() => {
     if (challenge) {
       setCurrentChallenge(challenge);
@@ -39,68 +34,36 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Input changed: ${name} = ${value}`);
-
-    if (name === 'type' && currentChallenge.type !== '' && currentChallenge.type !== value) {
-      console.log(`Challenge type changing from ${currentChallenge.type} to ${value}`);
-      setNewChallengeType(value);
-      setIsModalOpen(true);
-    } else {
-      updateChallenge(name, value);
-    }
-  };
-
-  const updateChallenge = (name, value) => {
     const updatedChallenge = { ...currentChallenge, [name]: value };
-    console.log('Updating challenge:', updatedChallenge);
     setCurrentChallenge(updatedChallenge);
     onUpdate(updatedChallenge);
-  };
-
-  const handleModalConfirm = () => {
-    console.log('Creating new challenge');
-    const newChallenge = {
-      id: Date.now().toString(),
-      type: newChallengeType,
-      title: currentChallenge.title,
-      description: currentChallenge.description,
-    };
-    setCurrentChallenge(newChallenge);
-    onUpdate(newChallenge);
-    setIsModalOpen(false);
-  };
-
-  const handleModalCancel = () => {
-    console.log('Modifying current challenge');
-    const updatedChallenge = { ...currentChallenge, type: newChallengeType };
-    const typeConfig = challengeTypeConfig[newChallengeType];
-
-    Object.keys(updatedChallenge).forEach(key => {
-      if (!typeConfig[key] && key !== 'id' && key !== 'type') {
-        delete updatedChallenge[key];
-      }
-    });
-
-    setCurrentChallenge(updatedChallenge);
-    onUpdate(updatedChallenge);
-    setIsModalOpen(false);
   };
 
   const handleArrayChange = (e, index, field) => {
     const { value } = e.target;
-    const newArray = Array.isArray(currentChallenge[field]) ? [...currentChallenge[field]] : [];
+    const newArray = [...currentChallenge[field]];
     newArray[index] = value;
-    updateChallenge(field, newArray);
+    const updatedChallenge = { ...currentChallenge, [field]: newArray };
+    setCurrentChallenge(updatedChallenge);
+    onUpdate(updatedChallenge);
   };
 
   const addArrayItem = (field) => {
-    const currentArray = Array.isArray(currentChallenge[field]) ? currentChallenge[field] : [];
-    updateChallenge(field, [...currentArray, '']);
+    const updatedChallenge = {
+      ...currentChallenge,
+      [field]: [...currentChallenge[field], '']
+    };
+    setCurrentChallenge(updatedChallenge);
+    onUpdate(updatedChallenge);
   };
 
   const removeArrayItem = (index, field) => {
-    const currentArray = Array.isArray(currentChallenge[field]) ? currentChallenge[field] : [];
-    updateChallenge(field, currentArray.filter((_, i) => i !== index));
+    const updatedChallenge = {
+      ...currentChallenge,
+      [field]: currentChallenge[field].filter((_, i) => i !== index)
+    };
+    setCurrentChallenge(updatedChallenge);
+    onUpdate(updatedChallenge);
   };
 
   const checkRequiredFields = () => {
@@ -124,6 +87,28 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     onRequiredFieldsCheck(allRequiredFilled);
   };
 
+  const handleUseMyLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const updatedChallenge = {
+            ...currentChallenge,
+            targetLocation: { latitude, longitude }
+          };
+          setCurrentChallenge(updatedChallenge);
+          onUpdate(updatedChallenge);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          alert("Unable to get your location. Please check your browser settings and try again.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
+  };
+  
   const handleToggleChange = (fieldName) => {
     updateChallenge(fieldName, !currentChallenge[fieldName]);
   };
@@ -131,17 +116,44 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
   const renderField = (fieldName, fieldConfig) => {
     const value = currentChallenge[fieldName];
 
+    if (fieldName === 'targetLocation') {
+      return (
+        <div className="location-field field-container">
+          <input
+            type="number"
+            name={`${fieldName}.latitude`}
+            value={value.latitude}
+            onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, latitude: parseFloat(e.target.value) } } })}
+            placeholder="Latitude"
+            required={fieldConfig.required}
+          />
+          <input
+            type="number"
+            name={`${fieldName}.longitude`}
+            value={value.longitude}
+            onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, longitude: parseFloat(e.target.value) } } })}
+            placeholder="Longitude"
+            required={fieldConfig.required}
+          />
+          <button type="button" onClick={handleUseMyLocation} className="use-location-button">
+            Use My Location
+          </button>
+        </div>
+      );
+    }
     switch (fieldConfig.type) {
       case 'text':
         return (
-          <input
-            type="text"
-            name={fieldName}
-            value={value || ''}
-            onChange={handleInputChange}
-            placeholder={fieldConfig.label}
-            required={fieldConfig.required}
-          />
+          <div className="field-container">
+            <input
+              type="text"
+              name={fieldName}
+              value={value}
+              onChange={handleInputChange}
+              placeholder={fieldConfig.label}
+              required={fieldConfig.required}
+            />
+          </div>
         );
       case 'textarea':
         return (
@@ -273,22 +285,9 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
           </select>
         </div>
         <ScrollableContent maxHeight="60vh">
-          {currentChallenge.type && Object.entries(challengeTypeConfig[currentChallenge.type]).map(([fieldName, fieldConfig]) => (
-            <div key={fieldName} className="field-container">
-              <label htmlFor={fieldName}>{fieldConfig.label}:</label>
-              {renderField(fieldName, fieldConfig)}
-            </div>
-          ))}
+          {renderFields()}
         </ScrollableContent>
       </form>
-      <ModifyChallengeModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleModalConfirm}
-        onCancel={handleModalCancel}
-        title="Change Challenge Type"
-        message="Do you want to create a new challenge or modify the current one?"
-      />
     </div>
   );
 };
