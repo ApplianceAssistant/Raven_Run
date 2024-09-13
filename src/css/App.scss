@@ -35,7 +35,13 @@ label {
 h1,h2,h3{
   padding: 5px;
 }
-
+.versionDisplay{
+  bottom: 0;
+  right: 0;
+  padding: 5px;
+  font-size: 0.7em;
+  @include theme-aware('color', $link-color, $light-link-color);
+}
 .app {
   display: flex;
   flex-direction: column;

@@ -5,6 +5,7 @@
         "display": "standalone",
         "background_color": "#000",
         "theme_color": "#FFF",
+        "version": 0.2,
         "icons": [
             {
                 "src": "/images/icons/crow_logo-72x72.png",
