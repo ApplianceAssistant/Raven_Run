@@ -26,25 +26,75 @@ export function initializeChallengeState(): ChallengeState {
   };
 }
 
-export function updateDistance(challenge: Challenge): { distance: number | null, displayValue: string, unit: string } {
+export function updateDistance(challenge: Challenge): { 
+  distance: number | null, 
+  displayValue: string, 
+  unit: string,
+  direction: string 
+} {
   const userLocation = getCurrentLocation();
   if (userLocation && hasTargetLocation(challenge)) {
     const distanceInMeters = calculateDistance(userLocation, challenge.targetLocation!);
     const distanceInMiles = (distanceInMeters / 1609.344).toFixed(2);
     const newDistance = parseFloat(distanceInMiles);
 
+    let displayValue, unit;
     if (newDistance >= 0.1) {
-      return { distance: newDistance, displayValue: distanceInMiles, unit: 'miles' };
+      displayValue = distanceInMiles;
+      unit = 'miles';
     } else {
-      const distanceInFeet = Math.round(newDistance * 5280);
-      return { distance: newDistance, displayValue: distanceInFeet.toString(), unit: 'feet' };
+      displayValue = Math.round(newDistance * 5280).toString();
+      unit = 'feet';
     }
+
+    const direction = calculateDirection(userLocation, challenge.targetLocation!);
+
+    return { distance: newDistance, displayValue, unit, direction };
   }
-  return { distance: null, displayValue: '', unit: '' };
+  return { distance: null, displayValue: '', unit: '', direction: '' };
+}
+
+function calculateDirection(from: { latitude: number, longitude: number }, to: { latitude: number, longitude: number }): string {
+  const dLon = to.longitude - from.longitude;
+  const y = Math.sin(dLon) * Math.cos(to.latitude);
+  const x = Math.cos(from.latitude) * Math.sin(to.latitude) - Math.sin(from.latitude) * Math.cos(to.latitude) * Math.cos(dLon);
+  const bearing = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+
+  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  return directions[Math.round(bearing / 45) % 8];
 }
 
 export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
-  return hasTargetLocation(challenge) && typeof challenge.radius === 'number';
+  if (!challenge) {
+    console.log("No challenge provided, distance notice not needed");
+    return false;
+  }
+  console.log("challenge:", challenge);
+
+  if (challenge.type !== 'travel') {
+    console.log("Not a travel challenge, distance notice not needed");
+    return false;
+  }
+
+  const hasValidLocation = hasTargetLocation(challenge);
+  console.log("Has valid target location:", hasValidLocation);
+
+  let radius: number;
+  if (typeof challenge.radius === 'string') {
+    radius = parseFloat(challenge.radius);
+  } else if (typeof challenge.radius === 'number') {
+    radius = challenge.radius;
+  } else {
+    radius = NaN;
+  }
+
+  const hasValidRadius = !isNaN(radius) && radius > 0;
+  console.log("Has valid radius:", hasValidRadius, "Radius value:", radius);
+
+  const shouldDisplay = hasValidLocation && hasValidRadius;
+  console.log("Should display distance notice:", shouldDisplay);
+
+  return shouldDisplay;
 }
 
 // New function to check if the continue button should be displayed

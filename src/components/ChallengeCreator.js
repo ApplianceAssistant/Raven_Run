@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { GameTypes } from '../services/gameCreatorService';
+import { challengeTypeConfig } from '../config/challengeTypeConfig';
+import { Challenge } from '../types/challengeTypes';
+import '../css/GameCreator.scss';
+import ScrollableContent from './ScrollableContent';
 
-const ChallengeCreator = ({ game, setGame, onNext }) => {
-  const [currentChallenge, setCurrentChallenge] = useState({
+const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
+  const [currentChallenge, setCurrentChallenge] = useState(challenge || {
     id: Date.now().toString(),
     type: '',
     title: '',
@@ -19,149 +22,261 @@ const ChallengeCreator = ({ game, setGame, onNext }) => {
     clues: [''],
   });
 
-  const challengeTypes = [
-    'story',
-    'multipleChoice',
-    'trueFalse',
-    'textInput',
-    'travel',
-    'areaSearch'
-  ];
+  useEffect(() => {
+    if (challenge) {
+      setCurrentChallenge(challenge);
+    }
+  }, [challenge]);
 
   useEffect(() => {
-    updateGameChallenges();
+    checkRequiredFields();
   }, [currentChallenge]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCurrentChallenge(prev => ({ ...prev, [name]: value }));
+    const updatedChallenge = { ...currentChallenge, [name]: value };
+    setCurrentChallenge(updatedChallenge);
+    onUpdate(updatedChallenge);
   };
 
   const handleArrayChange = (e, index, field) => {
     const { value } = e.target;
-    setCurrentChallenge(prev => {
-      const newArray = [...prev[field]];
-      newArray[index] = value;
-      return { ...prev, [field]: newArray };
-    });
+    const newArray = [...currentChallenge[field]];
+    newArray[index] = value;
+    const updatedChallenge = { ...currentChallenge, [field]: newArray };
+    setCurrentChallenge(updatedChallenge);
+    onUpdate(updatedChallenge);
   };
 
   const addArrayItem = (field) => {
-    setCurrentChallenge(prev => ({
-      ...prev,
-      [field]: [...prev[field], '']
-    }));
+    const updatedChallenge = {
+      ...currentChallenge,
+      [field]: [...currentChallenge[field], '']
+    };
+    setCurrentChallenge(updatedChallenge);
+    onUpdate(updatedChallenge);
   };
 
   const removeArrayItem = (index, field) => {
-    setCurrentChallenge(prev => ({
-      ...prev,
-      [field]: prev[field].filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateGameChallenges = () => {
-    setGame(prevGame => ({
-      ...prevGame,
-      challenges: prevGame.challenges.map(challenge => 
-        challenge.id === currentChallenge.id ? currentChallenge : challenge
-      )
-    }));
-  };
-
-  const handleNext = () => {
-    const updatedGame = {
-      ...game,
-      challenges: [...game.challenges, currentChallenge]
+    const updatedChallenge = {
+      ...currentChallenge,
+      [field]: currentChallenge[field].filter((_, i) => i !== index)
     };
-    setGame(updatedGame);
-    onNext(updatedGame);
-    // Reset the current challenge
-    setCurrentChallenge({
-      id: Date.now().toString(),
-      type: '',
-      title: '',
-      description: '',
-      question: '',
-      hints: [''],
-      feedbackTexts: { correct: '', incorrect: [''] },
-      options: [''],
-      correctAnswer: '',
-      repeatable: false,
-      targetLocation: { latitude: 0, longitude: 0 },
-      radius: 0,
-      completionFeedback: '',
-      clues: [''],
-    });
+    setCurrentChallenge(updatedChallenge);
+    onUpdate(updatedChallenge);
   };
 
-  const renderFields = () => {
-    switch (currentChallenge.type) {
-      case 'story':
+  const checkRequiredFields = () => {
+    if (!currentChallenge.type) {
+      onRequiredFieldsCheck(false);
+      return;
+    }
+
+    const typeConfig = challengeTypeConfig[currentChallenge.type];
+    const allRequiredFilled = Object.entries(typeConfig).every(([fieldName, fieldConfig]) => {
+      if (fieldConfig.required) {
+        const value = currentChallenge[fieldName];
+        if (Array.isArray(value)) {
+          return value.length > 0 && value.every(item => item.trim() !== '');
+        }
+        return value !== '' && value !== undefined && value !== null;
+      }
+      return true;
+    });
+
+    onRequiredFieldsCheck(allRequiredFilled);
+  };
+
+  const handleUseMyLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const updatedChallenge = {
+            ...currentChallenge,
+            targetLocation: { latitude, longitude }
+          };
+          setCurrentChallenge(updatedChallenge);
+          onUpdate(updatedChallenge);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          alert("Unable to get your location. Please check your browser settings and try again.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
+  };
+  
+  const handleToggleChange = (fieldName) => {
+    updateChallenge(fieldName, !currentChallenge[fieldName]);
+  };
+
+  const renderField = (fieldName, fieldConfig) => {
+    const value = currentChallenge[fieldName];
+
+    if (fieldName === 'targetLocation') {
+      return (
+        <div className="location-field field-container">
+          <input
+            type="number"
+            name={`${fieldName}.latitude`}
+            value={value.latitude}
+            onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, latitude: parseFloat(e.target.value) } } })}
+            placeholder="Latitude"
+            required={fieldConfig.required}
+          />
+          <input
+            type="number"
+            name={`${fieldName}.longitude`}
+            value={value.longitude}
+            onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, longitude: parseFloat(e.target.value) } } })}
+            placeholder="Longitude"
+            required={fieldConfig.required}
+          />
+          <button type="button" onClick={handleUseMyLocation} className="use-location-button">
+            Use My Location
+          </button>
+        </div>
+      );
+    }
+    switch (fieldConfig.type) {
+      case 'text':
         return (
-          <>
-            <textarea
-              name="description"
-              value={currentChallenge.description}
-              onChange={handleInputChange}
-              placeholder="Story Text"
-            />
-          </>
-        );
-      case 'multipleChoice':
-        return (
-          <>
+          <div className="field-container">
             <input
               type="text"
-              name="question"
-              value={currentChallenge.question}
+              name={fieldName}
+              value={value}
               onChange={handleInputChange}
-              placeholder="Question"
+              placeholder={fieldConfig.label}
+              required={fieldConfig.required}
             />
-            {currentChallenge.options.map((option, index) => (
-              <div key={index}>
-                <input
-                  type="text"
-                  value={option}
-                  onChange={(e) => handleArrayChange(e, index, 'options')}
-                  placeholder={`Option ${index + 1}`}
-                />
-                <button type="button" onClick={() => removeArrayItem(index, 'options')}>Remove</button>
-              </div>
-            ))}
-            <button type="button" onClick={() => addArrayItem('options')}>Add Option</button>
-            <input
-              type="text"
-              name="correctAnswer"
-              value={currentChallenge.correctAnswer}
-              onChange={handleInputChange}
-              placeholder="Correct Answer"
-            />
-          </>
+          </div>
         );
-      // Add cases for other challenge types...
+      case 'textarea':
+        return (
+          <textarea
+            name={fieldName}
+            value={value || ''}
+            onChange={handleInputChange}
+            placeholder={fieldConfig.label}
+            required={fieldConfig.required}
+          />
+        );
+      case 'number':
+        return (
+          <input
+            type="number"
+            name={fieldName}
+            value={value || 0}
+            onChange={handleInputChange}
+            placeholder={fieldConfig.label}
+            required={fieldConfig.required}
+          />
+        );
+        case 'boolean':
+        if (currentChallenge.type === 'trueFalse' && fieldName === 'correctAnswer') {
+          return (
+            <div className="true-false-toggle">
+              <ToggleSwitch
+                isChecked={value || false}
+                onToggle={() => handleToggleChange(fieldName)}
+                label={value ? 'True' : 'False'}
+              />
+              <span className="toggle-label">{value ? 'True' : 'False'}</span>
+            </div>
+          );
+        } else if (fieldName === 'repeatable') {
+          return (
+            <div className="repeatable-toggle">
+              <ToggleSwitch
+                isChecked={value || false}
+                onToggle={() => handleToggleChange(fieldName)}
+                label={value ? 'True' : 'One Time Only'}
+              />
+            </div>
+          );
+        }
+        return (
+          <ToggleSwitch
+            isChecked={value || false}
+            onToggle={() => handleToggleChange(fieldName)}
+            label={fieldConfig.label}
+          />
+        );
+        case 'array':
+          return (
+            <div className="array-field field-container">
+              {value.map((item, index) => (
+                <div key={index} className="array-item">
+                  <input
+                    type="text"
+                    value={item}
+                    onChange={(e) => handleArrayChange(e, index, fieldName)}
+                    placeholder={`${fieldConfig.label} ${index + 1}`}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => removeArrayItem(index, fieldName)} 
+                    className="remove-button"
+                    aria-label="Remove item"
+                  >
+                    <span className="remove-icon">×</span>
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={() => addArrayItem(fieldName)} className="add-button">Add {fieldConfig.label}</button>
+            </div>
+          );
+      case 'location':
+        return (
+          <div className="location-field">
+            <input
+              type="number"
+              name={`${fieldName}.latitude`}
+              value={value?.latitude || 0}
+              onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, latitude: parseFloat(e.target.value) } } })}
+              placeholder="Latitude"
+              required={fieldConfig.required}
+            />
+            <input
+              type="number"
+              name={`${fieldName}.longitude`}
+              value={value?.longitude || 0}
+              onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, longitude: parseFloat(e.target.value) } } })}
+              placeholder="Longitude"
+              required={fieldConfig.required}
+            />
+          </div>
+        );
       default:
         return null;
     }
   };
 
+  const renderFields = () => {
+    if (!currentChallenge.type) return null;
+
+    const typeConfig = challengeTypeConfig[currentChallenge.type];
+    return (
+      <div className="challenge-fields">
+        {Object.entries(typeConfig).map(([fieldName, fieldConfig]) => (
+          <div key={fieldName} className="field-container">
+            <label htmlFor={fieldName}>{fieldConfig.label}:</label>
+            {renderField(fieldName, fieldConfig)}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="challenge-creator">
-      <h1 className="contentHeader">{game.name}</h1>
       <h2>Create a Challenge</h2>
       <form>
-        <div className="account-field">
-          <label htmlFor="challengeTitle">Challenge Title:</label>
-          <input
-            type="text"
-            id="challengeTitle"
-            name="title"
-            value={currentChallenge.title}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div className="account-field">
+        <div className="challenge-type-selector field-container">
           <label htmlFor="challengeType">Challenge Type:</label>
           <select
             id="challengeType"
@@ -171,20 +286,17 @@ const ChallengeCreator = ({ game, setGame, onNext }) => {
             required
           >
             <option value="">Select a challenge type</option>
-            {challengeTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
+            {Object.keys(challengeTypeConfig).map(type => (
+              <option key={type} value={type}>{type.charAt(0).toUpperCase() + type.slice(1)}</option>
             ))}
           </select>
         </div>
-        {renderFields()}
+        <ScrollableContent maxHeight="60vh">
+          {renderFields()}
+        </ScrollableContent>
       </form>
-      <div className="button-container-bottom">
-        <button onClick={handleNext}>Next</button>
-      </div>
     </div>
   );
-
-
 };
 
 export default ChallengeCreator;

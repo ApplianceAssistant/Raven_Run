@@ -1,0 +1,101 @@
+// GameCreator.scss
+@import 'variables';
+.game-creator {
+  margin: 0 auto;
+  padding: 20px;
+
+  .field-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .game-list {
+    .game-item {
+      background-color: rgba(245, 245, 245, 0.1);
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 15px;
+
+      h3 {
+        margin-top: 0;
+      }
+
+      p {
+        margin: 5px 0;
+      }
+
+      button {
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .remove-button{
+    height:40px;
+  }
+  .challenge-type-selector {
+    margin-bottom: 20px;
+  }
+
+  .array-field {
+    .array-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+
+      input {
+        flex-grow: 1;
+      }
+
+      .remove-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: $spooky-accent;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: darken($spooky-accent, 10%);
+        }
+
+        .remove-icon {
+          color: $text-color;
+          font-size: 18px;
+          line-height: 1;
+        }
+      }
+    }
+  }
+
+  .location-field {
+    display: flex;
+    gap: 10px;
+
+    input {
+      flex-grow: 1;
+    }
+  }
+  .challenge-creator{
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-creator {
+    padding: 10px;
+
+    .location-field {
+      flex-direction: column;
+    }
+  }
+}

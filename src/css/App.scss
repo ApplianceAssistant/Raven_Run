@@ -30,10 +30,10 @@ body {
 }
 
 label {
-  margin-bottom: 5px;
+  margin-bottom: 0px;
 }
 h1,h2,h3{
-  padding: 15px;
+  padding: 5px;
 }
 
 .app {
@@ -97,6 +97,10 @@ h1,h2,h3{
   }
 }
 
+.center {
+  margin: auto;
+  text-align: center;
+}
 // Content wrapper for centering
 .content-wrapper {
   justify-content: center;
@@ -249,9 +253,7 @@ h1,h2,h3{
 button {
   @include theme-aware('background-color', $spooky-accent, $lighter-bg);
   @include theme-aware('color', $text-color, $light-text-color);
-  @include theme-aware('border-color', $spooky-accent, $light-text-color);
-  border-style: solid;
-  border-width: 1px;
+  border: none;
   padding: 10px 30px;
   border-radius: 5px;
   cursor: pointer;
@@ -618,10 +620,6 @@ form {
 .account-field {
   display: flex;
   flex-direction: column;
-
-  label {
-    margin-bottom: 0px;
-  }
 }
 
 .voice-selector {
@@ -629,7 +627,6 @@ form {
 
   label {
     display: block;
-    margin-bottom: 5px;
     @include theme-aware('color', $text-color, $light-text-color);
   }
 
@@ -652,7 +649,6 @@ form {
     }
   }
 }
-/* Existing styles... */
 
 /* Modal styles */
 .modal-overlay {
@@ -669,6 +665,9 @@ form {
 }
 
 .modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   background-color: $darker-bg;
   padding: 20px;
   border-radius: 5px;
@@ -683,11 +682,13 @@ form {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
-
-  h2 {
-    margin: 0;
-    color: $text-color;
-  }
+}
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .close-button {
@@ -715,6 +716,5 @@ form {
 .char-count {
   text-align: right;
   font-size: 0.8em;
-  color: $text-color;
-  margin-top: 5px;
+  @include theme-aware('color', $text-color, $light-text-color);
 }

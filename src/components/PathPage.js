@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Challenge } from './Challenge';
+import Compass from './Compass';
 import {
   getChallenges,
   getPathName,
@@ -17,6 +18,7 @@ import {
 } from '../services/challengeService.ts';
 import { getCurrentLocation } from '../utils/utils.js';
 import TextToSpeech from './TextToSpeech';
+import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 
 function PathPage() {
   const { pathId } = useParams();
@@ -26,23 +28,38 @@ function PathPage() {
   const [challengeState, setChallengeState] = useState(initializeChallengeState());
   const [contentVisible, setContentVisible] = useState(false);
   const [challengeVisible, setChallengeVisible] = useState(false);
-  const [distanceInfo, setDistanceInfo] = useState({ distance: null, displayValue: '', unit: '' });
+  const [distanceInfo, setDistanceInfo] = useState({ distance: null, displayValue: '', unit: '', direction: '' });
   const distanceIntervalRef = useRef(null);
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
 
   const getRefreshInterval = (distance) => {
-    console.log("distance: ", distance);
     if (distance === null) return 15000; // Default to 15 seconds if distance is unknown
-    if (distance <= 1) return 5000; // 5 seconds when less than 1 mile
-    if (distance <= 2) return 10000; // 10 seconds when between 1 and 2 miles
-    return 15000; // 15 seconds when more than 2 miles away
+    if (distance <= 0.1) return 2000; // 2 seconds when very close (less than 0.1 miles)
+    if (distance <= 0.5) return 5000; // 5 seconds when close (between 0.1 and 0.5 miles)
+    if (distance <= 1) return 10000; // 10 seconds when between 0.5 and 1 mile
+    return 15000; // 15 seconds when more than 1 mile away
   };
   
   useEffect(() => {
-    const numericPathId = parseInt(pathId, 10);
-    const fetchedChallenges = getChallenges(numericPathId);
-    setChallenges(fetchedChallenges);
-    setPathName(getPathName(numericPathId));
+    const loadPath = () => {
+      const numericPathId = parseInt(pathId, 10);
+      let fetchedChallenges = getChallenges(numericPathId);
+      let pathName = getPathName(numericPathId);
+      // If not found in default paths, check custom paths
+      if (!fetchedChallenges.length) {
+        const customPaths = getGamesFromLocalStorage();
+        const customPath = customPaths.find(path => path.id === numericPathId);
+        if (customPath) {
+          fetchedChallenges = customPath.challenges;
+          pathName = customPath.name;
+        }
+      }
+
+      setChallenges(fetchedChallenges);
+      setPathName(pathName);
+    };
+
+    loadPath();
   }, [pathId]);
 
   useEffect(() => {
@@ -143,9 +160,11 @@ function PathPage() {
 
   return (
     <div className="content-wrapper">
+      <h2 className="center">{pathName}</h2>
       {shouldDisplayDistanceNotice(currentChallenge) && (
         <p className={`distance-notice ${contentVisible ? 'visible' : ''}`}>
           Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span> <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
+          <Compass direction={distanceInfo.direction} />
         </p>
       )}
       <div className="spirit-guide large">
