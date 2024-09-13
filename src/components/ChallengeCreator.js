@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { challengeTypeConfig } from '../config/challengeTypeConfig';
+import ToggleSwitch from './ToggleSwitch';
 import { Challenge } from '../types/challengeTypes';
 import '../css/GameCreator.scss';
 import ScrollableContent from './ScrollableContent';
