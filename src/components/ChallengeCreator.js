@@ -206,23 +206,30 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
             label={fieldConfig.label}
           />
         );
-      case 'array':
-        return (
-          <div className="array-field">
-            {(Array.isArray(value) ? value : []).map((item, index) => (
-              <div key={index} className="array-item">
-                <input
-                  type="text"
-                  value={item}
-                  onChange={(e) => handleArrayChange(e, index, fieldName)}
-                  placeholder={`${fieldConfig.label} ${index + 1}`}
-                />
-                <button type="button" onClick={() => removeArrayItem(index, fieldName)} className="remove-button">Remove</button>
-              </div>
-            ))}
-            <button type="button" onClick={() => addArrayItem(fieldName)} className="add-button">Add {fieldConfig.label}</button>
-          </div>
-        );
+        case 'array':
+          return (
+            <div className="array-field field-container">
+              {value.map((item, index) => (
+                <div key={index} className="array-item">
+                  <input
+                    type="text"
+                    value={item}
+                    onChange={(e) => handleArrayChange(e, index, fieldName)}
+                    placeholder={`${fieldConfig.label} ${index + 1}`}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => removeArrayItem(index, fieldName)} 
+                    className="remove-button"
+                    aria-label="Remove item"
+                  >
+                    <span className="remove-icon">×</span>
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={() => addArrayItem(fieldName)} className="add-button">Add {fieldConfig.label}</button>
+            </div>
+          );
       case 'location':
         return (
           <div className="location-field">

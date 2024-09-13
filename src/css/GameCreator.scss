@@ -49,6 +49,31 @@
       input {
         flex-grow: 1;
       }
+
+      .remove-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: $spooky-accent;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: darken($spooky-accent, 10%);
+        }
+
+        .remove-icon {
+          color: $text-color;
+          font-size: 18px;
+          line-height: 1;
+        }
+      }
     }
   }
 
