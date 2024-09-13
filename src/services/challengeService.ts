@@ -44,7 +44,36 @@ export function updateDistance(challenge: Challenge): { distance: number | null,
 }
 
 export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
-  return hasTargetLocation(challenge) && typeof challenge.radius === 'number';
+  if (!challenge) {
+    console.log("No challenge provided, distance notice not needed");
+    return false;
+  }
+  console.log("challenge:", challenge);
+
+  if (challenge.type !== 'travel') {
+    console.log("Not a travel challenge, distance notice not needed");
+    return false;
+  }
+
+  const hasValidLocation = hasTargetLocation(challenge);
+  console.log("Has valid target location:", hasValidLocation);
+
+  let radius: number;
+  if (typeof challenge.radius === 'string') {
+    radius = parseFloat(challenge.radius);
+  } else if (typeof challenge.radius === 'number') {
+    radius = challenge.radius;
+  } else {
+    radius = NaN;
+  }
+
+  const hasValidRadius = !isNaN(radius) && radius > 0;
+  console.log("Has valid radius:", hasValidRadius, "Radius value:", radius);
+
+  const shouldDisplay = hasValidLocation && hasValidRadius;
+  console.log("Should display distance notice:", shouldDisplay);
+
+  return shouldDisplay;
 }
 
 // New function to check if the continue button should be displayed

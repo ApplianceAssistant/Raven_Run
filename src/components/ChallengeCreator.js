@@ -3,6 +3,8 @@ import { challengeTypeConfig } from '../config/challengeTypeConfig';
 import { Challenge } from '../types/challengeTypes';
 import '../css/GameCreator.scss';
 import ScrollableContent from './ScrollableContent';
+import ModifyChallengeModal from './ModifyChallengeModal';
+import ToggleSwitch from './ToggleSwitch';
 
 const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
   const [currentChallenge, setCurrentChallenge] = useState(challenge || {
@@ -22,6 +24,9 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     clues: [''],
   });
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newChallengeType, setNewChallengeType] = useState('');
+
   useEffect(() => {
     if (challenge) {
       setCurrentChallenge(challenge);
@@ -34,36 +39,68 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Input changed: ${name} = ${value}`);
+
+    if (name === 'type' && currentChallenge.type !== '' && currentChallenge.type !== value) {
+      console.log(`Challenge type changing from ${currentChallenge.type} to ${value}`);
+      setNewChallengeType(value);
+      setIsModalOpen(true);
+    } else {
+      updateChallenge(name, value);
+    }
+  };
+
+  const updateChallenge = (name, value) => {
     const updatedChallenge = { ...currentChallenge, [name]: value };
+    console.log('Updating challenge:', updatedChallenge);
     setCurrentChallenge(updatedChallenge);
     onUpdate(updatedChallenge);
+  };
+
+  const handleModalConfirm = () => {
+    console.log('Creating new challenge');
+    const newChallenge = {
+      id: Date.now().toString(),
+      type: newChallengeType,
+      title: currentChallenge.title,
+      description: currentChallenge.description,
+    };
+    setCurrentChallenge(newChallenge);
+    onUpdate(newChallenge);
+    setIsModalOpen(false);
+  };
+
+  const handleModalCancel = () => {
+    console.log('Modifying current challenge');
+    const updatedChallenge = { ...currentChallenge, type: newChallengeType };
+    const typeConfig = challengeTypeConfig[newChallengeType];
+
+    Object.keys(updatedChallenge).forEach(key => {
+      if (!typeConfig[key] && key !== 'id' && key !== 'type') {
+        delete updatedChallenge[key];
+      }
+    });
+
+    setCurrentChallenge(updatedChallenge);
+    onUpdate(updatedChallenge);
+    setIsModalOpen(false);
   };
 
   const handleArrayChange = (e, index, field) => {
     const { value } = e.target;
-    const newArray = [...currentChallenge[field]];
+    const newArray = Array.isArray(currentChallenge[field]) ? [...currentChallenge[field]] : [];
     newArray[index] = value;
-    const updatedChallenge = { ...currentChallenge, [field]: newArray };
-    setCurrentChallenge(updatedChallenge);
-    onUpdate(updatedChallenge);
+    updateChallenge(field, newArray);
   };
 
   const addArrayItem = (field) => {
-    const updatedChallenge = {
-      ...currentChallenge,
-      [field]: [...currentChallenge[field], '']
-    };
-    setCurrentChallenge(updatedChallenge);
-    onUpdate(updatedChallenge);
+    const currentArray = Array.isArray(currentChallenge[field]) ? currentChallenge[field] : [];
+    updateChallenge(field, [...currentArray, '']);
   };
 
   const removeArrayItem = (index, field) => {
-    const updatedChallenge = {
-      ...currentChallenge,
-      [field]: currentChallenge[field].filter((_, i) => i !== index)
-    };
-    setCurrentChallenge(updatedChallenge);
-    onUpdate(updatedChallenge);
+    const currentArray = Array.isArray(currentChallenge[field]) ? currentChallenge[field] : [];
+    updateChallenge(field, currentArray.filter((_, i) => i !== index));
   };
 
   const checkRequiredFields = () => {
@@ -87,64 +124,80 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     onRequiredFieldsCheck(allRequiredFilled);
   };
 
+  const handleToggleChange = (fieldName) => {
+    updateChallenge(fieldName, !currentChallenge[fieldName]);
+  };
+
   const renderField = (fieldName, fieldConfig) => {
     const value = currentChallenge[fieldName];
 
     switch (fieldConfig.type) {
       case 'text':
         return (
-          <div className="field-container">
-            <input
-              type="text"
-              name={fieldName}
-              value={value}
-              onChange={handleInputChange}
-              placeholder={fieldConfig.label}
-              required={fieldConfig.required}
-            />
-          </div>
+          <input
+            type="text"
+            name={fieldName}
+            value={value || ''}
+            onChange={handleInputChange}
+            placeholder={fieldConfig.label}
+            required={fieldConfig.required}
+          />
         );
       case 'textarea':
         return (
-          <div className="field-container">
-            <textarea
-              name={fieldName}
-              value={value}
-              onChange={handleInputChange}
-              placeholder={fieldConfig.label}
-              required={fieldConfig.required}
-            />
-          </div>
+          <textarea
+            name={fieldName}
+            value={value || ''}
+            onChange={handleInputChange}
+            placeholder={fieldConfig.label}
+            required={fieldConfig.required}
+          />
         );
       case 'number':
         return (
-          <div className="field-container">
-            <input
-              type="number"
-              name={fieldName}
-              value={value}
-              onChange={handleInputChange}
-              placeholder={fieldConfig.label}
-              required={fieldConfig.required}
-            />
-          </div>
+          <input
+            type="number"
+            name={fieldName}
+            value={value || 0}
+            onChange={handleInputChange}
+            placeholder={fieldConfig.label}
+            required={fieldConfig.required}
+          />
         );
-      case 'boolean':
+        case 'boolean':
+        if (currentChallenge.type === 'trueFalse' && fieldName === 'correctAnswer') {
+          return (
+            <div className="true-false-toggle">
+              <ToggleSwitch
+                isChecked={value || false}
+                onToggle={() => handleToggleChange(fieldName)}
+                label={value ? 'True' : 'False'}
+              />
+              <span className="toggle-label">{value ? 'True' : 'False'}</span>
+            </div>
+          );
+        } else if (fieldName === 'repeatable') {
+          return (
+            <div className="repeatable-toggle">
+              <ToggleSwitch
+                isChecked={value || false}
+                onToggle={() => handleToggleChange(fieldName)}
+                label={value ? 'True' : 'One Time Only'}
+              />
+            </div>
+          );
+        }
         return (
-          <div className="field-container">
-            <input
-              type="checkbox"
-              name={fieldName}
-              checked={value}
-              onChange={(e) => handleInputChange({ target: { name: fieldName, value: e.target.checked } })}
-            />
-            {fieldConfig.label}
-          </div>
+          <ToggleSwitch
+            isChecked={value || false}
+            onToggle={() => handleToggleChange(fieldName)}
+            label={fieldConfig.label}
+          />
         );
       case 'array':
         return (
-          <div className="array-field field-container">
-            {value.map((item, index) => (
+          <div className="array-field">
+            {(Array.isArray(value) ? value : []).map((item, index) => (
               <div key={index} className="array-item">
                 <input
                   type="text"
@@ -160,11 +213,11 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
         );
       case 'location':
         return (
-          <div className="location-field field-container">
+          <div className="location-field">
             <input
               type="number"
               name={`${fieldName}.latitude`}
-              value={value.latitude}
+              value={value?.latitude || 0}
               onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, latitude: parseFloat(e.target.value) } } })}
               placeholder="Latitude"
               required={fieldConfig.required}
@@ -172,7 +225,7 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
             <input
               type="number"
               name={`${fieldName}.longitude`}
-              value={value.longitude}
+              value={value?.longitude || 0}
               onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, longitude: parseFloat(e.target.value) } } })}
               placeholder="Longitude"
               required={fieldConfig.required}
@@ -220,9 +273,22 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
           </select>
         </div>
         <ScrollableContent maxHeight="60vh">
-          {renderFields()}
+          {currentChallenge.type && Object.entries(challengeTypeConfig[currentChallenge.type]).map(([fieldName, fieldConfig]) => (
+            <div key={fieldName} className="field-container">
+              <label htmlFor={fieldName}>{fieldConfig.label}:</label>
+              {renderField(fieldName, fieldConfig)}
+            </div>
+          ))}
         </ScrollableContent>
       </form>
+      <ModifyChallengeModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleModalConfirm}
+        onCancel={handleModalCancel}
+        title="Change Challenge Type"
+        message="Do you want to create a new challenge or modify the current one?"
+      />
     </div>
   );
 };

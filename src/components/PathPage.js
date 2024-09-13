@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Challenge } from './Challenge';
 import {
@@ -17,6 +17,7 @@ import {
 } from '../services/challengeService.ts';
 import { getCurrentLocation } from '../utils/utils.js';
 import TextToSpeech from './TextToSpeech';
+import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 
 function PathPage() {
   const { pathId } = useParams();
@@ -39,10 +40,25 @@ function PathPage() {
   };
   
   useEffect(() => {
-    const numericPathId = parseInt(pathId, 10);
-    const fetchedChallenges = getChallenges(numericPathId);
-    setChallenges(fetchedChallenges);
-    setPathName(getPathName(numericPathId));
+    const loadPath = () => {
+      const numericPathId = parseInt(pathId, 10);
+      let fetchedChallenges = getChallenges(numericPathId);
+      let pathName = getPathName(numericPathId);
+      // If not found in default paths, check custom paths
+      if (!fetchedChallenges.length) {
+        const customPaths = getGamesFromLocalStorage();
+        const customPath = customPaths.find(path => path.id === numericPathId);
+        if (customPath) {
+          fetchedChallenges = customPath.challenges;
+          pathName = customPath.name;
+        }
+      }
+
+      setChallenges(fetchedChallenges);
+      setPathName(pathName);
+    };
+
+    loadPath();
   }, [pathId]);
 
   useEffect(() => {
@@ -143,6 +159,7 @@ function PathPage() {
 
   return (
     <div className="content-wrapper">
+      <h2 className="center">{pathName}</h2>
       {shouldDisplayDistanceNotice(currentChallenge) && (
         <p className={`distance-notice ${contentVisible ? 'visible' : ''}`}>
           Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span> <span id="distanceToTargetUnit">{distanceInfo.unit}</span>

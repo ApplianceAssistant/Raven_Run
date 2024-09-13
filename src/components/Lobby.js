@@ -4,21 +4,27 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ScrollableContent from './ScrollableContent';
 import { faLongArrowUp, faLongArrowDown, faArrowsV, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { paths } from '../data/challenges';
+import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 
 function Lobby() {  
-
   const navigate = useNavigate();
-
-  const handlePathSelect = (pathName) => {
-    navigate(`/path/${pathName}`);
-  };
-
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [customPaths, setCustomPaths] = useState([]);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000); // Update every minute
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    // Fetch custom paths from local storage
+    const storedPaths = getGamesFromLocalStorage();
+    setCustomPaths(storedPaths);
+  }, []);
+
+  const handlePathSelect = (pathId) => {
+    navigate(`/path/${pathId}`);
+  };
 
   const isDaytime = () => {
     const hour = currentTime.getHours();
@@ -33,37 +39,52 @@ function Lobby() {
   const formatTime = (date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
+
+  const renderPathList = (pathList, title) => (
+    <>
+      <h3>{title}</h3>
+      <ul className="path-list">
+        {pathList.map((path) => (
+          <li key={path.id} className={`path-item ${path.dayOnly && isCloseToNight() ? 'disabled' : ''}`}>
+            <button
+              onClick={() => handlePathSelect(path.id)}
+              disabled={path.dayOnly && isCloseToNight()}
+            >
+              {path.name}
+              {path.dayOnly && (
+                <span className="day-only-indicator">
+                  <FontAwesomeIcon icon={faSun} /> Day Only
+                </span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+
   return (
     <div className="content-wrapper">
       <div className="spirit-guide large">
         <div className="content">
           <h2 className="contentHeader">Select your path</h2>
-            <ScrollableContent maxHeight="60vh">
-              <ul className="path-list">
-                {paths.map((path) => (
-                  <li key={path.id} className={`path-item ${path.dayOnly && isCloseToNight() ? 'disabled' : ''}`}>
-                    <button
-                      onClick={() => handlePathSelect(path.id)}
-                      disabled={path.dayOnly && isCloseToNight()}
-                    >
-                      {path.name}
-                      {path.dayOnly && (
-                        <span className="day-only-indicator">
-                          <FontAwesomeIcon icon={faSun} /> Day Only
-                        </span>
-                      )}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </ScrollableContent>
-            <p className="time-indicator">
-              Time: {formatTime(currentTime)}
-              <span className="day-night-indicator">
-                <FontAwesomeIcon icon={isDaytime() ? faSun : faMoon} />
-                {isDaytime() ? ' Day' : ' Night'}
-              </span>
-            </p>
+          <ScrollableContent maxHeight="60vh">
+            {customPaths.length > 0 && (
+              <div className="custom-paths-section">
+                {renderPathList(customPaths, "Your Paths")}
+              </div>
+            )}
+            <div className="default-paths-section">
+              {renderPathList(paths, "Default Paths")}
+            </div>
+          </ScrollableContent>
+          <p className="time-indicator">
+            Time: {formatTime(currentTime)}
+            <span className="day-night-indicator">
+              <FontAwesomeIcon icon={isDaytime() ? faSun : faMoon} />
+              {isDaytime() ? ' Day' : ' Night'}
+            </span>
+          </p>
         </div>
       </div>
     </div>

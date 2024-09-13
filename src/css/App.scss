@@ -97,6 +97,10 @@ h1,h2,h3{
   }
 }
 
+.center {
+  margin: auto;
+  text-align: center;
+}
 // Content wrapper for centering
 .content-wrapper {
   justify-content: center;
@@ -645,7 +649,6 @@ form {
     }
   }
 }
-/* Existing styles... */
 
 /* Modal styles */
 .modal-overlay {
@@ -662,6 +665,9 @@ form {
 }
 
 .modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   background-color: $darker-bg;
   padding: 20px;
   border-radius: 5px;
@@ -676,11 +682,13 @@ form {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
-
-  h2 {
-    margin: 0;
-    color: $text-color;
-  }
+}
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .close-button {

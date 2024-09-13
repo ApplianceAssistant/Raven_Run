@@ -104,7 +104,33 @@ export function isAreaSearchChallenge(challenge: Challenge): challenge is AreaSe
 }
 
 export function hasTargetLocation(challenge: Challenge): boolean {
-  return !!challenge && !!challenge.targetLocation;
+  console.log("challenge", challenge);
+  
+  if (!challenge || typeof challenge !== 'object') {
+    return false;
+  }
+
+  if (!challenge.targetLocation || typeof challenge.targetLocation !== 'object') {
+    return false;
+  }
+
+  const { latitude, longitude } = challenge.targetLocation;
+
+  // Check if both latitude and longitude are numbers and not NaN
+  const isValidNumber = (
+    typeof latitude === 'number' &&
+    typeof longitude === 'number' &&
+    !isNaN(latitude) &&
+    !isNaN(longitude)
+  );
+
+  // Check if both latitude and longitude are not zero
+  const isNonZero = latitude !== 0 || longitude !== 0;
+
+  console.log("isValidNumber:", isValidNumber);
+  console.log("isNonZero:", isNonZero);
+
+  return isValidNumber && isNonZero;
 }
 
 export function hasHints(challenge: Challenge): boolean {

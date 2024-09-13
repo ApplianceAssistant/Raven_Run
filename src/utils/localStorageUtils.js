@@ -1,6 +1,7 @@
 // src/utils/localStorageUtils.js
 
 const GAME_STORAGE_KEY = 'Custom_Games';
+const DEBUG_STORAGE_KEY = 'Debug_Custom_Games';
 const SECRET_KEY = 'your-secret-key'; // Replace with a secure key
 
 // Simple XOR encryption/decryption function
@@ -33,6 +34,9 @@ export const saveGameToLocalStorage = (game) => {
     }
     const encryptedGames = encryptData(games);
     localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
+    
+    // Save unencrypted version for debugging
+    localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(games));
   } catch (error) {
     console.error('Error saving game to localStorage:', error);
   }
@@ -47,6 +51,19 @@ export const getGamesFromLocalStorage = () => {
     return decryptData(encryptedGames);
   } catch (error) {
     console.error('Error getting games from localStorage:', error);
+    return [];
+  }
+};
+
+export const getDebugGamesFromLocalStorage = () => {
+  try {
+    const debugGames = localStorage.getItem(DEBUG_STORAGE_KEY);
+    if (debugGames === null) {
+      return [];
+    }
+    return JSON.parse(debugGames);
+  } catch (error) {
+    console.error('Error getting debug games from localStorage:', error);
     return [];
   }
 };
@@ -68,6 +85,9 @@ export const updateChallengeInLocalStorage = (gameId, challenge) => {
     
     const encryptedGames = encryptData(games);
     localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
+    
+    // Update unencrypted version for debugging
+    localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(games));
   } catch (error) {
     console.error('Error updating challenge in localStorage:', error);
   }
@@ -79,6 +99,9 @@ export const deleteGameFromLocalStorage = (gameId) => {
     games = games.filter(game => game.id !== gameId);
     const encryptedGames = encryptData(games);
     localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
+    
+    // Update unencrypted version for debugging
+    localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(games));
   } catch (error) {
     console.error('Error deleting game from localStorage:', error);
   }
@@ -87,6 +110,7 @@ export const deleteGameFromLocalStorage = (gameId) => {
 export const clearGamesFromLocalStorage = () => {
   try {
     localStorage.removeItem(GAME_STORAGE_KEY);
+    localStorage.removeItem(DEBUG_STORAGE_KEY);
   } catch (error) {
     console.error('Error clearing games from localStorage:', error);
   }
