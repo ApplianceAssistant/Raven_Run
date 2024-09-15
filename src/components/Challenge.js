@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import Modal from './Modal';
 import { checkLocationReached, canDisplayDistance } from '../services/challengeService.ts';
 import ScrollableContent from './ScrollableContent';
 
 export const Challenge = ({ challenge, userLocation, challengeState, onStateChange }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
   useEffect(() => {
     if (canDisplayDistance(challenge)) {
       checkTravelChallenge();
@@ -23,6 +26,49 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
     return () => clearInterval(intervalId);
   };
 
+  const showHintModal = () => {
+    const hintIndex = challengeState.hintIndex;
+    if (hintIndex < challenge.hints.length) {
+      setModalContent({
+        title: 'Hint',
+        content: <p>{challenge.hints[hintIndex]}</p>,
+        buttons: [
+          {
+            label: 'Close',
+            onClick: () => setIsModalOpen(false)
+          }
+        ]
+      });
+      setIsModalOpen(true);
+      onStateChange({ hintIndex: hintIndex + 1 });
+    }
+  };
+
+  const showFeedbackModal = (isCorrect) => {
+    const feedbackContent = isCorrect 
+      ? challenge.feedbackTexts.correct 
+      : challenge.feedbackTexts.incorrect[0];
+    
+    const buttons = [{ label: 'Close', onClick: () => setIsModalOpen(false) }];
+    
+    if (isCorrect || (!challenge.repeatable && !isCorrect)) {
+      buttons.push({
+        label: 'Continue',
+        onClick: () => {
+          setIsModalOpen(false);
+          onStateChange({ shouldContinue: true });
+        }
+      });
+    }
+
+    setModalContent({
+      title: isCorrect ? 'Correct!' : 'Incorrect',
+      content: <p>{feedbackContent}</p>,
+      buttons: buttons
+    });
+    setIsModalOpen(true);
+  };
+
   const renderChallenge = () => {
     switch (challenge.type) {
       case 'story':
@@ -36,7 +82,7 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
       case 'areaSearch':
         return renderAreaSearchChallenge();
       default:
-        return null;
+        return <p>Unknown challenge type.</p>;
     }
   };
 
@@ -54,7 +100,10 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
     </div>
   );
 
-  const renderMultipleChoiceChallenge = () => (
+  const renderMultipleChoiceChallenge = () => {
+    if (!challenge.options || !Array.isArray(challenge.options)) {
+      return <p>No options available for this challenge.</p>;
+    }
     <form>
       {challenge.options.map(option => (
         <label key={option}>
@@ -68,7 +117,7 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
         </label>
       ))}
     </form>
-  );
+  };
 
   const renderTrueFalseChallenge = () => (
     <form>
@@ -103,13 +152,19 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
     </form>
   );
 
-  const renderAreaSearchChallenge = () => (
-    <div>
-      {challenge.clues.map((clue, index) => (
-        <p key={index} className="clue">{clue}</p>
-      ))}
-    </div>
-  );
+  const renderAreaSearchChallenge = () => {
+    if (!challenge.clues || !Array.isArray(challenge.clues)) {
+      return <p>No clues available for this challenge.</p>;
+    }
+  
+    return (
+      <div>
+        {challenge.clues.map((clue, index) => (
+          <p key={index} className="clue">{clue}</p>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className={`challengeBody ${challengeState.textVisible ? 'visible' : ''}`}>
@@ -121,10 +176,13 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
         {renderChallenge()}
       </div>
       </ScrollableContent>
-      <div className="feedback-hint-area">
-        {challengeState.hint && <p className="hint">{challengeState.hint}</p>}
-        <p className={`feedback ${challengeState.feedback ? 'visible' : ''} ${challengeState.isCorrect ? 'green' : ''}`}>{challengeState.feedback}</p>
-      </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalContent.title}
+        content={modalContent.content}
+        buttons={modalContent.buttons}
+      />
     </div>
   );
 };
