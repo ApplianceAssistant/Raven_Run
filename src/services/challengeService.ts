@@ -11,6 +11,7 @@ export interface ChallengeState {
   feedback: string;
   isAnswerSelected: boolean;
   textVisible: boolean;
+  currentHint: number;
 }
 
 // Update the initializeChallengeState function to include textVisible
@@ -23,6 +24,7 @@ export function initializeChallengeState(): ChallengeState {
     feedback: '',
     isAnswerSelected: false,
     textVisible: false,
+    currentHint: 0,
   };
 }
 
@@ -66,18 +68,14 @@ function calculateDirection(from: { latitude: number, longitude: number }, to: {
 
 export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
   if (!challenge) {
-    console.log("No challenge provided, distance notice not needed");
     return false;
   }
-  console.log("challenge:", challenge);
 
   if (challenge.type !== 'travel') {
-    console.log("Not a travel challenge, distance notice not needed");
     return false;
   }
 
   const hasValidLocation = hasTargetLocation(challenge);
-  console.log("Has valid target location:", hasValidLocation);
 
   let radius: number;
   if (typeof challenge.radius === 'string') {
@@ -108,7 +106,6 @@ export function shouldDisplayContinueButton(challenge: Challenge, state: Challen
     case 'textInput':
       return state.isCorrect;
     case 'travel':
-    case 'areaSearch':
       return hasTargetLocation(challenge) && state.isLocationReached;
     default:
       return false; // For any other challenge types
@@ -135,13 +132,14 @@ export function handleSubmit(challenge: Challenge, state: ChallengeState): Chall
 }
 
 // New function to get the next hint
-export function getNextHintState(challenge: Challenge, currentState: ChallengeState): ChallengeState {
-  if (hasHints(challenge)) {
-    const nextHint = getNextHint(challenge);
-    return { ...currentState, hint: nextHint };
-  }
-  return currentState;
-}
+export const getNextHintState = (challenge, prevState) => {
+  const nextHintIndex = ((prevState.currentHint ?? -1) + 1) % challenge.hints.length;
+  return {
+    ...prevState,
+    currentHint: nextHintIndex,
+    hint: challenge.hints[nextHintIndex]
+  };
+};
 
 // Map to keep track of hint indices for each challenge
 const hintIndexMap = new Map<string, number>();

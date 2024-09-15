@@ -3,6 +3,7 @@ import { saveGame, getGames, deleteGame, isValidGame } from '../services/gameCre
 import { saveGameToLocalStorage, getGamesFromLocalStorage, updateChallengeInLocalStorage, deleteGameFromLocalStorage } from '../utils/localStorageUtils';
 import ChallengeCreator from './ChallengeCreator';
 import PathDisplay from './PathDisplay';
+import TextToSpeech from './TextToSpeech';
 import '../css/GameCreator.scss';
 
 const GameCreator = () => {
@@ -15,6 +16,7 @@ const GameCreator = () => {
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingPath, setIsEditingPath] = useState(false);
+  const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
 
   useEffect(() => {
     const savedGames = getGames();
@@ -104,7 +106,6 @@ const GameCreator = () => {
       targetLocation: { latitude: 0, longitude: 0 },
       radius: 0,
       completionFeedback: '',
-      clues: [''],
     });
     setShowChallengeCreator(true);
     setIsEditing(false);
@@ -243,10 +244,9 @@ const GameCreator = () => {
   };
 
   const renderButtons = () => {
-    if (!selectedGame) return null;
-
+    if (!currentChallenge) return null;
     return (
-      <div className="button-container-bottom visible">
+      <div className={`button-container-bottom ${buttonContainerVisible ? 'visible' : ''}`}>
         {showChallengeCreator && <button onClick={handleBack}>Back</button>}
         {currentChallenge && currentChallenge.type && (
           <button onClick={handleDeleteChallenge}>Delete Challenge</button>

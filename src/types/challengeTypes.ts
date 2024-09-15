@@ -63,12 +63,6 @@ interface TravelChallenge extends BaseChallenge {
   completionFeedback: string; // Feedback shown when the location is reached
 }
 
-// Area Search Challenge
-interface AreaSearchChallenge extends BaseChallenge {
-  type: 'areaSearch';
-  clues: string[];
-}
-
 // Union type for all challenge types
 export type Challenge = 
   | StoryChallenge
@@ -76,7 +70,6 @@ export type Challenge =
   | TrueFalseChallenge
   | TextInputChallenge
   | TravelChallenge
-  | AreaSearchChallenge;
 
 // Type guard functions
 export function isStoryChallenge(challenge: Challenge): challenge is StoryChallenge {
@@ -99,12 +92,7 @@ export function isTravelChallenge(challenge: Challenge): challenge is TravelChal
   return challenge.type === 'travel';
 }
 
-export function isAreaSearchChallenge(challenge: Challenge): challenge is AreaSearchChallenge {
-  return challenge.type === 'areaSearch';
-}
-
 export function hasTargetLocation(challenge: Challenge): boolean {
-  console.log("challenge", challenge);
   
   if (!challenge || typeof challenge !== 'object') {
     return false;
@@ -126,9 +114,6 @@ export function hasTargetLocation(challenge: Challenge): boolean {
 
   // Check if both latitude and longitude are not zero
   const isNonZero = latitude !== 0 || longitude !== 0;
-
-  console.log("isValidNumber:", isValidNumber);
-  console.log("isNonZero:", isNonZero);
 
   return isValidNumber && isNonZero;
 }

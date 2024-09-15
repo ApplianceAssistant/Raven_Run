@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Challenge } from './Challenge';
 import Compass from './Compass';
+import Modal from './Modal';
 import {
   getChallenges,
   getPathName,
@@ -21,6 +22,9 @@ import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 
 function PathPage() {
+  // ... (existing state variables)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
   const { pathId } = useParams();
   const [pathName, setPathName] = useState('');
   const [challenges, setChallenges] = useState([]);
@@ -39,7 +43,7 @@ function PathPage() {
     if (distance <= 1) return 10000; // 10 seconds when between 0.5 and 1 mile
     return 15000; // 15 seconds when more than 1 mile away
   };
-  
+
   useEffect(() => {
     const loadPath = () => {
       const numericPathId = parseInt(pathId, 10);
@@ -64,6 +68,9 @@ function PathPage() {
 
   useEffect(() => {
     if (challenges.length > 0) {
+      const initialState = initializeChallengeState();
+      setChallengeState(initialState);
+
       setChallengeState(initializeChallengeState());
       setContentVisible(false);
       setChallengeVisible(false);
@@ -104,6 +111,48 @@ function PathPage() {
   }, [challengeIndex, challenges]);
 
   const currentChallenge = challenges[challengeIndex];
+  console.log("currentChallenge: ", currentChallenge);
+
+  useEffect(() => {
+    console.log('Current challenge:', currentChallenge);
+    console.log('Hints:', currentChallenge?.hints);
+  }, [currentChallenge]);
+
+  useEffect(() => {
+    if (isModalOpen && currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0) {
+      const currentHint = challengeState.currentHint ?? 0;
+      const totalHints = currentChallenge.hints.length;
+      
+      setModalContent({
+        title: 'Hint',
+        content: (
+          <>
+            <p>{currentChallenge.hints[currentHint]}</p>
+            {totalHints > 1 && (
+              <p className="hint-counter">Hint {currentHint + 1} of {totalHints}</p>
+            )}
+          </>
+        ),
+        buttons: totalHints > 1 
+          ? [
+              {
+                label: 'Close',
+                onClick: () => setIsModalOpen(false)
+              },
+              {
+                label: 'Next Hint',
+                onClick: handleGetHint
+              }
+            ]
+          : [
+              {
+                label: 'Close',
+                onClick: () => setIsModalOpen(false)
+              }
+            ]
+      });
+    }
+  }, [isModalOpen, challengeState.currentHint, currentChallenge]);
 
   const handleStateChange = (updates) => {
     setChallengeState(prevState => updateChallengeState(currentChallenge, prevState, updates));
@@ -122,8 +171,19 @@ function PathPage() {
     }, 500); // Adjust time as needed for transition
   };
 
+  const showHintModal = () => {
+    if (currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0) {
+      setIsModalOpen(true);
+    } else {
+      console.log('No hints available or challenge not loaded');
+    }
+  };
+
   const handleGetHint = () => {
-    setChallengeState(prevState => getNextHintState(currentChallenge, prevState));
+    setChallengeState(prevState => {
+      const newState = getNextHintState(currentChallenge, prevState);
+      return newState;
+    });
   };
 
   const handleSkipClick = () => {
@@ -136,14 +196,14 @@ function PathPage() {
 
   const renderButtons = () => {
     if (!currentChallenge) return null;
-
+    console.log('Can display hints:', canDisplayHints(currentChallenge));
     return (
       <div className={`button-container-bottom ${buttonContainerVisible ? 'visible' : ''}`}>
         {(currentChallenge.description || currentChallenge.storyText) &&
           <TextToSpeech text={currentChallenge.description || currentChallenge.storyText} />
         }
         {canDisplayHints(currentChallenge) && !challengeState.isCorrect && (
-          <button onClick={handleGetHint} className="hint-button">Hint</button>
+          <button onClick={showHintModal} className="hint-button">Hint</button>
         )}
         {shouldDisplaySubmitButton(currentChallenge, challengeState) && (
           <button onClick={handleSubmitClick} className="submit-button">Submit</button>
@@ -185,6 +245,13 @@ function PathPage() {
         </div>
       </div>
       {renderButtons()}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalContent.title}
+        content={modalContent.content}
+        buttons={modalContent.buttons}
+      />
     </div>
   );
 }

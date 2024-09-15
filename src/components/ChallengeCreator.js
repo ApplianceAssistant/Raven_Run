@@ -21,7 +21,6 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     targetLocation: { latitude: 0, longitude: 0 },
     radius: 0,
     completionFeedback: '',
-    clues: [''],
   });
 
   const [isMetric, setIsMetric] = useState(() => {
@@ -239,7 +238,6 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
           />
         );
         case 'array':
-          console.log("value: ", value);
           const arrayValue = Array.isArray(value) ? value : [];
           return (
             <div className="array-field field-container">
@@ -272,7 +270,6 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
   const renderFields = () => {
     if (!currentChallenge.type) return null;
     const typeConfig = challengeTypeConfig[currentChallenge.type];
-    console.log("typeConfig: ", typeConfig);
     return (
       <div className="challenge-fields">
         {Object.entries(typeConfig).map(([fieldName, fieldConfig]) => (
