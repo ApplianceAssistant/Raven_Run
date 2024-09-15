@@ -198,7 +198,7 @@ function PathPage() {
     if (!currentChallenge) return null;
     console.log('Can display hints:', canDisplayHints(currentChallenge));
     return (
-      <div className={`button-container-bottom ${buttonContainerVisible ? 'visible' : ''}`}>
+      <div className={`button-container-bottom visible`}>
         {(currentChallenge.description || currentChallenge.storyText) &&
           <TextToSpeech text={currentChallenge.description || currentChallenge.storyText} />
         }

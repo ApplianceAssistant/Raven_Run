@@ -202,14 +202,15 @@ const GameCreator = () => {
           />
         </div>
         <div className="button-container">
-          <button type="button" onClick={isEditingPath ? handlePathUpdate : handlePathFormSubmit} className="submit-button">
-            {isEditingPath ? "Update Path" : "Create Path"}
-          </button>
-          <button type="button" onClick={() => {
+        <button type="button" onClick={() => {
             setIsEditingPath(false);
             setShowPathForm(false);
             setSelectedGame(null);
           }}>Cancel</button>
+          <button type="button" onClick={isEditingPath ? handlePathUpdate : handlePathFormSubmit} className="submit-button">
+            {isEditingPath ? "Update Path" : "Create Path"}
+          </button>
+          
         </div>
       </form>
     </div>
@@ -246,7 +247,7 @@ const GameCreator = () => {
   const renderButtons = () => {
     if (!currentChallenge) return null;
     return (
-      <div className={`button-container-bottom ${buttonContainerVisible ? 'visible' : ''}`}>
+      <div className={`button-container-bottom visible`}>
         {showChallengeCreator && <button onClick={handleBack}>Back</button>}
         {currentChallenge && currentChallenge.type && (
           <button onClick={handleDeleteChallenge}>Delete Challenge</button>
