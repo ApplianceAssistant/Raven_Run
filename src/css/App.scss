@@ -658,6 +658,7 @@ form {
 }
 
 /* Modal styles */
+/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -669,7 +670,14 @@ form {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  border-radius: 5px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 .modal-content {
@@ -678,19 +686,27 @@ form {
   align-items: center;
   @include theme-aware('background-color', $darker-bg, $light-bg);
   @include theme-aware('color', $text-color, $light-text-color);
-  background-color: $darker-bg;
   padding: 20px;
   border-radius: 5px;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+
+  .visible & {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
   margin-bottom: 15px;
 }
 .modal-buttons {
@@ -706,12 +722,14 @@ form {
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: $text-color;
+  @include theme-aware('color', $text-color, $light-text-color);
 
   &:hover {
-    color: darken($text-color, 20%);
+    @include theme-aware('color', darken($text-color, 20%), darken($light-text-color, 20%));
   }
 }
+
+/* ... (rest of the modal styles remain the same) ... */
 
 .hint-counter{
   font-size: 0.8em;
