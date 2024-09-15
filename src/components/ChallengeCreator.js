@@ -4,6 +4,7 @@ import ToggleSwitch from './ToggleSwitch';
 import { Challenge } from '../types/challengeTypes';
 import '../css/GameCreator.scss';
 import ScrollableContent from './ScrollableContent';
+import { feetToMeters, metersToFeet, getDistanceUnit } from '../utils/unitConversion';
 
 const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
   const [currentChallenge, setCurrentChallenge] = useState(challenge || {
@@ -21,6 +22,11 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     radius: 0,
     completionFeedback: '',
     clues: [''],
+  });
+
+  const [isMetric, setIsMetric] = useState(() => {
+    const savedUnitSystem = localStorage.getItem('unitSystem');
+    return savedUnitSystem ? JSON.parse(savedUnitSystem) : false;
   });
 
   useEffect(() => {
@@ -41,7 +47,16 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    updateChallenge(name, value);
+    let updatedValue = value;
+
+    if (name === 'radius') {
+      // Convert radius to meters before saving
+      updatedValue = value === '' ? '' : isMetric ? parseFloat(value) : feetToMeters(parseFloat(value));
+    }
+
+    const updatedChallenge = { ...currentChallenge, [name]: updatedValue };
+    setCurrentChallenge(updatedChallenge);
+    onUpdate(updatedChallenge);
   };
 
   const handleToggleChange = (fieldName) => {
@@ -104,6 +119,29 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
 
   const renderField = (fieldName, fieldConfig) => {
     const value = currentChallenge[fieldName];
+
+    if (fieldName === 'radius') {
+      const displayValue = value === '' ? '' : isMetric ? value : metersToFeet(value);
+      return (
+        <div className="field-container">
+          <input
+            type="number"
+            name={fieldName}
+            value={displayValue}
+            onChange={handleInputChange}
+            onBlur={(e) => {
+              if (e.target.value === '') {
+                handleInputChange({ target: { name: fieldName, value: '0' } });
+              }
+            }}
+            placeholder={fieldConfig.label}
+            required={fieldConfig.required}
+            min="0"
+            step="5"
+          />
+        </div>
+      );
+    }
 
     if (fieldName === 'targetLocation') {
       return (
@@ -231,13 +269,17 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
 
   const renderFields = () => {
     if (!currentChallenge.type) return null;
-
     const typeConfig = challengeTypeConfig[currentChallenge.type];
     return (
       <div className="challenge-fields">
         {Object.entries(typeConfig).map(([fieldName, fieldConfig]) => (
           <div key={fieldName} className="field-container">
-            <label htmlFor={fieldName}>{fieldConfig.label}:</label>
+            <label htmlFor={fieldName}>
+              {fieldConfig.label}
+              {fieldName === 'radius' && (
+                <span className="unit-indicator"> ({getDistanceUnit(isMetric)})</span>
+              )}:
+            </label>
             {renderField(fieldName, fieldConfig)}
           </div>
         ))}

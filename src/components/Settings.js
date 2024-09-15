@@ -9,13 +9,26 @@ function Settings() {
     return savedMode ? JSON.parse(savedMode) : true;
   });
 
+  const [isMetric, setIsMetric] = useState(() => {
+    const savedUnitSystem = localStorage.getItem('unitSystem');
+    return savedUnitSystem ? JSON.parse(savedUnitSystem) : false;
+  });
+
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
     document.body.classList.toggle('light-mode', !isDarkMode);
   }, [isDarkMode]);
 
+  useEffect(() => {
+    localStorage.setItem('unitSystem', JSON.stringify(isMetric));
+  }, [isMetric]);
+
   const handleModeToggle = () => {
     setIsDarkMode(!isDarkMode);
+  };
+
+  const handleUnitSystemToggle = () => {
+    setIsMetric(!isMetric);
   };
 
   return (
@@ -29,6 +42,11 @@ function Settings() {
                 isChecked={isDarkMode}
                 onToggle={handleModeToggle}
                 label={isDarkMode ? "Dark Mode" : "Light Mode"}
+              />
+              <ToggleSwitch
+                isChecked={isMetric}
+                onToggle={handleUnitSystemToggle}
+                label={isMetric ? "Metric System (km/m)" : "Imperial System (mi/ft)"}
               />
               <VoiceSelector />
               <p>More settings coming soon...</p>

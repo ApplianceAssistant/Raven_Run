@@ -54,7 +54,7 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
     title: { required: true, type: 'text', label: 'Title' },
     description: { required: true, type: 'textarea', label: 'Description' },
     targetLocation: { required: true, type: 'location', label: 'Target Location' },
-    radius: { required: true, type: 'number', label: 'Radius (in meters)' },
+    radius: { required: true, type: 'number', label: 'completion Radius' },
     completionFeedback: { required: true, type: 'textarea', label: 'Completion Feedback' },
     hints: { required: false, type: 'array', label: 'Hints' },
   },
@@ -63,7 +63,7 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
     description: { required: true, type: 'textarea', label: 'Description' },
     clues: { required: true, type: 'array', label: 'Clues' },
     targetLocation: { required: true, type: 'location', label: 'Target Location' },
-    radius: { required: true, type: 'number', label: 'Radius (in meters)' },
+    radius: { required: true, type: 'number', label: 'completion Radius' },
     hints: { required: false, type: 'array', label: 'Hints' },
   },
 };
