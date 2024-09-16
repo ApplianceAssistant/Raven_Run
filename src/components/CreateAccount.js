@@ -14,7 +14,6 @@ function CreateAccount() {
   useEffect(() => {
     const checkConnection = async () => {
       const status = await checkServerConnectivity();
-      console.log("status: ", status);
       setServerStatus(status);
     };
 
@@ -47,7 +46,6 @@ function CreateAccount() {
       }
   
       const data = await response.json();
-      console.log('Account created:', data);
   
       // Optionally, you can store the user data in your app's state or local storage here
   

@@ -1,8 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import Modal from './Modal';
 import { checkLocationReached, canDisplayDistance } from '../services/challengeService.ts';
 import ScrollableContent from './ScrollableContent';
 
 export const Challenge = ({ challenge, userLocation, challengeState, onStateChange }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
+  const [currentHintIndex, setCurrentHintIndex] = useState(0);
   useEffect(() => {
     if (canDisplayDistance(challenge)) {
       checkTravelChallenge();
@@ -23,6 +27,8 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
     return () => clearInterval(intervalId);
   };
 
+
+
   const renderChallenge = () => {
     switch (challenge.type) {
       case 'story':
@@ -33,10 +39,10 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
         return renderTrueFalseChallenge();
       case 'textInput':
         return renderTextInputChallenge();
-      case 'areaSearch':
-        return renderAreaSearchChallenge();
+        case 'travel':
+          return '';
       default:
-        return null;
+        return <p>Unknown challenge type.</p>;
     }
   };
 
@@ -54,21 +60,26 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
     </div>
   );
 
-  const renderMultipleChoiceChallenge = () => (
-    <form>
-      {challenge.options.map(option => (
-        <label key={option}>
-          <input
-            type="radio"
-            value={option}
-            checked={challengeState.answer === option}
-            onChange={handleInputChange}
-          />
-          {option}
-        </label>
-      ))}
-    </form>
-  );
+  const renderMultipleChoiceChallenge = () => {
+    if (!challenge.options || !Array.isArray(challenge.options)) {
+      return <p>No options available for this challenge.</p>;
+    }
+    return (
+      <form>
+        {challenge.options.map(option => (
+          <label key={option}>
+            <input
+              type="radio"
+              value={option}
+              checked={challengeState.answer === option}
+              onChange={handleInputChange}
+            />
+            {option}
+          </label>
+        ))}
+      </form>
+    );
+  };
 
   const renderTrueFalseChallenge = () => (
     <form>
@@ -103,28 +114,23 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
     </form>
   );
 
-  const renderAreaSearchChallenge = () => (
-    <div>
-      {challenge.clues.map((clue, index) => (
-        <p key={index} className="clue">{clue}</p>
-      ))}
-    </div>
-  );
-
   return (
     <div className={`challengeBody ${challengeState.textVisible ? 'visible' : ''}`}>
       <ScrollableContent maxHeight="60vh">
-      <h2>{challenge.title}</h2>
-      <div className="challenge-content">
-        {challenge.description && <p className="challenge-description">{challenge.description}</p>}
-        {challenge.question && <p className="challenge-question">{challenge.question}</p>}
-        {renderChallenge()}
-      </div>
+        <h2>{challenge.title}</h2>
+        <div className="challenge-content">
+          {challenge.description && <p className="challenge-description">{challenge.description}</p>}
+          {challenge.question && <p className="challenge-question">{challenge.question}</p>}
+          {renderChallenge()}
+        </div>
       </ScrollableContent>
-      <div className="feedback-hint-area">
-        {challengeState.hint && <p className="hint">{challengeState.hint}</p>}
-        <p className={`feedback ${challengeState.feedback ? 'visible' : ''} ${challengeState.isCorrect ? 'green' : ''}`}>{challengeState.feedback}</p>
-      </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalContent.title}
+        content={modalContent.content}
+        buttons={modalContent.buttons}
+      />
     </div>
   );
 };

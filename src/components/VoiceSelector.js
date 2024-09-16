@@ -1,34 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import { priorityVoices } from '../utils/voicePriorities';
 
-const VoiceSelector = () => {
+const VoiceSelector = ({ selectedVoiceURI, onVoiceChange }) => {
   const [voices, setVoices] = useState([]);
-  const [selectedVoice, setSelectedVoice] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-
-  const DEFAULT_VOICE = 'Google UK English Male';
 
   useEffect(() => {
     const loadVoices = () => {
       const availableVoices = window.speechSynthesis.getVoices();
       if (availableVoices.length > 0) {
         setVoices(availableVoices);
-        
-        const savedVoiceURI = localStorage.getItem('selectedVoiceURI');
-        if (savedVoiceURI && availableVoices.some(voice => voice.voiceURI === savedVoiceURI)) {
-          setSelectedVoice(savedVoiceURI);
-        } else {
-          // Try to set the default voice
-          const defaultVoice = availableVoices.find(voice => voice.name === DEFAULT_VOICE && voice.lang === 'en-GB');
+        setIsLoading(false);
+
+        if (!selectedVoiceURI || !availableVoices.some(v => v.voiceURI === selectedVoiceURI)) {
+          // Find the highest priority available voice
+          const defaultVoice = priorityVoices.find(pv => 
+            availableVoices.some(av => av.name === pv.name && av.lang === pv.lang)
+          );
+
           if (defaultVoice) {
-            setSelectedVoice(defaultVoice.voiceURI);
-            localStorage.setItem('selectedVoiceURI', defaultVoice.voiceURI);
+            const voice = availableVoices.find(v => v.name === defaultVoice.name && v.lang === defaultVoice.lang);
+            onVoiceChange(voice.voiceURI);
           } else {
-            // If default voice is not available, fall back to the first voice
-            setSelectedVoice(availableVoices[0].voiceURI);
-            localStorage.setItem('selectedVoiceURI', availableVoices[0].voiceURI);
+            // Fallback to the first available voice if none of the priority voices are available
+            onVoiceChange(availableVoices[0].voiceURI);
           }
         }
-        setIsLoading(false);
       }
     };
 
@@ -42,12 +39,10 @@ const VoiceSelector = () => {
         window.speechSynthesis.onvoiceschanged = null;
       }
     };
-  }, []);
+  }, [selectedVoiceURI, onVoiceChange]);
 
   const handleVoiceChange = (e) => {
-    const voiceURI = e.target.value;
-    setSelectedVoice(voiceURI);
-    localStorage.setItem('selectedVoiceURI', voiceURI);
+    onVoiceChange(e.target.value);
   };
 
   if (isLoading) {
@@ -63,7 +58,7 @@ const VoiceSelector = () => {
       <label htmlFor="voice-select">Select Voice:</label>
       <select
         id="voice-select"
-        value={selectedVoice}
+        value={selectedVoiceURI}
         onChange={handleVoiceChange}
         className="stylized-select"
       >

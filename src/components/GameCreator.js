@@ -15,6 +15,7 @@ const GameCreator = () => {
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingPath, setIsEditingPath] = useState(false);
+  const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
 
   useEffect(() => {
     const savedGames = getGames();
@@ -104,7 +105,6 @@ const GameCreator = () => {
       targetLocation: { latitude: 0, longitude: 0 },
       radius: 0,
       completionFeedback: '',
-      clues: [''],
     });
     setShowChallengeCreator(true);
     setIsEditing(false);
@@ -201,14 +201,15 @@ const GameCreator = () => {
           />
         </div>
         <div className="button-container">
-          <button type="button" onClick={isEditingPath ? handlePathUpdate : handlePathFormSubmit} className="submit-button">
-            {isEditingPath ? "Update Path" : "Create Path"}
-          </button>
-          <button type="button" onClick={() => {
+        <button type="button" onClick={() => {
             setIsEditingPath(false);
             setShowPathForm(false);
             setSelectedGame(null);
           }}>Cancel</button>
+          <button type="button" onClick={isEditingPath ? handlePathUpdate : handlePathFormSubmit} className="submit-button">
+            {isEditingPath ? "Update Path" : "Create Path"}
+          </button>
+          
         </div>
       </form>
     </div>
@@ -243,10 +244,9 @@ const GameCreator = () => {
   };
 
   const renderButtons = () => {
-    if (!selectedGame) return null;
-
+    if (!currentChallenge) return null;
     return (
-      <div className="button-container-bottom visible">
+      <div className={`button-container-bottom visible`}>
         {showChallengeCreator && <button onClick={handleBack}>Back</button>}
         {currentChallenge && currentChallenge.type && (
           <button onClick={handleDeleteChallenge}>Delete Challenge</button>

@@ -4,6 +4,7 @@ import ToggleSwitch from './ToggleSwitch';
 import { Challenge } from '../types/challengeTypes';
 import '../css/GameCreator.scss';
 import ScrollableContent from './ScrollableContent';
+import { feetToMeters, metersToFeet, getDistanceUnit } from '../utils/unitConversion';
 
 const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
   const [currentChallenge, setCurrentChallenge] = useState(challenge || {
@@ -20,8 +21,40 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     targetLocation: { latitude: 0, longitude: 0 },
     radius: 0,
     completionFeedback: '',
-    clues: [''],
   });
+
+  const [isMetric, setIsMetric] = useState(() => {
+    const savedUnitSystem = localStorage.getItem('unitSystem');
+    return savedUnitSystem ? JSON.parse(savedUnitSystem) : false;
+  });
+
+  const handleFeedbackChange = (e, type, index = null) => {
+    const { value } = e.target;
+    const updatedFeedbackTexts = { ...currentChallenge.feedbackTexts };
+    if (type === 'correct') {
+      updatedFeedbackTexts.correct = value;
+    } else if (type === 'incorrect') {
+      updatedFeedbackTexts.incorrect[index] = value;
+    }
+    updateChallenge('feedbackTexts', updatedFeedbackTexts);
+  };
+
+  const addIncorrectFeedback = () => {
+    const updatedFeedbackTexts = { 
+      ...currentChallenge.feedbackTexts,
+      incorrect: [...currentChallenge.feedbackTexts.incorrect, '']
+    };
+    updateChallenge('feedbackTexts', updatedFeedbackTexts);
+  };
+
+  const removeIncorrectFeedback = (index) => {
+    const updatedFeedbackTexts = { 
+      ...currentChallenge.feedbackTexts,
+      incorrect: currentChallenge.feedbackTexts.incorrect.filter((_, i) => i !== index)
+    };
+    updateChallenge('feedbackTexts', updatedFeedbackTexts);
+  };
+
 
   useEffect(() => {
     if (challenge) {
@@ -33,38 +66,61 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     checkRequiredFields();
   }, [currentChallenge]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    const updatedChallenge = { ...currentChallenge, [name]: value };
+  const updateChallenge = (fieldName, value) => {
+    const updatedChallenge = { ...currentChallenge, [fieldName]: value };
     setCurrentChallenge(updatedChallenge);
     onUpdate(updatedChallenge);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    let updatedValue = value;
+
+    if (name === 'radius') {
+      // Convert radius to meters before saving
+      updatedValue = value === '' ? '' : isMetric ? parseFloat(value) : feetToMeters(parseFloat(value));
+    }
+
+    const updatedChallenge = { ...currentChallenge, [name]: updatedValue };
+    setCurrentChallenge(updatedChallenge);
+    onUpdate(updatedChallenge);
+  };
+
+  const handleToggleChange = (fieldName) => {
+    updateChallenge(fieldName, !currentChallenge[fieldName]);
   };
 
   const handleArrayChange = (e, index, field) => {
     const { value } = e.target;
     const newArray = [...currentChallenge[field]];
     newArray[index] = value;
-    const updatedChallenge = { ...currentChallenge, [field]: newArray };
-    setCurrentChallenge(updatedChallenge);
-    onUpdate(updatedChallenge);
+    updateChallenge(field, newArray);
   };
 
   const addArrayItem = (field) => {
-    const updatedChallenge = {
-      ...currentChallenge,
-      [field]: [...currentChallenge[field], '']
-    };
-    setCurrentChallenge(updatedChallenge);
-    onUpdate(updatedChallenge);
+    updateChallenge(field, [...currentChallenge[field], '']);
   };
 
   const removeArrayItem = (index, field) => {
-    const updatedChallenge = {
-      ...currentChallenge,
-      [field]: currentChallenge[field].filter((_, i) => i !== index)
-    };
-    setCurrentChallenge(updatedChallenge);
-    onUpdate(updatedChallenge);
+    const newArray = currentChallenge[field].filter((_, i) => i !== index);
+    updateChallenge(field, newArray);
+  };
+
+  const handleUseMyLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          updateChallenge('targetLocation', { latitude, longitude });
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          alert("Unable to get your location. Please check your browser settings and try again.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
   };
 
   const checkRequiredFields = () => {
@@ -88,34 +144,31 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     onRequiredFieldsCheck(allRequiredFilled);
   };
 
-  const handleUseMyLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const updatedChallenge = {
-            ...currentChallenge,
-            targetLocation: { latitude, longitude }
-          };
-          setCurrentChallenge(updatedChallenge);
-          onUpdate(updatedChallenge);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          alert("Unable to get your location. Please check your browser settings and try again.");
-        }
-      );
-    } else {
-      alert("Geolocation is not supported by your browser.");
-    }
-  };
-  
-  const handleToggleChange = (fieldName) => {
-    updateChallenge(fieldName, !currentChallenge[fieldName]);
-  };
-
   const renderField = (fieldName, fieldConfig) => {
     const value = currentChallenge[fieldName];
+
+    if (fieldName === 'radius') {
+      const displayValue = value === '' ? '' : isMetric ? value : metersToFeet(value);
+      return (
+        <div className="field-container">
+          <input
+            type="number"
+            name={fieldName}
+            value={displayValue}
+            onChange={handleInputChange}
+            onBlur={(e) => {
+              if (e.target.value === '') {
+                handleInputChange({ target: { name: fieldName, value: '0' } });
+              }
+            }}
+            placeholder={fieldConfig.label}
+            required={fieldConfig.required}
+            min="0"
+            step="5"
+          />
+        </div>
+      );
+    }
 
     if (fieldName === 'targetLocation') {
       return (
@@ -124,7 +177,7 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
             type="number"
             name={`${fieldName}.latitude`}
             value={value.latitude}
-            onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, latitude: parseFloat(e.target.value) } } })}
+            onChange={(e) => updateChallenge(fieldName, { ...value, latitude: parseFloat(e.target.value) })}
             placeholder="Latitude"
             required={fieldConfig.required}
           />
@@ -132,7 +185,7 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
             type="number"
             name={`${fieldName}.longitude`}
             value={value.longitude}
-            onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, longitude: parseFloat(e.target.value) } } })}
+            onChange={(e) => updateChallenge(fieldName, { ...value, longitude: parseFloat(e.target.value) })}
             placeholder="Longitude"
             required={fieldConfig.required}
           />
@@ -142,6 +195,48 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
         </div>
       );
     }
+
+    if (fieldName === 'feedbackTexts') {
+      return (
+        <div className="feedback-texts-field field-container">
+          <div className="field-container">
+            <label>Correct Feedback:</label>
+            <input
+              type="text"
+              value={currentChallenge.feedbackTexts.correct}
+              onChange={(e) => handleFeedbackChange(e, 'correct')}
+              placeholder="Feedback for correct answer"
+            />
+          </div>
+          <div className="array-field field-container">
+            <label>Incorrect Feedback:</label>
+            {currentChallenge.feedbackTexts.incorrect.map((feedback, index) => (
+              <div key={index} className="array-item">
+                <input
+                  type="text"
+                  value={feedback}
+                  onChange={(e) => handleFeedbackChange(e, 'incorrect', index)}
+                  placeholder={`Incorrect feedback ${index + 1}`}
+                />
+                <button 
+                    type="button" 
+                    onClick={() => removeIncorrectFeedback(index)} 
+                    className="remove-button"
+                    aria-label="Remove feedback"
+                  >
+                    <span className="remove-icon">×</span>
+                  </button>
+
+              </div>
+            ))}
+            <button type="button" onClick={addIncorrectFeedback} className="add-button">
+              Add Incorrect Feedback
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     switch (fieldConfig.type) {
       case 'text':
         return (
@@ -158,26 +253,30 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
         );
       case 'textarea':
         return (
-          <textarea
-            name={fieldName}
-            value={value || ''}
-            onChange={handleInputChange}
-            placeholder={fieldConfig.label}
-            required={fieldConfig.required}
-          />
+          <div className="field-container">
+            <textarea
+              name={fieldName}
+              value={value || ''}
+              onChange={handleInputChange}
+              placeholder={fieldConfig.label}
+              required={fieldConfig.required}
+            />
+          </div>
         );
       case 'number':
         return (
-          <input
-            type="number"
-            name={fieldName}
-            value={value || 0}
-            onChange={handleInputChange}
-            placeholder={fieldConfig.label}
-            required={fieldConfig.required}
-          />
+          <div className="field-container">
+            <input
+              type="number"
+              name={fieldName}
+              value={value || 0}
+              onChange={handleInputChange}
+              placeholder={fieldConfig.label}
+              required={fieldConfig.required}
+            />
+          </div>
         );
-        case 'boolean':
+      case 'boolean':
         if (currentChallenge.type === 'trueFalse' && fieldName === 'correctAnswer') {
           return (
             <div className="true-false-toggle">
@@ -195,7 +294,7 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
               <ToggleSwitch
                 isChecked={value || false}
                 onToggle={() => handleToggleChange(fieldName)}
-                label={value ? 'True' : 'One Time Only'}
+                label={value ? 'Repeatable' : 'One Time Only'}
               />
             </div>
           );
@@ -208,9 +307,10 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
           />
         );
         case 'array':
+          const arrayValue = Array.isArray(value) ? value : [];
           return (
             <div className="array-field field-container">
-              {value.map((item, index) => (
+              {arrayValue.map((item, index) => (
                 <div key={index} className="array-item">
                   <input
                     type="text"
@@ -231,27 +331,6 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
               <button type="button" onClick={() => addArrayItem(fieldName)} className="add-button">Add {fieldConfig.label}</button>
             </div>
           );
-      case 'location':
-        return (
-          <div className="location-field">
-            <input
-              type="number"
-              name={`${fieldName}.latitude`}
-              value={value?.latitude || 0}
-              onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, latitude: parseFloat(e.target.value) } } })}
-              placeholder="Latitude"
-              required={fieldConfig.required}
-            />
-            <input
-              type="number"
-              name={`${fieldName}.longitude`}
-              value={value?.longitude || 0}
-              onChange={(e) => handleInputChange({ target: { name: fieldName, value: { ...value, longitude: parseFloat(e.target.value) } } })}
-              placeholder="Longitude"
-              required={fieldConfig.required}
-            />
-          </div>
-        );
       default:
         return null;
     }
@@ -259,13 +338,19 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
 
   const renderFields = () => {
     if (!currentChallenge.type) return null;
-
     const typeConfig = challengeTypeConfig[currentChallenge.type];
     return (
       <div className="challenge-fields">
         {Object.entries(typeConfig).map(([fieldName, fieldConfig]) => (
           <div key={fieldName} className="field-container">
-            <label htmlFor={fieldName}>{fieldConfig.label}:</label>
+            {fieldName !== 'feedbackTexts' && (
+              <label htmlFor={fieldName}>
+                {fieldConfig.label}
+                {fieldName === 'radius' && (
+                  <span className="unit-indicator"> ({getDistanceUnit(isMetric)})</span>
+                )}:
+              </label>
+            )}
             {renderField(fieldName, fieldConfig)}
           </div>
         ))}

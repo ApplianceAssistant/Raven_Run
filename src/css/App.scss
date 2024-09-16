@@ -35,7 +35,13 @@ label {
 h1,h2,h3{
   padding: 5px;
 }
-
+.versionDisplay{
+  bottom: 0;
+  right: 0;
+  padding: 5px;
+  font-size: 0.7em;
+  @include theme-aware('color', $link-color, $light-link-color);
+}
 .app {
   display: flex;
   flex-direction: column;
@@ -327,6 +333,7 @@ form {
   text,
   select {
     font-family: 'Crimson Text', serif;
+    font-size: 1.1em;
     padding: 10px;
     margin: 10px;
     border-radius: 5px;
@@ -662,47 +669,89 @@ form {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 .modal-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: $darker-bg;
+  @include theme-aware('background-color', $darker-bg, $light-bg);
+  @include theme-aware('color', $text-color, $light-text-color);
   padding: 20px;
   border-radius: 5px;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-}
-
-.modal-header {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 15px;
-}
-.modal-buttons {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  gap: 10px;
-  margin-top: 20px;
-}
+  text-align: center;
 
-.close-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: $text-color;
-
-  &:hover {
-    color: darken($text-color, 20%);
+  &.visible {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
+.modal-header {
+  margin-bottom: 15px;
+  width: 100%;
+  text-align: center;
+
+  h2 {
+    font-size: 1.5em;
+    margin: 0;
+  }
+}
+
+.modal-body {
+  margin-bottom: 20px;
+  transition: opacity 0.2s ease;
+  width: 100%;
+
+  &.text-orange-700 {
+    color: #c45500;
+  }
+
+  &.text-green-600 {
+    color: #059669;
+  }
+
+  &.text-crimson {
+    color: #7d1e1e;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.close-button {
+  border: none;
+}
+
+.hint-counter{
+  font-size: 0.8em;
+  color: #666;
+  text-align: center;
+  margin-top: 10px;
+}
 .modal-body {
   color: $text-color;
 
