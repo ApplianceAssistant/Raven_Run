@@ -28,6 +28,34 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
     return savedUnitSystem ? JSON.parse(savedUnitSystem) : false;
   });
 
+  const handleFeedbackChange = (e, type, index = null) => {
+    const { value } = e.target;
+    const updatedFeedbackTexts = { ...currentChallenge.feedbackTexts };
+    if (type === 'correct') {
+      updatedFeedbackTexts.correct = value;
+    } else if (type === 'incorrect') {
+      updatedFeedbackTexts.incorrect[index] = value;
+    }
+    updateChallenge('feedbackTexts', updatedFeedbackTexts);
+  };
+
+  const addIncorrectFeedback = () => {
+    const updatedFeedbackTexts = { 
+      ...currentChallenge.feedbackTexts,
+      incorrect: [...currentChallenge.feedbackTexts.incorrect, '']
+    };
+    updateChallenge('feedbackTexts', updatedFeedbackTexts);
+  };
+
+  const removeIncorrectFeedback = (index) => {
+    const updatedFeedbackTexts = { 
+      ...currentChallenge.feedbackTexts,
+      incorrect: currentChallenge.feedbackTexts.incorrect.filter((_, i) => i !== index)
+    };
+    updateChallenge('feedbackTexts', updatedFeedbackTexts);
+  };
+
+
   useEffect(() => {
     if (challenge) {
       setCurrentChallenge(challenge);
@@ -168,6 +196,47 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
       );
     }
 
+    if (fieldName === 'feedbackTexts') {
+      return (
+        <div className="feedback-texts-field field-container">
+          <div className="field-container">
+            <label>Correct Feedback:</label>
+            <input
+              type="text"
+              value={currentChallenge.feedbackTexts.correct}
+              onChange={(e) => handleFeedbackChange(e, 'correct')}
+              placeholder="Feedback for correct answer"
+            />
+          </div>
+          <div className="array-field field-container">
+            <label>Incorrect Feedback:</label>
+            {currentChallenge.feedbackTexts.incorrect.map((feedback, index) => (
+              <div key={index} className="array-item">
+                <input
+                  type="text"
+                  value={feedback}
+                  onChange={(e) => handleFeedbackChange(e, 'incorrect', index)}
+                  placeholder={`Incorrect feedback ${index + 1}`}
+                />
+                <button 
+                    type="button" 
+                    onClick={() => removeIncorrectFeedback(index)} 
+                    className="remove-button"
+                    aria-label="Remove feedback"
+                  >
+                    <span className="remove-icon">×</span>
+                  </button>
+
+              </div>
+            ))}
+            <button type="button" onClick={addIncorrectFeedback} className="add-button">
+              Add Incorrect Feedback
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     switch (fieldConfig.type) {
       case 'text':
         return (
@@ -274,12 +343,14 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
       <div className="challenge-fields">
         {Object.entries(typeConfig).map(([fieldName, fieldConfig]) => (
           <div key={fieldName} className="field-container">
-            <label htmlFor={fieldName}>
-              {fieldConfig.label}
-              {fieldName === 'radius' && (
-                <span className="unit-indicator"> ({getDistanceUnit(isMetric)})</span>
-              )}:
-            </label>
+            {fieldName !== 'feedbackTexts' && (
+              <label htmlFor={fieldName}>
+                {fieldConfig.label}
+                {fieldName === 'radius' && (
+                  <span className="unit-indicator"> ({getDistanceUnit(isMetric)})</span>
+                )}:
+              </label>
+            )}
             {renderField(fieldName, fieldConfig)}
           </div>
         ))}

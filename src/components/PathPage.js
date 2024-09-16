@@ -202,12 +202,19 @@ function PathPage() {
 
     let contentText = feedbackText;
     if (isCorrect) {
-      if (currentChallenge.completionFeedback && currentChallenge.completionFeedback.trim() !== '') {
+      if (currentChallenge.feedbackTexts && currentChallenge.feedbackTexts.correct) {
+        contentText = currentChallenge.feedbackTexts.correct;
+      } else if (currentChallenge.completionFeedback && currentChallenge.completionFeedback.trim() !== '') {
         contentText = currentChallenge.completionFeedback;
       } else {
         contentText = feedbackText || 'Correct! Well done!';
       }
+    } else if (currentChallenge.feedbackTexts && currentChallenge.feedbackTexts.incorrect) {
+      const incorrectFeedbacks = currentChallenge.feedbackTexts.incorrect;
+      const feedbackIndex = Math.min(challengeState.attempts - 1, incorrectFeedbacks.length - 1);
+      contentText = incorrectFeedbacks[feedbackIndex] || feedbackText || 'Incorrect. Try again!';
     }
+
     console.log("Feedback content:", contentText);
     updateModalContent({
       title: isCorrect ? 'Correct!' : 'Incorrect',
@@ -258,6 +265,7 @@ function PathPage() {
   }, [currentChallenge]);
 
   return (
+
     <div className="content-wrapper">
       <h2 className="center">{pathName}</h2>
       {shouldDisplayDistanceNotice(currentChallenge) && (
