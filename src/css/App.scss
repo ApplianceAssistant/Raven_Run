@@ -743,18 +743,8 @@ form {
 }
 
 .close-button {
-  background: none;
   border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  @include theme-aware('color', $text-color, $light-text-color);
-
-  &:hover {
-    @include theme-aware('color', darken($text-color, 20%), darken($light-text-color, 20%));
-  }
 }
-
-/* ... (rest of the modal styles remain the same) ... */
 
 .hint-counter{
   font-size: 0.8em;
