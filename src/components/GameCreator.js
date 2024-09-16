@@ -3,6 +3,7 @@ import { saveGame, getGames, deleteGame, isValidGame } from '../services/gameCre
 import { saveGameToLocalStorage, getGamesFromLocalStorage, updateChallengeInLocalStorage, deleteGameFromLocalStorage } from '../utils/localStorageUtils';
 import ChallengeCreator from './ChallengeCreator';
 import PathDisplay from './PathDisplay';
+import Modal from './Modal';
 import '../css/GameCreator.scss';
 
 const GameCreator = () => {
@@ -15,6 +16,8 @@ const GameCreator = () => {
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingPath, setIsEditingPath] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [gameToDelete, setGameToDelete] = useState(null);
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
 
   useEffect(() => {
@@ -63,6 +66,19 @@ const GameCreator = () => {
     }
   };
 
+  const handleDeleteConfirmation = (game) => {
+    setGameToDelete(game);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmedDelete = () => {
+    if (gameToDelete) {
+      handleDeletePath(gameToDelete.id);
+      setIsDeleteModalOpen(false);
+      setGameToDelete(null);
+    }
+  };
+
   const handleDeletePath = (gameId) => {
     const updatedGames = games.filter(game => game.id !== gameId);
     setGames(updatedGames);
@@ -78,11 +94,11 @@ const GameCreator = () => {
         challenge => challenge.id !== currentChallenge.id
       );
       const updatedGame = { ...selectedGame, challenges: updatedChallenges };
-      
+
       setSelectedGame(updatedGame);
       setGames(games.map(g => g.id === updatedGame.id ? updatedGame : g));
       saveGame(updatedGame);
-      
+
       setCurrentChallenge(null);
       setShowChallengeCreator(false);
       setAllRequiredFieldsFilled(false);
@@ -165,7 +181,7 @@ const GameCreator = () => {
             <p>Challenges: {game.challenges.length}</p>
             <p>Created: {new Date(game.id).toLocaleDateString()}</p>
             <button onClick={() => handleSelectPath(game)}>Select</button>
-            <button onClick={() => handleDeletePath(game.id)}>Delete</button>
+            <button onClick={() => handleDeleteConfirmation(game)}>Delete</button>
           </div>
         ))
       ) : (
@@ -201,7 +217,7 @@ const GameCreator = () => {
           />
         </div>
         <div className="button-container">
-        <button type="button" onClick={() => {
+          <button type="button" onClick={() => {
             setIsEditingPath(false);
             setShowPathForm(false);
             setSelectedGame(null);
@@ -209,7 +225,7 @@ const GameCreator = () => {
           <button type="button" onClick={isEditingPath ? handlePathUpdate : handlePathFormSubmit} className="submit-button">
             {isEditingPath ? "Update Path" : "Create Path"}
           </button>
-          
+
         </div>
       </form>
     </div>
@@ -219,11 +235,11 @@ const GameCreator = () => {
     if (isEditingPath || showPathForm) {
       return renderPathForm();
     }
-  
+
     if (!selectedGame) {
       return renderGameList();
     }
-  
+
     if (showChallengeCreator) {
       return (
         <ChallengeCreator
@@ -233,7 +249,7 @@ const GameCreator = () => {
         />
       );
     }
-  
+
     return (
       <PathDisplay
         game={selectedGame}
@@ -269,6 +285,24 @@ const GameCreator = () => {
         </div>
       </div>
       {renderButtons()}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Delete"
+        content={`Are you sure you want to delete this path and all of its challenges?`}
+        buttons={[
+          {
+            label: 'Cancel',
+            onClick: () => setIsDeleteModalOpen(false),
+            className: 'secondary'
+          },
+          {
+            label: 'Delete',
+            onClick: handleConfirmedDelete,
+            className: 'danger'
+          }
+        ]}
+      />
     </div>
   );
 };
