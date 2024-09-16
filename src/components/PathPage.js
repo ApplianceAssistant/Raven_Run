@@ -156,9 +156,7 @@ function PathPage() {
           </>
         ),
         buttons: [
-          { label: 'Close', onClick: () => setIsModalOpen(false) },
-          ...(totalHints > 1 ? [{ label: 'Next Hint', onClick: showHintModal }] : [])
-        ],
+          { label: 'Close', onClick: () => setIsModalOpen(false) }],
         type: 'hint'
       });
     }
