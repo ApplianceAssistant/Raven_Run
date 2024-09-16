@@ -3,7 +3,6 @@ import { saveGame, getGames, deleteGame, isValidGame } from '../services/gameCre
 import { saveGameToLocalStorage, getGamesFromLocalStorage, updateChallengeInLocalStorage, deleteGameFromLocalStorage } from '../utils/localStorageUtils';
 import ChallengeCreator from './ChallengeCreator';
 import PathDisplay from './PathDisplay';
-import TextToSpeech from './TextToSpeech';
 import '../css/GameCreator.scss';
 
 const GameCreator = () => {

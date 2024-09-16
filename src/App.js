@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, createContext } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { ThemeProvider } from './components/ThemeContext';
 import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
@@ -10,7 +11,6 @@ import Settings from './components/Settings';
 import Create from './components/GameCreator';
 import Header from './components/Header';
 import { startLocationUpdates, stopLocationUpdates, getCurrentLocation, updateUserLocation } from './utils/utils';
-//import DevLocationSetter from './dev/locationSetter';
 import './css/App.scss';
 import './css/SpiritGuide.scss';
 
@@ -113,32 +113,34 @@ function App() {
     locationIntervalRef.current = startLocationUpdates();
   }
   return (
-    <AuthContext.Provider value={{ ...authState, login, logout }}>
-      <Router>
-        <div className="app">
-          <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/path/:pathId" element={<PathPage />} />
-              <Route path="/lobby" element={<Lobby />} />
-              {authState.isLoggedIn && (
-                <>
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/create" element={<Create />} />
-                </>
-              )}
-              {!authState.isLoggedIn && (
-                <Route path="/create-account" element={<CreateAccount />} />
-              )}
-            </Routes>
-          </main>
+    <ThemeProvider>
+      <AuthContext.Provider value={{ ...authState, login, logout }}>
+        <Router>
+            <div className="app">
+              <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
+              <main className="main-content">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/path/:pathId" element={<PathPage />} />
+                  <Route path="/lobby" element={<Lobby />} />
+                  {authState.isLoggedIn && (
+                    <>
+                      <Route path="/settings" element={<Settings />} />
+                      <Route path="/create" element={<Create />} />
+                    </>
+                  )}
+                  {!authState.isLoggedIn && (
+                    <Route path="/create-account" element={<CreateAccount />} />
+                  )}
+                </Routes>
+              </main>
 
-        </div>
-      </Router>
-    </AuthContext.Provider>
+            </div>
+            </Router>
+      </AuthContext.Provider>
+    </ThemeProvider>
   );
 }
 
