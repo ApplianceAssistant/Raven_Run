@@ -30,7 +30,6 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
 
 
   const renderChallenge = () => {
-    console.log("challenge type: ", challenge.type);
     switch (challenge.type) {
       case 'story':
         return renderStoryChallenge();
@@ -40,6 +39,8 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
         return renderTrueFalseChallenge();
       case 'textInput':
         return renderTextInputChallenge();
+        case 'travel':
+          return '';
       default:
         return <p>Unknown challenge type.</p>;
     }

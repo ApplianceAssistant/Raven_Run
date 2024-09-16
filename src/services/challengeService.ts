@@ -87,10 +87,7 @@ export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
   }
 
   const hasValidRadius = !isNaN(radius) && radius > 0;
-  console.log("Has valid radius:", hasValidRadius, "Radius value:", radius);
-
   const shouldDisplay = hasValidLocation && hasValidRadius;
-  console.log("Should display distance notice:", shouldDisplay);
 
   return shouldDisplay;
 }
@@ -117,19 +114,6 @@ export function shouldDisplaySkipButton(challenge: Challenge, state: ChallengeSt
   return !shouldDisplayContinueButton(challenge, state);
 }
 
-// New function to handle submit action
-export function handleSubmit(challenge: Challenge, state: ChallengeState): ChallengeState {
-  const isCorrect = checkAnswer(challenge, state.answer);
-  const feedbackText = isCorrect 
-    ? challenge.feedbackTexts?.correct || 'Correct!'
-    : getNextIncorrectFeedback(challenge);
-
-  return {
-    ...state,
-    isCorrect,
-    feedback: feedbackText,
-  };
-}
 
 // New function to get the next hint
 export const getNextHintState = (challenge, prevState) => {
@@ -185,17 +169,47 @@ export function checkLocationReached(challenge: Challenge, userLocation: { latit
   return distance <= challenge.radius;
 }
 
+export function handleSubmit(challenge: Challenge, state: ChallengeState): ChallengeState {
+  const isCorrect = checkAnswer(challenge, state.answer);
+  console.log("handleSubmit - isCorrect:", isCorrect, "answer:", state.answer, "correctAnswer:", challenge.correctAnswer);
+  const feedbackText = isCorrect 
+    ? challenge.feedbackTexts?.correct || 'Correct!'
+    : getNextIncorrectFeedback(challenge);
+  return {
+    ...state,
+    isCorrect,
+    feedback: feedbackText,
+  };
+}
+
 export function checkAnswer(challenge: Challenge, answer: any): boolean {
+  console.log("checkAnswer - challenge type:", challenge.type, "answer:", answer, "correctAnswer:", challenge.correctAnswer);
   switch (challenge.type) {
     case 'story':
       return true; // Stories are always considered "correct"
     case 'multipleChoice':
+      return normalizeString(challenge.correctAnswer) === normalizeString(answer);
     case 'textInput':
+      return checkTextInputAnswer(challenge.correctAnswer, answer);
     case 'trueFalse':
       return challenge.correctAnswer === answer;
     default:
       return false;
   }
+}
+
+function normalizeString(str: string): string {
+  return str.toLowerCase().replace(/[^\w\s]/g, '').trim();
+}
+
+function checkTextInputAnswer(correctAnswer: string, userAnswer: string): boolean {
+  const normalizedCorrect = normalizeString(correctAnswer);
+  const normalizedUser = normalizeString(userAnswer);
+  
+  const correctWords = normalizedCorrect.split(/\s+/);
+  const userWords = normalizedUser.split(/\s+/);
+
+  return correctWords.every(word => userWords.includes(word));
 }
 
 const lastFeedbackIndexMap = new Map<string, number>();

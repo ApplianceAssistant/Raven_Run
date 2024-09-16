@@ -15,16 +15,18 @@ import {
   getNextHintState,
   canDisplayHints,
   updateDistance,
-  shouldDisplayDistanceNotice
+  shouldDisplayDistanceNotice,
+  checkLocationReached
 } from '../services/challengeService.ts';
 import { getCurrentLocation } from '../utils/utils.js';
 import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 
 function PathPage() {
-  // ... (existing state variables)
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
+  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '' });
+  const [modalKey, setModalKey] = useState(0);
+  const [currentHint, setCurrentHint] = useState(0);
   const { pathId } = useParams();
   const [pathName, setPathName] = useState('');
   const [challenges, setChallenges] = useState([]);
@@ -87,12 +89,12 @@ function PathPage() {
       if (distanceIntervalRef.current) {
         clearInterval(distanceIntervalRef.current);
       }
-      
+
       if (shouldDisplayDistanceNotice(challenges[challengeIndex])) {
         const updateDistanceWithDynamicInterval = () => {
           const newDistanceInfo = updateDistance(challenges[challengeIndex]);
           setDistanceInfo(newDistanceInfo);
-          
+
           // Set up the next interval
           const nextInterval = getRefreshInterval(newDistanceInfo.distance);
           distanceIntervalRef.current = setTimeout(updateDistanceWithDynamicInterval, nextInterval);
@@ -111,48 +113,11 @@ function PathPage() {
   }, [challengeIndex, challenges]);
 
   const currentChallenge = challenges[challengeIndex];
-  console.log("currentChallenge: ", currentChallenge);
 
   useEffect(() => {
     console.log('Current challenge:', currentChallenge);
     console.log('Hints:', currentChallenge?.hints);
   }, [currentChallenge]);
-
-  useEffect(() => {
-    if (isModalOpen && currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0) {
-      const currentHint = challengeState.currentHint ?? 0;
-      const totalHints = currentChallenge.hints.length;
-      
-      setModalContent({
-        title: 'Hint',
-        content: (
-          <>
-            <p>{currentChallenge.hints[currentHint]}</p>
-            {totalHints > 1 && (
-              <p className="hint-counter">Hint {currentHint + 1} of {totalHints}</p>
-            )}
-          </>
-        ),
-        buttons: totalHints > 1 
-          ? [
-              {
-                label: 'Close',
-                onClick: () => setIsModalOpen(false)
-              },
-              {
-                label: 'Next Hint',
-                onClick: handleGetHint
-              }
-            ]
-          : [
-              {
-                label: 'Close',
-                onClick: () => setIsModalOpen(false)
-              }
-            ]
-      });
-    }
-  }, [isModalOpen, challengeState.currentHint, currentChallenge]);
 
   const handleStateChange = (updates) => {
     setChallengeState(prevState => updateChallengeState(currentChallenge, prevState, updates));
@@ -161,22 +126,52 @@ function PathPage() {
   const handleSubmitClick = () => {
     const newState = handleSubmit(currentChallenge, challengeState);
     setChallengeState(newState);
+    console.log("Submit result:", newState);
+    displayFeedback(newState.isCorrect, newState.feedback);
   };
 
   const handleContinueClick = () => {
+    setIsModalOpen(false);
     setContentVisible(false);
     setChallengeVisible(false);
     setTimeout(() => {
       setChallengeIndex(prevIndex => prevIndex + 1);
-    }, 500); // Adjust time as needed for transition
+    }, 500);
   };
 
   const showHintModal = () => {
     if (currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0) {
-      setIsModalOpen(true);
-    } else {
-      console.log('No hints available or challenge not loaded');
+      const totalHints = currentChallenge.hints.length;
+      const nextHint = (currentHint + 1) % totalHints;
+      setCurrentHint(nextHint);
+      console.log("Showing hint:", nextHint, currentChallenge.hints[nextHint]);
+      updateModalContent({
+        title: 'Hint',
+        content: (
+          <>
+            <p>{currentChallenge.hints[nextHint]}</p>
+            {totalHints > 1 && (
+              <p className="hint-counter">Hint {nextHint + 1} of {totalHints}</p>
+            )}
+          </>
+        ),
+        buttons: [
+          { label: 'Close', onClick: () => setIsModalOpen(false) },
+          ...(totalHints > 1 ? [{ label: 'Next Hint', onClick: showHintModal }] : [])
+        ],
+        type: 'hint'
+      });
     }
+  };
+
+  const updateModalContent = (newContent) => {
+    console.warn("Updating modal content:", newContent);
+    setIsModalOpen(false);
+    setTimeout(() => {
+      setModalContent(newContent);
+      setModalKey(prevKey => prevKey + 1);  // Force re-render of Modal
+      setIsModalOpen(true);
+    }, 300); // Adjust this delay as needed to match your modal transition duration
   };
 
   const handleGetHint = () => {
@@ -194,9 +189,36 @@ function PathPage() {
     }, 500);
   };
 
+  const displayFeedback = (isCorrect, feedbackText) => {
+    console.log("Displaying feedback:", isCorrect, feedbackText);
+    const buttons = [];
+    if (isCorrect) {
+      buttons.push({ label: 'Continue', onClick: handleContinueClick, className: 'continue-button' });
+    } else if (currentChallenge.repeatable) {
+      buttons.push({ label: 'Close', onClick: () => setIsModalOpen(false), className: 'close-button' });
+    } else {
+      buttons.push({ label: 'Continue', onClick: handleContinueClick, className: 'continue-button' });
+    }
+
+    let contentText = feedbackText;
+    if (isCorrect) {
+      if (currentChallenge.completionFeedback && currentChallenge.completionFeedback.trim() !== '') {
+        contentText = currentChallenge.completionFeedback;
+      } else {
+        contentText = feedbackText || 'Correct! Well done!';
+      }
+    }
+    console.log("Feedback content:", contentText);
+    updateModalContent({
+      title: isCorrect ? 'Correct!' : 'Incorrect',
+      content: <p className={isCorrect ? 'completion-feedback' : ''}>{contentText}</p>,
+      buttons: buttons,
+      type: isCorrect ? 'correct' : 'incorrect'
+    });
+  };
+
   const renderButtons = () => {
     if (!currentChallenge) return null;
-    console.log('Can display hints:', canDisplayHints(currentChallenge));
     return (
       <div className={`button-container-bottom visible`}>
         {(currentChallenge.description || currentChallenge.storyText) &&
@@ -217,6 +239,23 @@ function PathPage() {
       </div>
     );
   };
+
+  useEffect(() => {
+    if (currentChallenge && currentChallenge.type === 'travel') {
+      const checkLocation = () => {
+        const userLocation = getCurrentLocation();
+        if (checkLocationReached(currentChallenge, userLocation)) {
+          displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
+          clearInterval(locationCheckInterval);
+        }
+      };
+
+      const locationCheckInterval = setInterval(checkLocation, 5000); // Check every 5 seconds
+
+      return () => clearInterval(locationCheckInterval);
+    }
+    setCurrentHint(0);
+  }, [currentChallenge]);
 
   return (
     <div className="content-wrapper">
@@ -251,6 +290,7 @@ function PathPage() {
         title={modalContent.title}
         content={modalContent.content}
         buttons={modalContent.buttons}
+        type={modalContent.type}
       />
     </div>
   );
