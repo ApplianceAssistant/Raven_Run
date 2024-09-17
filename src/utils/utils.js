@@ -91,7 +91,6 @@ function getUserLocation() {
 }
 
 export async function updateUserLocation() {
-  console.warn("Updating user location...");
   try {
     const location = await getUserLocation();
     currentLocation = location;

@@ -7,6 +7,7 @@ export namespace GameTypes {
     name: string;
     description: string;
     challenges: Challenge[];
+    public: boolean;
   }
 
   export interface Challenge {
@@ -18,11 +19,14 @@ export namespace GameTypes {
 }
 
 export const saveGame = (game: GameTypes.Game): void => {
-  saveGameToLocalStorage(game);
+  const gameWithPublic: GameTypes.Game = { ...game, public: game.public ?? false };
+  console.warn("save Game: ", game);
+  saveGameToLocalStorage(gameWithPublic);
 };
 
 export const getGames = (): GameTypes.Game[] => {
-  return getGamesFromLocalStorage();
+  const games = getGamesFromLocalStorage();
+  return games.map(game => ({ ...game, public: game.public ?? false }));
 };
 
 export const deleteGame = (gameId: number): void => {

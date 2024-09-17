@@ -1,18 +1,21 @@
 import React from 'react';
 import '../css/ToggleSwitch.scss';
 
-const ToggleSwitch = ({ isChecked, onToggle, label }) => {
+const ToggleSwitch = ({ checked, onToggle, label, name, id }) => {
   return (
     <div className="toggle-switch-container">
       <label className="switch">
         <input
           type="checkbox"
-          checked={isChecked}
+          checked={checked}
           onChange={onToggle}
+          name={name}
+          id={id}
         />
         <span className="slider round"></span>
       </label>
       <span className="toggle-label">{label}</span>
+
     </div>
   );
 };
