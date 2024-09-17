@@ -240,7 +240,7 @@ const GameCreator = () => {
       <div className="field-container">
         <div className="path-id-display">ID: {newPathData.pathId}</div>
       </div>
-      <form className="content">
+      <form className="content flex-top">
         <div className="field-container">
           <label htmlFor="pathName">Path Name:</label>
           <input
