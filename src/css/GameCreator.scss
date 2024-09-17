@@ -10,14 +10,20 @@
     align-items: center;
     margin-bottom: 15px;
   }
+  .path-id-display {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.1em;
+    @include theme-aware('color', darken($text-color, 20%), lighten($light-text-color, 20%));
+    display: inline-block;
+    min-width: 200px;
+    text-align: center;
+  }
 
   .game-list {
     .game-item {
-      background-color: rgba(245, 245, 245, 0.1);
-      border: 1px solid #ddd;
-      border-radius: 4px;
       padding: 15px;
       margin-bottom: 15px;
+      border-bottom: 1px solid gray;
 
       h3 {
         margin-top: 0;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { saveGame, getGames, deleteGame, isValidGame } from '../services/gameCreatorService';
+import { saveGame, getGames, deleteGame, isValidGame, generateUniquePathId } from '../services/gameCreatorService';
 import { saveGameToLocalStorage, getGamesFromLocalStorage, updateChallengeInLocalStorage, deleteGameFromLocalStorage } from '../utils/localStorageUtils';
 import ChallengeCreator from './ChallengeCreator';
 import PathDisplay from './PathDisplay';
@@ -11,7 +11,7 @@ const GameCreator = () => {
   const [games, setGames] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
   const [showPathForm, setShowPathForm] = useState(false);
-  const [newPathData, setNewPathData] = useState({ name: '', description: '', public: false });
+  const [newPathData, setNewPathData] = useState({ name: '', description: '', public: false, pathId: '' });
   const [isPublic, setIsPublic] = useState(false);
   const [currentChallenge, setCurrentChallenge] = useState(null);
   const [showChallengeCreator, setShowChallengeCreator] = useState(false);
@@ -37,7 +37,8 @@ const GameCreator = () => {
       setNewPathData({
         name: selectedGame.name,
         description: selectedGame.description,
-        public: selectedGame.public ?? false
+        public: selectedGame.public ?? false,
+        pathId: selectedGame.pathId || generateUniquePathId()
       });
       setIsPublic(selectedGame.public ?? false);
     }
@@ -60,6 +61,7 @@ const GameCreator = () => {
   };
 
   const handleCreateNewPath = () => {
+    setNewPathData(prev => ({ ...prev, pathId: generateUniquePathId() }));
     setShowPathForm(true);
   };
 
@@ -69,13 +71,14 @@ const GameCreator = () => {
         ...newPathData,
         id: Date.now(),
         challenges: [],
-        public: newPathData.public
+        public: newPathData.public,
+        pathId: newPathData.pathId
       };
       setGames(prevGames => [...prevGames, newGame]);
       setSelectedGame(newGame);
       saveGame(newGame);
       setShowPathForm(false);
-      setNewPathData({ name: '', description: '', public: false });
+      setNewPathData({ name: '', description: '', public: false, pathId: '' });
     } else {
       alert('Please enter a path title');
     }
@@ -88,7 +91,8 @@ const GameCreator = () => {
       ...prevData,
       name: game.name,
       description: game.description,
-      public: game.public
+      public: game.public,
+      pathId: game.pathId
     }));
     setIsEditingPath(true);
   };
@@ -233,6 +237,9 @@ const GameCreator = () => {
   const renderPathForm = () => (
     <div className="path-form">
       <h2 className="contentHeader">{isEditingPath ? "Edit Path" : "Create New Path"}</h2>
+      <div className="field-container">
+        <div className="path-id-display">ID: {newPathData.pathId}</div>
+      </div>
       <form className="content">
         <div className="field-container">
           <label htmlFor="pathName">Path Name:</label>
