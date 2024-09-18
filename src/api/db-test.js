@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getDbConnection } = require('../db_connection');
+const { dbQuery } = require('../utils/dbProxy');
 
 router.get('/', async (req, res) => {
   try {

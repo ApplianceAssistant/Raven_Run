@@ -4,23 +4,17 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 const { getDbConnection } = require('./db_connection');
-const { createProxyMiddleware } = require('http-proxy-middleware');
 const userRoutes = require('./api/users');
 const dbTestRoute = require('./api/db-test');
 
 const app = express();
 const PORT = process.env.PORT || 5000; 
 
-app.use('/api', createProxyMiddleware({ 
-  target: 'http://localhost:5000',
-  changeOrigin: true,
-}));
-
 // CORS configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
     ? ['https://crowtours.com']
-    : ['http://localhost:5000'],
+    : ['http://localhost:3000'],
   credentials: true,
   optionsSuccessStatus: 200
 };
@@ -36,6 +30,9 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '..', '..', 'public_html')));
 }
 
+// Serve API routes from public directory
+app.use('/api', express.static(path.join(__dirname, '..', 'public_html', 'src', 'api')));
+
 // Enhanced logging middleware
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -47,6 +44,20 @@ app.use((req, res, next) => {
 // API routes
 app.use('/api/users', userRoutes);
 app.use('/api/db-test', dbTestRoute);
+
+// New route for database queries
+app.post('/api/db-query', async (req, res) => {
+  const { query, params } = req.body;
+  try {
+    const connection = await getDbConnection();
+    const [results] = await connection.execute(query, params);
+    connection.release();
+    res.json(results);
+  } catch (error) {
+    console.error('Database query error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Catch-all handler for React app (only in production)
 if (process.env.NODE_ENV === 'production') {
