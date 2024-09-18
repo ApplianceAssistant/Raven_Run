@@ -18,27 +18,21 @@ if [ ! -d "build" ]; then
     exit 1
 fi
 
-# Remove existing static directory and other files that will be replaced
+# Remove existing files that will be replaced
 echo "Removing existing files..."
 rm -rf static index.html asset-manifest.json
 
-# Move build files to the public_html directory
+# Move build files to the current directory
 echo "Moving new files..."
 mv build/* .
 mv build/.* . 2>/dev/null || true  # Don't error if no hidden files
 
+# Clean up
+echo "Cleaning up..."
+rm -rf build
+
 # Copy server files to private_html
 echo "Copying server files..."
 cp -r ../server ../private_html/
-
-# Clean up
-echo "Cleaning up..."
-rm -rf build src
-
-echo "Cleaning up nested public_html..."
-if [ -d "public_html" ]; then
-  rsync -a public_html/ .
-  rm -rf public_html
-fi
 
 echo "Deployment completed successfully."
