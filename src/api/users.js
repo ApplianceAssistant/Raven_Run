@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getDbConnection } = require('../db');
+const { dbQuery } = require('../utils/dbProxy');
 
 // GET a single user by ID
 router.get('/:id', async (req, res) => {
