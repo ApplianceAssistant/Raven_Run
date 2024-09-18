@@ -10,12 +10,22 @@ import PathPage from './components/PathPage';
 import Settings from './components/Settings';
 import Create from './components/GameCreator';
 import Header from './components/Header';
+import { checkServerConnectivity, API_URL } from './utils/utils.js';
 import { startLocationUpdates, stopLocationUpdates, getCurrentLocation, updateUserLocation } from './utils/utils';
 import './css/App.scss';
 import './css/SpiritGuide.scss';
 
 // Create a context for the auth state
 export const AuthContext = createContext(null);
+
+useEffect(() => {
+  const checkConnection = async () => {
+    const status = await checkServerConnectivity();
+    setServerStatus(status);
+  };
+
+  checkConnection();
+}, []);
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
