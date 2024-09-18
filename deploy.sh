@@ -35,4 +35,10 @@ cp -r ../server ../private_html/
 echo "Cleaning up..."
 rm -rf build src
 
+echo "Cleaning up nested public_html..."
+if [ -d "public_html" ]; then
+  rsync -a public_html/ .
+  rm -rf public_html
+fi
+
 echo "Deployment completed successfully."
