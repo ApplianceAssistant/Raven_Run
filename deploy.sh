@@ -1,17 +1,5 @@
 #!/bin/bash
 
-# Clean existing files and folders from /server/
-rm -rf private_html/server/*
-
-# Move all files and folders from public_html/private_html to private_html
-mv public_html/private_html/* public_html/private_html/.* private_html/ 2>/dev/null || true
-
-# Delete the now empty private_html folder in public_html
-rmdir public_html/private_html 2>/dev/null || true
-
-# Move to the public_html directory
-cd public_html || exit
-
 # Ensure we're in the correct directory
 if [[ ! "$PWD" == */public_html ]]; then
     echo "This script must be run from the public_html directory."
