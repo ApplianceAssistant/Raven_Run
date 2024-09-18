@@ -27,6 +27,10 @@ echo "Moving new files..."
 mv build/* .
 mv build/.* . 2>/dev/null || true  # Don't error if no hidden files
 
+# Copy server files to private_html
+echo "Copying server files..."
+cp -r ../server ../private_html/
+
 # Clean up
 echo "Cleaning up..."
 rm -rf build src

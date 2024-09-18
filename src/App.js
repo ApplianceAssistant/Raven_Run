@@ -23,7 +23,7 @@ function App() {
   const locationIntervalRef = useRef(null);
   const [authState, setAuthState] = useState({
     //update this to simulate loggin status
-    isLoggedIn: true,
+    isLoggedIn: false,
     user: null,
   });
 
