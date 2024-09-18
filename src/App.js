@@ -41,13 +41,13 @@ function App() {
   
     checkConnection();
   }, []);
-  
+
   useEffect(() => {
     // Check if there's a stored auth token or user data
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setAuthState({
-        isLoggedIn: true,
+        isLoggedIn: false,
         user: JSON.parse(storedUser),
       });
     }
