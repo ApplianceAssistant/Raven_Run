@@ -6,4 +6,14 @@
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-l
   RewriteRule . /index.html [L]
+
+  # Prevent access to .env file
+  <FilesMatch "^\.env">
+    Order allow,deny
+    Deny from all
+  </FilesMatch>
+
+  # Prevent access to sensitive directories
+  RedirectMatch 403 ^/private_html/?$
+  RedirectMatch 403 ^/server/?$
 </IfModule>

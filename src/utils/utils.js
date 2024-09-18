@@ -1,12 +1,10 @@
 // src/utils/utils.js
 
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHandPointUp, faHandPointDown, faHandsUpDown } from '@fortawesome/free-solid-svg-icons';
 
 export const API_URL = process.env.NODE_ENV === 'production' 
   ? 'https://crowtours.com' 
-  : 'http://localhost:3000';
+  : 'http://localhost:5000';
 
   //debugger;
   console.log('Current environment:', process.env.NODE_ENV);
@@ -91,7 +89,6 @@ function getUserLocation() {
 }
 
 export async function updateUserLocation() {
-  console.warn("Updating user location...");
   try {
     const location = await getUserLocation();
     currentLocation = location;
@@ -108,25 +105,18 @@ export function startLocationUpdates(interval = 15000) {
 
 // Function to check server connectivity and measure response time
 export const checkServerConnectivity = async () => {
-  const startTime = Date.now();
   try {
     const response = await axios.get(`${API_URL}/api/db-test`);
-    console.log("response: ", response);
-    const endTime = Date.now();
-    const responseTime = endTime - startTime;
-    
     if (response.data && response.data.status === 'success') {
       return {
         isConnected: true,
         isDatabaseConnected: true,
-        responseTime: responseTime,
         message: response.data.message
       };
     } else {
       return {
         isConnected: true,
         isDatabaseConnected: false,
-        responseTime: responseTime,
         message: 'Server is up, but database connection failed'
       };
     }
@@ -135,7 +125,6 @@ export const checkServerConnectivity = async () => {
     return {
       isConnected: false,
       isDatabaseConnected: false,
-      responseTime: null,
       error: error.message,
       message: 'Failed to connect to the server'
     };

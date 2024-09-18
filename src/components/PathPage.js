@@ -274,7 +274,7 @@ function PathPage() {
       )}
       <div className="spirit-guide large">
         <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
-          <main className="path-content content">
+          <main className="path-content content flex-top">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
               {currentChallenge && (
                 <Challenge

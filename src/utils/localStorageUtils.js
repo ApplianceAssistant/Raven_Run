@@ -1,4 +1,8 @@
 // src/utils/localStorageUtils.js
+/**
+ * @typedef {import('../services/gameCreatorService').GameTypes.Game} Game
+ * @typedef {import('../services/gameCreatorService').GameTypes.Challenge} Challenge
+ */
 
 const GAME_STORAGE_KEY = 'Custom_Games';
 const DEBUG_STORAGE_KEY = 'Debug_Custom_Games';
@@ -23,36 +27,35 @@ export const decryptData = (encryptedData) => {
   return JSON.parse(decrypted);
 };
 
+/**
+ * @param {Game} game
+ */
 export const saveGameToLocalStorage = (game) => {
-  try {
-    let games = getGamesFromLocalStorage();
-    const index = games.findIndex(g => g.id === game.id);
-    if (index !== -1) {
-      games[index] = game;
-    } else {
-      games.push(game);
-    }
-    const encryptedGames = encryptData(games);
-    localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
-    
-    // Save unencrypted version for debugging
-    localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(games));
-  } catch (error) {
-    console.error('Error saving game to localStorage:', error);
+  const games = getGamesFromLocalStorage();
+  const updatedGames = games.map(g => g.id === game.id ? { ...g, ...game, public: game.public } : g);
+  if (!updatedGames.some(g => g.id === game.id)) {
+    updatedGames.push({ ...game, public: game.public ?? false });
   }
+  const encryptedGames = encryptData(updatedGames);
+  localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
+
+  // Save unencrypted version for debugging
+  localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(updatedGames));
 };
 
+/**
+ * @returns {Game[]}
+ */
 export const getGamesFromLocalStorage = () => {
-  try {
-    const encryptedGames = localStorage.getItem(GAME_STORAGE_KEY);
-    if (encryptedGames === null) {
-      return [];
-    }
-    return decryptData(encryptedGames);
-  } catch (error) {
-    console.error('Error getting games from localStorage:', error);
+  const encryptedGames = localStorage.getItem(GAME_STORAGE_KEY);
+  if (encryptedGames === null) {
     return [];
   }
+  const games = decryptData(encryptedGames);
+  return games.map(game => ({
+    ...game,
+    public: typeof game.public === 'boolean' ? game.public : false
+  }));
 };
 
 export const getDebugGamesFromLocalStorage = () => {
@@ -68,43 +71,39 @@ export const getDebugGamesFromLocalStorage = () => {
   }
 };
 
-export const updateChallengeInLocalStorage = (gameId, challenge) => {
-  try {
-    const games = getGamesFromLocalStorage();
-    const gameIndex = games.findIndex(g => g.id === gameId);
-    if (gameIndex === -1) {
-      throw new Error('No game found in localStorage');
+/**
+ * @param {number} gameId
+ * @param {Challenge} updatedChallenge
+ */
+export const updateChallengeInLocalStorage = (gameId, updatedChallenge) => {
+  const games = getGamesFromLocalStorage();
+  const updatedGames = games.map(game => {
+    if (game.id === gameId) {
+      const updatedChallenges = game.challenges.map(challenge => 
+        challenge.id === updatedChallenge.id ? updatedChallenge : challenge
+      );
+      return { ...game, challenges: updatedChallenges };
     }
-    
-    const challengeIndex = games[gameIndex].challenges.findIndex(c => c.id === challenge.id);
-    if (challengeIndex === -1) {
-      games[gameIndex].challenges.push(challenge);
-    } else {
-      games[gameIndex].challenges[challengeIndex] = challenge;
-    }
-    
-    const encryptedGames = encryptData(games);
-    localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
-    
-    // Update unencrypted version for debugging
-    localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(games));
-  } catch (error) {
-    console.error('Error updating challenge in localStorage:', error);
-  }
+    return game;
+  });
+  const encryptedGames = encryptData(updatedGames);
+  localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
+
+  // Update debug storage
+  localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(updatedGames));
 };
 
+/**
+ * @param {number} gameId
+ */
 export const deleteGameFromLocalStorage = (gameId) => {
-  try {
-    let games = getGamesFromLocalStorage();
-    games = games.filter(game => game.id !== gameId);
-    const encryptedGames = encryptData(games);
-    localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
-    
-    // Update unencrypted version for debugging
-    localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(games));
-  } catch (error) {
-    console.error('Error deleting game from localStorage:', error);
-  }
+  const games = getGamesFromLocalStorage();
+  const updatedGames = games.filter(game => game.id !== gameId);
+  const encryptedGames = encryptData(updatedGames);
+  localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
+
+  // Update debug storage
+  localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(updatedGames));
 };
 
 export const clearGamesFromLocalStorage = () => {

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getDbConnection } = require('../db');
-
+console.warn("getDbConnection: ", getDbConnection);
 router.get('/', async (req, res) => {
   try {
     const connection = await getDbConnection();
