@@ -18,25 +18,30 @@ import './css/SpiritGuide.scss';
 // Create a context for the auth state
 export const AuthContext = createContext(null);
 
-useEffect(() => {
-  const checkConnection = async () => {
-    const status = await checkServerConnectivity();
-    setServerStatus(status);
-  };
-
-  checkConnection();
-}, []);
-
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [useDevLocation, setUseDevLocation] = useState(false);
   const locationIntervalRef = useRef(null);
+  const [serverStatus, setServerStatus] = useState({
+    isConnected: false,
+    isDatabaseConnected: false,
+    message: ''
+  });
   const [authState, setAuthState] = useState({
     //update this to simulate loggin status
     isLoggedIn: true,
     user: null,
   });
 
+  useEffect(() => {
+    const checkConnection = async () => {
+      const status = await checkServerConnectivity();
+      setServerStatus(status);
+    };
+  
+    checkConnection();
+  }, []);
+  
   useEffect(() => {
     // Check if there's a stored auth token or user data
     const storedUser = localStorage.getItem('user');
