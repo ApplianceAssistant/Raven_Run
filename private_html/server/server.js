@@ -4,17 +4,23 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 const { getDbConnection } = require('./db_connection');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const userRoutes = require('./api/users');
 const dbTestRoute = require('./api/db-test');
 
 const app = express();
 const PORT = process.env.PORT || 5000; 
 
+app.use('/api', createProxyMiddleware({ 
+  target: 'http://localhost:5000',
+  changeOrigin: true,
+}));
+
 // CORS configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
     ? ['https://crowtours.com']
-    : ['http://localhost:3000'],
+    : ['http://localhost:5000'],
   credentials: true,
   optionsSuccessStatus: 200
 };

@@ -3,8 +3,8 @@
 import axios from 'axios';
 
 export const API_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://crowtours.com' 
-  : 'http://localhost:5000';
+  ? 'https://crowtours.com/api' 
+  : 'http://localhost:5000/api';
 
   //debugger;
   console.log('Current environment:', process.env.NODE_ENV);
@@ -108,6 +108,7 @@ export const checkServerConnectivity = async () => {
   try {
     console.log("reuest url: ", `${API_URL}/api/db-test`);
     const response = await axios.get(`${API_URL}/api/db-test`);
+    console.log("response: ", response);
     if (response.data && response.data.status === 'success') {
       return {
         isConnected: true,
