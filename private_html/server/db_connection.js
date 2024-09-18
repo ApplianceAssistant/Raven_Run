@@ -1,10 +1,5 @@
+require('dotenv').config({ path: require('path').resolve(__dirname, '..', '.env') });
 const mysql = require('mysql2/promise');
-const path = require('path');  // Add this line
-const dotenv = require('dotenv');
-
-// Load environment variables from the root of the project
-const envPath = path.resolve(__dirname, '..', '..', '.env');
-const result = dotenv.config({ path: envPath });
 
 if (result.error) {
   console.error('Error loading .env file:', result.error);
@@ -24,7 +19,6 @@ const pool = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0

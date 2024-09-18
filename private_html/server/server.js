@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors')
 const path = require('path');
+const dotenv = require('dotenv');
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 const { getDbConnection } = require('./db_connection');
 const userRoutes = require('./api/users');
 const dbTestRoute = require('./api/db-test');
@@ -46,26 +48,6 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, '..', '..', 'public_html', 'index.html'));
   });
 }
-
-// Enhanced database test route
-app.get('/api/db-test', async (req, res) => {
-  console.log('Received request for /api/db-test');
-  try {
-    console.log('Attempting to get database connection...');
-    const connection = await getDbConnection();
-    console.log('Database connection established');
-
-    console.log('Executing test query...');
-    const [rows] = await connection.query('SELECT 1 as test');
-    console.log('Query executed successfully:', rows);
-
-    connection.release();
-    res.json({ status: 'success', message: 'Database connection successful', data: rows });
-  } catch (error) {
-    console.error('Database connection test failed:', error);
-    res.status(500).json({ status: 'error', message: 'Database connection failed', error: error.toString() });
-  }
-});
 
 // Error handling middleware
 app.use((err, req, res, next) => {

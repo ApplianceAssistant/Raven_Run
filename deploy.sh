@@ -35,4 +35,12 @@ rm -rf build
 echo "Copying server files..."
 cp -r ../server ../private_html/
 
+# Install dependencies
+cd private_html/server
+npm install
+cd ../..
+
+# Start the server
+npm run start:prod
+
 echo "Deployment completed successfully."
