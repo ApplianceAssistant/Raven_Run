@@ -265,7 +265,6 @@ function PathPage() {
   return (
 
     <div className="content-wrapper">
-      <h2 className="center">{pathName}</h2>
       {shouldDisplayDistanceNotice(currentChallenge) && (
         <p className={`distance-notice ${contentVisible ? 'visible' : ''}`}>
           Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span> <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
