@@ -4,9 +4,7 @@ const { dbQuery } = require('../utils/dbProxy');
 
 router.get('/', async (req, res) => {
   try {
-    const connection = await getDbConnection();
-    const [rows] = await connection.execute('SELECT 1 as test');
-    connection.release();
+    const rows = await dbQuery('SELECT 1 as test');
     res.json({ status: 'success', message: 'Database connection successful', data: rows });
   } catch (error) {
     console.error('Database connection test failed:', error);

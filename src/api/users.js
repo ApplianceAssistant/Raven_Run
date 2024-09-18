@@ -5,9 +5,7 @@ const { dbQuery } = require('../utils/dbProxy');
 // GET a single user by ID
 router.get('/:id', async (req, res) => {
   try {
-    const db = await getDbConnection();
-    const [rows] = await db.execute('SELECT id, username, email FROM users WHERE id = ?', [req.params.id]);
-    await db.release();
+    const rows = await dbQuery('SELECT id, username, email FROM users WHERE id = ?', [req.params.id]);
     if (rows.length === 0) {
       res.status(404).json({ error: 'User not found' });
     } else {
