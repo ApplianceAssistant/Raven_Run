@@ -29,7 +29,7 @@ function App() {
   });
   const [authState, setAuthState] = useState({
     //update this to simulate loggin status
-    isLoggedIn: true,
+    isLoggedIn: false,
     user: null,
   });
 
@@ -47,7 +47,7 @@ function App() {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setAuthState({
-        isLoggedIn: false,
+        isLoggedIn: true,
         user: JSON.parse(storedUser),
       });
     }
