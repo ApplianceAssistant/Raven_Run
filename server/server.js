@@ -68,6 +68,11 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+app.get('/api/test', (req, res) => {
+  console.log('Test API route hit');
+  res.json({ message: 'Test API route successful' });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
