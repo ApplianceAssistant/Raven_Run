@@ -27,7 +27,7 @@ app.use(express.json());
 
 // Serve static files only in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '..', '..', 'public_html')));
+  app.use(express.static(path.join(__dirname, '..')));
 }
 
 // API routes with logging
@@ -63,7 +63,7 @@ app.post('/api/db-query', async (req, res) => {
 // Catch-all handler for React app (only in production)
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', '..', 'public_html', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
   });
 }
 
