@@ -1,6 +1,13 @@
 const axios = require('axios');
 
-export async function dbQuery(query, params) {
-  const response = await axios.post('/api/db-query', { query, params });
-  return response.data;
+async function dbQuery(query, params) {
+  try {
+    const response = await axios.post('/api/db-query', { query, params });
+    return response.data;
+  } catch (error) {
+    console.error('Database query error:', error);
+    throw error;
+  }
 }
+
+module.exports = { dbQuery };
