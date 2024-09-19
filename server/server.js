@@ -43,6 +43,17 @@ app.use('/api', (req, res, next) => {
 app.use('/api/users', userRoutes);
 app.use('/api/db-test', dbTestRoute);
 
+// Serve static files only in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '..')));
+  
+  // Catch-all handler for React app (only in production)
+  app.get('*', (req, res) => {
+    console.log('Catch-all route hit:', req.url);
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
+  });
+}
+
 // New route for database queries
 app.post('/api/db-query', async (req, res) => {
   const { query, params } = req.body;
@@ -71,17 +82,6 @@ app.use((err, req, res, next) => {
     error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.toString()
   });
 });
-
-// Serve static files only in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '..')));
-  
-  // Catch-all handler for React app (only in production)
-  app.get('*', (req, res) => {
-    console.log('Catch-all route hit:', req.url);
-    res.sendFile(path.join(__dirname, '..', 'index.html'));
-  });
-}
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
