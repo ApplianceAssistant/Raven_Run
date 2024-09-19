@@ -1,5 +1,8 @@
-require('dotenv').config({ path: require('path').resolve(__dirname, '..', '.env') });
+const dotenv = require('dotenv');
+const path = require('path');
 const mysql = require('mysql2/promise');
+
+const result = dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 if (result.error) {
   console.error('Error loading .env file:', result.error);
@@ -19,6 +22,7 @@ const pool = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
