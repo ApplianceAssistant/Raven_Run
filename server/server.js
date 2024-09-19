@@ -4,8 +4,8 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 const { getDbConnection } = require('./db_connection');
-const userRoutes = require('../api/users');
-const dbTestRoute = require('../api/db-test');
+const userRoutes = require('../src/api/users');
+const dbTestRoute = require('../src/api/db-test');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
