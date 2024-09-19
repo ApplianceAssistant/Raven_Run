@@ -30,20 +30,21 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '..', '..', 'public_html')));
 }
 
-// Serve API routes from public directory
-app.use('/api', express.static(path.join(__dirname, '..', 'public_html', 'src', 'api')));
+// API routes with logging
+app.use('/api', (req, res, next) => {
+  console.log('API request:', req.path);
+  next();
+});
+app.use('/api/users', userRoutes);
+app.use('/api/db-test', dbTestRoute);
 
-// Enhanced logging middleware
+// Enhanced logging middleware for all routes
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   console.log('Request headers:', req.headers);
   console.log('Request body:', req.body);
   next();
 });
-
-// API routes
-app.use('/api/users', userRoutes);
-app.use('/api/db-test', dbTestRoute);
 
 // New route for database queries
 app.post('/api/db-query', async (req, res) => {
