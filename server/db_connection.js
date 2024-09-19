@@ -2,7 +2,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const mysql = require('mysql2/promise');
 
-const result = dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
+const result = dotenv.config({ path: path.resolve(__dirname, '..', '..', 'private_html', '.env') });
 
 if (result.error) {
   console.error('Error loading .env file:', result.error);
