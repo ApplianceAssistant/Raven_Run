@@ -9,9 +9,9 @@
     "build": "react-scripts build && rsync -av build/ . && rm -rf build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "node ../private_html/server/server.js",
+    "server": "node server/server.js",
     "dev": "concurrently \"npm run start\" \"npm run server\"",
-    "start:prod": "node ../private_html/server/server.js"
+    "start:prod": "node server/server.js"
   },
   "keywords": [],
   "author": "",
