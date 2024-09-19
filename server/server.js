@@ -4,11 +4,11 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 const { getDbConnection } = require('./db_connection');
-const userRoutes = require('./api/users');
-const dbTestRoute = require('./api/db-test');
+const userRoutes = require('../api/users');
+const dbTestRoute = require('../api/db-test');
 
 const app = express();
-const PORT = process.env.PORT || 5000; 
+const PORT = process.env.PORT || 5000;
 
 // CORS configuration
 const corsOptions = {
@@ -25,10 +25,13 @@ app.use(cors(corsOptions));
 // Other middleware
 app.use(express.json());
 
-// Serve static files only in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '..')));
-}
+// Debug logging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Request headers:', req.headers);
+  console.log('Request body:', req.body);
+  next();
+});
 
 // API routes with logging
 app.use('/api', (req, res, next) => {
@@ -37,14 +40,6 @@ app.use('/api', (req, res, next) => {
 });
 app.use('/api/users', userRoutes);
 app.use('/api/db-test', dbTestRoute);
-
-// Enhanced logging middleware for all routes
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Request headers:', req.headers);
-  console.log('Request body:', req.body);
-  next();
-});
 
 // New route for database queries
 app.post('/api/db-query', async (req, res) => {
@@ -60,9 +55,15 @@ app.post('/api/db-query', async (req, res) => {
   }
 });
 
+// Serve static files only in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '..')));
+}
+
 // Catch-all handler for React app (only in production)
 if (process.env.NODE_ENV === 'production') {
   app.get('*', (req, res) => {
+    console.log('Catch-all route hit:', req.url);
     res.sendFile(path.join(__dirname, '..', 'index.html'));
   });
 }
@@ -79,4 +80,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Node environment: ${process.env.NODE_ENV}`);
 });
