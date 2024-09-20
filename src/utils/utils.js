@@ -106,8 +106,8 @@ export function startLocationUpdates(interval = 15000) {
 // Function to check server connectivity and measure response time
 export const checkServerConnectivity = async () => {
   try {
-    console.log("reuest url: ", `${API_URL}/db-test`);
-    const response = await axios.get(`${API_URL}/db-test`);
+    console.log("request url: ", `${API_URL}/db-test.php`);
+    const response = await axios.get(`${API_URL}/db-test.php`);
     console.log("response: ", response);
     if (response.data && response.data.status === 'success') {
       return {
