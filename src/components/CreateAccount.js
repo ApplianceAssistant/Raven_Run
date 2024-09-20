@@ -13,25 +13,10 @@ function CreateAccount() {
   });
   
   useEffect(() => {
-    const checkConnection = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/db-test.php`);
-        const data = await response.json();
-        setServerStatus({
-          isConnected: true,
-          isDatabaseConnected: data.status === 'success',
-          message: data.message
-        });
-      } catch (error) {
-        setServerStatus({
-          isConnected: false,
-          isDatabaseConnected: false,
-          message: 'Failed to connect to server'
-        });
-      }
-    };
+    checkServerConnectivity().then((status) => {
+      setServerStatus(status);
+    });
 
-    checkConnection();
   }, []);
 
   const navigate = useNavigate();

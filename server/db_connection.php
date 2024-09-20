@@ -1,38 +1,33 @@
 <?php
-function loadEnv($path) {
-    if (!file_exists($path)) {
-        throw new Exception(".env file not found");
-    }
-    
-    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos($line, '=') !== false) {
-            list($name, $value) = explode('=', $line, 2);
-            $name = trim($name);
-            $value = trim($value);
-            
-            if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
-                putenv(sprintf('%s=%s', $name, $value));
-                $_ENV[$name] = $value;
-                $_SERVER[$name] = $value;
-            }
-        }
-    }
-}
+// Enable error reporting
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-// Load environment variables
-$envPath = realpath(__DIR__ . '/private_html/.env');
-loadEnv($envPath);
-echo "Loaded environment variables from: $envPath\n";
-echo "DB_HOST: " . getenv('DB_HOST') . "\n";
-function getDbConnection() {
-    $host = getenv('DB_HOST');
-    $user = getenv('DB_USER');
-    $password = getenv('DB_PASSWORD');
-    $database = getenv('DB_NAME');
-    $port = getenv('DB_PORT') ?: 3306;
+function getDbConnection()
+{
 
-    $conn = new mysqli($host, $user, $password, $database, $port);
+    $configPath = realpath($_SERVER["DOCUMENT_ROOT"] . '/../private_html/conf.php');
+
+    if ($configPath === false) {
+        die('Configuration file not found');
+    }
+    if (!is_readable($configPath)) {
+        die('Configuration file not readable');
+    }
+    $mainConfig = include($configPath);
+
+    // Verify that the configuration was loaded successfully
+    if (!is_array($mainConfig)) {
+        die('Invalid configuration file');
+    }
+
+    $dbHost = $mainConfig['DB_HOST'];
+    $dbUser = $mainConfig['DB_USER'];
+    $dbPassword = $mainConfig['DB_PASSWORD'];
+    $dbName = $mainConfig['DB_NAME'];
+    $dbPort = $mainConfig['DB_PORT'] ?? 3306; // Use null coalescing operator for optional values
+    $conn = new mysqli($dbHost, $dbUser, $dbPassword, $dbName, $dbPort);
 
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -40,4 +35,3 @@ function getDbConnection() {
 
     return $conn;
 }
-?>
