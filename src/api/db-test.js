@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { dbQuery } = require('../utils/dbProxy');
+const { getDbConnection } = require('../../server/db_connection');
 
 router.get('/', async (req, res) => {
   try {
-    const rows = await dbQuery('SELECT 1 as test');
+    const connection = await getDbConnection();
+    const [rows] = await connection.query('SELECT 1 as test');
+    connection.release();
     res.json({ status: 'success', message: 'Database connection successful', data: rows });
   } catch (error) {
     console.error('Database connection test failed:', error);
