@@ -1,11 +1,12 @@
 const express = require('express');
-const cors = require('cors')
+const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
-dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 const { getDbConnection } = require('./db_connection');
 const userRoutes = require('../src/api/users');
 const dbTestRoute = require('../src/api/db-test');
+
+dotenv.config({ path: path.resolve(__dirname, '..', 'private_html', '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,10 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200
 };
+
+// API routes
+app.use('/api/users', userRoutes);
+app.use('/api/db-test', dbTestRoute);
 
 // Apply CORS middleware
 app.use(cors(corsOptions));
@@ -38,10 +43,6 @@ app.use('/api', (req, res, next) => {
   console.log('API request:', `${req.protocol}://${req.get('host')}${req.originalUrl}`);
   next();
 });
-
-// API routes
-app.use('/api/users', userRoutes);
-app.use('/api/db-test', dbTestRoute);
 
 // Serve static files only in production
 if (process.env.NODE_ENV === 'production') {

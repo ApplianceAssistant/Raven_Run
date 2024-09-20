@@ -1,6 +1,6 @@
+const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
 const path = require('path');
-const mysql = require('mysql2/promise');
 
 const result = dotenv.config({ path: path.resolve(__dirname, '..', '..', 'private_html', '.env') });
 
@@ -31,9 +31,10 @@ const pool = mysql.createPool({
 async function getDbConnection() {
   try {
     const connection = await pool.getConnection();
+    console.log('Database connected successfully');
     return connection;
   } catch (error) {
-    console.error('Error getting database connection:', error);
+    console.error('Error connecting to the database:', error);
     throw error;
   }
 }
