@@ -31,8 +31,4 @@ mv build/.* . 2>/dev/null || true  # Don't error if no hidden files
 echo "Cleaning up..."
 rm -rf build
 
-# Copy server files to private_html
-echo "Copying server files..."
-cp -r ../server ../private_html/
-
 echo "Deployment completed successfully."
