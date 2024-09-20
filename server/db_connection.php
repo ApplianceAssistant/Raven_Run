@@ -21,7 +21,7 @@ function loadEnv($path) {
 }
 
 // Load environment variables
-$envPath = realpath(__DIR__ . '/../../private_html/.env');
+$envPath = realpath(__DIR__ . '/private_html/.env');
 loadEnv($envPath);
 echo "Loaded environment variables from: $envPath\n";
 echo "DB_HOST: " . getenv('DB_HOST') . "\n";
