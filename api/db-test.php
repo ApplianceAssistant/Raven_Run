@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-require_once('../../server/db_connection');
+require_once('../server/db_connection.php');
 
 try {
   $conn = getDbConnection();
