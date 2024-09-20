@@ -1,16 +1,30 @@
 <?php
-// Load environment variables from .env file
-$env_path = realpath(__DIR__ . '/../../private_html/.env');
-if (file_exists($env_path)) {
-    $env_vars = parse_ini_file($env_path);
-    foreach ($env_vars as $key => $value) {
-        putenv("$key=$value");
+function loadEnv($path) {
+    if (!file_exists($path)) {
+        throw new Exception(".env file not found");
     }
-} else {
-    die('Error loading .env file');
+    
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '=') !== false) {
+            list($name, $value) = explode('=', $line, 2);
+            $name = trim($name);
+            $value = trim($value);
+            
+            if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
+                putenv(sprintf('%s=%s', $name, $value));
+                $_ENV[$name] = $value;
+                $_SERVER[$name] = $value;
+            }
+        }
+    }
 }
 
-// Create a database connection
+// Load environment variables
+$envPath = realpath(__DIR__ . '/../../private_html/.env');
+loadEnv($envPath);
+echo "Loaded environment variables from: $envPath\n";
+echo "DB_HOST: " . getenv('DB_HOST') . "\n";
 function getDbConnection() {
     $host = getenv('DB_HOST');
     $user = getenv('DB_USER');
