@@ -4,6 +4,7 @@ import { checkServerConnectivity, API_URL } from '../utils/utils.js';
 
 function CreateAccount() {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [serverStatus, setServerStatus] = useState({
     isConnected: false,
@@ -13,12 +14,26 @@ function CreateAccount() {
   
   useEffect(() => {
     const checkConnection = async () => {
-      const status = await checkServerConnectivity();
-      setServerStatus(status);
+      try {
+        const response = await fetch(`${API_URL}/api/db-test.php`);
+        const data = await response.json();
+        setServerStatus({
+          isConnected: true,
+          isDatabaseConnected: data.status === 'success',
+          message: data.message
+        });
+      } catch (error) {
+        setServerStatus({
+          isConnected: false,
+          isDatabaseConnected: false,
+          message: 'Failed to connect to server'
+        });
+      }
     };
 
     checkConnection();
   }, []);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -29,14 +44,14 @@ function CreateAccount() {
     }
   
     try {
-      const response = await fetch(`${API_URL}/api/users`, {
+      const response = await fetch(`${API_URL}/api/users.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           username,
-          email, // Assuming you have an email field in your form
+          email,
           password,
         }),
       });
@@ -79,6 +94,16 @@ function CreateAccount() {
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="account-field">
+              <label htmlFor="email">Email:</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
