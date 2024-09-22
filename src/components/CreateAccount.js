@@ -97,6 +97,7 @@ function CreateAccount() {
   };
 
   const handleSubmit = async (action) => {
+    console.warn("handleSubmit", action);
     setIsLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
@@ -122,7 +123,7 @@ function CreateAccount() {
       });
 
       const data = await response.json();
-
+      console.log('response data:', data);
       if (!response.ok) {
         throw new Error(data.error || 'An error occurred');
       }
