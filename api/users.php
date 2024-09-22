@@ -1,17 +1,40 @@
 <?php
 header('Content-Type: application/json');
-require_once __DIR__ . '/../db_connection.php';
+require_once __DIR__ . '/../server/db_connection.php';
+require_once __DIR__ . '/../server/encryption.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $conn = getDbConnection();
 
+function checkUnique($field, $value) {
+    global $conn;
+    $stmt = $conn->prepare("SELECT id FROM users WHERE $field = ?");
+    $stmt->bind_param("s", $value);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->num_rows === 0;
+}
+
 switch ($method) {
     case 'GET':
-        if (isset($_GET['id'])) {
+        if (isset($_GET['action'])) {
+            $action = $_GET['action'];
+            if ($action === 'check_unique') {
+                $field = $_GET['field'];
+                $value = $_GET['value'];
+                if ($field === 'email') {
+                    $value = encryptData($value);
+                }
+                $isUnique = checkUnique($field, $value);
+                echo json_encode(['isUnique' => $isUnique]);
+            }
+        } elseif (isset($_GET['id'])) {
             $id = $conn->real_escape_string($_GET['id']);
             $result = $conn->query("SELECT id, username, email FROM users WHERE id = '$id'");
             if ($result->num_rows > 0) {
-                echo json_encode($result->fetch_assoc());
+                $user = $result->fetch_assoc();
+                $user['email'] = decryptData($user['email']);
+                echo json_encode($user);
             } else {
                 http_response_code(404);
                 echo json_encode(['error' => 'User not found']);
@@ -21,22 +44,49 @@ switch ($method) {
 
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
-        $username = $conn->real_escape_string($data['username']);
-        $email = $conn->real_escape_string($data['email']);
-        $password = password_hash($data['password'], PASSWORD_DEFAULT);
+        $action = $data['action'];
 
-        $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $username, $email, $password);
+        if ($action === 'create') {
+            $username = $conn->real_escape_string($data['username']);
+            $email = encryptData($conn->real_escape_string($data['email']));
+            $password = hashPassword($data['password']);
 
-        if ($stmt->execute()) {
-            $id = $conn->insert_id;
-            http_response_code(201);
-            echo json_encode(['id' => $id, 'username' => $username, 'email' => $email]);
-        } else {
-            http_response_code(500);
-            echo json_encode(['error' => 'Error creating user']);
+            $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $username, $email, $password);
+
+            if ($stmt->execute()) {
+                $id = $conn->insert_id;
+                http_response_code(201);
+                echo json_encode(['id' => $id, 'username' => $username, 'message' => "Welcome to CrowTours $username! Would you like a quick tour?"]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['error' => 'Error creating user']);
+            }
+            $stmt->close();
+        } elseif ($action === 'login') {
+            $username = $conn->real_escape_string($data['username']);
+            $password = $data['password'];
+
+            $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows === 1) {
+                $user = $result->fetch_assoc();
+                if (verifyPassword($password, $user['password'])) {
+                    http_response_code(200);
+                    echo json_encode(['id' => $user['id'], 'username' => $user['username'], 'message' => "Welcome back $username!"]);
+                } else {
+                    http_response_code(401);
+                    echo json_encode(['error' => 'Invalid credentials']);
+                }
+            } else {
+                http_response_code(401);
+                echo json_encode(['error' => 'Invalid credentials']);
+            }
+            $stmt->close();
         }
-        $stmt->close();
         break;
 
     case 'PUT':
