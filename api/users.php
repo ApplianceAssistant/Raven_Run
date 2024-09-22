@@ -72,17 +72,23 @@ try {
                 $password = hashPassword($data['password']);
 
                 $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-                $stmt->bind_param("sss", $username, $email, $password);
+                if ($stmt === false) {
+                    echo json_encode(array('error' => 'Prepare failed', 'details' => $conn->error));
+                    exit;
+                }
+                if (!$stmt->bind_param("sss", $username, $email, $password)) {
+                    echo json_encode(array('error' => 'Binding parameters failed', 'details' => $stmt->error));
+                    exit;
+                }
 
                 if ($stmt->execute()) {
                     $id = $conn->insert_id;
-                    http_response_code(201);
-                    echo json_encode(['id' => $id, 'username' => $username, 'message' => "Welcome to CrowTours $username! Would you like a quick tour?"]);
+                    echo json_encode(['success' => true, 'id' => $id, 'username' => $username, 'email' => $email, 'message' => 'User created successfully']);
                 } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => 'Error creating user']);
+                    echo json_encode(array('success' => false, 'message' => 'There was a problem creating your account. Please try again.', 'error' => 'Error creating user', 'details' => $stmt->error));
                 }
                 $stmt->close();
+                break;
             } elseif ($action === 'login') {
                 $username = $conn->real_escape_string($data['username']);
                 $password = $data['password'];
