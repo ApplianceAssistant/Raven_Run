@@ -121,9 +121,18 @@ function CreateAccount() {
           password,
         }),
       });
-      console.log('response:', response);
-      const data = await response.json();
-      console.log('json response data:', data);
+
+      const responseText = await response.text();
+      console.log('Full response text:', responseText);
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        throw new Error('Invalid JSON response from server');
+      }
+
       if (!response.ok) {
         throw new Error(data.error || 'An error occurred');
       }
