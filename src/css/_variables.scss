@@ -14,7 +14,15 @@ $light-bg: #ffffff;
 $lighter-bg: #f0f0f0;
 $light-text-color: #000000;
 $light-link-color: #8b0000;
-$light-accent: #ff9999; // Added light accent color
+$light-accent: #ff9999;
+
+// Form and Button Colors (consistent across modes)
+$form-bg: #1e1e1e;
+$form-text: #e0e0e0;
+$button-bg: $spooky-accent;
+$button-text: #e0e0e0;
+$button-disabled-bg: #4a4a4a;
+$button-disabled-text: #a0a0a0;
 
 // Gradients
 $spooky-gradient: linear-gradient(to bottom, $dark-bg, $darker-bg);
@@ -48,5 +56,23 @@ $breakpoint-mobile: $breakpoint-md - 1;
   
   .light-mode & {
     #{$property}: $light-value;
+  }
+}
+
+// New mixin for form elements and buttons
+@mixin form-element {
+  background-color: $form-bg;
+  color: $form-text;
+  border: 1px solid $spooky-accent;
+}
+
+@mixin button-style {
+  background-color: $button-bg;
+  color: $button-text;
+  
+  &:disabled {
+    background-color: $button-disabled-bg;
+    color: $button-disabled-text;
+    cursor: not-allowed;
   }
 }

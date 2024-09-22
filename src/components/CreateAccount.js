@@ -121,9 +121,9 @@ function CreateAccount() {
           password,
         }),
       });
-
+      console.log('response:', response);
       const data = await response.json();
-      console.log('response data:', data);
+      console.log('json response data:', data);
       if (!response.ok) {
         throw new Error(data.error || 'An error occurred');
       }
@@ -146,17 +146,17 @@ function CreateAccount() {
       <div className="bodyContent center">
         <h1>Welcome, Brave Adventurer</h1>
         {!serverStatus.isConnected && (
-          <p className="error">Server is not connected. Please try again later.</p>
+          <p className="error-message">Server is not connected. Please try again later.</p>
         )}
         {serverStatus.isConnected && !serverStatus.isDatabaseConnected && (
-          <p className="error">Database is not connected. Please try again later.</p>
+          <p className="error-message">Database is not connected. Please try again later.</p>
         )}
         {serverStatus.isConnected && serverStatus.isDatabaseConnected && (
-          <p className="success">Server and database connection established.</p>
+          <p className="success-message">Server and database connection established.</p>
         )}
         {isLoading && <div className="loader">Loading...</div>}
-        {errorMessage && <p className="error">{errorMessage}</p>}
-        {successMessage && <p className="success">{successMessage}</p>}
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        {successMessage && <p className="success-message">{successMessage}</p>}
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="account-field">
             <label htmlFor="username">Username:</label>
@@ -168,7 +168,7 @@ function CreateAccount() {
               onBlur={(e) => debouncedUsernameCheck(e.target.value)}
               required
             />
-            {!isUsernameUnique && <p className="error">Username is already taken</p>}
+            {!isUsernameUnique && <p className="error-message">Username is already taken</p>}
           </div>
           <div className="account-field">
             <label htmlFor="email">Email:</label>
@@ -180,7 +180,7 @@ function CreateAccount() {
               onBlur={(e) => debouncedEmailCheck(e.target.value)}
               required
             />
-            {!isEmailUnique && <p className="error">Email is already in use</p>}
+            {!isEmailUnique && <p className="error-message">Email is already in use</p>}
           </div>
           <div className="account-field">
             <label htmlFor="password">Password:</label>
@@ -192,7 +192,7 @@ function CreateAccount() {
               required
             />
             {!isPasswordValid && password && (
-              <p className="error">
+              <p className="error-message">
                 Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number.
               </p>
             )}
@@ -201,14 +201,14 @@ function CreateAccount() {
             <button 
               onClick={() => handleSubmit('create')} 
               disabled={!isFormValid() || isLoading}
-              className="submit-button"
+              className={`submit-button ${!isFormValid() || isLoading ? 'disabled' : ''}`}
             >
               Create Account
             </button>
             <button 
               onClick={() => handleSubmit('login')} 
               disabled={!username || !password || isLoading}
-              className="submit-button"
+              className={`submit-button ${!username || !password || isLoading ? 'disabled' : ''}`}
             >
               Log In
             </button>
