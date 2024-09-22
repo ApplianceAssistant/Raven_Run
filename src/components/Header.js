@@ -7,7 +7,7 @@ function Header({ isMenuOpen, toggleMenu }) {
   const { isLoggedIn } = useContext(AuthContext);
 
   const menuItems = isLoggedIn
-    ? ['Home', 'Settings', 'About', 'Contact', 'Create']
+    ? ['Home', 'Account', 'Settings', 'About', 'Contact', 'Create']
     : ['Home', 'Create Account', 'About', 'Contact'];
 
   return (
