@@ -83,9 +83,9 @@ try {
 
                 if ($stmt->execute()) {
                     $id = $conn->insert_id;
-                    echo json_encode(['id' => $id, 'username' => $username, 'email' => $email, 'message' => 'User created successfully']);
+                    echo json_encode(['success' => true, 'id' => $id, 'username' => $username, 'email' => $email, 'message' => 'User created successfully']);
                 } else {
-                    echo json_encode(array('error' => 'Error creating user', 'details' => $stmt->error));
+                    echo json_encode(array('success' => false, 'message' => 'There was a problem creating your account. Please try again.', 'error' => 'Error creating user', 'details' => $stmt->error));
                 }
                 $stmt->close();
                 break;

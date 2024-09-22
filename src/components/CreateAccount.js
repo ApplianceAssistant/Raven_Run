@@ -136,7 +136,9 @@ function CreateAccount() {
       if (!response.ok) {
         throw new Error(data.error || 'An error occurred');
       }
-
+      if(!data.success) {
+        throw new Error(data.message || 'An error occurred');
+      }
       setSuccessMessage(data.message);
       setModalContent({ title: 'Success', message: data.message });
       setShowModal(true);

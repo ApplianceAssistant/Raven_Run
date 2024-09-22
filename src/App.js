@@ -5,6 +5,7 @@ import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
 import CreateAccount from './components/CreateAccount';
+import Account from './components/Account';
 import Lobby from './components/Lobby';
 import PathPage from './components/PathPage';
 import Settings from './components/Settings';
@@ -142,6 +143,7 @@ function App() {
                   <Route path="/lobby" element={<Lobby />} />
                   {authState.isLoggedIn && (
                     <>
+                      <Route path="/account" element={<Account />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/create" element={<Create />} />
                     </>
