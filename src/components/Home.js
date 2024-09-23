@@ -11,6 +11,10 @@ function Home() {
     navigate('/create-account');
   };
 
+  const handleLogIn = () => {
+    navigate('/log-in');
+  }
+
   const handleEnter = () => {
     navigate('/lobby');
   };
@@ -26,7 +30,10 @@ function Home() {
                 {isLoggedIn ? (
                   <button onClick={handleEnter} className="enter-button">Lobby</button>
                 ) : (
-                  <button onClick={handleJoin} className="join-button">Join</button>
+                  <>
+                    <button onClick={handleJoin} className="join-button">Join</button>
+                    <button onClick={handleLogIn}className="enter-button">Log In</button>
+                  </>
                 )}
               </div>
               <h1>Site Is In Development</h1>

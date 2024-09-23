@@ -11,6 +11,7 @@ import PathPage from './components/PathPage';
 import Settings from './components/Settings';
 import Create from './components/GameCreator';
 import Header from './components/Header';
+import LogIn from './components/LogIn';
 import { checkServerConnectivity, API_URL } from './utils/utils.js';
 import { startLocationUpdates, stopLocationUpdates, getCurrentLocation, updateUserLocation } from './utils/utils';
 import './css/App.scss';
@@ -149,7 +150,10 @@ function App() {
                     </>
                   )}
                   {!authState.isLoggedIn && (
-                    <Route path="/create-account" element={<CreateAccount />} />
+                    <>
+                      <Route path="/create-account" element={<CreateAccount />} />
+                      <Route path="/log-in" element={<LogIn />} />
+                    </>
                   )}
                 </Routes>
               </main>

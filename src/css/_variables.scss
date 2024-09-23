@@ -69,6 +69,10 @@ $breakpoint-mobile: $breakpoint-md - 1;
 @mixin button-style {
   background-color: $button-bg;
   color: $button-text;
+
+  .light-mode & {
+    color: $button-text; // Add this line
+  }
   
   &:disabled {
     background-color: $button-disabled-bg;
