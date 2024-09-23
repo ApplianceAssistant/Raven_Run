@@ -138,10 +138,17 @@ function CreateAccount() {
       }
       if(data.success) {
         setSuccessMessage(data.message);
-        setModalContent({ title: 'Success', message: data.message });
+        setModalContent({ 
+          title: 'Welcome!', 
+          message: `Welcome, ${data.username}! What would you like to do next?`,
+          options: [
+            { label: 'Settings', route: '/settings' },
+            { label: 'Find a Game', route: '/lobby' },
+            { label: 'Create', route: '/create' }
+          ]
+        });
         setShowModal(true);
         login({ id: data.id, username: data.username });
-        
       } else {
         throw new Error(data.message || 'An error occurred');
       }
@@ -220,19 +227,20 @@ function CreateAccount() {
       </div>
       <Modal
         isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-          navigate('/');
-        }}
+        onClose={() => setShowModal(false)}
         title={modalContent.title}
         content={modalContent.message}
-        buttons={[
+        buttons={modalContent.options ? modalContent.options.map(option => ({
+          label: option.label,
+          onClick: () => {
+            setShowModal(false);
+            navigate(option.route);
+          },
+          className: 'submit-button'
+        })) : [
           {
             label: 'OK',
-            onClick: () => {
-              setShowModal(false);
-              navigate('/');
-            },
+            onClick: () => setShowModal(false),
             className: 'submit-button'
           }
         ]}
