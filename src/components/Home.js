@@ -29,7 +29,7 @@ function Home() {
                   <button onClick={handleJoin} className="join-button">Join</button>
                 )}
               </div>
-              <h1>At Your Own Risk</h1>
+              <h1>Site Is In Development</h1>
             </div>
           </div>
         </div>
