@@ -102,14 +102,14 @@ try {
                     $user = $result->fetch_assoc();
                     if (verifyPassword($password, $user['password'])) {
                         http_response_code(200);
-                        echo json_encode(['id' => $user['id'], 'username' => $user['username'], 'message' => "Welcome back $username!"]);
+                        echo json_encode(['success' => true, 'id' => $user['id'], 'username' => $user['username'], 'message' => "Welcome back $username!"]);
                     } else {
                         http_response_code(401);
-                        echo json_encode(['error' => 'Invalid credentials']);
+                        echo json_encode(['success' => false, 'error' => 'Invalid credentials']);
                     }
                 } else {
                     http_response_code(401);
-                    echo json_encode(['error' => 'Invalid credentials']);
+                    echo json_encode(['success' => false, 'error' => 'Invalid credentials']);
                 }
                 $stmt->close();
             }
