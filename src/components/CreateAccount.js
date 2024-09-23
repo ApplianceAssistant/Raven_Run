@@ -136,13 +136,15 @@ function CreateAccount() {
       if (!response.ok) {
         throw new Error(data.error || 'An error occurred');
       }
-      if(!data.success) {
+      if(data.success) {
+        setSuccessMessage(data.message);
+        setModalContent({ title: 'Success', message: data.message });
+        setShowModal(true);
+        login({ id: data.id, username: data.username });
+        
+      } else {
         throw new Error(data.message || 'An error occurred');
       }
-      setSuccessMessage(data.message);
-      setModalContent({ title: 'Success', message: data.message });
-      setShowModal(true);
-      login({ id: data.id, username: data.username });
 
     } catch (error) {
       console.error('Error:', error);
@@ -161,9 +163,6 @@ function CreateAccount() {
         )}
         {serverStatus.isConnected && !serverStatus.isDatabaseConnected && (
           <p className="error-message">Database is not connected. Please try again later.</p>
-        )}
-        {serverStatus.isConnected && serverStatus.isDatabaseConnected && (
-          <p className="success-message">Server and database connection established.</p>
         )}
         {isLoading && <div className="loader">Loading...</div>}
         {errorMessage && <p className="error-message">{errorMessage}</p>}
