@@ -1,0 +1,64 @@
+.profile-form {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .profile-field {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .profile-field label {
+    font-weight: bold;
+  }
+  
+  .profile-field input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .profile-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .profile-image-upload {
+    margin-bottom: 1rem;
+    max-width: 300px;
+  }
+  
+  .profile-image-preview {
+    max-width: 200px;
+    max-height: 200px;
+    margin-bottom: 1rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .upload-progress {
+    margin-top: 1rem;
+  }
+  
+  .upload-progress progress {
+    width: 100%;
+  }
+  
+  .ReactCrop {
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .ReactCrop__image {
+    max-height: 300px;
+    object-fit: contain;
+  }
+  
+  .cropped-preview {
+    max-width: 200px;
+    max-height: 200px;
+    margin-top: 1rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }

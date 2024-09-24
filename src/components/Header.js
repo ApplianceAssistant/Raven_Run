@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AuthContext } from '../App';  // Adjust the import path as needed
+import { AuthContext } from '../App';
 import '../css/Header.scss';
 
 function Header({ isMenuOpen, toggleMenu }) {
@@ -9,7 +9,7 @@ function Header({ isMenuOpen, toggleMenu }) {
 
   const getMenuItems = () => {
     if (isLoggedIn) {
-      return ['Home', 'Profile', 'Settings', 'About', 'Contact', 'Create'];
+      return ['Home', 'About', 'Contact', 'Create', 'Settings', 'Log Out'];
     } else {
       const baseItems = ['Home', 'About', 'Contact'];
       if (location.pathname === '/log-in') {
@@ -22,7 +22,15 @@ function Header({ isMenuOpen, toggleMenu }) {
     }
   };
 
+  const isProfileGroup = ['/profile', '/settings', '/friends'].includes(location.pathname);
+
   const menuItems = getMenuItems();
+
+  const subNavItems = [
+    { path: '/profile', label: 'Profile' },
+    { path: '/settings', label: 'Settings' },
+    { path: '/friends', label: 'Friends' }
+  ];
 
   return (
     <>
@@ -48,6 +56,22 @@ function Header({ isMenuOpen, toggleMenu }) {
           {isMenuOpen ? '✕' : '☰'}
         </div>
       </header>
+      {isProfileGroup && isLoggedIn && (
+        <nav className="sub-nav-container">
+          <ul className="sub-nav">
+            {subNavItems.map((item) => (
+              <li key={item.path}>
+                <Link 
+                  to={item.path}
+                  className={location.pathname === item.path ? 'active' : ''}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <div className={`menu-overlay ${isMenuOpen ? 'open' : ''}`} onClick={toggleMenu}></div>
     </>
   );

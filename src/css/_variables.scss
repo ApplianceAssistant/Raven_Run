@@ -29,7 +29,7 @@ $spooky-gradient: linear-gradient(to bottom, $dark-bg, $darker-bg);
 $accent-gradient: linear-gradient(to right, $spooky-accent, darken($spooky-accent-B, 10%));
 
 // Shadows
-$eerie-shadow: 0 0 20px rgba(123, 30, 30, 0.3);
+$eerie-shadow: 0 0 20px rgba(123, 30, 30, 0.5);
 $light-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 
 // Breakpoints
