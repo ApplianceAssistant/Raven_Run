@@ -1,28 +1,59 @@
 import React, { useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { AuthContext } from '../App';  // Adjust the import path as needed
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../App';
 import '../css/Header.scss';
 
 function Header({ isMenuOpen, toggleMenu }) {
-  const { isLoggedIn } = useContext(AuthContext);
+  const { isLoggedIn, logout } = useContext(AuthContext);
   const location = useLocation();
+  const navigate = useNavigate();
 
+  const handleLogout = (e) => {
+    e.preventDefault();
+    logout();
+    toggleMenu();
+    navigate('/');
+  };
+  
   const getMenuItems = () => {
     if (isLoggedIn) {
-      return ['Home', 'Account', 'Settings', 'About', 'Contact', 'Create'];
+      return [
+        { label: 'Home', path: '/' },
+        { label: 'About', path: '/about' },
+        { label: 'Contact', path: '/contact' },
+        { label: 'Create', path: '/create' },
+        { label: 'Settings', path: '/settings' },
+        { label: 'Log Out', path: '/logout' }  // We'll handle this specially
+      ];
     } else {
-      const baseItems = ['Home', 'About', 'Contact'];
+      const baseItems = [
+        { label: 'Home', path: '/' },
+        { label: 'About', path: '/about' },
+        { label: 'Contact', path: '/contact' }
+      ];
       if (location.pathname === '/log-in') {
-        return [...baseItems, 'Create Account'];
-      } else if (location.pathname === '/create-account') {
-        return [...baseItems, 'Log In'];
+        return [...baseItems, { label: 'Create Profile', path: '/create-profile' }];
+      } else if (location.pathname === '/create-profile') {
+        return [...baseItems, { label: 'Log In', path: '/log-in' }];
       } else {
-        return [...baseItems, 'Create Account', 'Log In'];
+        return [
+          ...baseItems,
+          { label: 'Create Profile', path: '/create-profile' },
+          { label: 'Log In', path: '/log-in' }
+        ];
       }
     }
   };
 
+  const isProfileGroup = ['/profile', '/settings', '/friends'].includes(location.pathname);
+
   const menuItems = getMenuItems();
+
+  const subNavItems = [
+    { path: '/profile', label: 'Profile' },
+    { path: '/settings', label: 'Settings' },
+    { path: '/friends', label: 'Friends' }
+  ];
 
   return (
     <>
@@ -33,12 +64,18 @@ function Header({ isMenuOpen, toggleMenu }) {
         <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <ul>
             {menuItems.map((item, index) => (
-              <li key={item} className={isMenuOpen ? 'open' : ''} style={{transitionDelay: `${index * 0.1}s`}}>
+              <li key={item.label} className={isMenuOpen ? 'open' : ''} style={{transitionDelay: `${index * 0.1}s`}}>
                 <Link 
-                  to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} 
-                  onClick={toggleMenu}
+                  to={item.path}
+                  onClick={(e) => {
+                    if (item.label === 'Log Out') {
+                      handleLogout(e);
+                    } else {
+                      toggleMenu();
+                    }
+                  }}
                 >
-                  {item}
+                  {item.label}
                 </Link>
               </li>
             ))}
@@ -48,6 +85,22 @@ function Header({ isMenuOpen, toggleMenu }) {
           {isMenuOpen ? '✕' : '☰'}
         </div>
       </header>
+      {isProfileGroup && isLoggedIn && (
+        <nav className="sub-nav-container">
+          <ul className="sub-nav">
+            {subNavItems.map((item) => (
+              <li key={item.path}>
+                <Link 
+                  to={item.path}
+                  className={location.pathname === item.path ? 'active' : ''}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <div className={`menu-overlay ${isMenuOpen ? 'open' : ''}`} onClick={toggleMenu}></div>
     </>
   );

@@ -4,7 +4,7 @@ import { AuthContext } from '../App';
 import { checkServerConnectivity, API_URL } from '../utils/utils.js';
 import Modal from './Modal';
 
-function CreateAccount() {
+function CreateProfile() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -68,7 +68,7 @@ function CreateAccount() {
       const isUnique = await checkUnique('email', value);
       setIsEmailUnique(isUnique);
       if (!isUnique) {
-        setErrorMessage('This email is already associated with an account.');
+        setErrorMessage('This email is already associated with an profile.');
       } else {
         setErrorMessage('');
       }
@@ -220,7 +220,7 @@ function CreateAccount() {
               disabled={!isFormValid() || isLoading}
               className={`submit-button ${!isFormValid() || isLoading ? 'disabled' : ''}`}
             >
-              Create Account
+              Create Profile
             </button>
           </div>
         </form>
@@ -249,4 +249,4 @@ function CreateAccount() {
   );
 }
 
-export default CreateAccount;
+export default CreateProfile;

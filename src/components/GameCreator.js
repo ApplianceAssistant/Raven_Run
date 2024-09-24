@@ -338,14 +338,13 @@ const GameCreator = () => {
 
   return (
     <div className="content-wrapper">
+      <div className="content center">
       {isLoading ? (
         <div>Loading...</div>
       ) : (
         <>
-          <div className="spirit-guide large">
-            <div className="content game-creator">
-              {renderContent()}
-            </div>
+          <div className="content game-creator">
+            {renderContent()}
           </div>
           {renderButtons()}
           <Modal
@@ -368,6 +367,7 @@ const GameCreator = () => {
           />
         </>
       )}
+      </div>
     </div>
   );
 };

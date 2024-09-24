@@ -35,6 +35,54 @@ try {
         return $result->num_rows === 0;
     }
 
+    function createOrUpdateUser($userData)
+    {
+        global $conn;
+        
+        $username = $conn->real_escape_string($userData['username']);
+        $encryptedEmail = encryptData($conn->real_escape_string($userData['email']));
+        $encryptedPhone = encryptData($conn->real_escape_string($userData['phone']));
+        $password = isset($userData['password']) ? hashPassword($userData['password']) : null;
+        $firstName = $conn->real_escape_string($userData['first_name']);
+        $lastName = $conn->real_escape_string($userData['last_name']);
+        $profilePictureUrl = $conn->real_escape_string($userData['profile_picture_url']);
+
+        if (isset($userData['id'])) {
+            // Update existing user
+            $stmt = $conn->prepare("UPDATE users SET username = ?, email = ?, phone = ?, first_name = ?, last_name = ?, profile_picture_url = ? WHERE id = ?");
+            $stmt->bind_param("ssssssi", $username, $encryptedEmail, $encryptedPhone, $firstName, $lastName, $profilePictureUrl, $userData['id']);
+        } else {
+            // Create new user
+            $stmt = $conn->prepare("INSERT INTO users (username, email, phone, password, first_name, last_name, profile_picture_url) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssss", $username, $encryptedEmail, $encryptedPhone, $password, $firstName, $lastName, $profilePictureUrl);
+        }
+        
+        if ($stmt->execute()) {
+            return $stmt->insert_id ?: $userData['id'];
+        } else {
+            return false;
+        }
+    }
+
+    function getUserData($userId)
+    {
+        global $conn;
+        
+        $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($user = $result->fetch_assoc()) {
+            $user['email'] = decryptData($user['email']);
+            $user['phone'] = $user['phone'] ? decryptData($user['phone']) : null;
+            unset($user['password']); // Don't send the password hash
+            return $user;
+        }
+        
+        return null;
+    }
+
     switch ($method) {
         case 'GET':
             if (isset($_GET['action'])) {
@@ -85,7 +133,7 @@ try {
                     $id = $conn->insert_id;
                     echo json_encode(['success' => true, 'id' => $id, 'username' => $username, 'email' => $email, 'message' => 'User created successfully']);
                 } else {
-                    echo json_encode(array('success' => false, 'message' => 'There was a problem creating your account. Please try again.', 'error' => 'Error creating user', 'details' => $stmt->error));
+                    echo json_encode(array('success' => false, 'message' => 'There was a problem creating your profile. Please try again.', 'error' => 'Error creating user', 'details' => $stmt->error));
                 }
                 $stmt->close();
                 break;

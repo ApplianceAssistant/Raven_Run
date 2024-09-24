@@ -33,19 +33,18 @@ function Settings() {
     const utterance = new SpeechSynthesisUtterance("The quick brown fox jumps over the lazy dog");
     const voices = window.speechSynthesis.getVoices();
     const selectedVoice = voices.find(voice => voice.voiceURI === selectedVoiceURI);
-    
+
     if (selectedVoice) {
       utterance.voice = selectedVoice;
     }
-    
+
     window.speechSynthesis.speak(utterance);
   };
 
   return (
-    <div className="content-wrapper">
-      <div className="spirit-guide large">
+    <div className="settings-page">
+      <div className="content-wrapper">
         <div className="content">
-          <h1 className="contentHeader">Your Settings</h1>
           <ScrollableContent maxHeight="60vh">
             <div className="settings-container">
               <ToggleSwitch
@@ -59,15 +58,14 @@ function Settings() {
                 label={isMetric ? "Metric System (km/m)" : "Imperial System (mi/ft)"}
               />
               <div className="voice-settings">
-                <VoiceSelector 
-                  selectedVoiceURI={selectedVoiceURI} 
-                  onVoiceChange={handleVoiceChange} 
+                <VoiceSelector
+                  selectedVoiceURI={selectedVoiceURI}
+                  onVoiceChange={handleVoiceChange}
                 />
                 <button onClick={testVoice} className="test-voice-button">
                   Test Voice
                 </button>
               </div>
-              <p>More settings coming soon...</p>
             </div>
           </ScrollableContent>
         </div>
