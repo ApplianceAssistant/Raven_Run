@@ -8,7 +8,7 @@ function Home() {
   const navigate = useNavigate();
 
   const handleJoin = () => {
-    navigate('/create-account');
+    navigate('/create-profile');
   };
 
   const handleLogIn = () => {

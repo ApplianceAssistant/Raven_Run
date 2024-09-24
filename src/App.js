@@ -4,8 +4,8 @@ import { ThemeProvider } from './components/ThemeContext';
 import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
-import CreateAccount from './components/CreateAccount';
-import Account from './components/Account';
+import CreateProfile from './components/CreateProfile';
+import Profile from './components/Profile.js';
 import Lobby from './components/Lobby';
 import PathPage from './components/PathPage';
 import Settings from './components/Settings';
@@ -144,14 +144,14 @@ function App() {
                   <Route path="/lobby" element={<Lobby />} />
                   {authState.isLoggedIn && (
                     <>
-                      <Route path="/account" element={<Account />} />
+                      <Route path="/profile" element={<Profile />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/create" element={<Create />} />
                     </>
                   )}
                   {!authState.isLoggedIn && (
                     <>
-                      <Route path="/create-account" element={<CreateAccount />} />
+                      <Route path="/create-profile" element={<CreateProfile />} />
                       <Route path="/log-in" element={<LogIn />} />
                     </>
                   )}

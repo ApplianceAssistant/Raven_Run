@@ -9,15 +9,15 @@ function Header({ isMenuOpen, toggleMenu }) {
 
   const getMenuItems = () => {
     if (isLoggedIn) {
-      return ['Home', 'Account', 'Settings', 'About', 'Contact', 'Create'];
+      return ['Home', 'Profile', 'Settings', 'About', 'Contact', 'Create'];
     } else {
       const baseItems = ['Home', 'About', 'Contact'];
       if (location.pathname === '/log-in') {
-        return [...baseItems, 'Create Account'];
-      } else if (location.pathname === '/create-account') {
+        return [...baseItems, 'Create Profile'];
+      } else if (location.pathname === '/create-profile') {
         return [...baseItems, 'Log In'];
       } else {
-        return [...baseItems, 'Create Account', 'Log In'];
+        return [...baseItems, 'Create Profile', 'Log In'];
       }
     }
   };

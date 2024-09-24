@@ -6,7 +6,7 @@ import ScrollableContent from './ScrollableContent';
 export const Challenge = ({ challenge, userLocation, challengeState, onStateChange }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
-  const [currentHintIndex, setCurrentHintIndex] = useState(0);
+  
   useEffect(() => {
     if (canDisplayDistance(challenge)) {
       checkTravelChallenge();

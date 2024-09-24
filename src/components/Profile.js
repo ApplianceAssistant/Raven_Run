@@ -4,7 +4,7 @@ import ToggleSwitch from './ToggleSwitch';
 import VoiceSelector from './VoiceSelector';
 import { useTheme } from './ThemeContext';
 
-function Account() {
+function Profile() {
   const { isDarkMode, toggleDarkMode } = useTheme();
 
   const [isMetric, setIsMetric] = useState(() => {
@@ -45,7 +45,7 @@ function Account() {
     <div className="content-wrapper">
       <div className="spirit-guide large">
         <div className="content">
-          <h1 className="contentHeader">Account</h1>
+          <h1 className="contentHeader">Profile</h1>
           <ScrollableContent maxHeight="60vh">
             <div className="settings-container">
               <ToggleSwitch
@@ -76,4 +76,4 @@ function Account() {
   );
 }
 
-export default Account;
+export default Profile;
