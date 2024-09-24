@@ -138,6 +138,7 @@ h1,h2,h3{
 .scrollable-content {
   position: relative;
   width: 100%;
+  padding-bottom: 35px;
 
   .bodyContent {
     min-width: 200px;
@@ -159,7 +160,7 @@ h1,h2,h3{
 
   .scroll-indicator {
     position: absolute;
-    bottom: -25px;
+    bottom: 0px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;

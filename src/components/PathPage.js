@@ -39,11 +39,11 @@ function PathPage() {
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
 
   const getRefreshInterval = (distance) => {
-    if (distance === null) return 10000; // Default to 15 seconds if distance is unknown
+    if (distance === null) return 9000; // Default to 9 seconds if distance is unknown
     if (distance <= 0.1) return 2000; // 2 seconds when very close (less than 0.1 miles)
     if (distance <= 0.5) return 3000; // 3 seconds when close (between 0.1 and 0.5 miles)
     if (distance <= 1) return 5000; // 5 seconds when between 0.5 and 1 mile
-    return 10000; // 10 seconds when more than 1 mile away
+    return 9000; // 10 seconds when more than 1 mile away
   };
 
   useEffect(() => {
@@ -144,14 +144,14 @@ function PathPage() {
       const totalHints = currentChallenge.hints.length;
       const nextHint = (currentHint + 1) % totalHints;
       setCurrentHint(nextHint);
-      console.log("Showing hint:", nextHint, currentChallenge.hints[nextHint]);
+      console.log("Showing hint:", currentHint, currentChallenge.hints[nextHint]);
       updateModalContent({
         title: 'Hint',
         content: (
           <>
-            <p>{currentChallenge.hints[nextHint]}</p>
+            <p>{currentChallenge.hints[currentHint]}</p>
             {totalHints > 1 && (
-              <p className="hint-counter">Hint {nextHint + 1} of {totalHints}</p>
+              <p className="hint-counter">Hint {currentHint + 1} of {totalHints}</p>
             )}
           </>
         ),
