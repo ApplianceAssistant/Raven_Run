@@ -110,6 +110,7 @@ function App() {
   }, []);
 
   const login = (userData) => {
+    console.warn("login", userData);
     setAuthState({
       isLoggedIn: true,
       user: userData,
@@ -150,18 +151,14 @@ function App() {
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/path/:pathId" element={<PathPage />} />
                   <Route path="/lobby" element={<Lobby />} />
+                  <Route path="/create-profile" element={<CreateProfile />} />
+                  <Route path="/log-in" element={<LogIn />} />
                   {authState.isLoggedIn && (
                     <>
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/create" element={<Create />} />
                       <Route path="/friends" element={<Friends />} />
-                    </>
-                  )}
-                  {!authState.isLoggedIn && (
-                    <>
-                      <Route path="/create-profile" element={<CreateProfile />} />
-                      <Route path="/log-in" element={<LogIn />} />
                     </>
                   )}
                 </Routes>

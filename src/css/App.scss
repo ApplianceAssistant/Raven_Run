@@ -768,7 +768,7 @@ form {
 
 .modal-body {
   margin-bottom: 20px;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.3s ease;
   width: 100%;
 
   &.text-orange-700 {
@@ -806,7 +806,6 @@ form {
   margin-top: 10px;
 }
 .modal-body {
-  color: $text-color;
 
   ul {
     padding-left: 20px;
