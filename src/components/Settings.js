@@ -42,31 +42,33 @@ function Settings() {
   };
 
   return (
-    <div className="content-wrapper">
-      <div className="content">
-        <ScrollableContent maxHeight="60vh">
-          <div className="settings-container">
-            <ToggleSwitch
-              isChecked={isDarkMode}
-              onToggle={toggleDarkMode}
-              label={isDarkMode ? "Dark Mode" : "Light Mode"}
-            />
-            <ToggleSwitch
-              isChecked={isMetric}
-              onToggle={handleUnitSystemToggle}
-              label={isMetric ? "Metric System (km/m)" : "Imperial System (mi/ft)"}
-            />
-            <div className="voice-settings">
-              <VoiceSelector
-                selectedVoiceURI={selectedVoiceURI}
-                onVoiceChange={handleVoiceChange}
+    <div className="settings-page">
+      <div className="content-wrapper">
+        <div className="content">
+          <ScrollableContent maxHeight="60vh">
+            <div className="settings-container">
+              <ToggleSwitch
+                isChecked={isDarkMode}
+                onToggle={toggleDarkMode}
+                label={isDarkMode ? "Dark Mode" : "Light Mode"}
               />
-              <button onClick={testVoice} className="test-voice-button">
-                Test Voice
-              </button>
+              <ToggleSwitch
+                isChecked={isMetric}
+                onToggle={handleUnitSystemToggle}
+                label={isMetric ? "Metric System (km/m)" : "Imperial System (mi/ft)"}
+              />
+              <div className="voice-settings">
+                <VoiceSelector
+                  selectedVoiceURI={selectedVoiceURI}
+                  onVoiceChange={handleVoiceChange}
+                />
+                <button onClick={testVoice} className="test-voice-button">
+                  Test Voice
+                </button>
+              </div>
             </div>
-          </div>
-        </ScrollableContent>
+          </ScrollableContent>
+        </div>
       </div>
     </div>
   );

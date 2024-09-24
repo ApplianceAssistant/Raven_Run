@@ -13,10 +13,6 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-
-    &:hover {
-      @include theme-aware('background-color', lighten($dark-bg, 10%), darken($light-bg, 10%));
-    }
   }
 
   .search-input {

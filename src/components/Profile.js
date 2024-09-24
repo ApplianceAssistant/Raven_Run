@@ -7,8 +7,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 import '../css/Profile.scss';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const TARGET_WIDTH = 500;
-const TARGET_HEIGHT = 500;
+const CROP_SIZE = 200; // Fixed size for crop box
 
 function Profile() {
   const { user, login } = useContext(AuthContext);
@@ -20,14 +19,14 @@ function Profile() {
     last_name: '',
     profile_picture_url: ''
   });
-  const [isEditing, setIsEditing] = useState(false);
+  const [originalData, setOriginalData] = useState({});
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
-  const [crop, setCrop] = useState({ unit: '%', width: 100, aspect: 1 });
-  const [completedCrop, setCompletedCrop] = useState(null);
+  const [crop, setCrop] = useState({ unit: 'px', width: CROP_SIZE, height: CROP_SIZE, x: 0, y: 0 });
   const [croppedImageUrl, setCroppedImageUrl] = useState(null);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const fieldNameMapping = {
     username: 'Username',
@@ -37,12 +36,19 @@ function Profile() {
     last_name: 'Last Name',
     profile_picture_url: 'Profile Picture'
   };
-
   useEffect(() => {
     if (user) {
       fetchUserData();
     }
   }, [user]);
+
+  useEffect(() => {
+    const hasDataChanges = Object.keys(profileData).some(key => {
+      // Handle potential nested objects or arrays
+      return JSON.stringify(profileData[key]) !== JSON.stringify(originalData[key]);
+    });
+    setHasChanges(hasDataChanges || croppedImageUrl !== null);
+  }, [profileData, originalData, croppedImageUrl]);
 
   const fetchUserData = async () => {
     try {
@@ -50,6 +56,7 @@ function Profile() {
       if (!response.ok) throw new Error('Failed to fetch user data');
       const userData = await response.json();
       setProfileData(userData);
+      setOriginalData(userData);
       setImagePreview(userData.profile_picture_url);
     } catch (error) {
       setError('Failed to load user data');
@@ -76,18 +83,20 @@ function Profile() {
   };
 
   const onImageLoaded = useCallback((img) => {
-    const aspect = TARGET_WIDTH / TARGET_HEIGHT;
-    const width = img.width;
-    const height = width / aspect;
-    setCrop({ unit: 'px', width, height, x: 0, y: 0 });
+    const aspect = 1;
+    const width = CROP_SIZE;
+    const height = CROP_SIZE;
+    const x = (img.width - width) / 2;
+    const y = (img.height - height) / 2;
+    setCrop({ unit: 'px', width, height, x, y });
   }, []);
 
   const getCroppedImg = (image, crop) => {
     const canvas = document.createElement('canvas');
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    canvas.width = TARGET_WIDTH;
-    canvas.height = TARGET_HEIGHT;
+    canvas.width = CROP_SIZE;
+    canvas.height = CROP_SIZE;
     const ctx = canvas.getContext('2d');
 
     ctx.drawImage(
@@ -98,8 +107,8 @@ function Profile() {
       crop.height * scaleY,
       0,
       0,
-      TARGET_WIDTH,
-      TARGET_HEIGHT
+      CROP_SIZE,
+      CROP_SIZE
     );
 
     return new Promise((resolve) => {
@@ -115,18 +124,20 @@ function Profile() {
     });
   };
 
-  const handleCropComplete = async (crop, pixelCrop) => {
-    if (imagePreview && pixelCrop.width && pixelCrop.height) {
+  const handleCropComplete = async (crop) => {
+    if (imagePreview && crop.width && crop.height) {
       const croppedImageUrl = await getCroppedImg(
         document.getElementById('source-image'),
-        pixelCrop
+        crop
       );
       setCroppedImageUrl(croppedImageUrl);
     }
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    if (!hasChanges) return;
+
     setError('');
     setSuccess('');
     setUploadProgress(0);
@@ -160,8 +171,9 @@ function Profile() {
           const result = JSON.parse(xhr.responseText);
           if (result.success) {
             setSuccess('Profile updated successfully');
-            setIsEditing(false);
             login(result.user);
+            setOriginalData(profileData);
+            setCroppedImageUrl(null);
           } else {
             setError(result.message || 'Failed to update profile');
           }
@@ -194,11 +206,14 @@ function Profile() {
           </div>
         )}
         <div className="profile-buttons">
-          {isEditing ? (
-            <button type="submit">Save Changes</button>
-          ) : (
-            <button type="button" onClick={() => setIsEditing(true)}>Save Changes</button>
-          )}
+          <button 
+            type="submit" 
+            onClick={handleSubmit} 
+            className={`save-changes-button ${hasChanges ? 'visible' : ''}`}
+            disabled={!hasChanges}
+          >
+            Save Changes
+          </button>
         </div>
         
         <ScrollableContent maxHeight="70vh">
@@ -212,6 +227,8 @@ function Profile() {
                   onChange={(newCrop) => setCrop(newCrop)}
                   onComplete={handleCropComplete}
                   onImageLoaded={onImageLoaded}
+                  keepSelection
+                  aspect={1}
                 >
                   <img id="source-image" src={imagePreview} alt="Profile Preview" />
                 </ReactCrop>
@@ -235,6 +252,7 @@ function Profile() {
                       name={key}
                       value={value || ''}
                       onChange={handleInputChange}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
                     />
                   </div>
                 );

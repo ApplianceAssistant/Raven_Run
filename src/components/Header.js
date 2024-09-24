@@ -1,23 +1,46 @@
 import React, { useContext } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import '../css/Header.scss';
 
 function Header({ isMenuOpen, toggleMenu }) {
-  const { isLoggedIn } = useContext(AuthContext);
+  const { isLoggedIn, logout } = useContext(AuthContext);
   const location = useLocation();
+  const navigate = useNavigate();
 
+  const handleLogout = (e) => {
+    e.preventDefault();
+    logout();
+    toggleMenu();
+    navigate('/');
+  };
+  
   const getMenuItems = () => {
     if (isLoggedIn) {
-      return ['Home', 'About', 'Contact', 'Create', 'Settings', 'Log Out'];
+      return [
+        { label: 'Home', path: '/' },
+        { label: 'About', path: '/about' },
+        { label: 'Contact', path: '/contact' },
+        { label: 'Create', path: '/create' },
+        { label: 'Settings', path: '/settings' },
+        { label: 'Log Out', path: '/logout' }  // We'll handle this specially
+      ];
     } else {
-      const baseItems = ['Home', 'About', 'Contact'];
+      const baseItems = [
+        { label: 'Home', path: '/' },
+        { label: 'About', path: '/about' },
+        { label: 'Contact', path: '/contact' }
+      ];
       if (location.pathname === '/log-in') {
-        return [...baseItems, 'Create Profile'];
+        return [...baseItems, { label: 'Create Profile', path: '/create-profile' }];
       } else if (location.pathname === '/create-profile') {
-        return [...baseItems, 'Log In'];
+        return [...baseItems, { label: 'Log In', path: '/log-in' }];
       } else {
-        return [...baseItems, 'Create Profile', 'Log In'];
+        return [
+          ...baseItems,
+          { label: 'Create Profile', path: '/create-profile' },
+          { label: 'Log In', path: '/log-in' }
+        ];
       }
     }
   };
@@ -41,12 +64,18 @@ function Header({ isMenuOpen, toggleMenu }) {
         <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <ul>
             {menuItems.map((item, index) => (
-              <li key={item} className={isMenuOpen ? 'open' : ''} style={{transitionDelay: `${index * 0.1}s`}}>
+              <li key={item.label} className={isMenuOpen ? 'open' : ''} style={{transitionDelay: `${index * 0.1}s`}}>
                 <Link 
-                  to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} 
-                  onClick={toggleMenu}
+                  to={item.path}
+                  onClick={(e) => {
+                    if (item.label === 'Log Out') {
+                      handleLogout(e);
+                    } else {
+                      toggleMenu();
+                    }
+                  }}
                 >
-                  {item}
+                  {item.label}
                 </Link>
               </li>
             ))}
