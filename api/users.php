@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-ini_set('display_errors', 0);
+ini_set('display_errors', 1);
 error_reporting(E_ALL);
 //only allow post requests from the same origin
 header('Access-Control-Allow-Origin: https://crowtours.com');
@@ -147,7 +147,8 @@ try {
         case 'POST':
             $data = json_decode(file_get_contents('php://input'), true);
             $action = $data['action'];
-
+            echo json_encode(['success' => false, 'data' => $data, 'action' => $action]);
+            die;
             if ($action === 'create') {
                 $username = $conn->real_escape_string($data['username']);
                 $email = encryptData($conn->real_escape_string($data['email']));
@@ -199,6 +200,7 @@ try {
                 }
                 $stmt->close();
             } elseif ($action === 'update') {
+                echo json_encode($data);
                 $userId = $conn->real_escape_string($data['id']);
                 $userData = $data;
                 
