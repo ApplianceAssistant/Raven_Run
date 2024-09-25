@@ -18,6 +18,8 @@
 # Production build
 /build
 
+#core images
+/images
 # Miscellaneous
 .DS_Store
 .env.local

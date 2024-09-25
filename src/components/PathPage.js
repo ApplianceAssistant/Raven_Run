@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Challenge } from './Challenge';
 import Compass from './Compass';
 import Modal from './Modal';
+import SkipCountdown from './SkipCountdown';
 import {
   getChallenges,
   getPathName,
@@ -235,12 +236,11 @@ function PathPage() {
         {shouldDisplaySubmitButton(currentChallenge, challengeState) && (
           <button onClick={handleSubmitClick} className="submit-button">Submit</button>
         )}
-        {shouldDisplayContinueButton(currentChallenge, challengeState) && (
-          <button onClick={handleContinueClick} className="continue-button">Continue</button>
-        )}
-        {shouldDisplaySkipButton(currentChallenge, challengeState) && (
-          <button onClick={handleSkipClick} className="skip-button">Skip</button>
-        )}
+        {shouldDisplaySkipButton(currentChallenge, challengeState) ? (
+        <button onClick={handleSkipClick}>Skip</button>
+      ) : (
+        <SkipCountdown challengeState={challengeState} />
+      )}
       </div>
     );
   };
