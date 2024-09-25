@@ -134,7 +134,7 @@ function Profile() {
         console.log('Image blob size:', blob.size);
         formData.append('profile_picture_url', blob, 'profile_picture.jpg');
       }
-      console.log("formData:", formData);
+      console.log("formData:", formData['profile_picture_url']);
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${API_URL}/users.php`, true);
   
