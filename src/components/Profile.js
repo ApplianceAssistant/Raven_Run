@@ -55,7 +55,7 @@ function Profile() {
   }, [profileData, originalData, croppedImageUrl]);
 
   const fetchUserData = async () => {
-    console.warn("fetch user data")
+    console.warn("fetch user data for user", user)
     try {
       const response = await fetch(`${API_URL}/users.php?action=get&id=${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
