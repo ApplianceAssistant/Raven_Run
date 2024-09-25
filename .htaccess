@@ -3,7 +3,15 @@
   RewriteBase /
 
   # Allow direct access to API endpoints
-  RewriteRule ^api/ - [L]
+   # Deny direct access to API endpoints except for GET and POST from same origin
+   RewriteCond %{REQUEST_METHOD} !^(GET|POST)$ [OR]
+   RewriteCond %{HTTP_REFERER} !^https?://crowtours\.com [NC]
+   RewriteRule ^api/ - [F]
+ 
+   # Allow access to API for GET and POST from same origin
+   RewriteCond %{REQUEST_METHOD} ^(GET|POST)$
+   RewriteCond %{HTTP_REFERER} ^https?://crowtours\.com [NC]
+   RewriteRule ^api/ - [L]
 
   # Allow direct access to existing files and directories
   RewriteCond %{REQUEST_FILENAME} -f [OR]
