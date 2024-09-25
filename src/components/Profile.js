@@ -140,8 +140,9 @@ function Profile() {
 
       xhr.onload = function () {
         if (xhr.status === 200) {
+          console.log("xhr.responseText:", xhr.responseText);
           const result = JSON.parse(xhr.responseText);
-          console.warn("result:", );
+          console.warn("result:", result);
           if (result.success) {
             setSuccess('Profile updated successfully');
             login(result.user);
