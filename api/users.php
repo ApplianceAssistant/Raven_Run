@@ -45,11 +45,20 @@ try {
         $password = isset($userData['password']) ? hashPassword($userData['password']) : null;
         $firstName = $conn->real_escape_string($userData['first_name']);
         $lastName = $conn->real_escape_string($userData['last_name']);
-        $profilePictureUrl = $conn->real_escape_string($userData['profile_picture_url']);
+        $profilePictureUrl = $userData['profile_picture_url'] ?? null;
 
         if (isset($userData['profile_picture_url'])) {
-            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $userData['profile_picture_url']));
-            $profilePictureUrl = saveProfileImage($userData['id'], $imageData);
+            if (strpos($userData['profile_picture_url'], 'data:image') === 0) {
+                // This is a new image upload
+                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $userData['profile_picture_url']));
+                $newProfilePictureUrl = saveProfileImage($userData['id'], $imageData);
+                if ($newProfilePictureUrl) {
+                    $profilePictureUrl = $newProfilePictureUrl;
+                } else {
+                    error_log("Failed to save new profile image for user " . $userData['id']);
+                    // Keep the existing profile picture URL if saving fails
+                }
+            }
         }
 
         if (isset($userData['id'])) {
@@ -61,10 +70,11 @@ try {
             $stmt = $conn->prepare("INSERT INTO users (username, email, phone, password, first_name, last_name, profile_picture_url) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("sssssss", $username, $encryptedEmail, $encryptedPhone, $password, $firstName, $lastName, $profilePictureUrl);
         }
-
+    
         if ($stmt->execute()) {
             return $stmt->insert_id ?: $userData['id'];
         } else {
+            error_log("Failed to create or update user: " . $stmt->error);
             return false;
         }
     }
@@ -94,10 +104,30 @@ try {
             mkdir($uploadDir, 0755, true);
         }
 
+        // Detect image type
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->buffer($imageData);
+
+        switch ($mimeType) {
+            case 'image/jpeg':
+                $extension = 'jpg';
+                break;
+            case 'image/png':
+                $extension = 'png';
+                break;
+            case 'image/gif':
+                $extension = 'gif';
+                break;
+            default:
+                error_log("Invalid image type: $mimeType");
+                return false;
+        }
+
         $etag = md5($imageData . time());
-        $filename = $etag . '.jpg';
+        $filename = $etag . '.' . $extension;
         $filePath = $uploadDir . $filename;
 
+        // Save the image file
         if (file_put_contents($filePath, $imageData)) {
             cleanupOldProfileImages($userId, $uploadDir);
             return "/images/profile_images/$userId/" . $filename;
@@ -202,22 +232,17 @@ try {
                 }
                 $stmt->close();
             } elseif ($action === 'update') {
-                echo json_encode($data);
                 $userId = $conn->real_escape_string($data['id']);
                 $userData = $data;
-
-                if (isset($_FILES['profile_picture_url'])) {
-                    $imageData = file_get_contents($_FILES['profile_picture_url']['tmp_name']);
-                    $profilePictureUrl = saveProfileImage($userId, $imageData);
-                    if ($profilePictureUrl) {
-                        $userData['profile_picture_url'] = $profilePictureUrl;
-                    }
-                }
 
                 $result = createOrUpdateUser($userData);
                 if ($result) {
                     $updatedUser = getUserData($userId);
-                    echo json_encode(['success' => true, 'user' => $updatedUser, 'message' => 'Profile updated successfully']);
+                    if ($updatedUser) {
+                        echo json_encode(['success' => true, 'user' => $updatedUser, 'message' => 'Profile updated successfully', 'POST' => $_POST, 'result' => $result]);
+                    } else {
+                        echo json_encode(['success' => false, 'error' => 'Failed to retrieve updated user data']);
+                    }
                 } else {
                     echo json_encode(['success' => false, 'error' => 'Failed to update profile']);
                 }

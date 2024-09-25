@@ -127,12 +127,14 @@ function Profile() {
   
       // Handle profile picture
       if (imagePreview !== originalData.profile_picture_url) {
+        console.log("not a match, update profile picture");
         // Convert the image preview to a Blob
         const response = await fetch(imagePreview);
         const blob = await response.blob();
+        console.log('Image blob size:', blob.size);
         formData.append('profile_picture_url', blob, 'profile_picture.jpg');
       }
-  
+      console.log("formData:", formData);
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${API_URL}/users.php`, true);
   
@@ -145,6 +147,7 @@ function Profile() {
       };
   
       xhr.onload = function () {
+        console.log('XHR response:', xhr.responseText);
         if (xhr.status === 200) {
           console.log("xhr.responseText:", xhr.responseText);
           const result = JSON.parse(xhr.responseText);
@@ -163,11 +166,13 @@ function Profile() {
       };
   
       xhr.onerror = function () {
+        console.error('XHR error:', xhr.statusText);
         setError('Network error occurred');
       };
   
       xhr.send(formData);
     } catch (error) {
+      console.error('Error in handleSubmit:', error);
       setError(error.message);
     } finally {
       setUploadProgress(0);
