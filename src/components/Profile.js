@@ -134,6 +134,7 @@ function Profile() {
         if (event.lengthComputable) {
           const percentComplete = (event.loaded / event.total) * 100;
           setUploadProgress(percentComplete);
+          if(percentComplete === 100) setUploadProgress(0);
         }
       };
 
