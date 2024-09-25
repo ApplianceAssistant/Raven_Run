@@ -55,10 +55,12 @@ function Profile() {
   }, [profileData, originalData, croppedImageUrl]);
 
   const fetchUserData = async () => {
+    console.warn("fetch user data")
     try {
-      const response = await fetch(`${API_URL}/users.php?id=${user.id}`);
+      const response = await fetch(`${API_URL}/users.php?action=get&id=${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       const userData = await response.json();
+      console.warn("userData", userData)
       setProfileData(userData);
       setOriginalData(userData);
       setImagePreview(userData.profile_picture_url);
@@ -194,10 +196,10 @@ function Profile() {
       setUploadProgress(0);
     }
   };
-
   return (
     <div className="content-wrapper">
       <div className="content center">
+        <div className="message-display">
         {error && <p className="error-message">{error}</p>}
         {success && <p className="success-message">{success}</p>}
         {uploadProgress > 0 && (
@@ -206,42 +208,41 @@ function Profile() {
             <span>{uploadProgress}% Uploaded</span>
           </div>
         )}
-        <div className="profile-image-container">
-          {imagePreview ? (
-            <div className="profile-image">
-              <img src={imagePreview} alt="Profile" />
-              <span className="edit-image-button" onClick={handleImageClick}>
-                <FontAwesomeIcon icon={faEdit} />
-              </span>
-            </div>
-          ) : (
-            <div className="profile-image-placeholder" onClick={handleImageClick}>
-              <FontAwesomeIcon icon={faUser} size="3x" />
-              <p>Your profile photo here</p>
-            </div>
-          )}
         </div>
+        <form onSubmit={handleSubmit} className="profile-form">
+          <div className="profile-image-container">
+            {imagePreview ? (
+              <div className="profile-image">
+                <img src={imagePreview} alt="Profile" />
+                <span className="edit-image-button" onClick={handleImageClick}>
+                  <FontAwesomeIcon icon={faEdit} />
+                </span>
+              </div>
+            ) : (
+              <div className="profile-image-placeholder" onClick={handleImageClick}>
+                <FontAwesomeIcon icon={faUser} size="3x" />
+                <p>Your profile photo here</p>
+              </div>
+            )}
+          </div>
 
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleImageChange}
-          accept="image/*"
-          style={{ display: 'none' }}
-        />
-        <div className="profile-buttons">
-          <button 
-            type="submit" 
-            onClick={handleSubmit} 
-            className={`save-changes-button ${hasChanges ? 'visible' : ''}`}
-            disabled={!hasChanges}
-          >
-            Save Changes
-          </button>
-        </div>
-        
-        
-          <form onSubmit={handleSubmit} className="profile-form">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            accept="image/*"
+            style={{ display: 'none' }}
+          />
+          <div className="profile-buttons">
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              className={`save-changes-button ${hasChanges ? 'visible' : ''}`}
+              disabled={!hasChanges}
+            >
+              Save Changes
+            </button>
+          </div>
           <ScrollableContent maxHeight="70vh">
             {Object.entries(profileData).map(([key, value]) => {
               if (key !== 'profile_picture_url') {
@@ -261,9 +262,9 @@ function Profile() {
               }
               return null;
             })}
-            </ScrollableContent>
-          </form>
-        
+          </ScrollableContent>
+        </form>
+
       </div>
     </div>
   );

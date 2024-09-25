@@ -165,12 +165,6 @@ function CreateProfile() {
     <div className="content-wrapper">
       <div className="bodyContent center">
         <h1>Welcome, Brave Adventurer</h1>
-        {!serverStatus.isConnected && (
-          <p className="error-message">Server is not connected. Please try again later.</p>
-        )}
-        {serverStatus.isConnected && !serverStatus.isDatabaseConnected && (
-          <p className="error-message">Database is not connected. Please try again later.</p>
-        )}
         {isLoading && <div className="loader">Loading...</div>}
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         {successMessage && <p className="success-message">{successMessage}</p>}

@@ -2,7 +2,8 @@
 header('Content-Type: application/json');
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
-
+//only allow post requests from the same origin
+header('Access-Control-Allow-Origin: http://localhost:3000');
 function handleError($errno, $errstr, $errfile, $errline)
 {
     $error = array(
@@ -72,7 +73,6 @@ try {
     function getUserData($userId)
     {
         global $conn;
-
         $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
         $stmt->bind_param("i", $userId);
         $stmt->execute();
@@ -81,7 +81,7 @@ try {
         if ($user = $result->fetch_assoc()) {
             $user['email'] = decryptData($user['email']);
             $user['phone'] = $user['phone'] ? decryptData($user['phone']) : null;
-            unset($user['password']); // Don't send the password hash
+            unset($user['password']);
             return $user;
         }
 
@@ -117,17 +117,15 @@ try {
                     }
                     $isUnique = checkUnique($field, $value);
                     echo json_encode(['isUnique' => $isUnique]);
-                }
-            } elseif (isset($_GET['id'])) {
-                $id = $conn->real_escape_string($_GET['id']);
-                $result = $conn->query("SELECT id, username, email FROM users WHERE id = '$id'");
-                if ($result->num_rows > 0) {
-                    $user = $result->fetch_assoc();
-                    $user['email'] = decryptData($user['email']);
-                    echo json_encode($user);
-                } else {
-                    http_response_code(404);
-                    echo json_encode(['error' => 'User not found']);
+                } else if ($action === 'get' && isset($_GET['id'])) {
+                    $id = $conn->real_escape_string($_GET['id']);
+                    $userData = getUserData($userId);
+                    if ($userData) {
+                        echo json_encode($userData);
+                    } else {
+                        http_response_code(404);
+                        echo json_encode(['error' => 'User not found']);
+                    }
                 }
             }
             break;
