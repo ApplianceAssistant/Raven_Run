@@ -55,10 +55,12 @@ function Profile() {
   }, [profileData, originalData, croppedImageUrl]);
 
   const fetchUserData = async () => {
+    console.warn("fetch user data")
     try {
-      const response = await fetch(`${API_URL}/users.php?id=${user.id}`);
+      const response = await fetch(`${API_URL}/users.php?action=get&id=${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       const userData = await response.json();
+      console.warn("userData", userData)
       setProfileData(userData);
       setOriginalData(userData);
       setImagePreview(userData.profile_picture_url);
@@ -194,10 +196,10 @@ function Profile() {
       setUploadProgress(0);
     }
   };
-
   return (
     <div className="content-wrapper">
       <div className="content center">
+        <div className="message-display">
         {error && <p className="error-message">{error}</p>}
         {success && <p className="success-message">{success}</p>}
         {uploadProgress > 0 && (
@@ -206,10 +208,7 @@ function Profile() {
             <span>{uploadProgress}% Uploaded</span>
           </div>
         )}
-
-
-
-
+        </div>
         <form onSubmit={handleSubmit} className="profile-form">
           <div className="profile-image-container">
             {imagePreview ? (
