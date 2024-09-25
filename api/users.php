@@ -56,9 +56,13 @@ try {
                     $profilePictureUrl = $newProfilePictureUrl;
                 } else {
                     error_log("Failed to save new profile image for user " . $userData['id']);
+                    handleError(500, $userData, __FILE__, __LINE__);
                     // Keep the existing profile picture URL if saving fails
                 }
             }
+        } else {
+            echo json_encode(['error' => 'No profile picture URL provided', 'userData' => $userData]);
+            //handleError(500, $userData, __FILE__, __LINE__);
         }
 
         if (isset($userData['id'])) {
