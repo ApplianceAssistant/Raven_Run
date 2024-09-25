@@ -239,7 +239,7 @@ try {
                 if ($result) {
                     $updatedUser = getUserData($userId);
                     if ($updatedUser) {
-                        echo json_encode(['success' => true, 'user' => $updatedUser, 'message' => 'Profile updated successfully', 'POST' => $_POST]);
+                        echo json_encode(['success' => true, 'user' => $updatedUser, 'message' => 'Profile updated successfully', 'POST' => $_POST, 'result' => $result]);
                     } else {
                         echo json_encode(['success' => false, 'error' => 'Failed to retrieve updated user data']);
                     }

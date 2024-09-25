@@ -127,13 +127,14 @@ function Profile() {
   
       // Handle profile picture
       if (imagePreview !== originalData.profile_picture_url) {
+        console.log("not a match, update profile picture");
         // Convert the image preview to a Blob
         const response = await fetch(imagePreview);
         const blob = await response.blob();
         console.log('Image blob size:', blob.size);
         formData.append('profile_picture_url', blob, 'profile_picture.jpg');
       }
-  
+      console.log("formData:", formData);
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${API_URL}/users.php`, true);
   
