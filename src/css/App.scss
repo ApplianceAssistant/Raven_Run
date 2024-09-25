@@ -354,13 +354,22 @@ button {
   width: 120px; /* Adjust this value as needed */
 }
 
+.error-message,
+.success-message {
+  text-align: center;
+  margin-bottom: 1rem;
+  min-height: 30px;
+}
+
 // Add styles for error messages
 .error-message {
   color: #c40000;
-  margin-top: 5px;
   text-align: center;
-  padding: 10px;
+  padding: 3px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
 }
+
 
 // Add styles for success messages
 .success-message {

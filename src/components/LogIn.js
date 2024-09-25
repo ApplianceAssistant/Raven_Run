@@ -35,7 +35,7 @@ function LogIn() {
         setErrorMessage('');
         setSuccessMessage('');
 
-        /*debugger;
+        //debugger;
         setModalContent({
             title: 'Welcome Back!',
             message: `Welcome back, ${'guy'}! What would you like to do?`,
@@ -48,7 +48,7 @@ function LogIn() {
         setIsModalOpen(true);
         login({ id: 1, username: 'guy' });
         return;
-        */
+        
         if (!serverStatus.isConnected || !serverStatus.isDatabaseConnected) {
             setErrorMessage('Cannot perform action: Server or database is not connected');
             setIsLoading(false);
