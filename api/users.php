@@ -12,7 +12,7 @@ function handleError($errno, $errstr, $errfile, $errline)
         'line' => $errline
     );
     error_log(json_encode($error));
-    echo json_encode(array('error' => 'An internal error occurred'));
+    echo json_encode(array('error' => 'An internal error occurred:' . $errstr));
     exit;
 }
 
