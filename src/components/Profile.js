@@ -108,28 +108,34 @@ function Profile() {
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (!hasChanges) return;
-
+  
     setError('');
     setSuccess('');
     setUploadProgress(0);
-
+  
     try {
       const formData = new FormData();
-      for (const [key, value] of Object.entries(profileData)) {
-        if (key === 'profile_picture_url' && imagePreview !== originalData.profile_picture_url) {
-          const response = await fetch(imagePreview);
-          const blob = await response.blob();
-          formData.append(key, blob, 'profile_picture.jpg');
-        } else {
-          formData.append(key, value);
-        }
-      }
       formData.append('action', 'update');
       formData.append('id', user.id);
-
+  
+      // Append all profile data
+      Object.keys(profileData).forEach(key => {
+        if (key !== 'profile_picture_url') {
+          formData.append(key, profileData[key]);
+        }
+      });
+  
+      // Handle profile picture
+      if (imagePreview !== originalData.profile_picture_url) {
+        // Convert the image preview to a Blob
+        const response = await fetch(imagePreview);
+        const blob = await response.blob();
+        formData.append('profile_picture_url', blob, 'profile_picture.jpg');
+      }
+  
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${API_URL}/users.php`, true);
-
+  
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           const percentComplete = (event.loaded / event.total) * 100;
@@ -137,7 +143,7 @@ function Profile() {
           if(percentComplete === 100) setUploadProgress(0);
         }
       };
-
+  
       xhr.onload = function () {
         if (xhr.status === 200) {
           console.log("xhr.responseText:", xhr.responseText);
@@ -146,7 +152,7 @@ function Profile() {
           if (result.success) {
             setSuccess('Profile updated successfully');
             login(result.user);
-            setOriginalData(profileData);
+            setOriginalData(result.user);
             setImagePreview(result.user.profile_picture_url);
           } else {
             setError(result.message || 'Failed to update profile. result:', result);
@@ -155,11 +161,11 @@ function Profile() {
           setError('Failed to update profile status:' + xhr.status);
         }
       };
-
+  
       xhr.onerror = function () {
         setError('Network error occurred');
       };
-
+  
       xhr.send(formData);
     } catch (error) {
       setError(error.message);
