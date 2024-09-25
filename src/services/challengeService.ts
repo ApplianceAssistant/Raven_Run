@@ -12,6 +12,7 @@ export interface ChallengeState {
   isAnswerSelected: boolean;
   textVisible: boolean;
   currentHint: number;
+  startTime: number;
 }
 
 // Update the initializeChallengeState function to include textVisible
@@ -25,6 +26,7 @@ export function initializeChallengeState(): ChallengeState {
     isAnswerSelected: false,
     textVisible: false,
     currentHint: 0,
+    startTime: Date.now(),
   };
 }
 
@@ -109,12 +111,26 @@ export function shouldDisplayContinueButton(challenge: Challenge, state: Challen
   }
 }
 
-// Add a new function for the skip button
 export function shouldDisplaySkipButton(challenge: Challenge, state: ChallengeState): boolean {
-  return !shouldDisplayContinueButton(challenge, state);
+  if (shouldDisplayContinueButton(challenge, state)) {
+    return false;
+  }
+
+  const currentTime = new Date().getTime();
+  const startTime = state.startTime || currentTime;
+  const timeElapsed = currentTime - startTime;
+  const fiveMinutesInMs = 5 * 60 * 1000;
+
+  return timeElapsed >= fiveMinutesInMs;
 }
 
-
+export function getTimeUntilSkip(state: ChallengeState): number {
+  const currentTime = Date.now();
+  const timeElapsed = currentTime - state.startTime;
+  const fiveMinutesInMs = 5 * 60 * 1000;
+  const timeRemaining = Math.max(fiveMinutesInMs - timeElapsed, 0);
+  return Math.ceil(timeRemaining / 1000); // Return remaining time in seconds
+}
 // New function to get the next hint
 export const getNextHintState = (challenge, prevState) => {
   const nextHintIndex = ((prevState.currentHint ?? -1) + 1) % challenge.hints.length;
