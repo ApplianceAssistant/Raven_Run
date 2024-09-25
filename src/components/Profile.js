@@ -140,16 +140,17 @@ function Profile() {
       xhr.onload = function () {
         if (xhr.status === 200) {
           const result = JSON.parse(xhr.responseText);
+          console.warn("result:", );
           if (result.success) {
             setSuccess('Profile updated successfully');
             login(result.user);
             setOriginalData(profileData);
             setImagePreview(result.user.profile_picture_url);
           } else {
-            setError(result.message || 'Failed to update profile');
+            setError(result.message || 'Failed to update profile. result:', result);
           }
         } else {
-          setError('Failed to update profile');
+          setError('Failed to update profile status:' + xhr.status);
         }
       };
 
