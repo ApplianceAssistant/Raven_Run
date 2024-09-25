@@ -24,7 +24,6 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
   story: {
     title: { required: true, type: 'text', label: 'Title' },
     description: { required: true, type: 'textarea', label: 'Story Text' },
-    hints: { required: false, type: 'array', label: 'Hints' },
     repeatable: { required: false, type: 'boolean', label: 'Repeatable' },
   },
   multipleChoice: {
@@ -56,7 +55,5 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
     radius: { required: true, type: 'number', label: 'completion Radius' },
     completionFeedback: { required: true, type: 'textarea', label: 'Completion Feedback' },
     hints: { required: false, type: 'array', label: 'Hints' },
-  },
-  areaSearch: {
   },
 };
