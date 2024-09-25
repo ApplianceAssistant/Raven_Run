@@ -127,13 +127,9 @@ function Profile() {
   
       // Handle profile picture
       if (imagePreview !== originalData.profile_picture_url) {
-        console.log("not a match, update profile picture");
         // Convert the image preview to a Blob
         const response = await fetch(imagePreview);
         formData.append('profile_picture_url', imagePreview);
-      }
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
       }
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${API_URL}/users.php`, true);
@@ -147,11 +143,8 @@ function Profile() {
       };
   
       xhr.onload = function () {
-        console.log('XHR response:', xhr.responseText);
         if (xhr.status === 200) {
-          console.log("xhr.responseText:", xhr.responseText);
           const result = JSON.parse(xhr.responseText);
-          console.warn("result:", result);
           if (result.success) {
             setSuccess('Profile updated successfully');
             login(result.user);

@@ -5,7 +5,9 @@ require_once('../server/db_connection.php');
 
 try {
   $conn = getDbConnection();
-  $result = $conn->query('SELECT 1 as test');
+  $stmt = $conn->prepare('SELECT 1 as test');
+  $stmt->execute();
+  $result = $stmt->get_result();
   $row = $result->fetch_assoc();
   
   echo json_encode([
@@ -14,6 +16,7 @@ try {
       'data' => $row
   ]);
 
+  $stmt->close();
   $conn->close();
 } catch (Exception $e) {
   http_response_code(500);
