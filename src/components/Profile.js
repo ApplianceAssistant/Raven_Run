@@ -130,9 +130,7 @@ function Profile() {
         console.log("not a match, update profile picture");
         // Convert the image preview to a Blob
         const response = await fetch(imagePreview);
-        const blob = await response.blob();
-        console.log('Image blob size:', blob.size);
-        formData.append('profile_picture_url', blob, 'profile_picture.jpg');
+        formData.append('profile_picture_url', imagePreview);
       }
       for (let [key, value] of formData.entries()) {
         console.log(key, value);

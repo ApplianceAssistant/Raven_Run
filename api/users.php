@@ -59,6 +59,9 @@ try {
                     handleError(500, $userData, __FILE__, __LINE__);
                     // Keep the existing profile picture URL if saving fails
                 }
+            } else {
+                 // If it's not a data URL, assume it's an existing URL and use it as is
+                $profilePictureUrl = $userData['profile_picture_url'];
             }
         } else {
             echo json_encode(['error' => 'No profile picture URL provided', 'userData' => $userData]);
