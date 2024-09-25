@@ -97,7 +97,6 @@ function CreateProfile() {
   };
 
   const handleSubmit = async (action) => {
-    console.warn("handleSubmit", action);
     setIsLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
@@ -123,7 +122,6 @@ function CreateProfile() {
       });
 
       const responseText = await response.text();
-      console.log('Full response text:', responseText);
 
       let data;
       try {
@@ -154,7 +152,6 @@ function CreateProfile() {
       }
 
     } catch (error) {
-      console.error('Error:', error);
       setErrorMessage(error.message || 'An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

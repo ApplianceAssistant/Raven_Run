@@ -2,8 +2,8 @@
 header('Content-Type: application/json');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-//only allow post requests from the same origin
 header('Access-Control-Allow-Origin: https://crowtours.com');
+
 function handleError($errno, $errstr, $errfile, $errline)
 {
     $error = array(
@@ -28,6 +28,10 @@ try {
     function checkUnique($field, $value)
     {
         global $conn;
+        $allowedFields = ['username', 'email', 'phone']; // Add all allowed fields here
+        if (!in_array($field, $allowedFields)) {
+            throw new Exception("Invalid field for uniqueness check");
+        }
         $stmt = $conn->prepare("SELECT id FROM users WHERE $field = ?");
         $stmt->bind_param("s", $value);
         $stmt->execute();
@@ -39,17 +43,16 @@ try {
     {
         global $conn;
 
-        $username = $conn->real_escape_string($userData['username']);
-        $encryptedEmail = encryptData($conn->real_escape_string($userData['email']));
-        $encryptedPhone = encryptData($conn->real_escape_string($userData['phone']));
+        $username = $userData['username'];
+        $encryptedEmail = encryptData($userData['email']);
+        $encryptedPhone = encryptData($userData['phone']);
         $password = isset($userData['password']) ? hashPassword($userData['password']) : null;
-        $firstName = $conn->real_escape_string($userData['first_name']);
-        $lastName = $conn->real_escape_string($userData['last_name']);
+        $firstName = $userData['first_name'];
+        $lastName = $userData['last_name'];
         $profilePictureUrl = $userData['profile_picture_url'] ?? null;
 
         if (isset($userData['profile_picture_url'])) {
             if (strpos($userData['profile_picture_url'], 'data:image') === 0) {
-                // This is a new image upload
                 $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $userData['profile_picture_url']));
                 $newProfilePictureUrl = saveProfileImage($userData['id'], $imageData);
                 if ($newProfilePictureUrl) {
@@ -57,23 +60,18 @@ try {
                 } else {
                     error_log("Failed to save new profile image for user " . $userData['id']);
                     handleError(500, $userData, __FILE__, __LINE__);
-                    // Keep the existing profile picture URL if saving fails
                 }
             } else {
-                 // If it's not a data URL, assume it's an existing URL and use it as is
                 $profilePictureUrl = $userData['profile_picture_url'];
             }
         } else {
             echo json_encode(['error' => 'No profile picture URL provided', 'userData' => $userData]);
-            //handleError(500, $userData, __FILE__, __LINE__);
         }
 
         if (isset($userData['id'])) {
-            // Update existing user
             $stmt = $conn->prepare("UPDATE users SET username = ?, email = ?, phone = ?, first_name = ?, last_name = ?, profile_picture_url = ? WHERE id = ?");
             $stmt->bind_param("ssssssi", $username, $encryptedEmail, $encryptedPhone, $firstName, $lastName, $profilePictureUrl, $userData['id']);
         } else {
-            // Create new user
             $stmt = $conn->prepare("INSERT INTO users (username, email, phone, password, first_name, last_name, profile_picture_url) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("sssssss", $username, $encryptedEmail, $encryptedPhone, $password, $firstName, $lastName, $profilePictureUrl);
         }
@@ -169,7 +167,12 @@ try {
                     $isUnique = checkUnique($field, $value);
                     echo json_encode(['isUnique' => $isUnique]);
                 } else if ($action === 'get' && isset($_GET['id'])) {
-                    $userId = $conn->real_escape_string($_GET['id']);
+                    $userId = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+                    if ($userId === false) {
+                        http_response_code(400);
+                        echo json_encode(['error' => 'Invalid user ID']);
+                        exit;
+                    }
                     $userData = getUserData($userId);
                     if ($userData) {
                         echo json_encode($userData);
@@ -189,8 +192,8 @@ try {
                 $action = isset($data['action']) ? $data['action'] : null;
             }
             if ($action === 'create') {
-                $username = $conn->real_escape_string($data['username']);
-                $email = encryptData($conn->real_escape_string($data['email']));
+                $username = $data['username'];
+                $email = encryptData($data['email']);
                 $password = hashPassword($data['password']);
 
                 $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
@@ -205,7 +208,6 @@ try {
 
                 if ($stmt->execute()) {
                     $id = $conn->insert_id;
-                    // Create user-specific profile image directory
                     $userImageDir = $_SERVER['DOCUMENT_ROOT'] . '/images/profile_images/' . $id . '/';
                     if (!file_exists($userImageDir)) {
                         mkdir($userImageDir, 0755, true);
@@ -216,7 +218,7 @@ try {
                 }
                 $stmt->close();
             } elseif ($action === 'login') {
-                $username = $conn->real_escape_string($data['username']);
+                $username = $data['username'];
                 $password = $data['password'];
 
                 $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
@@ -239,14 +241,19 @@ try {
                 }
                 $stmt->close();
             } elseif ($action === 'update') {
-                $userId = $conn->real_escape_string($data['id']);
+                $userId = filter_var($data['id'], FILTER_VALIDATE_INT);
+                if ($userId === false) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Invalid user ID']);
+                    exit;
+                }
                 $userData = $data;
 
                 $result = createOrUpdateUser($userData);
                 if ($result) {
                     $updatedUser = getUserData($userId);
                     if ($updatedUser) {
-                        echo json_encode(['success' => true, 'user' => $updatedUser, 'message' => 'Profile updated successfully', 'POST' => $_POST, 'result' => $result]);
+                        echo json_encode(['success' => true, 'user' => $updatedUser, 'message' => 'Profile updated successfully']);
                     } else {
                         echo json_encode(['success' => false, 'error' => 'Failed to retrieve updated user data']);
                     }
@@ -258,10 +265,15 @@ try {
 
         case 'PUT':
             if (isset($_GET['id'])) {
-                $id = $conn->real_escape_string($_GET['id']);
+                $id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+                if ($id === false) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Invalid user ID']);
+                    exit;
+                }
                 $data = json_decode(file_get_contents('php://input'), true);
-                $username = $conn->real_escape_string($data['username']);
-                $email = $conn->real_escape_string($data['email']);
+                $username = $data['username'];
+                $email = $data['email'];
 
                 $stmt = $conn->prepare("UPDATE users SET username = ?, email = ? WHERE id = ?");
                 $stmt->bind_param("ssi", $username, $email, $id);
@@ -278,7 +290,12 @@ try {
 
         case 'DELETE':
             if (isset($_GET['id'])) {
-                $id = $conn->real_escape_string($_GET['id']);
+                $id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+                if ($id === false) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Invalid user ID']);
+                    exit;
+                }
                 $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
                 $stmt->bind_param("i", $id);
 
