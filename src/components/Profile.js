@@ -244,7 +244,7 @@ function Profile() {
               Save Changes
             </button>
           </div>
-          <ScrollableContent maxHeight="60vh">
+          <ScrollableContent maxHeight="50vh">
             {Object.entries(profileData).map(([key, value]) => {
               // Skip certain keys
               if (!skipKeys.includes(key)) {
