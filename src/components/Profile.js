@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useContext, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../App';
 import { API_URL } from '../utils/utils';
 import ScrollableContent from './ScrollableContent';
-import ReactCrop from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
 import '../css/Profile.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEdit } from '@fortawesome/free-solid-svg-icons';
@@ -27,10 +25,7 @@ function Profile() {
   const [success, setSuccess] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
-  const [crop, setCrop] = useState({ unit: 'px', width: CROP_SIZE, height: CROP_SIZE, x: 0, y: 0 });
-  const [croppedImageUrl, setCroppedImageUrl] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
 
   const fieldNameMapping = {
     username: 'Username',
@@ -40,6 +35,7 @@ function Profile() {
     last_name: 'Last Name',
     profile_picture_url: 'Profile Picture'
   };
+
   useEffect(() => {
     if (user) {
       fetchUserData();
@@ -48,19 +44,16 @@ function Profile() {
 
   useEffect(() => {
     const hasDataChanges = Object.keys(profileData).some(key => {
-      // Handle potential nested objects or arrays
       return JSON.stringify(profileData[key]) !== JSON.stringify(originalData[key]);
     });
-    setHasChanges(hasDataChanges || croppedImageUrl !== null);
-  }, [profileData, originalData, croppedImageUrl]);
+    setHasChanges(hasDataChanges || imagePreview !== originalData.profile_picture_url);
+  }, [profileData, originalData, imagePreview]);
 
   const fetchUserData = async () => {
-    console.warn("fetch user data for user", user)
     try {
       const response = await fetch(`${API_URL}/users.php?action=get&id=${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       const userData = await response.json();
-      console.warn("userData", userData)
       setProfileData(userData);
       setOriginalData(userData);
       setImagePreview(userData.profile_picture_url);
@@ -82,59 +75,34 @@ function Profile() {
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
-        setIsEditing(true);
+        cropAndCenterImage(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const onImageLoaded = useCallback((img) => {
-    const aspect = 1;
-    const width = CROP_SIZE;
-    const height = CROP_SIZE;
-    const x = (img.width - width) / 2;
-    const y = (img.height - height) / 2;
-    setCrop({ unit: 'px', width, height, x, y });
-  }, []);
+  const cropAndCenterImage = (imageDataUrl) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = CROP_SIZE;
+      canvas.height = CROP_SIZE;
 
-  const getCroppedImg = (image, crop) => {
-    const canvas = document.createElement('canvas');
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    canvas.width = CROP_SIZE;
-    canvas.height = CROP_SIZE;
-    const ctx = canvas.getContext('2d');
+      const size = Math.min(img.width, img.height);
+      const x = (img.width - size) / 2;
+      const y = (img.height - size) / 2;
 
-    ctx.drawImage(
-      image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      CROP_SIZE,
-      CROP_SIZE
-    );
-
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          console.error('Canvas is empty');
-          return;
-        }
-        blob.name = 'cropped.jpg';
-        const croppedImageUrl = URL.createObjectURL(blob);
-        resolve(croppedImageUrl);
-      }, 'image/jpeg');
-    });
+      ctx.drawImage(img, x, y, size, size, 0, 0, CROP_SIZE, CROP_SIZE);
+      
+      const croppedImageDataUrl = canvas.toDataURL('image/jpeg');
+      setImagePreview(croppedImageDataUrl);
+    };
+    img.src = imageDataUrl;
   };
 
   const handleImageClick = () => {
-    console.log("handleImageClick")
     fileInputRef.current.click();
-    setIsEditing(true)
   };
 
   const handleSubmit = async (e) => {
@@ -148,8 +116,8 @@ function Profile() {
     try {
       const formData = new FormData();
       for (const [key, value] of Object.entries(profileData)) {
-        if (key === 'profile_picture_url' && croppedImageUrl) {
-          const response = await fetch(croppedImageUrl);
+        if (key === 'profile_picture_url' && imagePreview !== originalData.profile_picture_url) {
+          const response = await fetch(imagePreview);
           const blob = await response.blob();
           formData.append(key, blob, 'profile_picture.jpg');
         } else {
@@ -176,7 +144,7 @@ function Profile() {
             setSuccess('Profile updated successfully');
             login(result.user);
             setOriginalData(profileData);
-            setCroppedImageUrl(null);
+            setImagePreview(result.user.profile_picture_url);
           } else {
             setError(result.message || 'Failed to update profile');
           }
@@ -196,19 +164,21 @@ function Profile() {
       setUploadProgress(0);
     }
   };
+
   const skipKeys = ['profile_picture_url', 'id', 'created_at', 'updated_at', 'password', 'total_points'];
+
   return (
     <div className="content-wrapper">
       <div className="content center">
         <div className="message-display">
-        {error && <p className="error-message">{error}</p>}
-        {success && <p className="success-message">{success}</p>}
-        {uploadProgress > 0 && (
-          <div className="upload-progress">
-            <progress value={uploadProgress} max="100" />
-            <span>{uploadProgress}% Uploaded</span>
-          </div>
-        )}
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
+          {uploadProgress > 0 && (
+            <div className="upload-progress">
+              <progress value={uploadProgress} max="100" />
+              <span>{uploadProgress}% Uploaded</span>
+            </div>
+          )}
         </div>
         <form onSubmit={handleSubmit} className="profile-form">
           <div className="profile-image-container">
@@ -246,7 +216,6 @@ function Profile() {
           </div>
           <ScrollableContent maxHeight="50vh">
             {Object.entries(profileData).map(([key, value]) => {
-              // Skip certain keys
               if (!skipKeys.includes(key)) {
                 return (
                   <div key={key} className="profile-field">
@@ -266,7 +235,6 @@ function Profile() {
             })}
           </ScrollableContent>
         </form>
-
       </div>
     </div>
   );
