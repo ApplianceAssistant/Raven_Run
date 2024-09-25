@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 //only allow post requests from the same origin
-header('Access-Control-Allow-Origin: http://localhost:3000');
+//header('Access-Control-Allow-Origin: https://crowtours.com');
 function handleError($errno, $errstr, $errfile, $errline)
 {
     $error = array(
@@ -118,7 +118,7 @@ try {
                     $isUnique = checkUnique($field, $value);
                     echo json_encode(['isUnique' => $isUnique]);
                 } else if ($action === 'get' && isset($_GET['id'])) {
-                    $id = $conn->real_escape_string($_GET['id']);
+                    $userId = $conn->real_escape_string($_GET['id']);
                     $userData = getUserData($userId);
                     if ($userData) {
                         echo json_encode($userData);
