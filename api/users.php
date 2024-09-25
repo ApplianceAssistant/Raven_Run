@@ -12,7 +12,7 @@ function handleError($errno, $errstr, $errfile, $errline)
         'line' => $errline
     );
     error_log(json_encode($error));
-    echo json_encode(array('error' => 'An internal error occurred:' . $errstr));
+    echo json_encode(array('error' => 'An internal error occurred:' . $errstr . "errline: " . $errline));
     exit;
 }
 
@@ -109,7 +109,7 @@ try {
     function cleanupOldProfileImages($userId, $uploadDir)
     {
         $files = glob($uploadDir . '*.jpg');
-        usort($files, function($a, $b) {
+        usort($files, function ($a, $b) {
             return filemtime($b) - filemtime($a);
         });
 
@@ -145,10 +145,12 @@ try {
             break;
 
         case 'POST':
-            $data = json_decode(file_get_contents('php://input'), true);
-            $action = $data['action'];
-            echo json_encode(['success' => false, 'data' => $data, 'action' => $action]);
-            die;
+            $data = $_POST ?? null;
+            $action = isset($_POST['action']) ? $_POST['action'] : null;
+            if (!$action) {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $action = isset($data['action']) ? $data['action'] : null;
+            }
             if ($action === 'create') {
                 $username = $conn->real_escape_string($data['username']);
                 $email = encryptData($conn->real_escape_string($data['email']));
@@ -203,7 +205,7 @@ try {
                 echo json_encode($data);
                 $userId = $conn->real_escape_string($data['id']);
                 $userData = $data;
-                
+
                 if (isset($_FILES['profile_picture_url'])) {
                     $imageData = file_get_contents($_FILES['profile_picture_url']['tmp_name']);
                     $profilePictureUrl = saveProfileImage($userId, $imageData);
@@ -263,4 +265,3 @@ try {
     echo json_encode(array('error' => 'An unexpected error occurred'));
 }
 $conn->close();
-?>
