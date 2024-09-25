@@ -1,16 +1,19 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import { AuthContext } from '../App';
 import { API_URL } from '../utils/utils';
 import ScrollableContent from './ScrollableContent';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import '../css/Profile.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faEdit } from '@fortawesome/free-solid-svg-icons';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const CROP_SIZE = 200; // Fixed size for crop box
 
 function Profile() {
   const { user, login } = useContext(AuthContext);
+  const fileInputRef = useRef(null);
   const [profileData, setProfileData] = useState({
     username: '',
     email: '',
@@ -27,6 +30,7 @@ function Profile() {
   const [crop, setCrop] = useState({ unit: 'px', width: CROP_SIZE, height: CROP_SIZE, x: 0, y: 0 });
   const [croppedImageUrl, setCroppedImageUrl] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const fieldNameMapping = {
     username: 'Username',
@@ -77,6 +81,7 @@ function Profile() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
+        setIsEditing(true);
       };
       reader.readAsDataURL(file);
     }
@@ -124,14 +129,10 @@ function Profile() {
     });
   };
 
-  const handleCropComplete = async (crop) => {
-    if (imagePreview && crop.width && crop.height) {
-      const croppedImageUrl = await getCroppedImg(
-        document.getElementById('source-image'),
-        crop
-      );
-      setCroppedImageUrl(croppedImageUrl);
-    }
+  const handleImageClick = () => {
+    console.log("handleImageClick")
+    fileInputRef.current.click();
+    setIsEditing(true)
   };
 
   const handleSubmit = async (e) => {
@@ -205,6 +206,29 @@ function Profile() {
             <span>{uploadProgress}% Uploaded</span>
           </div>
         )}
+        <div className="profile-image-container">
+          {imagePreview ? (
+            <div className="profile-image">
+              <img src={imagePreview} alt="Profile" />
+              <span className="edit-image-button" onClick={handleImageClick}>
+                <FontAwesomeIcon icon={faEdit} />
+              </span>
+            </div>
+          ) : (
+            <div className="profile-image-placeholder" onClick={handleImageClick}>
+              <FontAwesomeIcon icon={faUser} size="3x" />
+              <p>Your profile photo here</p>
+            </div>
+          )}
+        </div>
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageChange}
+          accept="image/*"
+          style={{ display: 'none' }}
+        />
         <div className="profile-buttons">
           <button 
             type="submit" 
@@ -216,31 +240,9 @@ function Profile() {
           </button>
         </div>
         
-        <ScrollableContent maxHeight="70vh">
+        
           <form onSubmit={handleSubmit} className="profile-form">
-            <div className="profile-image-upload profile-field">
-              <label htmlFor="profile_picture_url">Profile Picture:</label>
-              {imagePreview && (
-                <ReactCrop
-                  src={imagePreview}
-                  crop={crop}
-                  onChange={(newCrop) => setCrop(newCrop)}
-                  onComplete={handleCropComplete}
-                  onImageLoaded={onImageLoaded}
-                  keepSelection
-                  aspect={1}
-                >
-                  <img id="source-image" src={imagePreview} alt="Profile Preview" />
-                </ReactCrop>
-              )}
-              <input
-                type="file"
-                id="profile_picture_url"
-                name="profile_picture_url"
-                onChange={handleImageChange}
-                accept="image/*"
-              />
-            </div>
+          <ScrollableContent maxHeight="70vh">
             {Object.entries(profileData).map(([key, value]) => {
               if (key !== 'profile_picture_url') {
                 return (
@@ -259,8 +261,9 @@ function Profile() {
               }
               return null;
             })}
+            </ScrollableContent>
           </form>
-        </ScrollableContent>
+        
       </div>
     </div>
   );

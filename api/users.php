@@ -38,7 +38,7 @@ try {
     function createOrUpdateUser($userData)
     {
         global $conn;
-        
+
         $username = $conn->real_escape_string($userData['username']);
         $encryptedEmail = encryptData($conn->real_escape_string($userData['email']));
         $encryptedPhone = encryptData($conn->real_escape_string($userData['phone']));
@@ -46,6 +46,11 @@ try {
         $firstName = $conn->real_escape_string($userData['first_name']);
         $lastName = $conn->real_escape_string($userData['last_name']);
         $profilePictureUrl = $conn->real_escape_string($userData['profile_picture_url']);
+
+        if (isset($userData['profile_picture_url'])) {
+            $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $userData['profile_picture_url']));
+            $profilePictureUrl = saveProfileImage($userData['id'], $imageData);
+        }
 
         if (isset($userData['id'])) {
             // Update existing user
@@ -56,7 +61,7 @@ try {
             $stmt = $conn->prepare("INSERT INTO users (username, email, phone, password, first_name, last_name, profile_picture_url) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("sssssss", $username, $encryptedEmail, $encryptedPhone, $password, $firstName, $lastName, $profilePictureUrl);
         }
-        
+
         if ($stmt->execute()) {
             return $stmt->insert_id ?: $userData['id'];
         } else {
@@ -67,20 +72,37 @@ try {
     function getUserData($userId)
     {
         global $conn;
-        
+
         $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
         $stmt->bind_param("i", $userId);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         if ($user = $result->fetch_assoc()) {
             $user['email'] = decryptData($user['email']);
             $user['phone'] = $user['phone'] ? decryptData($user['phone']) : null;
             unset($user['password']); // Don't send the password hash
             return $user;
         }
-        
+
         return null;
+    }
+
+    function saveProfileImage($userId, $imageData)
+    {
+        $uploadDir = $_SERVER['DOCUMENT_ROOT'] . '/images/profile_images/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $filename = $userId . '_' . time() . '.jpg';
+        $filePath = $uploadDir . $filename;
+
+        if (file_put_contents($filePath, $imageData)) {
+            return '/images/profile_images/' . $filename;
+        }
+
+        return false;
     }
 
     switch ($method) {
