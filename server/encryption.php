@@ -23,22 +23,24 @@ if (!is_array($mainConfig)) {
 
 function encryptData($data) {
     global $mainConfig;
-    $cipher = "aes-256-cbc";
+    $cipher = "aes-256-gcm";
     $ivlen = openssl_cipher_iv_length($cipher);
     $iv = openssl_random_pseudo_bytes($ivlen);
-    $encrypted = openssl_encrypt($data, $cipher, $mainConfig['ENCRYPTION_KEY'], 0, $iv, $tag);
+    $tag = "";
+    $encrypted = openssl_encrypt($data, $cipher, $mainConfig['ENCRYPTION_KEY'], OPENSSL_RAW_DATA, $iv, $tag);
     return base64_encode($iv . $encrypted . $tag);
 }
 
 function decryptData($encryptedData) {
     global $mainConfig;
-    $cipher = "aes-256-cbc";
+    $cipher = "aes-256-gcm";
     $data = base64_decode($encryptedData);
     $ivlen = openssl_cipher_iv_length($cipher);
     $iv = substr($data, 0, $ivlen);
-    $tag = substr($data, -16);
-    $encrypted = substr($data, $ivlen, -16);
-    return openssl_decrypt($encrypted, $cipher, $mainConfig['ENCRYPTION_KEY'], 0, $iv, $tag);
+    $taglen = 16; // GCM tag length is always 16 bytes
+    $tag = substr($data, -$taglen);
+    $encrypted = substr($data, $ivlen, -$taglen);
+    return openssl_decrypt($encrypted, $cipher, $mainConfig['ENCRYPTION_KEY'], OPENSSL_RAW_DATA, $iv, $tag);
 }
 
 function hashPassword($password) {

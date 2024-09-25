@@ -196,6 +196,7 @@ function Profile() {
       setUploadProgress(0);
     }
   };
+  const skipKeys = ['profile_picture_url', 'id', 'created_at', 'updated_at', 'password', 'total_points'];
   return (
     <div className="content-wrapper">
       <div className="content center">
@@ -243,9 +244,10 @@ function Profile() {
               Save Changes
             </button>
           </div>
-          <ScrollableContent maxHeight="70vh">
+          <ScrollableContent maxHeight="60vh">
             {Object.entries(profileData).map(([key, value]) => {
-              if (key !== 'profile_picture_url') {
+              // Skip certain keys
+              if (!skipKeys.includes(key)) {
                 return (
                   <div key={key} className="profile-field">
                     <label htmlFor={key}>{fieldNameMapping[key] || key}:</label>
