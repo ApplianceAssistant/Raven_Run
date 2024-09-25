@@ -66,7 +66,7 @@ function BackgroundController() {
   useEffect(() => {
     const movingBackground = document.querySelector('.moving-background');
     if (movingBackground) {
-      const noBackgroundPages = ['/profile', '/settings', '/friends'];
+      const noBackgroundPages = ['/profile', '/settings', '/friends', '/create-profile', '/log-in', '/create'];
       const shouldShowBackground = !noBackgroundPages.includes(location.pathname);
       movingBackground.classList.toggle('with-background', shouldShowBackground);
     }
