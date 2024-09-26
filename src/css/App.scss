@@ -309,7 +309,6 @@ button {
   }
 
   &:disabled {
-    opacity: 0.6;
     box-shadow: none;
   }
 }
@@ -409,6 +408,10 @@ form {
       outline: none;
       box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
     }
+  }
+  textarea, text {
+    width: 90vw;
+    max-width: 500px;
   }
   
 

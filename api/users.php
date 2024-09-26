@@ -75,9 +75,18 @@ try {
             $stmt = $conn->prepare("INSERT INTO users (username, email, phone, password, first_name, last_name, profile_picture_url) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("sssssss", $username, $encryptedEmail, $encryptedPhone, $password, $firstName, $lastName, $profilePictureUrl);
         }
-    
+
         if ($stmt->execute()) {
-            return $stmt->insert_id ?: $userData['id'];
+            $newUserId = $stmt->insert_id;
+            if ($newUserId) {
+                // Add user.id 1 as a friend
+                $friendStmt = $conn->prepare("INSERT INTO friend_relationships (user_id, friend_id) VALUES (?, 1), (1, ?)");
+                $friendStmt->bind_param("ii", $newUserId, $newUserId);
+                $friendStmt->execute();
+                return $newUserId;
+            } else {
+                return $userData['id'];
+            }
         } else {
             error_log("Failed to create or update user: " . $stmt->error);
             return false;
