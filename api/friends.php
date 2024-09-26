@@ -28,7 +28,7 @@ function searchUsers($query) {
 
 function getFriends($userId) {
     global $conn;
-    $stmt = $conn->prepare("SELECT u.id, u.username FROM users u 
+    $stmt = $conn->prepare("SELECT u.id, u.username, profile_picture_url FROM users u 
                             JOIN friend_relationships fr ON u.id = fr.friend_id 
                             WHERE fr.user_id = ?");
     $stmt->bind_param("i", $userId);

@@ -62,45 +62,6 @@
   }
 }
 
-.profile-image-container {
-  width: 200px;
-  height: 200px;
-  margin: 0 auto 20px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.profile-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-.profile-image-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: #f0f0f0;
-  cursor: pointer;
-  
-  p {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #666;
-  }
-}
-
 .edit-image-button {
   position: absolute;
   bottom: 30px;
