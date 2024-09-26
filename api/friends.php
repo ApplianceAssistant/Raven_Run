@@ -6,7 +6,14 @@ header('Access-Control-Allow-Origin: https://crowtours.com');
 
 require_once __DIR__ . '/../server/db_connection.php';
 require_once __DIR__ . '/../server/encryption.php';
+require_once 'auth.php';
 
+$user = authenticateUser();
+if (!$user) {
+    http_response_code(401);
+    echo json_encode(["error" => "Unauthorized"]);
+    exit;
+}
 $conn = getDbConnection();
 
 function searchUsers($query) {
@@ -21,7 +28,7 @@ function searchUsers($query) {
 
 function getFriends($userId) {
     global $conn;
-    $stmt = $conn->prepare("SELECT u.id, u.username FROM users u 
+    $stmt = $conn->prepare("SELECT u.id, u.username, profile_picture_url FROM users u 
                             JOIN friend_relationships fr ON u.id = fr.friend_id 
                             WHERE fr.user_id = ?");
     $stmt->bind_param("i", $userId);

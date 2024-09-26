@@ -3,6 +3,7 @@ import { AuthContext } from '../App';
 import { API_URL } from '../utils/utils';
 import ScrollableContent from './ScrollableContent';
 import '../css/Friends.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function Friends() {
     const { user } = useContext(AuthContext);
@@ -107,21 +108,21 @@ function Friends() {
 
     const removeFriend = async (friendId) => {
         try {
-          const response = await fetch(`${API_URL}/friends.php`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'remove_friend',
-              user_id: user.id,
-              friend_id: friendId
-            })
-          });
-          if (!response.ok) throw new Error('Failed to remove friend');
-          fetchFriends();
+            const response = await fetch(`${API_URL}/friends.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'remove_friend',
+                    user_id: user.id,
+                    friend_id: friendId
+                })
+            });
+            if (!response.ok) throw new Error('Failed to remove friend');
+            fetchFriends();
         } catch (error) {
-          setError('Failed to remove friend');
+            setError('Failed to remove friend');
         }
-      };
+    };
 
     return (
         <div className="content-wrapper">
@@ -165,6 +166,26 @@ function Friends() {
                             friends.map(friend => (
                                 <div key={friend.id} className="friend-item">
                                     {friend.username}
+                                    //display friend profile image
+                                    <div className="profile-image-container small">
+                                        {friend.profile_picture_url ? (
+                                            <div className="profile-image">
+                                                <img src={friend.profile_picture_url} alt="Profile" />
+                                            </div>
+                                        ) : (
+                                            <div className="profile-image-placeholder" onClick={handleImageClick}>
+                                                <FontAwesomeIcon icon={faUser} size="1x" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => removeFriend(friend.id)}
+                                        className="remove-button"
+                                        aria-label="Remove feedback"
+                                    >
+                                        <span className="remove-icon">×</span>
+                                    </button>
                                 </div>
                             ))
                         ) : (
