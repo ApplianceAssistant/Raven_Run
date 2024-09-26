@@ -1,5 +1,5 @@
 <?php
-require_once 'db_connect.php';
+require_once __DIR__ . '/../server/db_connection.php';
 
 function authenticateUser() {
     // Check if the Authorization header is present
