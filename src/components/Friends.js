@@ -88,6 +88,41 @@ function Friends() {
         }
     };
 
+    const ignoreFriendRequest = async (requestId) => {
+        try {
+            const response = await fetch(`${API_URL}/friends.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'ignore_friend_request',
+                    request_id: requestId
+                })
+            });
+            if (!response.ok) throw new Error('Failed to ignore friend request');
+            fetchFriendRequests();
+        } catch (error) {
+            setError('Failed to ignore friend request');
+        }
+    };
+
+    const removeFriend = async (friendId) => {
+        try {
+          const response = await fetch(`${API_URL}/friends.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'remove_friend',
+              user_id: user.id,
+              friend_id: friendId
+            })
+          });
+          if (!response.ok) throw new Error('Failed to remove friend');
+          fetchFriends();
+        } catch (error) {
+          setError('Failed to remove friend');
+        }
+      };
+
     return (
         <div className="content-wrapper">
             <div className="content">
