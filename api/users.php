@@ -20,6 +20,14 @@ set_error_handler('handleError');
 
 require_once __DIR__ . '/../server/db_connection.php';
 require_once __DIR__ . '/../server/encryption.php';
+require_once 'auth.php';
+
+$user = authenticateUser();
+if (!$user) {
+    http_response_code(401);
+    echo json_encode(["error" => "Unauthorized"]);
+    exit;
+}
 
 try {
     $method = $_SERVER['REQUEST_METHOD'];
