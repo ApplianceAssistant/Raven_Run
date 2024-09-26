@@ -166,14 +166,13 @@ function Friends() {
                             friends.map(friend => (
                                 <div key={friend.id} className="friend-item">
                                     {friend.username}
-                                    //display friend profile image
                                     <div className="profile-image-container small">
                                         {friend.profile_picture_url ? (
                                             <div className="profile-image">
                                                 <img src={friend.profile_picture_url} alt="Profile" />
                                             </div>
                                         ) : (
-                                            <div className="profile-image-placeholder" onClick={handleImageClick}>
+                                            <div className="profile-image-placeholder">
                                                 <FontAwesomeIcon icon={faUser} size="1x" />
                                             </div>
                                         )}

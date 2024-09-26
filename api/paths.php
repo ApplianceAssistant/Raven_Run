@@ -3,12 +3,12 @@ require_once 'db_connect.php';
 require_once 'auth.php';
 
 // Ensure the request is coming from an authenticated user
-$user = authenticateUser();
+/*$user = authenticateUser();
 if (!$user) {
     http_response_code(401);
     echo json_encode(["error" => "Unauthorized"]);
     exit;
-}
+}*/
 
 // Helper function to check if a user owns a path
 function userOwnPath($conn, $userId, $pathId) {

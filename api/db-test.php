@@ -2,14 +2,6 @@
 header('Content-Type: application/json');
 
 require_once('../server/db_connection.php');
-require_once 'auth.php';
-
-$user = authenticateUser();
-if (!$user) {
-    http_response_code(401);
-    echo json_encode(["error" => "Unauthorized"]);
-    exit;
-}
 
 try {
   $conn = getDbConnection();
