@@ -4,6 +4,7 @@ import { API_URL } from '../utils/utils';
 import ScrollableContent from './ScrollableContent';
 import '../css/Friends.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 function Friends() {
     const { user } = useContext(AuthContext);
