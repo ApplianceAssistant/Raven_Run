@@ -108,7 +108,7 @@ function CreateProfile() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/users.php`, {
+      const response = await fetch(`${API_URL}/logIn.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

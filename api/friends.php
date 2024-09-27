@@ -4,9 +4,10 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 header('Access-Control-Allow-Origin: https://crowtours.com');
 
-require_once __DIR__ . '/../server/db_connection.php';
-require_once __DIR__ . '/../server/encryption.php';
-require_once 'auth.php';
+require_once('errorHandler.php');
+require_once('../server/db_connection.php');
+require_once('../server/encryption.php');
+require_once('auth.php');
 
 /*$user = authenticateUser();
 if (!$user) {

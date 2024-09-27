@@ -4,23 +4,10 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 header('Access-Control-Allow-Origin: https://crowtours.com');
 
-function handleError($errno, $errstr, $errfile, $errline)
-{
-    $error = array(
-        'error' => $errstr,
-        'file' => $errfile,
-        'line' => $errline
-    );
-    error_log(json_encode($error));
-    echo json_encode(array('error' => 'An internal error occurred:' . $errstr . "errline: " . $errline));
-    exit;
-}
-
-set_error_handler('handleError');
-
-require_once __DIR__ . '/../server/db_connection.php';
-require_once __DIR__ . '/../server/encryption.php';
-require_once 'auth.php';
+require_once('errorHandler.php');
+require_once('../server/db_connection.php');
+require_once('/../server/encryption.php');
+require_once('auth.php');
 
 /*$user = authenticateUser();
 if (!$user) {
@@ -232,29 +219,6 @@ try {
                     echo json_encode(['success' => true, 'id' => $id, 'username' => $username, 'email' => $email, 'message' => 'User created successfully']);
                 } else {
                     echo json_encode(array('success' => false, 'message' => 'There was a problem creating your profile. Please try again.', 'error' => 'Error creating user', 'details' => $stmt->error));
-                }
-                $stmt->close();
-            } elseif ($action === 'login') {
-                $username = $data['username'];
-                $password = $data['password'];
-
-                $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
-                $stmt->bind_param("s", $username);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result->num_rows === 1) {
-                    $user = $result->fetch_assoc();
-                    if (verifyPassword($password, $user['password'])) {
-                        http_response_code(200);
-                        echo json_encode(['success' => true, 'id' => $user['id'], 'username' => $user['username'], 'message' => "Welcome back $username!"]);
-                    } else {
-                        http_response_code(401);
-                        echo json_encode(['success' => false, 'error' => 'Invalid credentials']);
-                    }
-                } else {
-                    http_response_code(401);
-                    echo json_encode(['success' => false, 'error' => 'Invalid credentials']);
                 }
                 $stmt->close();
             } elseif ($action === 'update') {
