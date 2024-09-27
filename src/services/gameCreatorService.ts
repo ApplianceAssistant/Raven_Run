@@ -49,6 +49,7 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
           game: gameWithPublic
         })
       });
+      console.warn("save game response", response);
       if (!response.ok) throw new Error('Failed to save game to server');
       
       // If save to server is successful, remove from local storage
