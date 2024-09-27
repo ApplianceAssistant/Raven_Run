@@ -61,7 +61,7 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
       
       if (!response.ok) throw new Error('Failed to save game to server');
       const responseText = await response.text();
-
+      console.warn("responseText:", responseText);
       let data;
       try {
         data = JSON.parse(responseText);
