@@ -87,6 +87,7 @@ switch ($method) {
     case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
         $action = $data['action'] ?? '';
+        echo json_encode(['POST' => $data, 'action' => $action, 'game' => $data['game']]);
 
         if ($action === 'save_game') {
             $game = $data['game'];
