@@ -60,7 +60,16 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
       });
       
       if (!response.ok) throw new Error('Failed to save game to server');
-      
+      const responseText = await response.text();
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        console.log("Data from server:", data);
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        throw new Error('Invalid JSON response from server');
+      }
       const result = await response.json();
       
       // Update the game with the server-generated ID
