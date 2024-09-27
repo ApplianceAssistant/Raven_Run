@@ -49,8 +49,9 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
           game: gameWithPublic
         })
       });
-      console.warn("save game response", response);
+      
       const responseText = await response.text();
+      console.warn("save game responseText", responseText);
       let data;
       try {
         data = JSON.parse(responseText);
