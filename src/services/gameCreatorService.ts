@@ -5,6 +5,7 @@ import { checkServerConnectivity, API_URL } from '../utils/utils.js';
 export namespace GameTypes {
   export interface Game {
     id: number;
+    server_id?: number;  // Server-generated ID
     name: string;
     description: string;
     challenges: Challenge[];
@@ -33,7 +34,7 @@ export const generateUniquePathId = (length: number = 12): string => {
 export const saveGame = async (game: GameTypes.Game): Promise<void> => {
   const gameWithPublic: GameTypes.Game = { 
     ...game, 
-    public: game.public ?? true,
+    public: game.public ?? false,
     pathId: game.pathId || generateUniquePathId()
   };
   
@@ -46,24 +47,29 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'save_game',
-          game: gameWithPublic
+          game: {
+            server_id: game.server_id, // Use server_id instead of id
+            local_id: game.id,         // Send the local ID for reference
+            title: gameWithPublic.name,
+            description: gameWithPublic.description,
+            is_public: gameWithPublic.public ? 1 : 0,
+            path_id: gameWithPublic.pathId,
+            challenges: JSON.stringify(gameWithPublic.challenges)
+          }
         })
       });
       
-      const responseText = await response.text();
-      console.warn("save game responseText", responseText);
-      let data;
-      try {
-        data = JSON.parse(responseText);
-        console.log("response data", data);
-      } catch (error) {
-        console.error('Error parsing JSON:', error);
-        throw new Error('Invalid JSON response from server');
-      }
       if (!response.ok) throw new Error('Failed to save game to server');
       
-      // If save to server is successful, remove from local storage
-      //deleteGameFromLocalStorage(gameWithPublic.id);
+      const result = await response.json();
+      
+      // Update the game with the server-generated ID
+      if (result.server_id) {
+        gameWithPublic.server_id = result.server_id;
+        // Update local storage with the new server_id
+        saveGameToLocalStorage(gameWithPublic);
+      }
+      
     } catch (error) {
       console.error("Failed to save game to server:", error);
       saveGameToLocalStorage(gameWithPublic);
