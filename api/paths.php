@@ -9,6 +9,7 @@ require_once('../server/db_connection.php');
 require_once('../server/encryption.php');
 require_once('auth.php');
 
+$conn = getDbConnection();
 // Ensure the request is coming from an authenticated user
 /*$user = authenticateUser();
 if (!$user) {
@@ -91,28 +92,76 @@ switch ($method) {
 
         if ($action === 'save_game') {
             $game = $data['game'];
-            if (isset($game['id'])) {
+            
+            // Debug output
+            error_log("Received game data: " . print_r($game, true));
+            
+            if (isset($game['server_id'])) {
                 // Update existing game
-                $stmt = $conn->prepare("UPDATE paths SET title = ?, description = ?, is_public = ?, path_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?");
-                $stmt->bind_param("ssissi", $game['title'], $game['description'], $game['is_public'], $game['path_id'], $game['id'], $user['id']);
+                $query = "UPDATE paths SET title = ?, description = ?, is_public = ?, path_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?";
+                error_log("Update query: $query");
+                $stmt = $conn->prepare($query);
+                
+                if ($stmt === false) {
+                    error_log("Prepare failed: " . $conn->error);
+                    http_response_code(500);
+                    echo json_encode(["error" => "Failed to prepare statement: " . $conn->error]);
+                    exit;
+                }
+                
+                $bindResult = $stmt->bind_param("ssissi", $game['title'], $game['description'], $game['is_public'], $game['path_id'], $game['server_id'], $user['id']);
             } else {
                 // Create new game
-                $stmt = $conn->prepare("INSERT INTO paths (user_id, title, description, is_public, path_id) VALUES (?, ?, ?, ?, ?)");
-                $stmt->bind_param("issis", $user['id'], $game['title'], $game['description'], $game['is_public'], $game['path_id']);
+                $query = "INSERT INTO paths (user_id, title, description, is_public, path_id) VALUES (?, ?, ?, ?, ?)";
+                error_log("Insert query: $query");
+                $stmt = $conn->prepare($query);
+                
+                if ($stmt === false) {
+                    error_log("Prepare failed: " . $conn->error);
+                    http_response_code(500);
+                    echo json_encode(["error" => "Failed to prepare statement: " . $conn->error]);
+                    exit;
+                }
+                
+                $bindResult = $stmt->bind_param("issis", $user['id'], $game['title'], $game['description'], $game['is_public'], $game['path_id']);
+            }
+            
+            if ($bindResult === false) {
+                error_log("Bind param failed: " . $stmt->error);
+                http_response_code(500);
+                echo json_encode(["error" => "Failed to bind parameters: " . $stmt->error]);
+                exit;
             }
 
             if ($stmt->execute()) {
-                $gameId = $game['id'] ?? $conn->insert_id;
+                $server_id = $game['server_id'] ?? $conn->insert_id;
+                
+                // Save challenges (assuming you have a challenges table)
+                if (isset($game['challenges'])) {
+                    $challengeQuery = "INSERT INTO challenges (path_id, challenge_data) VALUES (?, ?) ON DUPLICATE KEY UPDATE challenge_data = VALUES(challenge_data)";
+                    $challengeStmt = $conn->prepare($challengeQuery);
+                    
+                    if ($challengeStmt === false) {
+                        error_log("Prepare failed for challenges: " . $conn->error);
+                        http_response_code(500);
+                        echo json_encode(["error" => "Failed to prepare statement for challenges: " . $conn->error]);
+                        exit;
+                    }
+                    
+                    $challengesJson = $game['challenges'];  // It's already a JSON string
+                    $challengeStmt->bind_param("is", $server_id, $challengesJson);
+                    $challengeStmt->execute();
+                }
 
-                // Save challenges
-                $challengeStmt = $conn->prepare("INSERT INTO challenges (path_id, challenge_data) VALUES (?, ?) ON DUPLICATE KEY UPDATE challenge_data = VALUES(challenge_data)");
-                $challengeStmt->bind_param("is", $gameId, $game['challenges']);
-                $challengeStmt->execute();
-
-                echo json_encode(["id" => $gameId, "message" => "Game saved successfully"]);
+                echo json_encode([
+                    "server_id" => $server_id, 
+                    "local_id" => $game['local_id'],
+                    "message" => "Game saved successfully"
+                ]);
             } else {
+                error_log("Execute failed: " . $stmt->error);
                 http_response_code(500);
-                echo json_encode(["error" => "Failed to save game"]);
+                echo json_encode(["error" => "Failed to save game: " . $stmt->error]);
             }
         } elseif ($action === 'delete_game') {
             if (isset($_GET['id'])) {
