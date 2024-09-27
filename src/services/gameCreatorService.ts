@@ -33,7 +33,7 @@ export const generateUniquePathId = (length: number = 12): string => {
 export const saveGame = async (game: GameTypes.Game): Promise<void> => {
   const gameWithPublic: GameTypes.Game = { 
     ...game, 
-    public: game.public ?? false,
+    public: game.public ?? true,
     pathId: game.pathId || generateUniquePathId()
   };
   
@@ -52,7 +52,7 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
       if (!response.ok) throw new Error('Failed to save game to server');
       
       // If save to server is successful, remove from local storage
-      deleteGameFromLocalStorage(gameWithPublic.id);
+      //deleteGameFromLocalStorage(gameWithPublic.id);
     } catch (error) {
       console.error("Failed to save game to server:", error);
       saveGameToLocalStorage(gameWithPublic);
@@ -85,7 +85,7 @@ export const deleteGame = async (gameId: number): Promise<void> => {
     }
   } else {
     // If offline, just remove from local storage
-    deleteGameFromLocalStorage(gameId);
+    console.error("Failed to delete game from server: Server is unreachable");
   }
 };
 

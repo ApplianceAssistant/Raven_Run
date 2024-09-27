@@ -1,6 +1,13 @@
 <?php
-require_once 'db_connect.php';
-require_once 'auth.php';
+header('Content-Type: application/json');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+header('Access-Control-Allow-Origin: https://crowtours.com');
+
+require_once('errorHandler.php');
+require_once('../server/db_connection.php');
+require_once('../server/encryption.php');
+require_once('auth.php');
 
 // Ensure the request is coming from an authenticated user
 /*$user = authenticateUser();
@@ -11,7 +18,8 @@ if (!$user) {
 }*/
 
 // Helper function to check if a user owns a path
-function userOwnPath($conn, $userId, $pathId) {
+function userOwnPath($conn, $userId, $pathId)
+{
     $stmt = $conn->prepare("SELECT user_id FROM paths WHERE id = ?");
     $stmt->bind_param("i", $pathId);
     $stmt->execute();
@@ -28,7 +36,28 @@ $action = $_GET['action'] ?? '';
 
 switch ($method) {
     case 'GET':
-        if ($action === 'list') {
+        if ($action === 'get_games') {
+            // Get all games for the authenticated user
+            $stmt = $conn->prepare("SELECT id, name, description, data, is_public, path_id FROM paths WHERE user_id = ?");
+            $stmt->bind_param("i", $user['id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $games = $result->fetch_all(MYSQLI_ASSOC);
+
+            // Convert the games to the expected format
+            $formattedGames = array_map(function ($game) {
+                return [
+                    'id' => $game['id'],
+                    'name' => $game['name'],
+                    'description' => $game['description'],
+                    'challenges' => json_decode($game['data'], true)['challenges'] ?? [],
+                    'public' => (bool)$game['is_public'],
+                    'pathId' => $game['path_id']
+                ];
+            }, $games);
+
+            echo json_encode($formattedGames);
+        } elseif ($action === 'list') {
             // List user's paths
             $stmt = $conn->prepare("SELECT id, name, description, data, is_public FROM paths WHERE user_id = ?");
             $stmt->bind_param("i", $user['id']);
@@ -56,16 +85,58 @@ switch ($method) {
         break;
 
     case 'POST':
-        // Create a new path
         $data = json_decode(file_get_contents('php://input'), true);
-        $stmt = $conn->prepare("INSERT INTO paths (user_id, name, description, data, is_public) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("isssi", $user['id'], $data['name'], $data['description'], $data['data'], $data['is_public']);
-        if ($stmt->execute()) {
-            $newId = $conn->insert_id;
-            echo json_encode(["id" => $newId, "message" => "Path created successfully"]);
+        $action = $data['action'] ?? '';
+
+        if ($action === 'save_game') {
+            $game = $data['game'];
+            if (isset($game['id'])) {
+                // Update existing game
+                $stmt = $conn->prepare("UPDATE paths SET title = ?, description = ?, is_public = ?, path_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?");
+                $stmt->bind_param("ssissi", $game['title'], $game['description'], $game['is_public'], $game['path_id'], $game['id'], $user['id']);
+            } else {
+                // Create new game
+                $stmt = $conn->prepare("INSERT INTO paths (user_id, title, description, is_public, path_id) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("issis", $user['id'], $game['title'], $game['description'], $game['is_public'], $game['path_id']);
+            }
+
+            if ($stmt->execute()) {
+                $gameId = $game['id'] ?? $conn->insert_id;
+
+                // Save challenges
+                $challengeStmt = $conn->prepare("INSERT INTO challenges (path_id, challenge_data) VALUES (?, ?) ON DUPLICATE KEY UPDATE challenge_data = VALUES(challenge_data)");
+                $challengeStmt->bind_param("is", $gameId, $game['challenges']);
+                $challengeStmt->execute();
+
+                echo json_encode(["id" => $gameId, "message" => "Game saved successfully"]);
+            } else {
+                http_response_code(500);
+                echo json_encode(["error" => "Failed to save game"]);
+            }
+        } elseif ($action === 'delete_game') {
+            if (isset($_GET['id'])) {
+                $pathId = $_GET['id'];
+                if (userOwnPath($conn, $user['id'], $pathId)) {
+                    $stmt = $conn->prepare("DELETE FROM paths WHERE id = ?");
+                    $stmt->bind_param("i", $pathId);
+                    if ($stmt->execute()) {
+                        echo json_encode(["message" => "Path deleted successfully"]);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(["error" => "Failed to delete path"]);
+                    }
+                } else {
+                    http_response_code(403);
+                    echo json_encode(["error" => "You don't have permission to delete this path"]);
+                }
+            } else {
+                http_response_code(400);
+                echo json_encode(["error" => "Path ID is required"]);
+            }
+            break;
         } else {
-            http_response_code(500);
-            echo json_encode(["error" => "Failed to create path"]);
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid action"]);
         }
         break;
 
@@ -93,29 +164,6 @@ switch ($method) {
         }
         break;
 
-    case 'DELETE':
-        // Delete a path
-        if (isset($_GET['id'])) {
-            $pathId = $_GET['id'];
-            if (userOwnPath($conn, $user['id'], $pathId)) {
-                $stmt = $conn->prepare("DELETE FROM paths WHERE id = ?");
-                $stmt->bind_param("i", $pathId);
-                if ($stmt->execute()) {
-                    echo json_encode(["message" => "Path deleted successfully"]);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(["error" => "Failed to delete path"]);
-                }
-            } else {
-                http_response_code(403);
-                echo json_encode(["error" => "You don't have permission to delete this path"]);
-            }
-        } else {
-            http_response_code(400);
-            echo json_encode(["error" => "Path ID is required"]);
-        }
-        break;
-
     default:
         http_response_code(405);
         echo json_encode(["error" => "Method not allowed"]);
@@ -123,4 +171,3 @@ switch ($method) {
 }
 
 $conn->close();
-?>
