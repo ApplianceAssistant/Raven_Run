@@ -159,9 +159,6 @@ try {
                 if ($action === 'check_unique') {
                     $field = $_GET['field'];
                     $value = $_GET['value'];
-                    if ($field === 'email') {
-                        $value = encryptData($value);
-                    }
                     $isUnique = checkUnique($field, $value);
                     echo json_encode(['isUnique' => $isUnique]);
                 } else if ($action === 'get' && isset($_GET['id'])) {
