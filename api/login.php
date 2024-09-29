@@ -27,9 +27,9 @@ try {
         
         if ($action === 'login') {
             $email = $data['email'] ?? '';
-            $password = $data['password'] ?? '';
+            $hashedPassword = $data['password'] ?? '';
 
-            if (empty($email) || empty($password)) {
+            if (empty($email) || empty($hashedPassword)) {
                 handleBadRequestError("Email and password are required");
             }
 
@@ -40,7 +40,7 @@ try {
 
             if ($result->num_rows === 1) {
                 $user = $result->fetch_assoc();
-                if (password_verify($password, $user['password'])) {
+                if (hash_equals($hashedPassword, hash('sha256', $user['password']))) {
                     $token = generateAuthToken($user['id']);
                     http_response_code(200);
                     echo json_encode([

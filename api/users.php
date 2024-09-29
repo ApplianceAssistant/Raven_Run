@@ -19,7 +19,7 @@ try {
     function checkUnique($field, $value)
     {
         global $conn;
-        $allowedFields = ['username', 'email', 'phone']; // Add all allowed fields here
+        $allowedFields = ['username', 'email', 'phone'];
         if (!in_array($field, $allowedFields)) {
             throw new Exception("Invalid field for uniqueness check");
         }
@@ -37,26 +37,24 @@ try {
         $username = $userData['username'];
         $email = $userData['email'] ?? null;
         $phone = $userData['phone'] ?? null;
-        $password = isset($userData['password']) ? hashPassword($userData['password']) : null;
-        $firstName = $userData['first_name'];
-        $lastName = $userData['last_name'];
+        $password = $userData['password'] ?? null; // This is now expected to be pre-hashed
+        $firstName = $userData['first_name'] ?? null;
+        $lastName = $userData['last_name'] ?? null;
         $profilePictureUrl = $userData['profile_picture_url'] ?? null;
 
         if (isset($userData['profile_picture_url'])) {
             if (strpos($userData['profile_picture_url'], 'data:image') === 0) {
                 $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $userData['profile_picture_url']));
-                $newProfilePictureUrl = saveProfileImage($userData['id'], $imageData);
+                $newProfilePictureUrl = saveProfileImage($userData['id'] ?? null, $imageData);
                 if ($newProfilePictureUrl) {
                     $profilePictureUrl = $newProfilePictureUrl;
                 } else {
-                    error_log("Failed to save new profile image for user " . $userData['id']);
-                    handleError(500, $userData, __FILE__, __LINE__);
+                    error_log("Failed to save new profile image for user");
+                    handleError(500, "Failed to save profile image", __FILE__, __LINE__);
                 }
             } else {
                 $profilePictureUrl = $userData['profile_picture_url'];
             }
-        } else {
-            echo json_encode(['error' => 'No profile picture URL provided', 'userData' => $userData]);
         }
 
         if (isset($userData['id'])) {
@@ -68,16 +66,14 @@ try {
         }
 
         if ($stmt->execute()) {
-            $newUserId = $stmt->insert_id;
-            if ($newUserId) {
-                // Add user.id 1 as a friend
+            $newUserId = $stmt->insert_id ?: $userData['id'];
+            if (!isset($userData['id'])) {
+                // Add user.id 1 as a friend for new users
                 $friendStmt = $conn->prepare("INSERT INTO friend_relationships (user_id, friend_id) VALUES (?, 1), (1, ?)");
                 $friendStmt->bind_param("ii", $newUserId, $newUserId);
                 $friendStmt->execute();
-                return $newUserId;
-            } else {
-                return $userData['id'];
             }
+            return $newUserId;
         } else {
             error_log("Failed to create or update user: " . $stmt->error);
             return false;
@@ -180,58 +176,45 @@ try {
             break;
 
         case 'POST':
-            $data = $_POST ?? null;
-            $action = isset($_POST['action']) ? $_POST['action'] : null;
-            if (!$action) {
-                $data = json_decode(file_get_contents('php://input'), true);
-                $action = isset($data['action']) ? $data['action'] : null;
-            }
-            if ($action === 'create') {
-                $username = $data['username'];
-                $email = $data['email'];
-                $password = hashPassword($data['password']);
+            $data = $_POST ?? json_decode(file_get_contents('php://input'), true);
+            $action = $data['action'] ?? null;
 
-                $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-                if ($stmt === false) {
-                    echo json_encode(array('error' => 'Prepare failed', 'details' => $conn->error));
-                    exit;
-                }
-                if (!$stmt->bind_param("sss", $username, $email, $password)) {
-                    echo json_encode(array('error' => 'Binding parameters failed', 'details' => $stmt->error));
-                    exit;
-                }
-
-                if ($stmt->execute()) {
-                    $id = $conn->insert_id;
-                    $userImageDir = $_SERVER['DOCUMENT_ROOT'] . '/images/profile_images/' . $id . '/';
-                    if (!file_exists($userImageDir)) {
-                        mkdir($userImageDir, 0755, true);
+            if ($action === 'create' || $action === 'update') {
+                if ($action === 'create') {
+                    if (empty($data['username']) || empty($data['email']) || empty($data['password'])) {
+                        handleError(400, "Username, email, and password are required", __FILE__, __LINE__);
                     }
-                    echo json_encode(['success' => true, 'id' => $id, 'username' => $username, 'email' => $email, 'message' => 'User created successfully']);
-                } else {
-                    echo json_encode(array('success' => false, 'message' => 'There was a problem creating your profile. Please try again.', 'error' => 'Error creating user', 'details' => $stmt->error));
+                    if (!checkUnique('username', $data['username']) || !checkUnique('email', $data['email'])) {
+                        handleError(400, "Username or email already exists", __FILE__, __LINE__);
+                    }
+                } elseif ($action === 'update') {
+                    if (empty($data['id'])) {
+                        handleError(400, "User ID is required for updates", __FILE__, __LINE__);
+                    }
                 }
-                $stmt->close();
-            } elseif ($action === 'update') {
-                $userId = filter_var($data['id'], FILTER_VALIDATE_INT);
-                if ($userId === false) {
-                    http_response_code(400);
-                    echo json_encode(['error' => 'Invalid user ID']);
-                    exit;
-                }
-                $userData = $data;
 
-                $result = createOrUpdateUser($userData);
+                $result = createOrUpdateUser($data);
                 if ($result) {
-                    $updatedUser = getUserData($userId);
-                    if ($updatedUser) {
-                        echo json_encode(['success' => true, 'user' => $updatedUser, 'message' => 'Profile updated successfully']);
+                    $userData = getUserData($result);
+                    if ($userData) {
+                        $response = [
+                            'success' => true,
+                            'user' => $userData,
+                            'message' => $action === 'create' ? 'User created successfully' : 'Profile updated successfully'
+                        ];
+                        if ($action === 'create') {
+                            $token = generateAuthToken($result); // Assuming this function exists in auth.php
+                            $response['token'] = $token;
+                        }
+                        echo json_encode($response);
                     } else {
-                        echo json_encode(['success' => false, 'error' => 'Failed to retrieve updated user data']);
+                        handleError(500, "Failed to retrieve user data", __FILE__, __LINE__);
                     }
                 } else {
-                    echo json_encode(['success' => false, 'error' => 'Failed to update profile']);
+                    handleError(500, "Failed to " . ($action === 'create' ? 'create user' : 'update profile'), __FILE__, __LINE__);
                 }
+            } else {
+                handleError(400, "Invalid action", __FILE__, __LINE__);
             }
             break;
 

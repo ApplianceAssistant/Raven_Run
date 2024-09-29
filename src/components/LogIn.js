@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
-import { checkServerConnectivity, API_URL } from '../utils/utils.js';
+import { checkServerConnectivity, API_URL, hashPassword } from '../utils/utils.js';
 import Modal from './Modal';
 
 function LogIn() {
@@ -40,6 +40,8 @@ function LogIn() {
         }
 
         try {
+            const hashedPassword = await hashPassword(password);
+
             const response = await fetch(`${API_URL}/login.php`, {
                 method: 'POST',
                 headers: {
@@ -48,7 +50,7 @@ function LogIn() {
                 body: JSON.stringify({
                     action,
                     email,
-                    password,
+                    password: hashedPassword,
                 }),
             });
 
@@ -66,7 +68,6 @@ function LogIn() {
             if (!response.ok) {
                 throw new Error(data.error || 'An error occurred');
             }
-            
             if (data.success) {
                 setSuccessMessage(data.message);
                 setModalContent({

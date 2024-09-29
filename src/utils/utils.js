@@ -10,6 +10,15 @@ export const API_URL = process.env.NODE_ENV === 'production'
   console.log('Current environment:', process.env.NODE_ENV);
   console.log('API_URL:', API_URL);
 
+  export async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
+  
 //function to detect the need for content scrolling
 export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator) {
   
