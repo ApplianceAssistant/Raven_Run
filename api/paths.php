@@ -38,7 +38,7 @@ try {
         case 'GET':
             if ($action === 'get_games') {
                 // Get all games for the authenticated user
-                $stmt = $conn->prepare("SELECT id, name, description, data, is_public, path_id FROM paths WHERE user_id = ?");
+                $stmt = $conn->prepare("SELECT id, name, description, challenge_data, is_public, path_id FROM paths WHERE user_id = ?");
                 $stmt->bind_param("i", $user['id']);
                 $stmt->execute();
                 $result = $stmt->get_result();
@@ -50,7 +50,7 @@ try {
                         'id' => $game['id'],
                         'name' => $game['name'],
                         'description' => $game['description'],
-                        'challenges' => json_decode($game['data'], true)['challenges'] ?? [],
+                        'challenges' => json_decode($game['challenge_data'], true)['challenges'] ?? [],
                         'public' => (bool)$game['is_public'],
                         'pathId' => $game['path_id']
                     ];
@@ -110,7 +110,7 @@ try {
                 } else {
                     $debug[] = "No server ID INSERT";
                     // Create new game
-                    $query = "INSERT INTO paths (user_id, title, description, is_public, path_id) VALUES (?, ?, ?, ?, ?)";
+                    $query = "INSERT INTO paths (user_id, title, description, is_public, path_id, challenge_data) VALUES (?, ?, ?, ?, ?, ?)";
                     error_log("Insert query: $query");
                     $stmt = $conn->prepare($query);
 
@@ -121,7 +121,7 @@ try {
                         exit;
                     }
 
-                    $bindResult = $stmt->bind_param("issis", $user['id'], $game['title'], $game['description'], $game['is_public'], $game['path_id']);
+                    $bindResult = $stmt->bind_param("issis", $user['id'], $game['title'], $game['description'], $game['is_public'], $game['path_id'], $game['challenges']);
                 }
                 if ($bindResult === false) {
                     error_log("Bind param failed: " . $stmt->error);
@@ -134,43 +134,6 @@ try {
                     $server_id = $game['server_id'] ?? $conn->insert_id;
                     $debug['new_id'] = $conn->insert_id;
                     $debug['affected_rows'] = $stmt->affected_rows;
-                    // Save challenges
-
-                    if (isset($game['challenges'])) {
-                        $challengeQuery = "INSERT INTO challenges (path_id, challenge_data) VALUES (?, ?) ON DUPLICATE KEY UPDATE challenge_data = VALUES(challenge_data)";
-                        $challengeStmt = $conn->prepare($challengeQuery);
-
-                        if ($challengeStmt === false) {
-                            echo json_encode(["error" => "Failed to save challenges: " . $conn->error, "debug" => $debug]);
-                            error_log("Prepare failed for challenges: " . $conn->error);
-                            http_response_code(500);
-                            echo json_encode(["error" => "Failed to prepare statement for challenges: " . $conn->error]);
-                            exit;
-                        }
-                        
-                        $challengesJson = $game['challenges'];  // It's already a JSON string
-                        if($challengeStmt->bind_param("is", $server_id, $challengesJson) === false) {
-                            echo json_encode(["error" => "Failed to bind challenges: " . $challengeStmt->error, "debug" => $debug]);
-                            error_log("Bind failed for challenges: " . $challengeStmt->error);
-                            http_response_code(500);
-                            exit;
-                        }
-                        
-                        if ($challengeStmt->execute()) {
-                            $debug['challenge_new_id'] = $conn->insert_id;
-                            $debug['challenge_affected_rows'] = $challengeStmt->affected_rows;
-                            echo json_encode(["debug-1" => $debug]);
-                        } else {
-                            $debug['error'] = $challengeStmt->error;
-                            echo json_encode(["debug-2" => $debug]);
-                            exit;
-                            echo json_encode(["error" => "Failed to save challenges: " . $challengeStmt->error, "debug" => $debug]);
-                            error_log("Execute failed for challenges: " . $challengeStmt->error);
-                            http_response_code(500);
-                            echo json_encode(["error" => "Failed to save challenges: " . $challengeStmt->error]);
-                            exit;
-                        }
-                    }
 
                     echo json_encode([
                         "server_id" => $server_id,
