@@ -1,6 +1,6 @@
 <?php
-require_once('errorHandler.php');
 require_once('../server/db_connection.php');
+require_once('errorHandler.php');
 
 function authenticateUser() {
     // Check if the Authorization header is present
@@ -31,7 +31,7 @@ function authenticateUser() {
 
             // Token is valid, fetch user details
             $userId = $row['user_id'];
-            $userStmt = $conn->prepare("SELECT id, username, email FROM users WHERE id = ?");
+            $userStmt = $conn->prepare("SELECT id, username, email FROM users WHERE id = ? LIMIT 1");
             $userStmt->bind_param("i", $userId);
             $userStmt->execute();
             $userResult = $userStmt->get_result();
