@@ -5,7 +5,6 @@ import { checkServerConnectivity, API_URL } from '../utils/utils.js';
 import Modal from './Modal';
 
 function LogIn() {
-    const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +29,6 @@ function LogIn() {
     }, []);
 
     const handleSubmit = async (action) => {
-        console.warn("handleSubmit", action);
         setIsLoading(true);
         setErrorMessage('');
         setSuccessMessage('');
@@ -54,16 +52,7 @@ function LogIn() {
                 }),
             });
 
-            const responseText = await response.text();
-            console.log('Full response text:', responseText);
-
-            let data;
-            try {
-                data = JSON.parse(responseText);
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-                throw new Error('Invalid JSON response from server');
-            }
+            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.error || 'An error occurred');
@@ -80,7 +69,7 @@ function LogIn() {
                     ]
                 });
                 setIsModalOpen(true);
-                login({ id: data.id, username: data.username });
+                login({ id: data.id, username: data.username, token: data.token });
             } else {
                 throw new Error(data.message || 'An error occurred');
             }
