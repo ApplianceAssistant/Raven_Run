@@ -35,12 +35,12 @@ try {
         global $conn;
 
         $username = $userData['username'];
-        $email = $userData['email'] ?? null;
-        $phone = $userData['phone'] ?? null;
-        $password = $userData['password'] ?? null; // This is now expected to be pre-hashed
-        $firstName = $userData['first_name'] ?? null;
-        $lastName = $userData['last_name'] ?? null;
-        $profilePictureUrl = $userData['profile_picture_url'] ?? null;
+    $email = $userData['email'] ?? null;
+    $phone = $userData['phone'] ?? null;
+    $password = $userData['password'] ?? null; // This is now expected to be pre-hashed with salt
+    $firstName = $userData['first_name'] ?? null;
+    $lastName = $userData['last_name'] ?? null;
+    $profilePictureUrl = $userData['profile_picture_url'] ?? null;
 
         if (isset($userData['profile_picture_url'])) {
             if (strpos($userData['profile_picture_url'], 'data:image') === 0) {
