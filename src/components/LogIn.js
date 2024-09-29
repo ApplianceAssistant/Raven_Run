@@ -113,8 +113,8 @@ function LogIn() {
                     <div className="button-container">
                         <button
                             onClick={() => handleSubmit('login')}
-                            disabled={!username || !password || isLoading}
-                            className={`submit-button ${!username || !password || isLoading ? 'disabled' : ''}`}
+                            disabled={!email || !password || isLoading}
+                            className={`submit-button ${!email || !password || isLoading ? 'disabled' : ''}`}
                         >
                             Log In
                         </button>
