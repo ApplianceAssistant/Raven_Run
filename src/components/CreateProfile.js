@@ -16,6 +16,7 @@ function CreateProfile() {
   const [successMessage, setSuccessMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '' });
+  const [token, setToken] = useState('');
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -121,21 +122,14 @@ function CreateProfile() {
         }),
       });
 
-      const responseText = await response.text();
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (error) {
-        console.error('Error parsing JSON:', error);
-        throw new Error('Invalid JSON response from server');
-      }
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || 'An error occurred');
       }
       if(data.success) {
         setSuccessMessage(data.message);
+        setToken(data.token);
         setModalContent({ 
           title: 'Welcome!', 
           message: `Welcome, ${data.username}! What would you like to do next?`,
@@ -146,7 +140,7 @@ function CreateProfile() {
           ]
         });
         setShowModal(true);
-        login({ id: data.id, username: data.username });
+        login({ id: data.id, username: data.username, token: data.token });
       } else {
         throw new Error(data.message || 'An error occurred');
       }
