@@ -109,7 +109,9 @@ function CreateProfile() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/login.php`, {
+      const hashedPassword = await hashPassword(password);
+
+      const response = await fetch(`${API_URL}/users.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +120,7 @@ function CreateProfile() {
           action,
           username,
           email,
-          password,
+          password: hashedPassword,
         }),
       });
 

@@ -18,10 +18,6 @@ function handleError($errno, $errstr, $errfile, $errline)
         'line' => $errline
     );
     
-    // In development environment, you might want to include more details
-    if ($_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_NAME'] === '127.0.0.1') {
-        $errorResponse['debug'] = debug_backtrace();
-    }
     
     // Set the appropriate HTTP status code
     $httpStatusCode = ($errno == E_USER_ERROR) ? 500 : 400;
@@ -30,11 +26,26 @@ function handleError($errno, $errstr, $errfile, $errline)
     // Output the JSON response
     header('Content-Type: application/json');
     echo json_encode($errorResponse);
-    
+    $dateTime = date('Y-m-d H:i:s');
     // Log the error to the database
-    $query = "INSERT INTO errorLog (errno, error, file, line, dateTime) VALUES (?, ?, ?, ?, ?)";
+    $query = "INSERT INTO errorLog (`errorNo`, `record`, `file`,  `line`, `dateTime`) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("issss", $errno, $errstr, $errfile, $errline, date('Y-m-d H:i:s'));
+    try {
+        if(!$stmt) {
+            throw new Exception("Prepare failed: (" . $conn->errno . ") " . $conn->error);
+        }
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
+    try {
+        $bind = $stmt->bind_param("issss", $errno, $errstr, $errfile, $errline, $dateTime);
+        if(!$bind) {
+            throw new Exception("Binding failed: (" . $conn->errno . ") " . $conn->error);
+        }
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
+
     $stmt->execute();
     $stmt->close();
     
