@@ -52,11 +52,21 @@ function LogIn() {
                 }),
             });
 
-            const data = await response.json();
+            const responseText = await response.text();
+            console.log('Full response text:', responseText);
+
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+                throw new Error('Invalid response from server');
+            }
 
             if (!response.ok) {
                 throw new Error(data.error || 'An error occurred');
             }
+            
             if (data.success) {
                 setSuccessMessage(data.message);
                 setModalContent({
