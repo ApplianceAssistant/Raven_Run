@@ -10,29 +10,6 @@ export const API_URL = process.env.NODE_ENV === 'production'
 console.log('Current environment:', process.env.NODE_ENV);
 console.log('API_URL:', API_URL);
 
-export async function hashPassword(password) {
-  // Generate a random salt
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const encoder = new TextEncoder();
-  const passwordData = encoder.encode(password);
-
-  // Combine salt and password
-  const combinedData = new Uint8Array(salt.length + passwordData.length);
-  combinedData.set(salt);
-  combinedData.set(passwordData, salt.length);
-
-  // Hash the combined data
-  const hashBuffer = await crypto.subtle.digest('SHA-256', combinedData);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-  // Convert salt to hex
-  const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
-
-  // Return both salt and hash
-  return `${saltHex}:${hashHex}`;
-}
-
 //function to detect the need for content scrolling
 export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator) {
 

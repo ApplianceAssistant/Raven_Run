@@ -22,15 +22,6 @@ try {
     $method = $_SERVER['REQUEST_METHOD'];
     $conn = getDbConnection();
 
-    function verifyPassword($password, $storedHash)
-    {
-        list($storedSalt, $storedHashedPassword) = explode(':', $storedHash, 2);
-        $salt = hex2bin($storedSalt);
-        $passwordData = $salt . $password;
-        $calculatedHash = hash('sha256', $passwordData);
-        return hash_equals($storedHashedPassword, $calculatedHash);
-    }
-
     if ($method === 'POST') {
         $data = json_decode(file_get_contents('php://input'), true);
         $action = $data['action'] ?? '';
@@ -50,12 +41,12 @@ try {
 
             if ($result->num_rows === 1) {
                 $user = $result->fetch_assoc();
-                if (verifyPassword($hashedPassword, $user['password'])) {
+                if (verifyPassword($password, $user['password'])) {
                     $token = generateAuthToken($user['id']);
                     http_response_code(200);
                     echo json_encode([
-                        'success' => true,
-                        'id' => $user['id'],
+                        'success' => true, 
+                        'id' => $user['id'], 
                         'username' => $user['username'],
                         'token' => $token,
                         'message' => "Welcome back {$user['username']}!"
