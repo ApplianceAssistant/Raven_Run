@@ -2,31 +2,45 @@
 
 import axios from 'axios';
 
-export const API_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://crowtours.com/api' 
+export const API_URL = process.env.NODE_ENV === 'production'
+  ? 'https://crowtours.com/api'
   : 'http://localhost:5000/api';
 
-  //debugger;
-  console.log('Current environment:', process.env.NODE_ENV);
-  console.log('API_URL:', API_URL);
+//debugger;
+console.log('Current environment:', process.env.NODE_ENV);
+console.log('API_URL:', API_URL);
 
-  export async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hash = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hash))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-  
+export async function hashPassword(password) {
+  // Generate a random salt
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const encoder = new TextEncoder();
+  const passwordData = encoder.encode(password);
+
+  // Combine salt and password
+  const combinedData = new Uint8Array(salt.length + passwordData.length);
+  combinedData.set(salt);
+  combinedData.set(passwordData, salt.length);
+
+  // Hash the combined data
+  const hashBuffer = await crypto.subtle.digest('SHA-256', combinedData);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  // Convert salt to hex
+  const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+
+  // Return both salt and hash
+  return `${saltHex}:${hashHex}`;
+}
+
 //function to detect the need for content scrolling
 export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator) {
-  
+
   if (contentWrapper && contentHeader && bodyContent && scrollIndicator) {
     const isScrollable = bodyContent.scrollHeight > bodyContent.clientHeight;
     const isScrolledToTop = bodyContent.scrollTop === 0;
     const isScrolledToBottom = bodyContent.scrollTop + bodyContent.clientHeight >= bodyContent.scrollHeight - 20;
-    
+
     // Handle fixed header
     if (isScrollable && bodyContent.scrollTop > 0) {
       contentHeader.classList.add('fixed');
@@ -148,21 +162,21 @@ export const stopLocationUpdates = (intervalId) => {
 };
 
 export function calculateDistance(loc1, loc2) {
-  if(!loc1 || !loc2) {
+  if (!loc1 || !loc2) {
     return 0;
   }
   const R = 6371; // Radius of the Earth in kilometers
   const dLat = degToRad(loc2.latitude - loc1.latitude);
   const dLon = degToRad(loc2.longitude - loc1.longitude);
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(degToRad(loc1.latitude)) * Math.cos(degToRad(loc2.latitude)) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(degToRad(loc1.latitude)) * Math.cos(degToRad(loc2.latitude)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c; // Distance in kilometers
   return distance * 1000; // Convert to meters
 }
 
 function degToRad(deg) {
-  return deg * (Math.PI/180);
+  return deg * (Math.PI / 180);
 }
