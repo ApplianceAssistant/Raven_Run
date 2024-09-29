@@ -1,12 +1,8 @@
 <?php
-header('Content-Type: application/json');
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-header('Access-Control-Allow-Origin: https://crowtours.com');
 
-require_once('errorHandler.php');
 require_once('../server/db_connection.php');
-require_once('/../server/encryption.php');
+require_once('errorHandler.php');
+require_once('../server/encryption.php');
 require_once('auth.php');
 
 /*$user = authenticateUser();
@@ -21,12 +17,14 @@ try {
     $conn = getDbConnection();
     switch ($method) {
         case 'POST':
+            $data = $_POST ?? null;
+            $action = $data['action'] ?? '';
             if ($action === 'login') {
-                $username = $data['username'];
+                $email = $data['email'];
                 $password = $data['password'];
 
-                $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = ?");
-                $stmt->bind_param("s", $username);
+                $stmt = $conn->prepare("SELECT id, password FROM users WHERE email = ?");
+                $stmt->bind_param("s", $email);
                 $stmt->execute();
                 $result = $stmt->get_result();
 

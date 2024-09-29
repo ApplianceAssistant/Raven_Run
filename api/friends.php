@@ -1,11 +1,7 @@
 <?php
-header('Content-Type: application/json');
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-header('Access-Control-Allow-Origin: https://crowtours.com');
 
-require_once('errorHandler.php');
 require_once('../server/db_connection.php');
+require_once('errorHandler.php');
 require_once('../server/encryption.php');
 require_once('auth.php');
 

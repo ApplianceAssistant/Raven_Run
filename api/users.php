@@ -1,12 +1,8 @@
 <?php
-header('Content-Type: application/json');
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-header('Access-Control-Allow-Origin: https://crowtours.com');
 
-require_once('errorHandler.php');
 require_once('../server/db_connection.php');
-require_once('/../server/encryption.php');
+require_once('errorHandler.php');
+require_once('../server/encryption.php');
 require_once('auth.php');
 
 /*$user = authenticateUser();
@@ -39,8 +35,8 @@ try {
         global $conn;
 
         $username = $userData['username'];
-        $encryptedEmail = encryptData($userData['email']);
-        $encryptedPhone = encryptData($userData['phone']);
+        $email = $userData['email'] ?? null;
+        $phone = $userData['phone'] ?? null;
         $password = isset($userData['password']) ? hashPassword($userData['password']) : null;
         $firstName = $userData['first_name'];
         $lastName = $userData['last_name'];
@@ -65,10 +61,10 @@ try {
 
         if (isset($userData['id'])) {
             $stmt = $conn->prepare("UPDATE users SET username = ?, email = ?, phone = ?, first_name = ?, last_name = ?, profile_picture_url = ? WHERE id = ?");
-            $stmt->bind_param("ssssssi", $username, $encryptedEmail, $encryptedPhone, $firstName, $lastName, $profilePictureUrl, $userData['id']);
+            $stmt->bind_param("ssssssi", $username, $email, $phone, $firstName, $lastName, $profilePictureUrl, $userData['id']);
         } else {
             $stmt = $conn->prepare("INSERT INTO users (username, email, phone, password, first_name, last_name, profile_picture_url) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssss", $username, $encryptedEmail, $encryptedPhone, $password, $firstName, $lastName, $profilePictureUrl);
+            $stmt->bind_param("sssssss", $username, $email, $phone, $password, $firstName, $lastName, $profilePictureUrl);
         }
 
         if ($stmt->execute()) {
@@ -97,8 +93,6 @@ try {
         $result = $stmt->get_result();
 
         if ($user = $result->fetch_assoc()) {
-            $user['email'] = decryptData($user['email']);
-            $user['phone'] = $user['phone'] ? decryptData($user['phone']) : null;
             unset($user['password']);
             return $user;
         }
@@ -197,7 +191,7 @@ try {
             }
             if ($action === 'create') {
                 $username = $data['username'];
-                $email = encryptData($data['email']);
+                $email = $data['email'];
                 $password = hashPassword($data['password']);
 
                 $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");

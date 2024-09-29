@@ -35,20 +35,6 @@ function LogIn() {
         setErrorMessage('');
         setSuccessMessage('');
 
-        /*debugger;
-        setModalContent({
-            title: 'Welcome Back!',
-            message: `Welcome back, ${'guy'}! What would you like to do?`,
-            options: [
-                { label: 'Profile', route: '/profile' },
-                { label: 'Find a Game', route: '/lobby' },
-                { label: 'Create', route: '/create' }
-            ]
-        });
-        setIsModalOpen(true);
-        login({ id: 1, username: 'guy' });
-        return;
-        */
         if (!serverStatus.isConnected || !serverStatus.isDatabaseConnected) {
             setErrorMessage('Cannot perform action: Server or database is not connected');
             setIsLoading(false);
@@ -56,14 +42,13 @@ function LogIn() {
         }
 
         try {
-            const response = await fetch(`${API_URL}/logIn.php`, {
+            const response = await fetch(`${API_URL}/login.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     action,
-                    username,
                     email,
                     password,
                 }),
@@ -116,16 +101,6 @@ function LogIn() {
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
                 {successMessage && <p className="success-message">{successMessage}</p>}
                 <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
-                    <div className="account-field">
-                        <label htmlFor="username">Username:</label>
-                        <input
-                            type="text"
-                            id="username"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
-                        />
-                    </div>
                     <div className="account-field">
                         <label htmlFor="email">Email:</label>
                         <input

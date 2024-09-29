@@ -1,7 +1,7 @@
 <?php
-header('Content-Type: application/json');
-require_once('errorHandler.php');
+
 require_once('../server/db_connection.php');
+require_once('errorHandler.php');
 
 try {
   $conn = getDbConnection();
