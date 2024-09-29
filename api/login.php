@@ -26,8 +26,12 @@ try {
         $action = $data['action'] ?? '';
         
         if ($action === 'login') {
-            $email = $data['email'];
-            $password = $data['password'];
+            $email = $data['email'] ?? '';
+            $password = $data['password'] ?? '';
+
+            if (empty($email) || empty($password)) {
+                handleBadRequestError("Email and password are required");
+            }
 
             $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE email = ?");
             $stmt->bind_param("s", $email);
@@ -47,20 +51,20 @@ try {
                         'message' => "Welcome back {$user['username']}!"
                     ]);
                 } else {
-                    handleError(401, "Invalid credentials", __FILE__, __LINE__);
+                    handleUnauthorizedError("Invalid credentials");
                 }
             } else {
-                handleError(401, "Invalid credentials", __FILE__, __LINE__);
+                handleUnauthorizedError("Invalid credentials");
             }
             $stmt->close();
         } else {
-            handleError(400, "Invalid action", __FILE__, __LINE__);
+            handleBadRequestError("Invalid action");
         }
     } else {
-        handleError(405, "Method not allowed", __FILE__, __LINE__);
+        handleError(E_USER_WARNING, "Method not allowed", __FILE__, __LINE__);
     }
 } catch (Exception $e) {
-    handleError(500, $e->getMessage(), __FILE__, __LINE__);
+    handleError(E_USER_ERROR, $e->getMessage(), __FILE__, __LINE__);
 }
 
 $conn->close();
