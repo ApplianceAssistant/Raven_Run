@@ -26,7 +26,7 @@ function CreateProfile() {
     isDatabaseConnected: false,
     message: ''
   });
-  
+
   useEffect(() => {
     checkServerConnectivity().then((status) => {
       setServerStatus(status);
@@ -109,8 +109,6 @@ function CreateProfile() {
     }
 
     try {
-      const hashedPassword = await hashPassword(password);
-
       const response = await fetch(`${API_URL}/users.php`, {
         method: 'POST',
         headers: {
@@ -120,20 +118,29 @@ function CreateProfile() {
           action,
           username,
           email,
-          password: hashedPassword,
+          password, // Send plain text password
         }),
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      console.log('Full response text:', responseText);
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        throw new Error('Invalid response from server');
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'An error occurred');
       }
-      if(data.success) {
+      if (data.success) {
         setSuccessMessage(data.message);
         setToken(data.token);
-        setModalContent({ 
-          title: 'Welcome!', 
+        setModalContent({
+          title: 'Welcome!',
           message: `Welcome, ${data.username}! What would you like to do next?`,
           options: [
             { label: 'Settings', route: '/settings' },
@@ -202,8 +209,8 @@ function CreateProfile() {
             )}
           </div>
           <div className="button-container">
-            <button 
-              onClick={() => handleSubmit('create')} 
+            <button
+              onClick={() => handleSubmit('create')}
               disabled={!isFormValid() || isLoading}
               className={`submit-button ${!isFormValid() || isLoading ? 'disabled' : ''}`}
             >

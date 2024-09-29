@@ -37,7 +37,7 @@ try {
         $username = $userData['username'];
     $email = $userData['email'] ?? null;
     $phone = $userData['phone'] ?? null;
-    $password = $userData['password'] ?? null; // This is now expected to be pre-hashed with salt
+    $password = isset($userData['password']) ? hashPassword($userData['password']) : null;
     $firstName = $userData['first_name'] ?? null;
     $lastName = $userData['last_name'] ?? null;
     $profilePictureUrl = $userData['profile_picture_url'] ?? null;

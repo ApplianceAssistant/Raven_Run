@@ -40,8 +40,6 @@ function LogIn() {
         }
 
         try {
-            const hashedPassword = await hashPassword(password);
-
             const response = await fetch(`${API_URL}/login.php`, {
                 method: 'POST',
                 headers: {
@@ -50,7 +48,7 @@ function LogIn() {
                 body: JSON.stringify({
                     action,
                     email,
-                    password: hashedPassword,
+                    password, // Send plain text password
                 }),
             });
 
