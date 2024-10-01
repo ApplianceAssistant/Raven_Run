@@ -7,7 +7,7 @@ if [[ ! "$PWD" == */public_html ]]; then
 fi
 
 # Install dependencies
-npm install
+# npm install
 
 # Build the React app
 npm run build

@@ -96,54 +96,48 @@ try {
                     $debug[] = "UPDATE Server ID: " . $game['server_id'];
                     // Update existing game
                     $query = "UPDATE paths SET title = ?, description = ?, is_public = ?, path_id = ?, updated_at = CURRENT_TIMESTAMP WHERE path_id = ? AND user_id = ?";
-                    error_log("Update query: $query");
                     $stmt = $conn->prepare($query);
 
                     if ($stmt === false) {
-                        error_log("Prepare failed: " . $conn->error);
+                        handleError(500, "Prepare failed: " . $conn->error, __FILE__, __LINE__);
                         http_response_code(500);
-                        echo json_encode(["error" => "Failed to prepare statement: " . $conn->error]);
                         exit;
                     }
 
                     $bindResult = $stmt->bind_param("ssissi", $game['title'], $game['description'], $game['is_public'], $game['path_id'], $game['server_id'], $user['id']);
                 } else {
-                    $debug[] = "No server ID INSERT";
                     // Create new game
                     $query = "INSERT INTO paths (user_id, title, description, is_public, path_id, challenge_data) VALUES (?, ?, ?, ?, ?, ?)";
-                    error_log("Insert query: $query");
                     $stmt = $conn->prepare($query);
 
                     if ($stmt === false) {
-                        error_log("Prepare failed: " . $conn->error);
+                        handleError(500, "Prepare failed: " . $conn->error, __FILE__, __LINE__);
                         http_response_code(500);
-                        echo json_encode(["error" => "Failed to prepare statement: " . $conn->error]);
                         exit;
                     }
 
                     $bindResult = $stmt->bind_param("issis", $user['id'], $game['title'], $game['description'], $game['is_public'], $game['path_id'], $game['challenges']);
                 }
                 if ($bindResult === false) {
-                    error_log("Bind param failed: " . $stmt->error);
+                    handleError(500, "Bind failed: " . $stmt->error, __FILE__, __LINE__);
                     http_response_code(500);
-                    echo json_encode(["error" => "Failed to bind parameters: " . $stmt->error]);
                     exit;
                 }
 
                 if ($stmt->execute()) {
                     $server_id = $game['server_id'] ?? $conn->insert_id;
-                    $debug['new_id'] = $conn->insert_id;
                     $debug['affected_rows'] = $stmt->affected_rows;
-
+                    $debug['server_id'] = $server_id;
                     echo json_encode([
                         "server_id" => $server_id,
                         "local_id" => $game['local_id'],
-                        "message" => "Game saved successfully"
+                        "message" => "Game saved successfully",
+                        "debug" => $debug
                     ]);
                 } else {
-                    error_log("Execute failed: " . $stmt->error);
+                    handleError(500, "Exicute failed: " . $stmt->error, __FILE__, __LINE__);
                     http_response_code(500);
-                    echo json_encode(["error" => "Failed to save game: " . $stmt->error]);
+                    exit;
                 }
             } elseif ($action === 'delete_game') {
                 if (isset($_GET['id'])) {
