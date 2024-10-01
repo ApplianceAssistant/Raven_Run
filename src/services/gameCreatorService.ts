@@ -22,38 +22,59 @@ export namespace GameTypes {
 }
 
 // Function to generate a unique path ID
-export const generateUniquePathId = (length: number = 12): string => {
+export const generateUniquePathId = async (length: number = 12): Promise<string> => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  let isUnique = false;
+  let generatedPathId = '';
+
+  while (!isUnique) {
+    generatedPathId = Array.from({ length }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
+
+    try {
+      const response = await fetch(`${API_URL}/paths.php?action=check_path_id&path_id=${generatedPathId}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data: { isUnique: boolean } = await response.json();
+      isUnique = data.isUnique;
+    } catch (error) {
+      console.error('Error checking path_id uniqueness:', error);
+      // If there's an error, we'll assume it's unique to avoid an infinite loop
+      isUnique = true;
+    }
   }
-  return result;
+
+  return generatedPathId;
 };
 
 export const saveGame = async (game: GameTypes.Game): Promise<void> => {
+  let pathId = game.pathId;
+  
+  if (!pathId) {
+    pathId = await generateUniquePathId();
+  }
+
   const gameWithPublic: GameTypes.Game = { 
     ...game, 
     public: game.public ?? false,
-    pathId: game.pathId || generateUniquePathId()
+    pathId: pathId
   };
   
   const isServerReachable = (await checkServerConnectivity()).isConnected;
 
   if (isServerReachable) {
     try {
-
       const payload = {
         action: 'save_game',
-          game: {
-            server_id: game.server_id, // Use server_id instead of id
-            local_id: game.id,         // Send the local ID for reference
-            title: gameWithPublic.name,
-            description: gameWithPublic.description,
-            is_public: gameWithPublic.public ? 1 : 0,
-            path_id: gameWithPublic.pathId,
-            challenges: JSON.stringify(gameWithPublic.challenges)
-          }
+        game: {
+          server_id: game.server_id,
+          local_id: game.id,
+          title: gameWithPublic.name,
+          description: gameWithPublic.description,
+          is_public: gameWithPublic.public ? 1 : 0,
+          path_id: gameWithPublic.pathId,
+          challenges: JSON.stringify(gameWithPublic.challenges)
+        }
       };
       console.log('Sending payload:', payload);
 
@@ -77,11 +98,9 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
         throw new Error('Invalid response from server');
       }
 
-      const result = await response.json();
-      
       // Update the game with the server-generated ID
-      if (result.server_id) {
-        gameWithPublic.server_id = result.server_id;
+      if (data.server_id) {
+        gameWithPublic.server_id = data.server_id;
         // Update local storage with the new server_id
         saveGameToLocalStorage(gameWithPublic);
       }
@@ -154,11 +173,14 @@ export const getGames = async (): Promise<GameTypes.Game[]> => {
       // Update local storage with the final list of games
       serverGames.forEach(saveGameToLocalStorage);
 
-      return serverGames.map(game => ({ 
-        ...game, 
+      // Process games and generate pathIds where necessary
+      const processedGames = await Promise.all(serverGames.map(async game => ({
+        ...game,
         public: game.public ?? false,
-        pathId: game.pathId || generateUniquePathId()
-      }));
+        pathId: game.pathId || await generateUniquePathId()
+      })));
+
+      return processedGames;
     } catch (error) {
       console.error("Failed to fetch games from server:", error);
       return getGamesFromLocalStorage();
