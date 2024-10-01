@@ -181,7 +181,7 @@ try {
 
         case 'POST':
              // Parse JSON input
-             $jsonData = json_decode($rawInput, true);
+             $jsonData = json_decode(file_get_contents('php://input'), true);
             
  
              if (json_last_error() !== JSON_ERROR_NONE) {

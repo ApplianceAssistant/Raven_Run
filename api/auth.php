@@ -22,13 +22,13 @@ function getAuthorizationHeader() {
 function authenticateUser() {
     $headers = getAuthorizationHeader();
     if (!$headers) {
-        return null;
+        return 'no headers';
     }
 
     if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
         $token = $matches[1];
     } else {
-        return null;
+        return 'no token';
     }
 
     try {
@@ -41,7 +41,7 @@ function authenticateUser() {
         if ($row = $result->fetch_assoc()) {
             if (strtotime($row['expiration']) < time()) {
                 invalidateAuthToken($token);
-                return null;
+                return 'expired';
             }
 
             $userId = $row['user_id'];
