@@ -109,17 +109,20 @@ function CreateProfile() {
     }
 
     try {
+      const payload = {
+        action,
+        username,
+        email,
+        password,
+      };
+      console.log('Sending payload:', payload);
+
       const response = await fetch(`${API_URL}/users.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          action,
-          username,
-          email,
-          password, // Send plain text password
-        }),
+        body: JSON.stringify(payload),
       });
 
       const responseText = await response.text();
@@ -128,6 +131,7 @@ function CreateProfile() {
       let data;
       try {
         data = JSON.parse(responseText);
+        console.log('Parsed response data:', data);
       } catch (error) {
         console.error('Error parsing JSON:', error);
         throw new Error('Invalid response from server');
