@@ -16,11 +16,9 @@ import Friends from './components/Friends.js';
 import { checkServerConnectivity, API_URL, authFetch } from './utils/utils.js';
 import { startLocationUpdates, stopLocationUpdates, getCurrentLocation, updateUserLocation } from './utils/utils';
 
-
 import './css/App.scss';
 import './css/SpiritGuide.scss';
 
-// Create a context for the auth state
 export const AuthContext = createContext(null);
 
 function BackgroundController() {
@@ -87,10 +85,9 @@ function AppContent() {
     message: ''
   });
   const [authState, setAuthState] = useState({
-    //update this to simulate loggin status
     isLoggedIn: false,
     user: null,
-    isLoading: true, // Add isLoading state
+    isLoading: true,
   });
 
   useEffect(() => {
@@ -184,43 +181,35 @@ function AppContent() {
   }
 
   if (authState.isLoading) {
-    return <div>Loading...</div>; // Or a more sophisticated loading component
+    return <div>Loading...</div>;
   }
 
   return (
-    <ThemeProvider>
-      <AuthContext.Provider value={{ ...authState, login, logout }}>
-        <Router>
-          <div className="app">
-            <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
-
-            <main className="main-content">
-
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/path/:pathId" element={<PathPage />} />
-                <Route path="/lobby" element={<Lobby />} />
-                <Route path="/create-profile" element={<CreateProfile />} />
-                <Route path="/log-in" element={<LogIn />} />
-                {authState.isLoggedIn && (
-                  <>
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/create" element={<Create />} />
-                    <Route path="/friends" element={<Friends />} />
-                  </>
-                )}
-              </Routes>
-              <BackgroundController></BackgroundController>
-            </main>
-
-
-          </div>
-        </Router>
-      </AuthContext.Provider>
-    </ThemeProvider >
+    <AuthContext.Provider value={{ ...authState, login, logout }}>
+      <div className="app">
+        <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/path/:pathId" element={<PathPage />} />
+            <Route path="/lobby" element={<Lobby />} />
+            <Route path="/create-profile" element={<CreateProfile />} />
+            <Route path="/log-in" element={<LogIn />} />
+            {authState.isLoggedIn && (
+              <>
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/create" element={<Create />} />
+                <Route path="/friends" element={<Friends />} />
+              </>
+            )}
+          </Routes>
+          <BackgroundController />
+        </main>
+      </div>
+    </AuthContext.Provider>
   );
 }
 
