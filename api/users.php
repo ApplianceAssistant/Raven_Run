@@ -5,6 +5,9 @@ require_once('errorHandler.php');
 require_once('../server/encryption.php');
 require_once('auth.php');
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 /*$user = authenticateUser();
 if (!$user) {
     http_response_code(401);
@@ -15,6 +18,14 @@ if (!$user) {
 try {
     $method = $_SERVER['REQUEST_METHOD'];
     $conn = getDbConnection();
+
+    // Debug: Log the raw input
+    $rawInput = file_get_contents('php://input');
+    error_log("Raw input: " . $rawInput);
+
+    // Debug: Log the Content-Type header
+    $contentType = $_SERVER["CONTENT_TYPE"] ?? '';
+    error_log("Content-Type: " . $contentType);
 
     function checkUnique($field, $value)
     {
@@ -35,12 +46,12 @@ try {
         global $conn;
 
         $username = $userData['username'];
-    $email = $userData['email'] ?? null;
-    $phone = $userData['phone'] ?? null;
-    $password = isset($userData['password']) ? hashPassword($userData['password']) : null;
-    $firstName = $userData['first_name'] ?? null;
-    $lastName = $userData['last_name'] ?? null;
-    $profilePictureUrl = $userData['profile_picture_url'] ?? null;
+        $email = $userData['email'] ?? null;
+        $phone = $userData['phone'] ?? null;
+        $password = isset($userData['password']) ? hashPassword($userData['password']) : null;
+        $firstName = $userData['first_name'] ?? null;
+        $lastName = $userData['last_name'] ?? null;
+        $profilePictureUrl = $userData['profile_picture_url'] ?? null;
 
         if (isset($userData['profile_picture_url'])) {
             if (strpos($userData['profile_picture_url'], 'data:image') === 0) {
@@ -176,10 +187,27 @@ try {
             break;
 
         case 'POST':
-            $data = $_POST ?? json_decode(file_get_contents('php://input'), true);
-            $action = $data['action'] ?? null;
-
-            if ($action === 'create' || $action === 'update') {
+             // Parse JSON input
+             $jsonData = json_decode($rawInput, true);
+            
+             // Debug: Log the parsed data
+             error_log("Parsed JSON data: " . print_r($jsonData, true));
+ 
+             if (json_last_error() !== JSON_ERROR_NONE) {
+                 // If JSON parsing failed, try to use $_POST
+                 $data = $_POST;
+                 error_log("JSON parsing failed. Using $_POST: " . print_r($_POST, true));
+             } else {
+                 $data = $jsonData;
+             }
+ 
+             $action = $data['action'] ?? null;
+ 
+             // Debug: Log the action and data
+             error_log("Action: " . $action);
+             error_log("Data: " . print_r($data, true));
+ 
+             if ($action === 'create' || $action === 'update') {
                 if ($action === 'create') {
                     if (empty($data['username']) || empty($data['email']) || empty($data['password'])) {
                         handleError(400, "Username, email, and password are required", __FILE__, __LINE__);
