@@ -118,13 +118,35 @@ function App() {
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const logout = () => {
-    setAuthState({
-      isLoggedIn: false,
-      user: null,
-    });
-    localStorage.removeItem('user');
-  };
+  const logout = async () => {
+    try {
+        const response = await fetch(`${API_URL}/login.php`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authState.user.token}`
+            },
+            body: JSON.stringify({
+                action: 'logout',
+                token: authState.user.token
+            }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            setAuthState({
+                isLoggedIn: false,
+                user: null,
+            });
+            localStorage.removeItem('user');
+        } else {
+            console.error('Logout failed:', data.message);
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+};
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

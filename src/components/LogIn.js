@@ -48,20 +48,11 @@ function LogIn() {
                 body: JSON.stringify({
                     action,
                     email,
-                    password, // Send plain text password
+                    password,
                 }),
             });
 
-            const responseText = await response.text();
-            console.log('Full response text:', responseText);
-
-            let data;
-            try {
-                data = JSON.parse(responseText);
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-                throw new Error('Invalid response from server');
-            }
+            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.error || 'An error occurred');
