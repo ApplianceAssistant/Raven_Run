@@ -77,7 +77,7 @@ function BackgroundController() {
   return null; // This component doesn't render anything
 }
 
-function App() {
+function AppContent() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const locationIntervalRef = useRef(null);
@@ -221,6 +221,16 @@ function App() {
         </Router>
       </AuthContext.Provider>
     </ThemeProvider >
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </ThemeProvider>
   );
 }
 
