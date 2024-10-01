@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, createContext } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './components/ThemeContext';
 import Home from './components/Home';
 import About from './components/About';
@@ -78,6 +78,7 @@ function BackgroundController() {
 }
 
 function App() {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const locationIntervalRef = useRef(null);
   const [serverStatus, setServerStatus] = useState({
@@ -89,6 +90,7 @@ function App() {
     //update this to simulate loggin status
     isLoggedIn: false,
     user: null,
+    isLoading: true, // Add isLoading state
   });
 
   useEffect(() => {
@@ -99,6 +101,14 @@ function App() {
 
     checkConnection();
   }, []);
+  //debugging
+  useEffect(() => {
+    console.log('Current authState:', authState);
+  }, [authState]);
+
+  useEffect(() => {
+    console.log('Current serverStatus:', serverStatus);
+  }, [serverStatus]);
 
   useEffect(() => {
     // Check if there's a stored auth token or user data
@@ -107,42 +117,60 @@ function App() {
       setAuthState({
         isLoggedIn: true,
         user: JSON.parse(storedUser),
+        isLoading: false,
       });
+    } else {
+      setAuthState(prevState => ({ ...prevState, isLoading: false }));
     }
   }, []);
 
   const login = (userData) => {
+    console.log('Logging in user:', userData);
     setAuthState({
-        isLoggedIn: true,
-        user: userData,
+      isLoggedIn: true,
+      user: userData,
+      isLoading: false,
     });
     localStorage.setItem('user', JSON.stringify(userData));
-}
+  }
 
-const logout = async () => {
-  try {
+  const logout = async () => {
+    console.log('Attempting to log out');
+    try {
       const response = await authFetch(`${API_URL}/login.php`, {
-          method: 'POST',
-          body: JSON.stringify({
-              action: 'logout',
-          }),
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'logout',
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
 
       if (data.success) {
-          setAuthState({
-              isLoggedIn: false,
-              user: null,
-          });
-          localStorage.removeItem('user');
+        setAuthState({
+          isLoggedIn: false,
+          user: null,
+        });
+        localStorage.removeItem('user');
+        navigate('/'); // Redirect to home page after logout
       } else {
-          console.error('Logout failed:', data.message);
+        console.error('Logout failed:', data.message);
       }
-  } catch (error) {
+    } catch (error) {
       console.error('Logout error:', error);
-  }
-};
+      // Optionally, you can still log out the user on the client-side even if the server request fails
+      setAuthState({
+        isLoggedIn: false,
+        user: null,
+      });
+      localStorage.removeItem('user');
+      navigate('/');
+    }
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -154,6 +182,11 @@ const logout = async () => {
   if (!locationIntervalRef.current) {
     locationIntervalRef.current = startLocationUpdates();
   }
+
+  if (authState.isLoading) {
+    return <div>Loading...</div>; // Or a more sophisticated loading component
+  }
+
   return (
     <ThemeProvider>
       <AuthContext.Provider value={{ ...authState, login, logout }}>
