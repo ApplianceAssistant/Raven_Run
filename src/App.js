@@ -13,7 +13,7 @@ import Create from './components/GameCreator';
 import Header from './components/Header';
 import LogIn from './components/LogIn';
 import Friends from './components/Friends.js';
-import { checkServerConnectivity, API_URL } from './utils/utils.js';
+import { checkServerConnectivity, API_URL, authFetch } from './utils/utils.js';
 import { startLocationUpdates, stopLocationUpdates, getCurrentLocation, updateUserLocation } from './utils/utils';
 
 

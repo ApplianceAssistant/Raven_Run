@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
-import { checkServerConnectivity, API_URL, hashPassword } from '../utils/utils.js';
+import { checkServerConnectivity, API_URL, authFetch } from '../utils/utils.js';
 import Modal from './Modal';
 
 function LogIn() {
