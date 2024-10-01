@@ -6,7 +6,7 @@
 
 const GAME_STORAGE_KEY = 'Custom_Games';
 const DEBUG_STORAGE_KEY = 'Debug_Custom_Games';
-const SECRET_KEY = 'hf$se8_6y43uuF-7';
+const SECRET_KEY = 'your-secret-key';
 
 // Simple XOR encryption/decryption function
 const xorEncryptDecrypt = (text, key) => {
