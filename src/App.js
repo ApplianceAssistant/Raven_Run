@@ -15,6 +15,8 @@ import LogIn from './components/LogIn';
 import Friends from './components/Friends.js';
 import { checkServerConnectivity, API_URL } from './utils/utils.js';
 import { startLocationUpdates, stopLocationUpdates, getCurrentLocation, updateUserLocation } from './utils/utils';
+
+
 import './css/App.scss';
 import './css/SpiritGuide.scss';
 
@@ -109,43 +111,61 @@ function App() {
     }
   }, []);
 
-  const login = (userData) => {
-    console.warn("login", userData);
-    setAuthState({
-      isLoggedIn: true,
-      user: userData,
+  const authFetch = async (url, options = {}) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    if (user && user.token) {
+      headers['Authorization'] = `Bearer ${user.token}`;
+    }
+
+    const response = await fetch(url, {
+      ...options,
+      headers,
     });
-    localStorage.setItem('user', JSON.stringify(userData));
+
+    if (response.status === 401) {
+      // Token might be expired, log out the user
+      logout();
+    }
+
+    return response;
   };
 
-  const logout = async () => {
-    try {
-        const response = await fetch(`${API_URL}/login.php`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authState.user.token}`
-            },
-            body: JSON.stringify({
-                action: 'logout',
-                token: authState.user.token
-            }),
-        });
+  const login = (userData) => {
+    setAuthState({
+        isLoggedIn: true,
+        user: userData,
+    });
+    localStorage.setItem('user', JSON.stringify(userData));
+}
 
-        const data = await response.json();
+const logout = async () => {
+  try {
+      const response = await authFetch(`${API_URL}/login.php`, {
+          method: 'POST',
+          body: JSON.stringify({
+              action: 'logout',
+          }),
+      });
 
-        if (data.success) {
-            setAuthState({
-                isLoggedIn: false,
-                user: null,
-            });
-            localStorage.removeItem('user');
-        } else {
-            console.error('Logout failed:', data.message);
-        }
-    } catch (error) {
-        console.error('Logout error:', error);
-    }
+      const data = await response.json();
+
+      if (data.success) {
+          setAuthState({
+              isLoggedIn: false,
+              user: null,
+          });
+          localStorage.removeItem('user');
+      } else {
+          console.error('Logout failed:', data.message);
+      }
+  } catch (error) {
+      console.error('Logout error:', error);
+  }
 };
 
   const toggleMenu = () => {
@@ -163,31 +183,31 @@ function App() {
       <AuthContext.Provider value={{ ...authState, login, logout }}>
         <Router>
           <div className="app">
-          <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
-            
-              <main className="main-content">
-              
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/path/:pathId" element={<PathPage />} />
-                  <Route path="/lobby" element={<Lobby />} />
-                  <Route path="/create-profile" element={<CreateProfile />} />
-                  <Route path="/log-in" element={<LogIn />} />
-                  {authState.isLoggedIn && (
-                    <>
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/settings" element={<Settings />} />
-                      <Route path="/create" element={<Create />} />
-                      <Route path="/friends" element={<Friends />} />
-                    </>
-                  )}
-                </Routes>
-                <BackgroundController></BackgroundController>
-              </main>
+            <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
 
-            
+            <main className="main-content">
+
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/path/:pathId" element={<PathPage />} />
+                <Route path="/lobby" element={<Lobby />} />
+                <Route path="/create-profile" element={<CreateProfile />} />
+                <Route path="/log-in" element={<LogIn />} />
+                {authState.isLoggedIn && (
+                  <>
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/create" element={<Create />} />
+                    <Route path="/friends" element={<Friends />} />
+                  </>
+                )}
+              </Routes>
+              <BackgroundController></BackgroundController>
+            </main>
+
+
           </div>
         </Router>
       </AuthContext.Provider>
