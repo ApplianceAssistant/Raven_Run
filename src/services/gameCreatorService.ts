@@ -146,9 +146,23 @@ export const getGames = async (): Promise<GameTypes.Game[]> => {
 
   if (isServerReachable) {
     try {
-      const response = await fetch(`${API_URL}/paths.php?action=get_games`);
-      if (!response.ok) throw new Error('Failed to fetch games from server');
-      let serverGames: GameTypes.Game[] = await response.json();
+      const response = await authFetch(`${API_URL}/paths.php?action=get_games`);
+      const responseText = await response.text();
+      console.log('Full response text:', responseText);
+
+      if (!response.ok) {
+        console.error('Response status:', response.status);
+        console.error('Response status text:', response.statusText);
+        throw new Error(`Failed to fetch games from server: ${response.status} ${response.statusText}`);
+      }
+
+      let serverGames: GameTypes.Game[];
+      try {
+        serverGames = JSON.parse(responseText);
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        throw new Error('Invalid JSON response from server');
+      }
       
       const localGames = getGamesFromLocalStorage();
       
@@ -182,10 +196,11 @@ export const getGames = async (): Promise<GameTypes.Game[]> => {
 
       return processedGames;
     } catch (error) {
-      console.error("Failed to fetch games from server:", error);
+      console.error("Error in getGames:", error);
       return getGamesFromLocalStorage();
     }
   } else {
+    console.log("Server not reachable, using local storage");
     return getGamesFromLocalStorage();
   }
 };

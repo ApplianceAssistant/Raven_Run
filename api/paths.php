@@ -5,8 +5,14 @@ require_once('errorHandler.php');
 require_once('../server/encryption.php');
 require_once('auth.php');
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Ensure the request is coming from an authenticated user
 $user = authenticateUser();
+handleError(1, $user, __FILE__, __LINE__);
+exit;
 if (!$user) {
     http_response_code(401);
     echo json_encode(["error" => "Unauthorized"]);
