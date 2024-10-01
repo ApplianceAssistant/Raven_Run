@@ -6,7 +6,7 @@
 
 const GAME_STORAGE_KEY = 'Custom_Games';
 const DEBUG_STORAGE_KEY = 'Debug_Custom_Games';
-const SECRET_KEY = 'your-secret-key'; // Replace with a secure key
+const SECRET_KEY = 'hf$se8_6y43uuF-7';
 
 // Simple XOR encryption/decryption function
 const xorEncryptDecrypt = (text, key) => {
@@ -32,8 +32,8 @@ export const decryptData = (encryptedData) => {
  */
 export const saveGameToLocalStorage = (game) => {
   const games = getGamesFromLocalStorage();
-  const updatedGames = games.map(g => g.id === game.id ? { ...g, ...game, public: game.public } : g);
-  if (!updatedGames.some(g => g.id === game.id)) {
+  const updatedGames = games.map(g => g.path_id === game.path_id ? { ...g, ...game, public: game.public } : g);
+  if (!updatedGames.some(g => g.path_id === game.path_id)) {
     updatedGames.push({ ...game, public: game.public ?? false });
   }
   const encryptedGames = encryptData(updatedGames);
@@ -75,10 +75,10 @@ export const getDebugGamesFromLocalStorage = () => {
  * @param {number} gameId
  * @param {Challenge} updatedChallenge
  */
-export const updateChallengeInLocalStorage = (gameId, updatedChallenge) => {
+export const updateChallengeInLocalStorage = (pathId, updatedChallenge) => {
   const games = getGamesFromLocalStorage();
   const updatedGames = games.map(game => {
-    if (game.id === gameId) {
+    if (game.path_id === pathId) {
       const updatedChallenges = game.challenges.map(challenge => 
         challenge.id === updatedChallenge.id ? updatedChallenge : challenge
       );
@@ -96,9 +96,9 @@ export const updateChallengeInLocalStorage = (gameId, updatedChallenge) => {
 /**
  * @param {number} gameId
  */
-export const deleteGameFromLocalStorage = (gameId) => {
+export const deleteGameFromLocalStorage = (pathId) => {
   const games = getGamesFromLocalStorage();
-  const updatedGames = games.filter(game => game.id !== gameId);
+  const updatedGames = games.filter(game => game.path_id !== pathId);
   const encryptedGames = encryptData(updatedGames);
   localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
 
