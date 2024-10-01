@@ -88,6 +88,43 @@ function getUserLocation() {
   });
 }
 
+export const authFetch = async (url, options = {}) => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+  };
+
+  if (user && user.token) {
+      headers['Authorization'] = `Bearer ${user.token}`;
+  }
+
+  console.log('Fetching URL:', url);
+  console.log('Fetch options:', { ...options, headers });
+
+  try {
+      const response = await fetch(url, {
+          ...options,
+          headers,
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      if (response.status === 401) {
+          console.error('Unauthorized access, user might need to log in again');
+          // Clear user data and logout
+          localStorage.removeItem('user');
+          window.location.reload();
+      }
+
+      return response;
+  } catch (error) {
+      console.error('Fetch error:', error);
+      throw error;
+  }
+};
+
 export async function updateUserLocation() {
   try {
     const location = await getUserLocation();

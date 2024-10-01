@@ -111,36 +111,6 @@ function App() {
     }
   }, []);
 
-  const authFetch = async (url, options = {}) => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-    };
-
-    if (user && user.token) {
-        headers['Authorization'] = `Bearer ${user.token}`;
-    }
-
-    console.log('Fetching URL:', url);
-    console.log('Fetch options:', { ...options, headers });
-
-    const response = await fetch(url, {
-        ...options,
-        headers,
-    });
-
-    console.log('Response status:', response.status);
-    console.log('Response headers:', response.headers);
-
-    if (response.status === 401) {
-        console.error('Unauthorized access, logging out');
-        logout();
-    }
-
-    return response;
-};
-
   const login = (userData) => {
     setAuthState({
         isLoggedIn: true,
