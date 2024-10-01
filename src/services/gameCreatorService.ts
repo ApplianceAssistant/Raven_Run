@@ -42,11 +42,9 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
 
   if (isServerReachable) {
     try {
-      const response = await fetch(`${API_URL}/paths.php`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'save_game',
+
+      const payload = {
+        action: 'save_game',
           game: {
             server_id: game.server_id, // Use server_id instead of id
             local_id: game.id,         // Send the local ID for reference
@@ -56,20 +54,29 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
             path_id: gameWithPublic.pathId,
             challenges: JSON.stringify(gameWithPublic.challenges)
           }
-        })
+      };
+      console.log('Sending payload:', payload);
+
+      const response = await fetch(`${API_URL}/paths.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
-      
-      if (!response.ok) throw new Error('Failed to save game to server');
+
       const responseText = await response.text();
-      console.warn("responseText:", responseText);
+      console.log('Full response text:', responseText);
+
       let data;
       try {
         data = JSON.parse(responseText);
-        console.log("Data from server:", data);
+        console.log('Parsed response data:', data);
       } catch (error) {
         console.error('Error parsing JSON:', error);
-        throw new Error('Invalid JSON response from server');
+        throw new Error('Invalid response from server');
       }
+
       const result = await response.json();
       
       // Update the game with the server-generated ID

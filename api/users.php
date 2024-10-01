@@ -8,6 +8,7 @@ require_once('auth.php');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+echo ini_get('error_log');
 /*$user = authenticateUser();
 if (!$user) {
     http_response_code(401);
@@ -18,14 +19,6 @@ if (!$user) {
 try {
     $method = $_SERVER['REQUEST_METHOD'];
     $conn = getDbConnection();
-
-    // Debug: Log the raw input
-    $rawInput = file_get_contents('php://input');
-    error_log("Raw input: " . $rawInput);
-
-    // Debug: Log the Content-Type header
-    $contentType = $_SERVER["CONTENT_TYPE"] ?? '';
-    error_log("Content-Type: " . $contentType);
 
     function checkUnique($field, $value)
     {
@@ -190,8 +183,6 @@ try {
              // Parse JSON input
              $jsonData = json_decode($rawInput, true);
             
-             // Debug: Log the parsed data
-             error_log("Parsed JSON data: " . print_r($jsonData, true));
  
              if (json_last_error() !== JSON_ERROR_NONE) {
                  // If JSON parsing failed, try to use $_POST
@@ -202,10 +193,6 @@ try {
              }
  
              $action = $data['action'] ?? null;
- 
-             // Debug: Log the action and data
-             error_log("Action: " . $action);
-             error_log("Data: " . print_r($data, true));
  
              if ($action === 'create' || $action === 'update') {
                 if ($action === 'create') {

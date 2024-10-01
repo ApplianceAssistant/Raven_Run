@@ -12,7 +12,7 @@ function handleError($errno, $errstr, $errfile, $errline)
     // Prepare the error response
     $errorResponse = array(
         'success' => false,
-        'error' => 'An internal error occurred',
+        'error' => 'An error occurred',
         'details' => $errstr,
         'file' => $errfile,
         'line' => $errline
@@ -25,6 +25,9 @@ function handleError($errno, $errstr, $errfile, $errline)
     
     // Output the JSON response
     header('Content-Type: application/json');
+    if($errstr == 'Invalid credentials') {
+       $errorResponse['error'] = 'Invalid credentials';
+    }
     echo json_encode($errorResponse);
     $dateTime = date('Y-m-d H:i:s');
     // Log the error to the database
