@@ -1,6 +1,6 @@
 // src/services/gameCreatorService.ts
 import { getGamesFromLocalStorage, saveGameToLocalStorage, deleteGameFromLocalStorage } from '../utils/localStorageUtils';
-import { checkServerConnectivity, API_URL } from '../utils/utils.js';
+import { checkServerConnectivity, API_URL, authFetch  } from '../utils/utils.js';
 
 export namespace GameTypes {
   export interface Game {
