@@ -1,22 +1,8 @@
 <?php
-
 require_once('../server/db_connection.php');
 require_once('errorHandler.php');
 require_once('../server/encryption.php');
-
-function generateAuthToken($userId)
-{
-    $token = bin2hex(random_bytes(32));
-    $expiration = date('Y-m-d H:i:s', strtotime('+1 day'));
-
-    $conn = getDbConnection();
-    $stmt = $conn->prepare("INSERT INTO auth_tokens (user_id, token, expiration) VALUES (?, ?, ?)");
-    $stmt->bind_param("iss", $userId, $token, $expiration);
-    $stmt->execute();
-    $stmt->close();
-
-    return $token;
-}
+require_once('auth.php');
 
 try {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -28,8 +14,8 @@ try {
 
         if ($action === 'login') {
             $email = $data['email'] ?? '';
-            $hashedPassword = $data['password'] ?? '';
-            if (empty($email) || empty($hashedPassword)) {
+            $password = $data['password'] ?? '';
+            if (empty($email) || empty($password)) {
                 handleBadRequestError("Email and password are required");
             }
 
@@ -40,16 +26,20 @@ try {
 
             if ($result->num_rows === 1) {
                 $user = $result->fetch_assoc();
-                if (verifyPassword($hashedPassword, $user['password'])) {
+                if (verifyPassword($password, $user['password'])) {
                     $token = generateAuthToken($user['id']);
-                    http_response_code(200);
-                    echo json_encode([
-                        'success' => true, 
-                        'id' => $user['id'], 
-                        'username' => $user['username'],
-                        'token' => $token,
-                        'message' => "Welcome back {$user['username']}!"
-                    ]);
+                    if ($token) {
+                        http_response_code(200);
+                        echo json_encode([
+                            'success' => true, 
+                            'id' => $user['id'], 
+                            'username' => $user['username'],
+                            'token' => $token,
+                            'message' => "Welcome back {$user['username']}!"
+                        ]);
+                    } else {
+                        handleError(E_USER_ERROR, "Failed to generate auth token", __FILE__, __LINE__);
+                    }
                 } else {
                     handleUnauthorizedError("Invalid credentials");
                 }
@@ -57,6 +47,16 @@ try {
                 handleUnauthorizedError("Invalid credentials");
             }
             $stmt->close();
+        } elseif ($action === 'logout') {
+            $token = $data['token'] ?? '';
+            if (empty($token)) {
+                handleBadRequestError("Token is required for logout");
+            }
+            if (invalidateAuthToken($token)) {
+                echo json_encode(['success' => true, 'message' => 'Logged out successfully']);
+            } else {
+                handleError(E_USER_ERROR, "Failed to invalidate token", __FILE__, __LINE__);
+            }
         } else {
             handleBadRequestError("Invalid action");
         }
