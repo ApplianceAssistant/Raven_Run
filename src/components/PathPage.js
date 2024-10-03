@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Challenge } from './Challenge';
 import Compass from './Compass';
 import Modal from './Modal';
@@ -28,16 +28,18 @@ function PathPage() {
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '' });
   const [modalKey, setModalKey] = useState(0);
   const [currentHint, setCurrentHint] = useState(0);
-  const { pathId } = useParams();
+  const { pathId, challengeIndex: urlChallengeIndex } = useParams();
   const [pathName, setPathName] = useState('');
   const [challenges, setChallenges] = useState([]);
-  const [challengeIndex, setChallengeIndex] = useState(0);
+  const [challengeIndex, setChallengeIndex] = useState(parseInt(urlChallengeIndex, 10) || 0);
   const [challengeState, setChallengeState] = useState(initializeChallengeState());
   const [contentVisible, setContentVisible] = useState(false);
   const [challengeVisible, setChallengeVisible] = useState(false);
   const [distanceInfo, setDistanceInfo] = useState({ distance: null, displayValue: '', unit: '', direction: '' });
   const distanceIntervalRef = useRef(null);
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
+  const navigate = useNavigate();
+
 
   const getRefreshInterval = (distance) => {
     if (distance === null) return 9000; // Default to 9 seconds if distance is unknown
@@ -67,7 +69,8 @@ function PathPage() {
     };
 
     loadPath();
-  }, [pathId]);
+    setChallengeIndex(parseInt(urlChallengeIndex, 10) || 0);
+  }, [pathId, urlChallengeIndex]);
 
   useEffect(() => {
     if (challenges.length > 0) {
@@ -136,7 +139,13 @@ function PathPage() {
     setContentVisible(false);
     setChallengeVisible(false);
     setTimeout(() => {
-      setChallengeIndex(prevIndex => prevIndex + 1);
+      const nextIndex = challengeIndex + 1;
+      if (nextIndex < challenges.length) {
+        navigate(`/path/${pathId}/challenge/${nextIndex}`);
+      } else {
+        // Handle end of hunt
+        navigate('/lobby');
+      }
     }, 500);
   };
 
@@ -237,10 +246,10 @@ function PathPage() {
           <button onClick={handleSubmitClick} className="submit-button">Submit</button>
         )}
         {shouldDisplaySkipButton(currentChallenge, challengeState) ? (
-        <button onClick={handleSkipClick}>Skip</button>
-      ) : (
-        <SkipCountdown challengeState={challengeState} />
-      )}
+          <button onClick={handleSkipClick}>Skip</button>
+        ) : (
+          <SkipCountdown challengeState={challengeState} />
+        )}
       </div>
     );
   };

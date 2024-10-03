@@ -15,6 +15,9 @@ import LogIn from './components/LogIn';
 import Friends from './components/Friends.js';
 import { checkServerConnectivity, API_URL, authFetch } from './utils/utils.js';
 import { startLocationUpdates, stopLocationUpdates, getCurrentLocation, updateUserLocation } from './utils/utils';
+import HuntDescription from './components/HuntDescription';
+
+
 
 import './css/App.scss';
 import './css/SpiritGuide.scss';
@@ -85,7 +88,8 @@ function AppContent() {
     message: ''
   });
   const [authState, setAuthState] = useState({
-    isLoggedIn: false,
+    //olways ligged in for testing
+    isLoggedIn: true,
     user: null,
     isLoading: true,
   });
@@ -197,6 +201,8 @@ function AppContent() {
             <Route path="/lobby" element={<Lobby />} />
             <Route path="/create-profile" element={<CreateProfile />} />
             <Route path="/log-in" element={<LogIn />} />
+            <Route path="/hunt-description/:pathId" element={<HuntDescription />} />
+            <Route path="/path/:pathId/challenge/:challengeIndex" element={<PathPage />} />
             {authState.isLoggedIn && (
               <>
                 <Route path="/profile" element={<Profile />} />
