@@ -37,6 +37,7 @@ try {
                             'token' => $token,
                             'message' => "Welcome back {$user['username']}!"
                         ]);
+                        $_SESSION['user_id'] = $user['id'];
                     } else {
                         handleError(E_USER_ERROR, "Failed to generate auth token", __FILE__, __LINE__);
                     }

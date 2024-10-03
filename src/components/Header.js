@@ -21,9 +21,9 @@ function Header({ isMenuOpen, toggleMenu }) {
         { label: 'Home', path: '/' },
         { label: 'About', path: '/about' },
         { label: 'Contact', path: '/contact' },
-        { label: 'Create', path: '/create' },
+        //{ label: 'Create', path: '/create' },
         { label: 'Settings', path: '/settings' },
-        { label: 'Log Out', path: '/logout' }  // We'll handle this specially
+        //{ label: 'Log Out', path: '/logout' }  // We'll handle this specially
       ];
     } else {
       const baseItems = [
@@ -85,22 +85,7 @@ function Header({ isMenuOpen, toggleMenu }) {
           {isMenuOpen ? '✕' : '☰'}
         </div>
       </header>
-      {isProfileGroup && isLoggedIn && (
-        <nav className="sub-nav-container">
-          <ul className="sub-nav">
-            {subNavItems.map((item) => (
-              <li key={item.path}>
-                <Link 
-                  to={item.path}
-                  className={location.pathname === item.path ? 'active' : ''}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
+
       <div className={`menu-overlay ${isMenuOpen ? 'open' : ''}`} onClick={toggleMenu}></div>
     </>
   );

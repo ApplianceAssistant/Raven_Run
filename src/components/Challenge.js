@@ -6,7 +6,7 @@ import ScrollableContent from './ScrollableContent';
 export const Challenge = ({ challenge, userLocation, challengeState, onStateChange }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
-  
+
   useEffect(() => {
     if (canDisplayDistance(challenge)) {
       checkTravelChallenge();
@@ -39,8 +39,8 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
         return renderTrueFalseChallenge();
       case 'textInput':
         return renderTextInputChallenge();
-        case 'travel':
-          return '';
+      case 'travel':
+        return '';
       default:
         return <p>Unknown challenge type.</p>;
     }
@@ -55,7 +55,7 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
   };
 
   const renderStoryChallenge = () => (
-    <div className="story-challenge">
+    <div className="bodyContent">
       <div className="story-text">{challenge.storyText}</div>
     </div>
   );
@@ -119,8 +119,26 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
       <ScrollableContent maxHeight="60vh">
         <h2>{challenge.title}</h2>
         <div className="challenge-content">
-          {challenge.description && <p className="challenge-description">{challenge.description}</p>}
-          {challenge.question && <p className="challenge-question">{challenge.question}</p>}
+          {challenge.description && (
+            <p className="challenge-description">
+              {challenge.description.split('\n').map((line, index) => (
+                <React.Fragment key={index}>
+                  {line}
+                  {index < challenge.description.split('\n').length - 1 && <br />}
+                </React.Fragment>
+              ))}
+            </p>
+          )}
+          {challenge.question && (
+            <p className="challenge-question">
+              {challenge.question.split('\n').map((line, index) => (
+                <React.Fragment key={index}>
+                  {line}
+                  {index < challenge.question.split('\n').length - 1 && <br />}
+                </React.Fragment>
+              ))}
+            </p>
+          )}
           {renderChallenge()}
         </div>
       </ScrollableContent>

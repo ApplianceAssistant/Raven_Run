@@ -23,7 +23,12 @@ function Lobby() {
   }, []);
 
   const handlePathSelect = (pathId) => {
-    navigate(`/path/${pathId}`);
+    const selectedPath = [...paths, ...customPaths].find(p => p.id === pathId);
+    if (selectedPath && selectedPath.description) {
+      navigate(`/hunt-description/${pathId}`);
+    } else {
+      navigate(`/path/${pathId}/challenge/0`);
+    }
   };
 
   const isDaytime = () => {
@@ -58,6 +63,8 @@ function Lobby() {
               )}
             </button>
           </li>
+          //add path description display
+          
         ))}
       </ul>
     </>
@@ -67,15 +74,10 @@ function Lobby() {
     <div className="content-wrapper">
       <div className="spirit-guide large">
         <div className="content">
-          <h2 className="contentHeader">Select your path</h2>
+          <h2 className="contentHeader">Select your Hunt<br></br><span style={{"font-size":'.9em'}}>(more coming soon)</span></h2>
           <ScrollableContent maxHeight="60vh">
-            {customPaths.length > 0 && (
-              <div className="custom-paths-section">
-                {renderPathList(customPaths, "Your Paths")}
-              </div>
-            )}
             <div className="default-paths-section">
-              {renderPathList(paths, "Default Paths")}
+              {renderPathList(paths, "")}
             </div>
           </ScrollableContent>
           <p className="time-indicator">
