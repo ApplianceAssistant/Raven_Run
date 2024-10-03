@@ -8,7 +8,6 @@ require_once('auth.php');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-echo ini_get('error_log');
 /*$user = authenticateUser();
 if (!$user) {
     http_response_code(401);

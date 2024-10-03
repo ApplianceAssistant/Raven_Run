@@ -11,14 +11,17 @@ error_reporting(E_ALL);
 
 // Ensure the request is coming from an authenticated user
 $user = authenticateUser();
-handleError(1, $user, __FILE__, __LINE__);
-exit;
-if (!$user) {
+/*if (!$user) {
     http_response_code(401);
     echo json_encode(["error" => "Unauthorized"]);
     exit;
+}*/
+if(isset($_SESSION['user_id'])) {
+    $user = $_SESSION['user_id'];
+} else {
+    handleError(E_USER_ERROR, "User not found", __FILE__, __LINE__);
+    exit;
 }
-
 try {
     $conn = getDbConnection();
 

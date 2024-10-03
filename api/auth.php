@@ -6,9 +6,11 @@ function getAuthorizationHeader() {
     $headers = null;
     if (isset($_SERVER['Authorization'])) {
         $headers = trim($_SERVER["Authorization"]);
-    } elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) { // Nginx or fast CGI
+    }
+    elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
         $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
-    } elseif (function_exists('apache_request_headers')) {
+    }
+    elseif (function_exists('apache_request_headers')) {
         $requestHeaders = apache_request_headers();
         // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
         $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
@@ -16,19 +18,34 @@ function getAuthorizationHeader() {
             $headers = trim($requestHeaders['Authorization']);
         }
     }
+    
+    // If we still don't have the headers, try to get from $_SERVER
+    if (!$headers) {
+        //The HTTP_AUTHORIZATION server variable is not set
+        //Apache does not pass authorization header by default
+        //For this we need to add the following rewrite rule in .htaccess file
+        //RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+        $headers = $_SERVER["HTTP_AUTHORIZATION"] ?? $_SERVER["REDIRECT_HTTP_AUTHORIZATION"] ?? null;
+    }
+    
     return $headers;
 }
 
-function authenticateUser() {
+function getBearerToken() {
     $headers = getAuthorizationHeader();
-    if (!$headers) {
-        return 'no headers';
+    // HEADER: Get the access token from the header
+    if (!empty($headers)) {
+        if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
+            return $matches[1];
+        }
     }
+    return null;
+}
 
-    if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
-        $token = $matches[1];
-    } else {
-        return 'no token';
+function authenticateUser() {
+    $token = getBearerToken();
+    if (!$token) {
+        return null;
     }
 
     try {
@@ -41,7 +58,7 @@ function authenticateUser() {
         if ($row = $result->fetch_assoc()) {
             if (strtotime($row['expiration']) < time()) {
                 invalidateAuthToken($token);
-                return 'expired';
+                return null;
             }
 
             $userId = $row['user_id'];
