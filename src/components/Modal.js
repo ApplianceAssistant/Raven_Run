@@ -41,7 +41,7 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type }) => {
         <div className="modal-header">
           <h2>{title}</h2>
         </div>
-        <div className={`modal-body ${getContentColor()}`}>
+        <div className={`modal-body`}>
           {content}
         </div>
         {buttons && buttons.length > 0 && (
