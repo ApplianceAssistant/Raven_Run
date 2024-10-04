@@ -1,5 +1,6 @@
 import { Challenge, hasTargetLocation, hasHints } from '../types/challengeTypes';
 import { calculateDistance, getCurrentLocation } from '../utils/utils';
+import { isStoryChallenge, isMultipleChoiceChallenge, isTrueFalseChallenge, isTextInputChallenge, isTravelChallenge } from '../types/challengeTypes';
 import { paths } from '../data/challenges';
 
 // Define the ChallengeState interface
@@ -73,10 +74,6 @@ export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
     return false;
   }
 
-  if (challenge.type !== 'travel') {
-    return false;
-  }
-
   const hasValidLocation = hasTargetLocation(challenge);
 
   let radius: number;
@@ -132,7 +129,11 @@ export function getTimeUntilSkip(state: ChallengeState): number {
   return Math.ceil(timeRemaining / 1000); // Return remaining time in seconds
 }
 // New function to get the next hint
-export const getNextHintState = (challenge, prevState) => {
+export const getNextHintState = (challenge: Challenge, prevState: ChallengeState): ChallengeState => {
+  if (!challenge.hints || challenge.hints.length === 0) {
+    return prevState;
+  }
+
   const nextHintIndex = ((prevState.currentHint ?? -1) + 1) % challenge.hints.length;
   return {
     ...prevState,
@@ -186,11 +187,23 @@ export function checkLocationReached(challenge: Challenge, userLocation: { latit
 }
 
 export function handleSubmit(challenge: Challenge, state: ChallengeState): ChallengeState {
-  const isCorrect = checkAnswer(challenge, state.answer);
-  console.log("handleSubmit - isCorrect:", isCorrect, "answer:", state.answer, "correctAnswer:", challenge.correctAnswer);
+  const isCorrect = checkAnswer(challenge, state.answer, state);
+  
+  let correctAnswer: string | boolean | undefined;
+  if (isMultipleChoiceChallenge(challenge) || isTextInputChallenge(challenge)) {
+    correctAnswer = challenge.correctAnswer;
+  } else if (isTrueFalseChallenge(challenge)) {
+    correctAnswer = challenge.correctAnswer ? 'true' : 'false';
+  } else if (isTravelChallenge(challenge)) {
+    correctAnswer = 'Location reached';
+  }
+
+  console.log("handleSubmit - isCorrect:", isCorrect, "answer:", state.answer, "correctAnswer:", correctAnswer);
+
   const feedbackText = isCorrect 
     ? challenge.feedbackTexts?.correct || 'Correct!'
     : getNextIncorrectFeedback(challenge);
+
   return {
     ...state,
     isCorrect,
@@ -198,20 +211,19 @@ export function handleSubmit(challenge: Challenge, state: ChallengeState): Chall
   };
 }
 
-export function checkAnswer(challenge: Challenge, answer: any): boolean {
-  console.log("checkAnswer - challenge type:", challenge.type, "answer:", answer, "correctAnswer:", challenge.correctAnswer);
-  switch (challenge.type) {
-    case 'story':
-      return true; // Stories are always considered "correct"
-    case 'multipleChoice':
-      return normalizeString(challenge.correctAnswer) === normalizeString(answer);
-    case 'textInput':
-      return checkTextInputAnswer(challenge.correctAnswer, answer);
-    case 'trueFalse':
-      return challenge.correctAnswer === answer;
-    default:
-      return false;
+export function checkAnswer(challenge: Challenge, answer: any, state: ChallengeState): boolean {
+  if (isStoryChallenge(challenge)) {
+    return true; // Stories are always considered "correct"
+  } else if (isMultipleChoiceChallenge(challenge)) {
+    return normalizeString(challenge.correctAnswer) === normalizeString(answer);
+  } else if (isTextInputChallenge(challenge)) {
+    return checkTextInputAnswer(challenge.correctAnswer, answer);
+  } else if (isTrueFalseChallenge(challenge)) {
+    return challenge.correctAnswer === answer;
+  } else if (isTravelChallenge(challenge)) {
+    return state.isLocationReached; // Use the state to check if the location is reached
   }
+  return false;
 }
 
 function normalizeString(str: string): string {

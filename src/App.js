@@ -13,6 +13,7 @@ import Create from './components/GameCreator';
 import Header from './components/Header';
 import LogIn from './components/LogIn';
 import Friends from './components/Friends.js';
+import Congratulations from './components/Congratulations';
 import { checkServerConnectivity, API_URL, authFetch } from './utils/utils.js';
 import { startLocationUpdates, stopLocationUpdates, getCurrentLocation, updateUserLocation } from './utils/utils';
 import HuntDescription from './components/HuntDescription';
@@ -203,6 +204,7 @@ function AppContent() {
             <Route path="/log-in" element={<LogIn />} />
             <Route path="/hunt-description/:pathId" element={<HuntDescription />} />
             <Route path="/path/:pathId/challenge/:challengeIndex" element={<PathPage />} />
+            <Route path="/congratulations" element={<Congratulations />} />
             {authState.isLoggedIn && (
               <>
                 <Route path="/profile" element={<Profile />} />

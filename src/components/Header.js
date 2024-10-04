@@ -59,7 +59,7 @@ function Header({ isMenuOpen, toggleMenu }) {
     <>
       <header className="header">
         <div className="logo">
-          <Link to="/">Crow Tours <span className="versionDisplay">V0.2</span></Link>
+          <Link to="/">Crow Tours <span className="versionDisplay">V0.3</span></Link>
         </div>
         <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <ul>
