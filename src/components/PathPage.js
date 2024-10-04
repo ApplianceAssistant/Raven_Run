@@ -169,9 +169,9 @@ function PathPage() {
         navigate(`/path/${pathId}/challenge/${nextIndex}`);
         saveHuntProgress(pathId, nextIndex);
       } else {
-        // Handle end of hunt
+        // Navigate to Congratulations page
         clearHuntProgress();
-        setShowCongratulations(true);
+        navigate('/congratulations');
       }
     }, 500);
   };
@@ -209,13 +209,6 @@ function PathPage() {
     }, 300); // Adjust this delay as needed to match your modal transition duration
   };
 
-  const handleGetHint = () => {
-    setChallengeState(prevState => {
-      const newState = getNextHintState(currentChallenge, prevState);
-      return newState;
-    });
-  };
-
   const handleSkipClick = () => {
     setContentVisible(false);
     setChallengeVisible(false);
@@ -224,9 +217,9 @@ function PathPage() {
       if (nextIndex < challenges.length) {
         setChallengeIndex(nextIndex);
       } else {
-        // Handle end of hunt
+        // Navigate to Congratulations page
         clearHuntProgress();
-        setShowCongratulations(true);
+        navigate('/congratulations');
       }
     }, 500);
   };
