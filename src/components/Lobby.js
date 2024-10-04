@@ -5,24 +5,36 @@ import ScrollableContent from './ScrollableContent';
 import { faLongArrowUp, faLongArrowDown, faArrowsV, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { paths } from '../data/challenges';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
+import { isHuntInProgress, getHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
+import Modal from './Modal';
 
-function Lobby() {  
+function Lobby() {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [customPaths, setCustomPaths] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPathId, setSelectedPathId] = useState(null);
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000); // Update every minute
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    // Fetch custom paths from local storage
     const storedPaths = getGamesFromLocalStorage();
     setCustomPaths(storedPaths);
   }, []);
 
   const handlePathSelect = (pathId) => {
+    if (isHuntInProgress()) {
+      setSelectedPathId(pathId);
+      setIsModalOpen(true);
+    } else {
+      startNewHunt(pathId);
+    }
+  };
+
+  const startNewHunt = (pathId) => {
     const selectedPath = [...paths, ...customPaths].find(p => p.id === pathId);
     if (selectedPath && selectedPath.description) {
       navigate(`/hunt-description/${pathId}`);
@@ -30,6 +42,24 @@ function Lobby() {
       navigate(`/path/${pathId}/challenge/0`);
     }
   };
+
+  const continueCurrentHunt = () => {
+    const progress = getHuntProgress();
+    if (progress) {
+      navigate(`/path/${progress.pathId}/challenge/${progress.challengeIndex}`);
+    }
+  };
+
+  const abandonCurrentHunt = () => {
+    clearHuntProgress();
+    startNewHunt(selectedPathId);
+  };
+
+  useEffect(() => {
+    // Fetch custom paths from local storage
+    const storedPaths = getGamesFromLocalStorage();
+    setCustomPaths(storedPaths);
+  }, []);
 
   const isDaytime = () => {
     const hour = currentTime.getHours();
@@ -74,12 +104,19 @@ function Lobby() {
     <div className="content-wrapper">
       <div className="spirit-guide large">
         <div className="content">
-          <h2 className="contentHeader">Select your Hunt<br></br><span style={{"font-size":'.9em'}}>(more coming soon)</span></h2>
+          <h2 className="contentHeader">Select your Hunt<br /><span style={{ fontSize: '.9em' }}>(more coming soon)</span></h2>
           <ScrollableContent maxHeight="60vh">
             <div className="default-paths-section">
               {renderPathList(paths, "")}
             </div>
           </ScrollableContent>
+          {isHuntInProgress() && (
+            <div className="center">
+            <button onClick={continueCurrentHunt} className="return-to-hunt-button">
+              Return to Hunt
+            </button>
+            </div>
+          )}
           <p className="time-indicator">
             Time: {formatTime(currentTime)}
             <span className="day-night-indicator">
@@ -89,6 +126,17 @@ function Lobby() {
           </p>
         </div>
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Hunt in Progress"
+        content="You have a hunt in progress. What would you like to do?"
+        buttons={[
+          { label: 'Continue Hunt', onClick: continueCurrentHunt },
+          { label: 'Abandon Hunt', onClick: abandonCurrentHunt },
+          { label: 'Cancel', onClick: () => setIsModalOpen(false) }
+        ]}
+      />
     </div>
   );
 }

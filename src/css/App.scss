@@ -120,11 +120,6 @@ h3 {
   }
 }
 
-.center {
-  margin: auto;
-  text-align: center;
-}
-
 // Content wrapper for centering
 .content-wrapper {
   justify-content: center;
@@ -692,12 +687,28 @@ form {
   }
 }
 
+.return-to-hunt-button {
+  margin-top: 20px;
+  background-color: $spooky-accent;
+  color: $text-color;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width:200px;
+
+  &:hover {
+    background-color: darken($spooky-accent, 10%);
+  }
+}
+
 .visible {
   opacity: 1;
 }
 
 .center {
-  margin: auto;
+  align-items: center;
+  text-align: center;
 }
 
 .clearMargin {

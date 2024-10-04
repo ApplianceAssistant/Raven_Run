@@ -22,6 +22,7 @@ import {
 import { getCurrentLocation } from '../utils/utils.js';
 import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
+import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
 
 function PathPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,7 +56,6 @@ function PathPage() {
       const numericPathId = parseInt(pathId, 10);
       let fetchedChallenges = getChallenges(numericPathId);
       let pathName = getPathName(numericPathId);
-      // If not found in default paths, check custom paths
       if (!fetchedChallenges.length) {
         const customPaths = getGamesFromLocalStorage();
         const customPath = customPaths.find(path => path.id === numericPathId);
@@ -71,6 +71,9 @@ function PathPage() {
 
     loadPath();
     setChallengeIndex(parseInt(urlChallengeIndex, 10) || 0);
+    
+    // Save progress when component mounts
+    saveHuntProgress(pathId, urlChallengeIndex);
   }, [pathId, urlChallengeIndex]);
 
   const currentChallenge = challenges[challengeIndex];
@@ -162,8 +165,10 @@ function PathPage() {
       const nextIndex = challengeIndex + 1;
       if (nextIndex < challenges.length) {
         navigate(`/path/${pathId}/challenge/${nextIndex}`);
+        saveHuntProgress(pathId, nextIndex);
       } else {
         // Handle end of hunt
+        clearHuntProgress();
         navigate('/lobby');
       }
     }, 500);
