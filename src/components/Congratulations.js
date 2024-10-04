@@ -27,7 +27,7 @@ const Congratulations = ({ onClose }) => {
                     <p>Your bravery and wit have led you to victory in the world of shadow.</p>
                     <p>Let your friends know about your paranormal prowess!</p>
                     <a
-                        href="https://www.facebook.com/profile.php?id=61566859439472"
+                        href="https://www.facebook.com/CrowTours/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="facebook-link"

@@ -40,7 +40,7 @@ export const paths: Path[] = [
           latitude: 38.2126684,
           longitude: -85.2195733
         },
-        radius: 30,
+        radius: 15,
         hints: [
           "My corridors whisper of Dewey's decimals.",
           "Within my walls, you can traverse centuries without taking a step.",
@@ -119,7 +119,7 @@ export const paths: Path[] = [
           latitude: 38.2216154,
           longitude: -85.344623
         },
-        radius: 30,
+        radius: 15,
         hints: [
           "Whispers of purple dance on the breeze, guiding you to a historic abode.",
           "Seek the dwelling where tranquility blooms in neat rows.",
@@ -174,7 +174,7 @@ export const paths: Path[] = [
           latitude: 38.211494267619294,
           longitude: -85.22017165868255
         },
-        radius: 30,
+        radius: 15,
         hints: [
           "Listen for the whispers of long-forgotten lines floating on the breeze.",
           "Where the veil between reality and fiction is thinnest, there you'll find your destination.",
@@ -233,7 +233,7 @@ export const paths: Path[] = [
           latitude: 38.19053616458982,
           longitude: -85.0911406260606
         },
-        radius: 20,
+        radius: 15,
         hints: [
           "Look for a coin-operated time capsule, once the lifeblood of long-distance dialogue.",
           "Its domain lies before a humble establishment where dawn's first light meets the aroma of home-cooked breakfasts.",
@@ -290,7 +290,7 @@ export const paths: Path[] = [
           latitude: 38.191633120656014,
           longitude: -85.10006747655054
         },
-        radius: 50,
+        radius: 15,
         hints: [
           "Before an aged edifice, this tube-man stands guard.",
           "At the summit of stone steps, a metallic greeter waits.",
@@ -322,7 +322,7 @@ export const paths: Path[] = [
           latitude: 38.21222958393675,
           longitude: -85.23119620387394
         },
-        radius: 30,
+        radius: 20,
         hints: [
           "Look for a towering wooden sentinel, where an eagle's gaze meets the stars and stripes.",
           "Seek the place where the roar of a chainsaw has given voice to Shelby's history.",
@@ -389,7 +389,7 @@ export const paths: Path[] = [
           latitude: 38.213191687098416,
           longitude: -85.21807572818331
         },
-        radius: 30,
+        radius: 15,
         hints: [
           "Look for a gleaming form where conferences convene and travelers find guidance.",
           "Three cylindrical titans of agriculture stand behind this artistic anomaly.",
@@ -466,7 +466,7 @@ export const paths: Path[] = [
           latitude: 38.2110237,
           longitude: -85.2162815
         },
-        radius: 20,
+        radius: 15,
         hints: [
           "Look for a place where Shelby's heartbeat is recorded in monthly installments.",
           "Seek the building where local shutterbugs and wordsmiths unite to tell the county's tales.",

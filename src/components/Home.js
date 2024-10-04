@@ -18,6 +18,9 @@ function Home() {
   const handleEnter = () => {
     navigate('/lobby');
   };
+  const handleLearnMore = () => {
+    navigate('/about');
+  }
   console.log("Home.js: isLoggedIn: ", isLoggedIn);
   return (
     <>
@@ -36,7 +39,8 @@ function Home() {
                   </>
                 )}
               </div>
-              <h1>Site Is In Development</h1>
+              <h3>Crow Tours is currently in alpha testing</h3>
+              <p>We're excited to have you join our flock of early explorers! Your feedback is invaluable in helping us refine and improve the game.</p>
             </div>
           </div>
         </div>
