@@ -3,7 +3,7 @@ import Modal from './Modal';
 import { checkLocationReached, canDisplayDistance } from '../services/challengeService.ts';
 import ScrollableContent from './ScrollableContent';
 
-export const Challenge = ({ challenge, userLocation, challengeState, onStateChange }) => {
+export const Challenge = ({ challenge, userLocation, challengeState, onStateChange, onContinue }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
 
@@ -26,8 +26,6 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
 
     return () => clearInterval(intervalId);
   };
-
-
 
   const renderChallenge = () => {
     switch (challenge.type) {
@@ -55,8 +53,13 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
   };
 
   const renderStoryChallenge = () => (
-    <div className="bodyContent">
+    <div className="story-challenge">
       <div className="story-text">{challenge.storyText}</div>
+      {challengeState.textVisible && (
+        <div className="continue-button-container">
+          <button onClick={onContinue} className="continue-button">Continue</button>
+        </div>
+      )}
     </div>
   );
 

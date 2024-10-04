@@ -4,6 +4,7 @@ import { Challenge } from './Challenge';
 import Compass from './Compass';
 import Modal from './Modal';
 import SkipCountdown from './SkipCountdown';
+import Congratulations from './Congratulations';
 import {
   getChallenges,
   getPathName,
@@ -39,6 +40,7 @@ function PathPage() {
   const [distanceInfo, setDistanceInfo] = useState({ distance: null, displayValue: '', unit: '', direction: '' });
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
   const [distanceNoticeVisible, setDistanceNoticeVisible] = useState(false);
+  const [showCongratulations, setShowCongratulations] = useState(false);
   const navigate = useNavigate();
 
   const distanceIntervalRef = useRef(null);
@@ -71,7 +73,7 @@ function PathPage() {
 
     loadPath();
     setChallengeIndex(parseInt(urlChallengeIndex, 10) || 0);
-    
+
     // Save progress when component mounts
     saveHuntProgress(pathId, urlChallengeIndex);
   }, [pathId, urlChallengeIndex]);
@@ -169,7 +171,7 @@ function PathPage() {
       } else {
         // Handle end of hunt
         clearHuntProgress();
-        navigate('/lobby');
+        setShowCongratulations(true);
       }
     }, 500);
   };
@@ -218,8 +220,20 @@ function PathPage() {
     setContentVisible(false);
     setChallengeVisible(false);
     setTimeout(() => {
-      setChallengeIndex(prevIndex => prevIndex + 1);
+      const nextIndex = challengeIndex + 1;
+      if (nextIndex < challenges.length) {
+        setChallengeIndex(nextIndex);
+      } else {
+        // Handle end of hunt
+        clearHuntProgress();
+        setShowCongratulations(true);
+      }
     }, 500);
+  };
+
+  const handleCloseCongratulations = () => {
+    setShowCongratulations(false);
+    navigate('/lobby');
   };
 
   const displayFeedback = (isCorrect, feedbackText) => {
@@ -275,6 +289,7 @@ function PathPage() {
         ) : (
           <SkipCountdown challengeState={challengeState} />
         )}
+        <button onClick={handleSkipClick}>Skip</button>
       </div>
     );
   };
@@ -302,6 +317,7 @@ function PathPage() {
                   challengeState={{ ...challengeState, textVisible: challengeVisible }}
                   onStateChange={handleStateChange}
                   userLocation={getCurrentLocation()}
+                  onContinue={handleContinueClick}
                 />
               )}
             </div>
@@ -317,6 +333,9 @@ function PathPage() {
         buttons={modalContent.buttons}
         type={modalContent.type}
       />
+      {showCongratulations && (
+        <Congratulations onClose={handleCloseCongratulations} />
+      )}
     </div>
   );
 }

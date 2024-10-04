@@ -1,5 +1,6 @@
 /* App.scss */
 @import 'variables';
+@import 'floating-ghost';
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;700&display=swap');
 
 * {
@@ -276,16 +277,24 @@ h3 {
 }
 
 .story-challenge {
-  position: relative;
-
-  .story-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: .5rem;
+  .continue-button-container {
+    margin-top: 20px;
+    text-align: center;
   }
 
+  .continue-button {
+    @include button-style;
+    background-color: $spooky-accent;
+    color: $text-color;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 
+    &:hover {
+      background-color: darken($spooky-accent, 10%);
+    }
+  }
 }
 
 .text-to-speech {
