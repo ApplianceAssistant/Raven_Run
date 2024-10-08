@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Modal from './Modal';
 import { checkLocationReached, canDisplayDistance, updateDistance } from '../services/challengeService.ts';
 import ScrollableContent from './ScrollableContent';
+import { metersToFeet, feetToMeters, getUserUnitPreference } from './unitConversion';
 
 export const Challenge = ({ challenge, userLocation, challengeState, onStateChange, onContinue }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,24 +12,24 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
 
   let travelChallengeIntervalId = null;
 
-  const checkTravelChallenge = () => {
-    if (travelChallengeIntervalId) {
-      clearInterval(travelChallengeIntervalId);
+  const checkTravelChallenge = (challenge) => {
+    const newDistanceInfo = updateDistance(challenge);
+    const isMetric = getUserUnitPreference();
+    let distanceInChallengeUnit;
+  
+    if (isMetric) {
+      // Convert distance to meters if the radius is in meters
+      distanceInChallengeUnit = newDistanceInfo.unit === 'ft' ? feetToMeters(newDistanceInfo.distance) : newDistanceInfo.distance;
+    } else {
+      // Convert distance to feet if the radius is in feet
+      distanceInChallengeUnit = newDistanceInfo.unit === 'm' ? metersToFeet(newDistanceInfo.distance) : newDistanceInfo.distance;
     }
-
-    travelChallengeIntervalId = setInterval(() => {
-      const newDistanceInfo = updateDistance(challenge);
-      if (newDistanceInfo.distance !== null && newDistanceInfo.distance <= challenge.radius) {
-        onStateChange({ isLocationReached: true });
-        clearInterval(travelChallengeIntervalId);
-        travelChallengeIntervalId = null;
-        if (challenge.completionFeedback) {
-          onStateChange({ feedback: challenge.completionFeedback });
-        }
-      }
-    }, 2000);
-
-    return () => clearInterval(travelChallengeIntervalId);
+  
+    if (distanceInChallengeUnit !== null && distanceInChallengeUnit <= challenge.radius) {
+      return true;
+    }
+  
+    return false;
   };
 
   useEffect(() => {
