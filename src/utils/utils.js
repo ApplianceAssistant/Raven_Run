@@ -188,9 +188,17 @@ export function calculateDistance(loc1, loc2) {
     Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c; // Distance in kilometers
-  return distance * 1000; // Convert to meters
+  const distanceInMeters = distance * 1000; // Convert to meters
+
+  console.log(`Calculated distance: ${distanceInMeters} meters`);
+  return distanceInMeters;
 }
 
 function degToRad(deg) {
   return deg * (Math.PI / 180);
+}
+
+export function getUserUnitPreference() {
+  const savedUnitSystem = localStorage.getItem('unitSystem');
+  return savedUnitSystem ? JSON.parse(savedUnitSystem) : false; // Default to false (imperial) if not set
 }

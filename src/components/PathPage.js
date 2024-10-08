@@ -50,7 +50,7 @@ function PathPage() {
     if (distance <= 0.1) return 2000; // 2 seconds when very close (less than 0.1 miles)
     if (distance <= 0.5) return 3000; // 3 seconds when close (between 0.1 and 0.5 miles)
     if (distance <= 1) return 5000; // 5 seconds when between 0.5 and 1 mile
-    return 9000; // 9 seconds when more than 1 mile away
+    return 7000; // 9 seconds when more than 1 mile away
   }, []);
 
   useEffect(() => {
@@ -82,15 +82,17 @@ function PathPage() {
 
   const updateDistanceAndCheckLocation = useCallback(() => {
     if (currentChallenge && currentChallenge.targetLocation) {
-      const userLocation = getCurrentLocation();
       const newDistanceInfo = updateDistance(currentChallenge);
       setDistanceInfo(newDistanceInfo);
-
-      if (checkLocationReached(currentChallenge, userLocation)) {
+      console.warn("Distance info:", newDistanceInfo);
+  
+      if (newDistanceInfo.distance !== null && newDistanceInfo.distance <= currentChallenge.radius) {
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
         clearTimeout(distanceIntervalRef.current);
       } else {
         const nextInterval = getRefreshInterval(newDistanceInfo.distance);
+        console.log("nextInterval:", nextInterval, " distance:", newDistanceInfo.distance);
+        clearTimeout(distanceIntervalRef.current); // Clear any existing timeout
         distanceIntervalRef.current = setTimeout(updateDistanceAndCheckLocation, nextInterval);
       }
     }
@@ -282,7 +284,6 @@ function PathPage() {
         ) : (
           <SkipCountdown challengeState={challengeState} />
         )}
-        <button onClick={handleSkipClick}>Skip</button>
       </div>
     );
   };
