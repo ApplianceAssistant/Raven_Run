@@ -1,32 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import Modal from './Modal';
-import { checkLocationReached, canDisplayDistance } from '../services/challengeService.ts';
+import { checkLocationReached, canDisplayDistance, updateDistance } from '../services/challengeService.ts';
 import ScrollableContent from './ScrollableContent';
 
 export const Challenge = ({ challenge, userLocation, challengeState, onStateChange, onContinue }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
 
-  useEffect(() => {
-    if (canDisplayDistance(challenge)) {
-      checkTravelChallenge();
-    }
-  }, [challenge, userLocation]);
+
+
+  let travelChallengeIntervalId = null;
 
   const checkTravelChallenge = () => {
-    const intervalId = setInterval(() => {
-      if (checkLocationReached(challenge, userLocation)) {
+    if (travelChallengeIntervalId) {
+      clearInterval(travelChallengeIntervalId);
+    }
+
+    travelChallengeIntervalId = setInterval(() => {
+      const newDistanceInfo = updateDistance(challenge);
+      if (newDistanceInfo.distance !== null && newDistanceInfo.distance <= challenge.radius) {
         onStateChange({ isLocationReached: true });
-        clearInterval(intervalId);
+        clearInterval(travelChallengeIntervalId);
+        travelChallengeIntervalId = null;
         if (challenge.completionFeedback) {
           onStateChange({ feedback: challenge.completionFeedback });
         }
       }
     }, 2000);
 
-    return () => clearInterval(intervalId);
+    return () => clearInterval(travelChallengeIntervalId);
   };
 
+  useEffect(() => {
+    if (canDisplayDistance(challenge)) {
+      checkTravelChallenge();
+    }
+    return () => clearInterval(travelChallengeIntervalId); // Cleanup on unmount
+  }, [challenge, userLocation]);
+  
   const renderChallenge = () => {
     switch (challenge.type) {
       case 'story':

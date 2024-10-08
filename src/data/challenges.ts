@@ -158,8 +158,8 @@ export const paths: Path[] = [
         id: "5",
         type: "travel",
         title: "The Haunted Stage",
-        description: `The crows guide you through Shelby's misty streets, their wings casting eerie shadows. As you follow, a new rhyme pervades in your thoughts:\n\n
-        In Shelby's heart, a stage does stand,\n
+        description: `The crows guide you through Shelby's misty streets, their wings casting eerie shadows. As you follow, a new rhyme pervades your thoughts:\n\n
+        In Shelbyville's heart, a stage does stand,\n
         Where tales of old enchant the land.\n
         Behind its doors, a story waits,\n
         Of royal blood and twisted fates.\n\n
@@ -169,7 +169,7 @@ export const paths: Path[] = [
         Where actors dare to wake the dead.\n\n
         But as you near, tread soft and slow,\n
         For in these halls, names hold power, you know.`,
-        question: "Find the playhouse described in the rhyme, where theatrical ghosts await.",
+        question: "Find the stage described in the rhyme, where theatrical ghosts await.",
         targetLocation: {
           latitude: 38.211494267619294,
           longitude: -85.22017165868255
@@ -297,7 +297,7 @@ export const paths: Path[] = [
           "By the road he waits, this man of tubes and seams.",
           "Climb to meet this ductwork sentry, where architecture meets modern art."
         ],
-        completionFeedback: "As you approach, the metallic figure looms larger with each step. A crow swoops ahead, landing on the statue's outstretched arm of galvanized steel. This unconventional guardian seems to bridge past and present, its hollow body whispering secrets as the wind sings through its joints. What metallic melody of hidden histories and untold tales does it play?",
+        completionFeedback: "As you approach, the metallic figure looms larger with each step. A crow swoops ahead, landing on the statue's outstretched arm of galvanized steel. This unconventional guardian seems to bridge past and present, its hollow body whispering secrets as the wind sings through its joints.",
         repeatable: true
       },
       {
@@ -368,22 +368,21 @@ export const paths: Path[] = [
         id: "12",
         type: "travel",
         title: "Gleaming Guardian of Grain",
-        description: `The murder of crows leads you through Shelbyville's streets, their obsidian wings reflecting the moonlight. As you follow, an enigmatic verse forms in your mind:
-      
-        Where rural roots meet modern sheen,\n
-        A valiant steed stands unforeseen.\n
-        Before stone giants, round and tall,\n
-        This polished guardian watches all.\n
-      
-        No flesh nor bone, but mirror-bright,\n
-        It catches stars in dead of night.\n
-        Where strangers gather, stories share,\n
-        This silent sentinel stands with flair.\n\n
-      
-        Seek the place where welcome rings,\n
-        Where steel meets sky and memory clings.\n
-        A paradox of old and new,\n
-        This sculpture waits to greet the few.`,
+        description: `The murder of crows guides you through Shelbyville's streets, their dark forms stark against the moonlit sky. As you follow, an enigmatic verse forms in your mind:\n\n
+
+          Where farmland meets artistic flair,\n
+          A steed of voids stands proud and rare.\n
+          Before stone sentinels, cylindrical and tall,\n
+          This airy guardian watches over all.\n\n
+
+          Not flesh, nor solid form complete,\n
+          But outlined essence, a sculptural feat.\n
+          Where travelers pause and stories unfold,\n
+          This phantom horse breaks the mold.\n\n
+
+          Seek the place where welcome abounds,\n
+          Where negative space with steel surrounds.\n
+          A paradox of absence and form,`,
         question: "Locate the enigmatic sculpture described in the verse, where modern art meets rural heritage.",
         targetLocation: {
           latitude: 38.213191687098416,
@@ -391,32 +390,31 @@ export const paths: Path[] = [
         },
         radius: 15,
         hints: [
-          "Look for a gleaming form where conferences convene and travelers find guidance.",
+          "Look for a horse-shaped void where conferences convene and travelers find guidance.",
           "Three cylindrical titans of agriculture stand behind this artistic anomaly.",
-          "On Seventh Street, a metallic mare keeps silent vigil.",
-          "The crows circle a structure where polished steel reflects Shelbyville's evolving identity."
+          "On Seventh Street, a skeletal steed keeps silent vigil.",
+          "The crows circle a structure where empty spaces outline Shelbyville's evolving identity."
         ],
-        completionFeedback: "As you approach, the moonlight dances across the sculpture's surface, creating an otherworldly glow. The steel steed stands proudly before the looming silos, a striking juxtaposition of Shelbyville's agricultural past and artistic present. Your corvid guides alight upon the nearby welcome center, their eyes glinting with anticipation. What secrets might this modern sentinel be guarding?",
+        completionFeedback: `As you approach, the moonlight filters through the sculpture's open framework, casting intricate shadows on the ground. The ethereal steed stands proudly before the looming silos, a striking juxtaposition of Shelbyville's agricultural past and artistic present. Your corvid guides alight upon the nearby welcome center, their eyes gleaming with anticipation. What secrets might this modern sentinel, formed as much by absence as presence, be guarding?`,
         repeatable: true
       },
       {
         id: "13",
         type: "multipleChoice",
-        title: "Reflections of Progress",
-        description: `Standing before the gleaming equine sculpture, you're struck by its surreal presence against the backdrop of the imposing silos. The polished steel catches every nuance of light, seeming to shift and change as you move around it. Your crow companions hop closer, their reflections distorted in the curves of the metallic steed.
+        title: "Voids of Vision",
+        description: `Standing before the ethereal equine sculpture, you're struck by its surreal presence against the backdrop of the imposing silos. The open framework of steel outlines a horse's form, allowing glimpses of the sky and silos through its body. As you move around it, the interplay of solid and void creates an ever-changing silhouette. Your crow companions hop closer, peering curiously through the sculpture's empty spaces.\n
+          As you study this artistic marvel, you ponder its significance:\n\n
       
-        As you study this artistic marvel, you ponder its significance:\n\n
+          In void and stone, a tale is spun,\n
+          Of Shelbyville, two eras as one.\n
+          A steed of air, no stable required,\n
+          Guarding stories, old and newly inspired.\n\n
       
-        In steel and stone, a tale is told,\n
-        Of Shelbyville, both new and old.\n
-        A horse that never needs a stable,\n
-        Guarding stories, fact and fable.\n\n
-      
-        But why a steed of mirrored sheen,\n
-        Before these towers of bygone scene?\n
-        What truth does this union impart,\n
-        Of Shelbyville's transforming heart?`,
-        question: "What does the juxtaposition of the modern steel horse sculpture and the traditional grain silos likely symbolize for Shelbyville?",
+          But why a horse of empty space,\n
+          Before these towers from a bygone place?\n
+          What truth does this union impart,\n
+          Of Shelbyville's transforming heart?`,
+        question: "What does the juxtaposition of the modern, airy horse sculpture and the traditional grain silos likely symbolize for Shelbyville?",
         options: [
           "The replacement of agriculture with technology",
           "The conflict between rural and urban values",
@@ -425,17 +423,17 @@ export const paths: Path[] = [
         ],
         correctAnswer: "The balance of preserving heritage while embracing progress",
         hints: [
-          "Consider how the materials of each structure speak to different eras.",
-          "Reflect on how Shelbyville might honor its past while looking to the future.",
+          "Consider how the open design of the sculpture contrasts with the solid silos, yet both coexist.",
+          "Reflect on how Shelbyville might honor its substantial past while creating space for new ideas.",
           "Think about what the welcome center's location suggests about the town's priorities.",
-          "Ponder how art can bridge the gap between tradition and innovation."
+          "Ponder how the sculpture's blend of presence and absence might represent Shelbyville's journey."
         ],
         feedbackTexts: {
-          correct: "As you voice this insight, the steel horse seems to shimmer with approval. Your understanding of Shelbyville's delicate balance between honoring its agricultural roots and fostering artistic growth resonates through the sculpture. The crows caw softly, as if affirming your grasp of this town's evolving identity. What other harmonies of past and present might you uncover as you continue your nocturnal exploration?",
+          correct: "As you voice this insight, a breeze whistles through the steel horse's framework, creating a soft, approving whistle. Your understanding of Shelbyville's delicate balance between honoring its agricultural roots and fostering artistic growth resonates through the sculpture's open spaces. The crows caw softly, as if affirming your grasp of this town's evolving identity. What other harmonies of past and present might you uncover as you continue your nocturnal exploration?",
           incorrect: [
-            "The steel horse's reflection wavers, distorting your image. Perhaps there's a more nuanced interpretation to be found in this artistic choice.",
-            "A cool breeze whispers past, carrying the faint scent of harvested grain. The answer may lie in finding harmony rather than conflict.",
-            "The crows rustle their feathers, urging you to look beyond surface appearances. How might this art piece speak to Shelbyville's journey through time?"
+            "The steel horse's outline seems to waver in the moonlight. Perhaps there's a more nuanced interpretation to be found in this artistic choice.",
+            "A cool breeze whispers through the sculpture's empty spaces, carrying the faint scent of harvested grain. The answer may lie in finding harmony rather than conflict.",
+            "The crows rustle their feathers, urging you to look beyond what's there and what's not. How might this art piece speak to Shelbyville's journey through time?"
           ]
         },
         repeatable: true

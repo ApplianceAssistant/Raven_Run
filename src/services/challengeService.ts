@@ -1,7 +1,9 @@
 import { Challenge, hasTargetLocation, hasHints } from '../types/challengeTypes';
-import { calculateDistance, getCurrentLocation } from '../utils/utils';
+import { calculateDistance, getCurrentLocation, getUserUnitPreference } from '../utils/utils';
+import { kilometersToMiles, metersToFeet, getLargeDistanceUnit, getDistanceUnit } from '../utils/unitConversion';
 import { isStoryChallenge, isMultipleChoiceChallenge, isTrueFalseChallenge, isTextInputChallenge, isTravelChallenge } from '../types/challengeTypes';
 import { paths } from '../data/challenges';
+import { getHuntProgress } from '../utils/huntProgressUtils';
 
 // Define the ChallengeState interface
 export interface ChallengeState {
@@ -31,30 +33,20 @@ export function initializeChallengeState(): ChallengeState {
   };
 }
 
-export function updateDistance(challenge: Challenge): { 
+export function updateDistance(challenge: Challenge): {
   distance: number | null, 
   displayValue: string, 
   unit: string,
   direction: string 
 } {
+  console.warn("update distance", challenge);
   const userLocation = getCurrentLocation();
+  
   if (userLocation && hasTargetLocation(challenge)) {
-    const distanceInMeters = calculateDistance(userLocation, challenge.targetLocation!);
-    const distanceInMiles = (distanceInMeters / 1609.344).toFixed(2);
-    const newDistance = parseFloat(distanceInMiles);
-
-    let displayValue, unit;
-    if (newDistance >= 0.1) {
-      displayValue = distanceInMiles;
-      unit = 'miles';
-    } else {
-      displayValue = Math.round(newDistance * 5280).toString();
-      unit = 'feet';
-    }
-
+    const { distance, displayValue, unit } = calculateDistanceInfo(userLocation, challenge.targetLocation!);
     const direction = calculateDirection(userLocation, challenge.targetLocation!);
 
-    return { distance: newDistance, displayValue, unit, direction };
+    return { distance, displayValue, unit, direction };
   }
   return { distance: null, displayValue: '', unit: '', direction: '' };
 }
@@ -111,6 +103,11 @@ export function shouldDisplayContinueButton(challenge: Challenge, state: Challen
 export function shouldDisplaySkipButton(challenge: Challenge, state: ChallengeState): boolean {
   if (shouldDisplayContinueButton(challenge, state)) {
     return false;
+  }
+
+  const huntProgress = getHuntProgress();
+  if (huntProgress && huntProgress.challengeIndex > challenge.id) {
+    return true;
   }
 
   const currentTime = new Date().getTime();
@@ -181,9 +178,21 @@ export function checkLocationReached(challenge: Challenge, userLocation: { latit
   if (!userLocation || typeof userLocation.latitude !== 'number' || typeof userLocation.longitude !== 'number') {
     return false;
   }
+  console.warn( "checkLocationReached", challenge, userLocation);
+  const { distanceInMeters } = calculateDistanceInfo(userLocation, challenge.targetLocation!);
+  return distanceInMeters <= challenge.radius;
+}
 
-  const distance = calculateDistance(userLocation, challenge.targetLocation!);
-  return distance <= challenge.radius;
+//helper function to consolidate distance calculation
+function calculateDistanceInfo(userLocation: { latitude: number, longitude: number }, targetLocation: { latitude: number, longitude: number }) {
+  const isMetric = getUserUnitPreference();
+  const distanceInMeters = calculateDistance(userLocation, targetLocation);
+  const distanceInKilometers = distanceInMeters / 1000;
+  const distance = isMetric ? distanceInKilometers : kilometersToMiles(distanceInKilometers);
+  const displayValue = distance.toFixed(2);
+  const unit = getLargeDistanceUnit(isMetric);
+
+  return { distance, displayValue, unit, distanceInMeters };
 }
 
 export function handleSubmit(challenge: Challenge, state: ChallengeState): ChallengeState {

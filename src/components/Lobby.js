@@ -92,9 +92,7 @@ function Lobby() {
                 </span>
               )}
             </button>
-          </li>
-          //add path description display
-          
+          </li>          
         ))}
       </ul>
     </>
