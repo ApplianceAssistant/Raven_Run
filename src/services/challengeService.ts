@@ -3,6 +3,7 @@ import { calculateDistance, getCurrentLocation, getUserUnitPreference } from '..
 import { kilometersToMiles, metersToFeet, getLargeDistanceUnit, getDistanceUnit } from '../utils/unitConversion';
 import { isStoryChallenge, isMultipleChoiceChallenge, isTrueFalseChallenge, isTextInputChallenge, isTravelChallenge } from '../types/challengeTypes';
 import { paths } from '../data/challenges';
+import { getHuntProgress } from '../utils/huntProgressUtils';
 
 // Define the ChallengeState interface
 export interface ChallengeState {
@@ -102,6 +103,11 @@ export function shouldDisplayContinueButton(challenge: Challenge, state: Challen
 export function shouldDisplaySkipButton(challenge: Challenge, state: ChallengeState): boolean {
   if (shouldDisplayContinueButton(challenge, state)) {
     return false;
+  }
+
+  const huntProgress = getHuntProgress();
+  if (huntProgress && huntProgress.challengeIndex > challenge.id) {
+    return true;
   }
 
   const currentTime = new Date().getTime();
