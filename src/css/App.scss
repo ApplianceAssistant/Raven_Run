@@ -893,6 +893,19 @@ form {
   }
 }
 
+.align-left {
+  text-align: left;
+}
+
+
+.legal-disclaimer {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 20px;
+  text-align: center;
+  padding: 0 10px;
+}
+
 /* Character count styles */
 .char-count {
   text-align: right;
