@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Modal from './Modal';
 import { checkLocationReached, canDisplayDistance, updateDistance } from '../services/challengeService.ts';
 import ScrollableContent from './ScrollableContent';
-import { metersToFeet, feetToMeters, getUserUnitPreference } from '../utils/unitConversion.js';
+import { metersToFeet, feetToMeters } from '../utils/unitConversion.js';
+import { getUserUnitPreference} from '../utils/utils.js';
 
 export const Challenge = ({ challenge, userLocation, challengeState, onStateChange, onContinue }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
