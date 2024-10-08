@@ -20,10 +20,11 @@ import {
   shouldDisplayDistanceNotice,
   checkLocationReached
 } from '../services/challengeService.ts';
-import { getCurrentLocation } from '../utils/utils.js';
+import { getCurrentLocation, getUserUnitPreference } from '../utils/utils.js';
 import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
+import { metersToFeet, feetToMeters, kilometersToMiles, milesToKilometers } from '../utils/unitConversion';
 
 function PathPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,12 +46,26 @@ function PathPage() {
 
   const distanceIntervalRef = useRef(null);
 
-  const getRefreshInterval = useCallback((distance) => {
-    if (distance === null) return 9000; // Default to 9 seconds if distance is unknown
-    if (distance <= 0.1) return 2000; // 2 seconds when very close (less than 0.1 miles)
-    if (distance <= 0.5) return 3000; // 3 seconds when close (between 0.1 and 0.5 miles)
-    if (distance <= 1) return 5000; // 5 seconds when between 0.5 and 1 mile
-    return 7000; // 9 seconds when more than 1 mile away
+  const getRefreshInterval = useCallback((newDistanceInfo) => {
+    const { distance, unit } = newDistanceInfo;
+    const isMetric = getUserUnitPreference();
+    let distanceInMiles;
+  
+    if (unit === 'ft') {
+      distanceInMiles = feetToMeters(distance) / 1609.34; // Convert feet to meters, then to miles
+    } else if (unit === 'm') {
+      distanceInMiles = distance / 1609.34; // Convert meters to miles
+    } else if (unit === 'km') {
+      distanceInMiles = kilometersToMiles(distance); // Convert kilometers to miles
+    } else {
+      distanceInMiles = distance; // Assume distance is already in miles
+    }
+  
+    if (distanceInMiles === null) return 9000; // Default to 9 seconds if distance is unknown
+    if (distanceInMiles <= 0.1) return 2000; // 2 seconds when very close (less than 0.1 miles)
+    if (distanceInMiles <= 0.5) return 3000; // 3 seconds when close (between 0.1 and 0.5 miles)
+    if (distanceInMiles <= 1) return 5000; // 5 seconds when between 0.5 and 1 mile
+    return 7000; // 7 seconds when more than 1 mile away
   }, []);
 
   useEffect(() => {
@@ -90,7 +105,7 @@ function PathPage() {
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
         clearTimeout(distanceIntervalRef.current);
       } else {
-        const nextInterval = getRefreshInterval(newDistanceInfo.distance);
+        const nextInterval = getRefreshInterval(newDistanceInfo);
         console.log("nextInterval:", nextInterval, " distance:", newDistanceInfo.distance);
         clearTimeout(distanceIntervalRef.current); // Clear any existing timeout
         distanceIntervalRef.current = setTimeout(updateDistanceAndCheckLocation, nextInterval);
