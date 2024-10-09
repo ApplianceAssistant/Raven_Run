@@ -37,10 +37,29 @@ const TextToSpeech = ({ text }) => {
   }, []);
 
   useEffect(() => {
-    // Split text into sentences whenever it changes
-    sentencesRef.current = text.match(/[^.!?]+[.!?]+/g) || [text];
+    // Extract text content from React elements if necessary
+    const textContent = typeof text === 'string' 
+      ? text 
+      : React.isValidElement(text)
+        ? extractTextFromReactElement(text)
+        : '';
+
+    // Split text into sentences
+    sentencesRef.current = textContent.match(/[^.!?]+[.!?]+/g) || [textContent];
     currentSentenceIndexRef.current = 0;
   }, [text]);
+
+  const extractTextFromReactElement = (element) => {
+    if (typeof element === 'string') return element;
+    if (Array.isArray(element)) return element.map(extractTextFromReactElement).join(' ');
+    if (React.isValidElement(element)) {
+      if (typeof element.props.children === 'string') return element.props.children;
+      if (Array.isArray(element.props.children)) {
+        return element.props.children.map(extractTextFromReactElement).join(' ');
+      }
+    }
+    return '';
+  };
 
   const speakNextSentence = useCallback(() => {
     if (currentSentenceIndexRef.current < sentencesRef.current.length) {
