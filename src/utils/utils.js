@@ -129,6 +129,7 @@ export async function updateUserLocation() {
   try {
     const location = await getUserLocation();
     currentLocation = location;
+    alert('location return: ' + JSON.stringify(currentLocation));
     locationListeners.forEach(listener => listener(location));
   } catch (error) {
     console.error("Error updating user location:", error);
