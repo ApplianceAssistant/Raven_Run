@@ -20,7 +20,7 @@ export const paths: Path[] = [
       {
         id: '0',
         type: 'travel',
-        title: 'Labyrinth of Legends',
+        title: 'DO NOT TEST (Broken) Labyrinth of Legends',
         description: `With hushed halls, I stand,\n
           A fortress of forgotten lore.\n
           My shelves, a labyrinth of legends,\n
@@ -37,8 +37,8 @@ export const paths: Path[] = [
           What am I, this haven divine?`,
         question: `Journey to the location described in this riddle.`,
         targetLocation: {
-          latitude: 38.2126684,
-          longitude: -85.2195733
+          latitude: 38.133111,
+          longitude: -85.202428
         },
         radius: 15,
         hints: [
