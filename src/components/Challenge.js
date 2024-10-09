@@ -1,58 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Modal from './Modal';
-import { checkLocationReached, canDisplayDistance, updateDistance } from '../services/challengeService.ts';
 import ScrollableContent from './ScrollableContent';
-import { metersToFeet, feetToMeters, milesToKilometers, kilometersToMiles} from '../utils/unitConversion.js';
-import { getUserUnitPreference} from '../utils/utils.js';
 
 export const Challenge = ({ challenge, userLocation, challengeState, onStateChange, onContinue }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
-
-
-
-  let travelChallengeIntervalId = null;
-
-  const checkTravelChallenge = (challenge) => {
-    const newDistanceInfo = updateDistance(challenge);
-    console.warn("newDistanceInfo", newDistanceInfo);
-    const isMetric = getUserUnitPreference();
-    let distanceInChallengeUnit;
-  
-    if (isMetric) {
-      // Convert distance to feet if the radius is in feet
-      if (newDistanceInfo.unit === 'm') {
-        distanceInChallengeUnit = metersToFeet(newDistanceInfo.distance);
-      } else if (newDistanceInfo.unit === 'km') {
-        distanceInChallengeUnit = kilometersToMiles(newDistanceInfo.distance) * 5280; // Convert kilometers to feet
-      } else {
-        distanceInChallengeUnit = newDistanceInfo.distance;
-      }
-    } else {
-      // Convert distance to meters if the radius is in meters
-      if (newDistanceInfo.unit === 'ft') {
-        distanceInChallengeUnit = feetToMeters(newDistanceInfo.distance);
-      } else if (newDistanceInfo.unit === 'mi') {
-        distanceInChallengeUnit = milesToKilometers(newDistanceInfo.distance) * 1000; // Convert miles to meters
-      } else {
-        distanceInChallengeUnit = newDistanceInfo.distance;
-      }
-    }
-    console.log("distanceInChallengeUnit", distanceInChallengeUnit);
-  
-    if (distanceInChallengeUnit !== null && distanceInChallengeUnit <= challenge.radius) {
-      return true;
-    }
-  
-    return false;
-  };
-
-  useEffect(() => {
-    if (canDisplayDistance(challenge)) {
-      checkTravelChallenge(challenge);
-    }
-    return () => clearInterval(travelChallengeIntervalId); // Cleanup on unmount
-  }, [challenge, userLocation]);
   
   const renderChallenge = () => {
     switch (challenge.type) {
