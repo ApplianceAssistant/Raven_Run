@@ -47,6 +47,7 @@ function PathPage() {
   const distanceIntervalRef = useRef(null);
 
   const getRefreshInterval = useCallback((newDistanceInfo) => {
+    console.warn("Getting refresh interval:", newDistanceInfo);
     const { distance, unit } = newDistanceInfo;
     const isMetric = getUserUnitPreference();
     let distanceInMeters;
@@ -61,11 +62,11 @@ function PathPage() {
       distanceInMeters = milesToKilometers(distance) * 1000;
     }
 
-    if (distanceInMeters === null) return 9000; // Default to 9 seconds if distance is unknown
-    if (distanceInMeters <= 50) return 2000; // 2 seconds when very close (less than 50 meters)
+    if (distanceInMeters === null) return 5000; // Default to 9 seconds if distance is unknown
+    if (distanceInMeters <= 100) return 2000; // 2 seconds when very close (less than 100 meters)
     if (distanceInMeters <= 500) return 3000; // 3 seconds when close (between 50 and 500 meters)
     if (distanceInMeters <= 1000) return 5000; // 5 seconds when between 500 and 1000 meters
-    return 7000; // 7 seconds when more than 1000 meters away
+    return 6000; // 7 seconds when more than 1000 meters away
   }, []);
 
   useEffect(() => {
@@ -96,6 +97,7 @@ function PathPage() {
   const currentChallenge = challenges[challengeIndex];
 
   const updateDistanceAndCheckLocation = useCallback(() => {
+    console.log("Updating distance and checking location...");
     if (currentChallenge && currentChallenge.targetLocation) {
       const newDistanceInfo = updateDistance(currentChallenge);
       const isMetric = getUserUnitPreference();
@@ -121,7 +123,7 @@ function PathPage() {
         displayValue: displayDistance.toFixed(2),
         unit: displayUnit
       });
-
+      alert("Distance updated: " + displayDistance.toFixed(2) + " " + displayUnit);
       const locationReached = checkLocationReached(currentChallenge, newDistanceInfo.distance);
       if (locationReached && !challengeState.isCorrect) {
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
@@ -172,6 +174,7 @@ function PathPage() {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         checkDistanceNoticeVisibility();
+        updateDistanceAndCheckLocation();
         if (distanceNoticeVisible) {
           updateDistanceAndCheckLocation();
         }
