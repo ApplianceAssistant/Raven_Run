@@ -59,7 +59,11 @@ function Header({ isMenuOpen, toggleMenu }) {
     <>
       <header className="header">
         <div className="logo">
-          <Link to="/">Crow Tours <span className="versionDisplay">V0.3</span></Link>
+          <a href="https://www.facebook.com/CrowTours/"
+          target="_blank" 
+          description="Crow Tours Facebook Page" 
+          rel="noopener noreferrer"
+          >Crow Tours <span className="versionDisplay">V0.4</span></a>
         </div>
         <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <ul>

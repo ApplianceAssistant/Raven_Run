@@ -15,7 +15,8 @@ function About() {
               Have thoughts to share?</p>
             <a 
               href="https://www.facebook.com/CrowTours/" 
-              target="_blank" 
+              target="_blank"
+              description="Crow Tours Facebook Page"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-800 underline"
             >

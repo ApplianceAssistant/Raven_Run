@@ -29,6 +29,7 @@ const Congratulations = ({ onClose }) => {
                     <a
                         href="https://www.facebook.com/CrowTours/"
                         target="_blank"
+                        description="Crow Tours Facebook Page"
                         rel="noopener noreferrer"
                         className="facebook-link"
                     >
