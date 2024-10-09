@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
+import { priorityVoices } from '../utils/voicePriorities';
 
 const TextToSpeech = ({ text }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -16,7 +17,10 @@ const TextToSpeech = ({ text }) => {
         const voice = voices.find(v => v.voiceURI === savedVoiceURI);
         setSelectedVoice(voice || voices[0]);
       } else {
-        setSelectedVoice(voices[0]);
+        const priorityVoice = priorityVoices.find(pv => 
+          voices.some(v => v.name === pv.name && v.lang === pv.lang)
+        );
+        setSelectedVoice(priorityVoice || voices[0]);
       }
     };
 
