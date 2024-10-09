@@ -50,7 +50,7 @@ function PathPage() {
     const { distance, unit } = newDistanceInfo;
     const isMetric = getUserUnitPreference();
     let distanceInMiles;
-  
+
     if (unit === 'ft') {
       distanceInMiles = feetToMeters(distance) / 1609.34; // Convert feet to meters, then to miles
     } else if (unit === 'm') {
@@ -60,7 +60,7 @@ function PathPage() {
     } else {
       distanceInMiles = distance; // Assume distance is already in miles
     }
-  
+
     if (distanceInMiles === null) return 9000; // Default to 9 seconds if distance is unknown
     if (distanceInMiles <= 0.1) return 2000; // 2 seconds when very close (less than 0.1 miles)
     if (distanceInMiles <= 0.5) return 3000; // 3 seconds when close (between 0.1 and 0.5 miles)
@@ -99,17 +99,38 @@ function PathPage() {
     if (currentChallenge && currentChallenge.targetLocation) {
       const newDistanceInfo = updateDistance(currentChallenge);
       setDistanceInfo(newDistanceInfo);
-      console.warn("Distance info:", newDistanceInfo);
-  
-      if (newDistanceInfo.distance !== null && newDistanceInfo.distance <= currentChallenge.radius) {
-        displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
-        clearTimeout(distanceIntervalRef.current);
+      console.warn("newDistanceInfo", newDistanceInfo);
+      const isMetric = getUserUnitPreference();
+      let distanceInChallengeUnit;
+
+      if (isMetric) {
+        // Convert distance to feet if the radius is in feet
+        if (newDistanceInfo.unit === 'm') {
+          distanceInChallengeUnit = metersToFeet(newDistanceInfo.distance);
+        } else if (newDistanceInfo.unit === 'km') {
+          distanceInChallengeUnit = kilometersToMiles(newDistanceInfo.distance) * 5280; // Convert kilometers to feet
+        } else {
+          distanceInChallengeUnit = newDistanceInfo.distance;
+        }
       } else {
-        const nextInterval = getRefreshInterval(newDistanceInfo);
-        console.log("nextInterval:", nextInterval, " distance:", newDistanceInfo.distance);
-        clearTimeout(distanceIntervalRef.current); // Clear any existing timeout
-        distanceIntervalRef.current = setTimeout(updateDistanceAndCheckLocation, nextInterval);
+        // Convert distance to meters if the radius is in meters
+        if (newDistanceInfo.unit === 'ft') {
+          distanceInChallengeUnit = feetToMeters(newDistanceInfo.distance);
+        } else if (newDistanceInfo.unit === 'mi') {
+          distanceInChallengeUnit = milesToKilometers(newDistanceInfo.distance) * 1000; // Convert miles to meters
+        } else {
+          distanceInChallengeUnit = newDistanceInfo.distance;
+        }
       }
+      console.log("distanceInChallengeUnit", distanceInChallengeUnit);
+
+      if (distanceInChallengeUnit !== null && distanceInChallengeUnit <= currentChallenge.radius) {
+        displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
+      }
+      const nextInterval = getRefreshInterval(newDistanceInfo);
+      console.log("nextInterval:", nextInterval, " distance:", newDistanceInfo.distance);
+      clearTimeout(distanceIntervalRef.current); // Clear any existing timeout
+      distanceIntervalRef.current = setTimeout(updateDistanceAndCheckLocation, nextInterval);
     }
   }, [currentChallenge, getRefreshInterval]);
 
