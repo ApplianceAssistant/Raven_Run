@@ -97,9 +97,8 @@ function PathPage() {
   const currentChallenge = challenges[challengeIndex];
 
   const updateDistanceAndCheckLocation = useCallback(() => {
-    console.log("Updating distance and checking location...");
     if (currentChallenge && currentChallenge.targetLocation) {
-      const newDistanceInfo = updateDistance(currentChallenge);
+      const newDistanceInfo = updateDistance(currentChallenge, playerLocation);
       const isMetric = getUserUnitPreference();
 
       // Convert distance to appropriate units for display
@@ -108,22 +107,26 @@ function PathPage() {
 
       if (!isMetric) {
         if (newDistanceInfo.unit === 'mi' && newDistanceInfo.distance < 0.1) {
-          displayDistance = metersToFeet(milesToKilometers(newDistanceInfo.distance) * 1000);
+          displayDistance = Math.round(metersToFeet(milesToKilometers(newDistanceInfo.distance) * 1000));
           displayUnit = 'ft';
+        } else {
+          displayDistance = Number(displayDistance.toFixed(2));
         }
       } else {
         if (newDistanceInfo.unit === 'km' && newDistanceInfo.distance < 1) {
-          displayDistance = newDistanceInfo.distance * 1000;
+          displayDistance = Math.round(newDistanceInfo.distance * 1000);
           displayUnit = 'm';
+        } else {
+          displayDistance = Number(displayDistance.toFixed(2));
         }
       }
 
       setDistanceInfo({
         ...newDistanceInfo,
-        displayValue: displayDistance.toFixed(2),
+        displayValue: displayDistance.toString(),
         unit: displayUnit
       });
-      alert("Distance updated: " + displayDistance.toFixed(2) + " " + displayUnit);
+
       const locationReached = checkLocationReached(currentChallenge, newDistanceInfo.distance);
       if (locationReached && !challengeState.isCorrect) {
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
