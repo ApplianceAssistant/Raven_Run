@@ -130,8 +130,8 @@ function Lobby() {
         title="Hunt in Progress"
         content="You have a hunt in progress. What would you like to do?"
         buttons={[
-          { label: 'Continue Hunt', onClick: continueCurrentHunt },
-          { label: 'Abandon Hunt', onClick: abandonCurrentHunt },
+          { label: 'Continue', onClick: continueCurrentHunt },
+          { label: 'Abandon', onClick: abandonCurrentHunt },
           { label: 'Cancel', onClick: () => setIsModalOpen(false) }
         ]}
       />
