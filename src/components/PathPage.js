@@ -269,14 +269,6 @@ function PathPage() {
 
   const displayFeedback = (isCorrect, feedbackText) => {
     console.log("Displaying feedback:", isCorrect, feedbackText);
-    const buttons = [];
-    if (isCorrect) {
-      buttons.push({ label: 'Continue', onClick: handleContinueClick, className: 'continue-button' });
-    } else if (currentChallenge.repeatable) {
-      buttons.push({ label: 'Close', onClick: () => setIsModalOpen(false), className: 'close-button' });
-    } else {
-      buttons.push({ label: 'Continue', onClick: handleContinueClick, className: 'continue-button' });
-    }
 
     let contentText = feedbackText;
     if (isCorrect) {
@@ -291,6 +283,14 @@ function PathPage() {
       const incorrectFeedbacks = currentChallenge.feedbackTexts.incorrect;
       const feedbackIndex = Math.min(challengeState.attempts - 1, incorrectFeedbacks.length - 1);
       contentText = incorrectFeedbacks[feedbackIndex] || feedbackText || 'Incorrect. Try again!';
+    }
+
+    const buttons = [];
+
+    if (isCorrect || !currentChallenge.repeatable) {
+      buttons.push({ label: 'Continue', onClick: handleContinueClick, className: 'continue-button' });
+    } else {
+      buttons.push({ label: 'Close', onClick: () => setIsModalOpen(false), className: 'close-button' });
     }
 
     console.log("Feedback content:", contentText);
@@ -320,6 +320,7 @@ function PathPage() {
         ) : (
           <SkipCountdown challengeState={challengeState} />
         )}
+        <button onClick={handleSkipClick}>Skip</button>
       </div>
     );
   };

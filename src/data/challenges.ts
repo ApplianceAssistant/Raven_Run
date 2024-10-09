@@ -155,7 +155,75 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "5",
+        id: '5',
+        type: 'travel',
+        title: "Sentinel of the Skies",
+        description: `The crows lead you through the misty dawn, their wings brushing against the first light of day. As you follow, a new verse forms in your mind:\n\n
+      
+          Rising from the earth, a titan stands,\n
+          A pallid globe atop its circular bands.\n
+          Neither tree nor building, yet reaching high,\n
+          A silent guardian 'twixt ground and sky.\n
+      
+          Within its core, life's essence flows,\n
+          A secret spring that ebbs and grows.\n
+          Fenced and guarded, its base secured,\n
+          What cosmic truths might it have procured?\n
+      
+          Seek this colossus, pale and round,\n
+          Where liquid whispers make no sound.\n
+          What tales could this sentient sphere impart,\n
+          Of Shelby's thirst and hydrous art?`,
+        question: "Find the towering structure described in the verse, where Shelby's lifeblood is stored high above the ground.",
+        targetLocation: {
+          latitude: 38.2208191,
+          longitude: -85.3578345
+        },
+        radius: 20,
+        hints: [
+          "Look for a structure that seems to touch the clouds, its round top visible for miles.",
+          "Seek a pale giant that holds Shelby's most precious resource.",
+          "Find the place where gravity and engineering dance, keeping a town's thirst at bay.",
+          "The crows circle a cylindrical tower crowned with a sphere, its purpose both mundane and mysterious."
+        ],
+        completionFeedback: `As you approach the massive water tower, its looming presence fills you with a sense of awe. The crows alight on the surrounding fence, their eyes gleaming with an otherworldly knowledge. This silent sentinel, holding the very essence of life within its metal shell, seems to pulse with an energy that goes beyond its practical purpose. What secrets might this towering guardian of Shelby's water supply be privy to, watching over the county day and night?`,
+        repeatable: true
+      },
+      {
+        id: '6',
+        type: 'textInput',
+        title: "The Road to Liquid Heights",
+        description: `Standing before the towering water reservoir, you're struck by its imposing presence against the Simpsonville sky. The crows circle overhead, their caws seeming to form words on the wind:\n\n
+      
+          Beneath the titan's watchful gaze,\n
+          A path winds through the morning haze.\n
+          Its name speaks of vistas wide and fair,\n
+          And digits that the postman bears.\n\n
+      
+          This road that leads to watery heights,\n
+          Holds secrets of Shelbyville's sights.\n
+          What moniker graces this asphalt trail,\n
+          Where the water guardian stands tall and pale?`,
+        question: "What is the name of the road where this colossal water tower stands?",
+        correctAnswer: "Fairview",
+        hints: [
+          "The road's name suggests a pleasant view.",
+          "Look for a street sign.",
+          "The name consists of one word.",
+          "This offers a 'fair view' of the surrounding area."
+        ],
+        feedbackTexts: {
+          correct: "As you speak the road's name, 'Fairview', a soft hum emanates from the water tower. The crows nod in approval, their eyes gleaming with otherworldly knowledge. This road, leading to Shelby's liquid lifeline, seems to pulse with hidden significance. What other secrets might be hidden in the everyday details of the landscape?",
+          incorrect: [
+            "The water tower seems to loom larger, as if urging you to look closer at your surroundings.",
+            "A crow swoops down, circling the base of the tower. Perhaps another glance at a nearby street sign will reveal the answer.",
+            "The wind whispers through the tower's structure, carrying fragments of street names. The correct answer is within reach, waiting to be pieced together."
+          ]
+        },
+        repeatable: true
+      },
+      {
+        id: "7",
         type: "travel",
         title: "The Haunted Stage",
         description: `The crows guide you through Shelby's misty streets, their wings casting eerie shadows. As you follow, a new rhyme pervades your thoughts:\n\n
@@ -185,7 +253,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "6",
+        id: "8",
         type: "textInput",
         title: "Don't Speak Its Name",
         description: `Standing before the playhouse, you feel the weight of centuries of performances pressing in around you. A poster catches your eye, but the title is obscured. As you strain to read it, a ghostly whisper fills your mind:\n\n
@@ -216,18 +284,18 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "7",
+        id: "9",
         type: "travel",
         title: "Echo of a Bygone Era",
         description: `The crows lead you through Shelby County, their wings brushing against the crisp autumn air. As you follow, a whisper of the past reaches your ears:\n\n
-        In the shadow of progress, it stands alone,\n
-        A relic of an age when voices roamed.\n
-        Before a diner where breakfasts bloom,\n
-        It waits, a sentinel to conversations' tomb.\n
-        Once a lifeline to distant hearts,\n
-        Now a ghost of technological arts.\n
-        Seek this guardian of untold tales,\n
-        Where pocket-sized worlds now prevail.`,
+          In the shadow of progress, it stands alone,\n
+          Where coin clicks still spark connection's tone.\n
+          Before a diner where breakfasts bloom,\n
+          It waits, a beacon midst digital gloom.\n
+          Once the sole lifeline, with operators' aid,\n
+          Now rare, but its dial tone hasn't strayed.\n
+          Seek this guardian of tales untold,\n
+          A working relic from the days of old.`,
         question: "Find the lone survivor of the communication revolution described in the riddle.",
         targetLocation: {
           latitude: 38.19053616458982,
@@ -236,7 +304,7 @@ export const paths: Path[] = [
         radius: 15,
         hints: [
           "Look for a coin-operated time capsule, once the lifeblood of long-distance dialogue.",
-          "Its domain lies before a humble establishment where dawn's first light meets the aroma of home-cooked breakfasts.",
+          "Its domain lies before a humble establishment where dawn's first light meets the aroma of delicious home-cooked breakfasts.",
           "Seek an anachronism, a stubborn holdout against the tide of progress in our world of pocket-sized connectivity.",
           "The crows circle a structure that once connected countless lives, now standing silent amidst the bustle of modern communication."
         ],
@@ -244,7 +312,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "8",
+        id: "10",
         type: "textInput",
         title: "Whispers on the Wire",
         description: `Standing before the payphone, you're struck by its stoic presence against the backdrop of the quaint family diner.\n
@@ -270,7 +338,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "9",
+        id: "11",
         type: "travel",
         title: "The Metallic Sentinel",
         description: `By the roadside, a curious sight to see,\n
@@ -301,7 +369,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "10",
+        id: "12",
         type: "travel",
         title: "The Chainsaw Surgeon",
         description: `The crows guide you through Shelby's historic landscape, their wings brushing against the whispers of the past. A rhyme forms in your mind:\n\n
@@ -333,7 +401,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "11",
+        id: "13",
         type: "textInput",
         title: "The Surgeon's Mark",
         description: `Standing before the impressive chainsaw carving, you're struck by its powerful presence.\n
@@ -365,7 +433,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "12",
+        id: "14",
         type: "travel",
         title: "Gleaming Guardian of Grain",
         description: `The murder of crows guides you through Shelbyville's streets, their dark forms stark against the moonlit sky. As you follow, an enigmatic verse forms in your mind:\n\n
@@ -399,7 +467,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "13",
+        id: "15",
         type: "multipleChoice",
         title: "Voids of Vision",
         description: `Standing before the ethereal equine sculpture, you're struck by its surreal presence against the backdrop of the imposing silos. The open framework of steel outlines a horse's form, allowing glimpses of the sky and silos through its body. As you move around it, the interplay of solid and void creates an ever-changing silhouette. Your crow companions hop closer, peering curiously through the sculpture's empty spaces.\n
@@ -439,7 +507,106 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "14",
+        id: '16',
+        type: 'travel',
+        title: "Fortress of Forgotten Freedom",
+        description: `As night deepens, your crow guides lead you through Shelbyville's shadowy streets. Their urgency grows as you approach your next destination. A haunting verse forms in your mind:\n\n
+          Three stories tall, a citadel stands,\n
+          Built from stone by long-gone hands.\n
+          Once it held those who strayed,\n
+          Now empty cells where shadows played.\n\n
+          Windows sealed with mortar's might,\n
+          Bars entombed from human sight.\n
+          On corners perched, green-capped towers rise,\n
+          Silent sentinels 'neath starlit skies.\n\n
+          Tan hewn blocks tell tales untold,\n
+          Of justice served in days of old.\n
+          What spirits linger, what secrets keep,\n
+          In this fortress where freedom once did weep?`,
+        question: "Locate the imposing structure described in the verse, where past transgressions echo in stone walls.",
+        targetLocation: {
+          latitude: 38.2116650,
+          longitude: -85.2159704
+        },
+        radius: 20,
+        hints: [
+          "Seek a building that stands as a testament to past justice, its windows now blind to the outside world.",
+          "Look for corner towers crowned with green copper caps, guarding secrets of yesteryear.",
+          "Find the place where tan stone blocks rise three stories high, holding untold stories within.",
+          "The crows circle a structure once filled with the clanging of iron bars, now silent but for the whispers of history."
+        ],
+        completionFeedback: `As you approach the towering old jail, its imposing presence seems to push against the very air around it. The crows alight on the green-capped towers, their eyes reflecting the weight of countless untold stories. This fortress of forgotten freedom stands as a silent witness to Shelbyville's past, its sealed windows and bricked-up bars hinting at the lives once contained within. What whispers of history might still echo through these weathered stone walls?\n\nThe crows' caws seem to carry a warning: some secrets are best left undisturbed. Yet, as a seeker of Shelby's hidden truths, you feel compelled to uncover what lies beneath the surface of this formidable structure. What will your next move be in unraveling the mysteries of this stone sentinel?`,
+        repeatable: true
+      },
+      {
+        id: '17',
+        type: 'multipleChoice',
+        title: "Portals to the Past",
+        description: `Standing before the imposing old jail, your gaze is drawn to its weathered façade. The crows perch on the green-capped towers, their eyes glinting with spectral knowledge. As you study the building's face on Washington Street, a whispered verse reaches your ears:\n\n
+          Stone sentinels stand in solemn row,\n
+          Where freedom's light once used to glow.\n
+          Most sealed tight by time's decree,\n
+          But some still peer out, defiant and free.\n\n
+          Count the eyes that still can see,\n
+          On Washington Street, how many be?\n
+          These unsealed portals to yesterday,\n
+          What tales of old might they convey?`,
+        question: "How many windows remain unsealed on the Washington Street side of the old jail?",
+        options: ["1", "2", "3", "4"],
+        correctAnswer: "2",
+        hints: [
+          "Look closely at the façade facing Washington Street.",
+          "Most windows have been sealed, but a few remain open to the world.",
+          "The number is less than you might expect for such a large building.",
+          "Think of a pair, a duo, a couple."
+        ],
+        feedbackTexts: {
+          correct: `As you whisper 'two', a chill breeze whistles through the unsealed windows, carrying echoes of long-forgotten voices. The crows nod in approval, their eyes gleaming with otherworldly knowledge. These twin portals to the past seem to hold countless untold stories. What secrets might they have witnessed over the years, and what truths do they still guard?\n\n
+          Your keen observation skills have unveiled another layer of Shelbyville's hidden history. But remember, in this journey through shadow and time, every revelation often leads to deeper mysteries.`,
+          incorrect: [
+            "The stone walls seem to shift slightly, as if urging you to look again. Perhaps another careful count of the unsealed windows will reveal the truth.",
+            "A crow caws softly, drawing your attention back to the Washington Street façade. The answer is there, waiting to be discovered in the play of light and shadow.",
+            "The wind whispers through the building, carrying fragments of counting rhymes. Take a deep breath and try again - the correct number of unsealed windows is within your grasp."
+          ]
+        },
+        repeatable: true
+      },
+      {
+        id: '18',
+        type: 'travel',
+        title: "Brew of Creativity",
+        description: `As dawn breaks over Shelbyville, your crow guides lead you towards a hub of local culture and warmth. The aroma of freshly roasted coffee beans wafts through the air, carrying with it whispers of art and community. A rhythmic verse forms in your mind:\n\n
+          Where streets of six and main collide,\n
+          A haven of warmth and art resides.\n
+          Beans roast and grind with careful grace,\n
+          While books and paintings find their place.\n\n
+          Outside, cobblestones whisper tales,\n
+          Of gatherings beneath triangle veils.\n
+          Hues of shade dance overhead,\n
+          While melodies of life are spread.\n\n
+          Seek this nexus of brew and song,\n
+          Where Shelby's heart beats loud and strong.\n
+          What secrets might these coffee grounds impart,\n
+          Of a town where culture and community are art?`,
+        question: "Find the vibrant locale described in the verse, where coffee, culture, and community converge.",
+        targetLocation: {
+          latitude: 38.2111379,
+          longitude: -85.2172542
+        },
+        radius: 20,
+        hints: [
+          "Look for a place where the scent of freshly roasted coffee mingles with the sound of turning pages.",
+          "Seek a gathering spot near an intersection that shares its name with the establishment.",
+          "Find where cobblestone paths lead to a canopy of colorful triangles, often alive with music.",
+          "The crows circle a building where local flavors and local talent brew together in perfect harmony."
+        ],
+        completionFeedback: `As you approach 6th & Main, the vibrant energy of the place washes over you. The crows alight on the colorful shades nearby, their eyes reflecting the bustling scene below. The coffee shop stands as a beacon of Shelbyville's creative spirit, its windows offering glimpses of art-adorned walls and shelves lined with books.\n\n
+        The aroma of freshly roasted coffee beans seems to carry whispers of countless conversations, each one a thread in the rich tapestry of local life. The cobblestone walkway beneath your feet feels alive with the echoes of music performances and community gatherings.\n\n
+        Your corvid guides ruffle their feathers, as if sensing the blend of mundane and mystical energies swirling around this cultural hub. What role might this vibrant space play in the hidden narrative of Shelbyville? And what secrets could be hiding in plain sight, perhaps inscribed in the coffee rings left on well-worn tables?`,
+        repeatable: true
+      },
+      {
+        id: "19",
         type: "travel",
         title: "Chronicle of Shadows",
         description: `As dawn approaches, your corvid guides lead you through the lightening streets of Shelbyville.\n
@@ -475,14 +642,13 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "15",
+        id: "20",
         type: "story",
         title: "Echoes of Shelby",
         storyText: `Standing before the Shelby County Life Magazine building, you feel the weight of your nocturnal journey pressing upon you.\n
-        The crows that have been your faithful guides throughout this haunting adventure now perch silently, their dark eyes reflecting the rising sun.\n\n
-      
+        The crows that have been your faithful guides throughout this haunting adventure now perch silently, their dark eyes reflecting the rising sun.\n
         Each location pulses with the supernatural energy you've encountered, forming a tapestry of Shelby County's hidden history.\n
-        The crows caw in unison, their voice carrying a final message:\n
+        The crows caw in unison, their voice carrying a final message:\n\n
       
         "Seeker of shadows, chronicler of the unseen,\n
         Your journey through Shelby's heart has been keen.\n
