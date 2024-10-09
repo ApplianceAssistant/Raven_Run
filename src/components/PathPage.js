@@ -49,23 +49,23 @@ function PathPage() {
   const getRefreshInterval = useCallback((newDistanceInfo) => {
     const { distance, unit } = newDistanceInfo;
     const isMetric = getUserUnitPreference();
-    let distanceInMiles;
+    let distanceInMeters;
 
     if (unit === 'ft') {
-      distanceInMiles = feetToMeters(distance) / 1609.34; // Convert feet to meters, then to miles
+      distanceInMeters = feetToMeters(distance);
     } else if (unit === 'm') {
-      distanceInMiles = distance / 1609.34; // Convert meters to miles
+      distanceInMeters = distance;
     } else if (unit === 'km') {
-      distanceInMiles = kilometersToMiles(distance); // Convert kilometers to miles
+      distanceInMeters = milesToKilometers(distance) * 1000;
     } else {
-      distanceInMiles = distance; // Assume distance is already in miles
+      distanceInMeters = milesToKilometers(distance) * 1000;
     }
 
-    if (distanceInMiles === null) return 9000; // Default to 9 seconds if distance is unknown
-    if (distanceInMiles <= 0.1) return 2000; // 2 seconds when very close (less than 0.1 miles)
-    if (distanceInMiles <= 0.5) return 3000; // 3 seconds when close (between 0.1 and 0.5 miles)
-    if (distanceInMiles <= 1) return 5000; // 5 seconds when between 0.5 and 1 mile
-    return 7000; // 7 seconds when more than 1 mile away
+    if (distanceInMeters === null) return 9000; // Default to 9 seconds if distance is unknown
+    if (distanceInMeters <= 50) return 2000; // 2 seconds when very close (less than 50 meters)
+    if (distanceInMeters <= 500) return 3000; // 3 seconds when close (between 50 and 500 meters)
+    if (distanceInMeters <= 1000) return 5000; // 5 seconds when between 500 and 1000 meters
+    return 7000; // 7 seconds when more than 1000 meters away
   }, []);
 
   useEffect(() => {
@@ -98,41 +98,40 @@ function PathPage() {
   const updateDistanceAndCheckLocation = useCallback(() => {
     if (currentChallenge && currentChallenge.targetLocation) {
       const newDistanceInfo = updateDistance(currentChallenge);
-      setDistanceInfo(newDistanceInfo);
-      console.warn("newDistanceInfo", newDistanceInfo);
       const isMetric = getUserUnitPreference();
-      let distanceInChallengeUnit;
 
-      if (isMetric) {
-        // Convert distance to feet if the radius is in feet
-        if (newDistanceInfo.unit === 'm') {
-          distanceInChallengeUnit = metersToFeet(newDistanceInfo.distance);
-        } else if (newDistanceInfo.unit === 'km') {
-          distanceInChallengeUnit = kilometersToMiles(newDistanceInfo.distance) * 5280; // Convert kilometers to feet
-        } else {
-          distanceInChallengeUnit = newDistanceInfo.distance;
+      // Convert distance to appropriate units for display
+      let displayDistance = newDistanceInfo.distance;
+      let displayUnit = newDistanceInfo.unit;
+
+      if (!isMetric) {
+        if (newDistanceInfo.unit === 'mi' && newDistanceInfo.distance < 0.1) {
+          displayDistance = metersToFeet(milesToKilometers(newDistanceInfo.distance) * 1000);
+          displayUnit = 'ft';
         }
       } else {
-        // Convert distance to meters if the radius is in meters
-        if (newDistanceInfo.unit === 'ft') {
-          distanceInChallengeUnit = feetToMeters(newDistanceInfo.distance);
-        } else if (newDistanceInfo.unit === 'mi') {
-          distanceInChallengeUnit = milesToKilometers(newDistanceInfo.distance) * 1000; // Convert miles to meters
-        } else {
-          distanceInChallengeUnit = newDistanceInfo.distance;
+        if (newDistanceInfo.unit === 'km' && newDistanceInfo.distance < 1) {
+          displayDistance = newDistanceInfo.distance * 1000;
+          displayUnit = 'm';
         }
       }
-      console.log("distanceInChallengeUnit", distanceInChallengeUnit);
 
-      if (distanceInChallengeUnit !== null && distanceInChallengeUnit <= currentChallenge.radius) {
+      setDistanceInfo({
+        ...newDistanceInfo,
+        displayValue: displayDistance.toFixed(2),
+        unit: displayUnit
+      });
+
+      const locationReached = checkLocationReached(currentChallenge, newDistanceInfo.distance);
+      if (locationReached && !challengeState.isCorrect) {
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
       }
+
       const nextInterval = getRefreshInterval(newDistanceInfo);
-      console.log("nextInterval:", nextInterval, " distance:", newDistanceInfo.distance);
-      clearTimeout(distanceIntervalRef.current); // Clear any existing timeout
+      clearTimeout(distanceIntervalRef.current);
       distanceIntervalRef.current = setTimeout(updateDistanceAndCheckLocation, nextInterval);
     }
-  }, [currentChallenge, getRefreshInterval]);
+  }, [currentChallenge, getRefreshInterval, challengeState.isCorrect]);
 
   useEffect(() => {
     if (challenges.length > 0) {
@@ -268,7 +267,7 @@ function PathPage() {
   };
 
   const displayFeedback = (isCorrect, feedbackText) => {
-    console.log("Displaying feedback:", isCorrect, feedbackText);
+    if (challengeState.isCorrect) return; // Prevent multiple displays of completion feedback
 
     let contentText = feedbackText;
     if (isCorrect) {
@@ -293,13 +292,17 @@ function PathPage() {
       buttons.push({ label: 'Close', onClick: () => setIsModalOpen(false), className: 'close-button' });
     }
 
-    console.log("Feedback content:", contentText);
     updateModalContent({
       title: isCorrect ? 'Correct!' : 'Incorrect',
       content: <p className={isCorrect ? 'completion-feedback' : ''}>{contentText}</p>,
       buttons: buttons,
       type: isCorrect ? 'correct' : 'incorrect'
     });
+
+    setChallengeState(prevState => ({
+      ...prevState,
+      isCorrect: isCorrect
+    }));
   };
 
   const renderButtons = () => {
