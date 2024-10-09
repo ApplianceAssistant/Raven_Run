@@ -98,7 +98,7 @@ function PathPage() {
 
   const updateDistanceAndCheckLocation = useCallback(() => {
     if (currentChallenge && currentChallenge.targetLocation) {
-      const newDistanceInfo = updateDistance(currentChallenge, playerLocation);
+      const newDistanceInfo = updateDistance(currentChallenge);
       const isMetric = getUserUnitPreference();
 
       // Convert distance to appropriate units for display
