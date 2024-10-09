@@ -1,40 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
-import { priorityVoices } from '../utils/voicePriorities';
+import { useVoiceManagement } from '../hooks/useVoiceManagement';
 
 const TextToSpeech = ({ text }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState(null);
+  const { getSelectedVoice } = useVoiceManagement();
   const sentencesRef = useRef([]);
   const currentSentenceIndexRef = useRef(0);
-
-  useEffect(() => {
-    const loadVoice = () => {
-      const voices = window.speechSynthesis.getVoices();
-      const savedVoiceURI = localStorage.getItem('selectedVoiceURI');
-      if (savedVoiceURI) {
-        const voice = voices.find(v => v.voiceURI === savedVoiceURI);
-        setSelectedVoice(voice || voices[0]);
-      } else {
-        const priorityVoice = priorityVoices.find(pv => 
-          voices.some(v => v.name === pv.name && v.lang === pv.lang)
-        );
-        setSelectedVoice(priorityVoice || voices[0]);
-      }
-    };
-
-    loadVoice();
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.onvoiceschanged = loadVoice;
-    }
-
-    return () => {
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
 
   useEffect(() => {
     // Extract text content from React elements if necessary
@@ -64,7 +37,10 @@ const TextToSpeech = ({ text }) => {
   const speakNextSentence = useCallback(() => {
     if (currentSentenceIndexRef.current < sentencesRef.current.length) {
       const utterance = new SpeechSynthesisUtterance(sentencesRef.current[currentSentenceIndexRef.current]);
-      utterance.voice = selectedVoice;
+      const selectedVoice = getSelectedVoice();
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
       
       utterance.onend = () => {
         currentSentenceIndexRef.current++;
@@ -80,7 +56,7 @@ const TextToSpeech = ({ text }) => {
     } else {
       setIsSpeaking(false);
     }
-  }, [selectedVoice]);
+  }, [getSelectedVoice]);
 
   const handleSpeak = useCallback(() => {
     if (!isSpeaking) {
