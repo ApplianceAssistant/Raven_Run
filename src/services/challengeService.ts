@@ -41,14 +41,11 @@ export function updateDistance(challenge: Challenge): {
 } {
   
   const userLocation = getCurrentLocation();
-  alert("userLocation: " + JSON.stringify(userLocation) + "\nchallenge.targetLocation: " + JSON.stringify(challenge.targetLocation));
   if (userLocation && hasTargetLocation(challenge)) {
     const { distance, displayValue, unit } = calculateDistanceInfo(userLocation, challenge.targetLocation!);
     const direction = calculateDirection(userLocation, challenge.targetLocation!);
-    alert("update distance: " + distance);
     return { distance, displayValue, unit, direction };
   }
-  alert("update distance - no user location or target location");
   return { distance: null, displayValue: '', unit: '', direction: '' };
 }
 
