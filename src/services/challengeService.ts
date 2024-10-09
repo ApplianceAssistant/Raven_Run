@@ -39,15 +39,16 @@ export function updateDistance(challenge: Challenge): {
   unit: string,
   direction: string 
 } {
-  console.warn("update distance", challenge);
+  
   const userLocation = getCurrentLocation();
   
   if (userLocation && hasTargetLocation(challenge)) {
     const { distance, displayValue, unit } = calculateDistanceInfo(userLocation, challenge.targetLocation!);
     const direction = calculateDirection(userLocation, challenge.targetLocation!);
-
+    alert("update distance - distance: " + distance + " displayValue: " + displayValue + " unit: " + unit + " direction: " + direction);
     return { distance, displayValue, unit, direction };
   }
+  alert("update distance - no user location or target location");
   return { distance: null, displayValue: '', unit: '', direction: '' };
 }
 
