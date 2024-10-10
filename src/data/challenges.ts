@@ -37,8 +37,8 @@ export const paths: Path[] = [
           What am I, this haven divine?`,
         question: `Journey to the location described in this riddle.`,
         targetLocation: {
-          latitude: 38.133111,
-          longitude: -85.202428
+          latitude: 38.1818977,
+          longitude: -85.7559892
         },
         radius: 15,
         hints: [
