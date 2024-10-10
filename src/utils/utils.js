@@ -67,38 +67,6 @@ export const handleError = (error, context) => {
   // Implement more sophisticated error handling here, e.g., sending to a logging service
 };
 
-export const useLocationWatcher = () => {
-  const [userLocation, setUserLocation] = useState(null);
-
-  useEffect(() => {
-    let watchId;
-    if (navigator.geolocation) {
-      watchId = navigator.geolocation.watchPosition(
-        (position) => {
-          setUserLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-            timestamp: position.timestamp
-          });
-        },
-        (error) => handleError(error, 'Location Watcher'),
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    }
-
-    return () => {
-      if (watchId) {
-        navigator.geolocation.clearWatch(watchId);
-      }
-    };
-  }, []);
-
-  return userLocation;
-};
-
-
-
 export const authFetch = async (url, options = {}) => {
   const user = JSON.parse(localStorage.getItem('user'));
   const headers = {

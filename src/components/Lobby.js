@@ -134,6 +134,7 @@ function Lobby() {
           { label: 'Abandon', onClick: abandonCurrentHunt },
           { label: 'Cancel', onClick: () => setIsModalOpen(false) }
         ]}
+        showTextToSpeech={false}
       />
     </div>
   );
