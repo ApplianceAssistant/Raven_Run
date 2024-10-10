@@ -20,7 +20,7 @@ import {
   shouldDisplayDistanceNotice,
   checkLocationReached
 } from '../services/challengeService.ts';
-import { getCurrentLocation, getUserUnitPreference } from '../utils/utils.js';
+import { getCurrentLocation, getUserUnitPreference, updateUserLocation } from '../utils/utils.js';
 import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
@@ -96,9 +96,22 @@ function PathPage() {
 
   const currentChallenge = challenges[challengeIndex];
 
-  const updateDistanceAndCheckLocation = useCallback(() => {
+  const updateDistanceAndCheckLocation = useCallback(async () => {
     if (currentChallenge && currentChallenge.targetLocation) {
-      const newDistanceInfo = updateDistance(currentChallenge);
+      console.log("Updating distance and checking location");
+      
+      // Explicitly update and get the current user location
+      const userLocation = await updateUserLocation();
+      console.log("Current user location:", userLocation);
+
+      if (!userLocation) {
+        console.warn("Unable to get user location");
+        return;
+      }
+
+      const newDistanceInfo = updateDistance(currentChallenge, userLocation);
+      console.log("New distance info:", newDistanceInfo);
+
       const isMetric = getUserUnitPreference();
 
       // Convert distance to appropriate units for display
@@ -127,7 +140,9 @@ function PathPage() {
         unit: displayUnit
       });
 
-      const locationReached = checkLocationReached(currentChallenge, newDistanceInfo.distance);
+      const locationReached = checkLocationReached(currentChallenge, userLocation);
+      console.log("Location reached:", locationReached);
+
       if (locationReached && !challengeState.isCorrect) {
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
       }
