@@ -70,22 +70,67 @@ function getUserLocation() {
     if (!navigator.geolocation) {
       reject(new Error('Geolocation is not supported by your browser'));
     } else {
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      };
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const location = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            timestamp: position.timestamp
           };
-          // Save to local storage
+          console.log('New location:', location);
           localStorage.setItem('userLocation', JSON.stringify(location));
           resolve(location);
         },
         (error) => {
+          console.error('Geolocation error:', error.code, error.message);
           reject(error);
-        }
+        },
+        options
       );
     }
   });
+}
+
+// Consider using watchPosition for continuous updates
+let watchId;
+
+function startLocationWatch() {
+  if (navigator.geolocation) {
+    watchId = navigator.geolocation.watchPosition(
+      updateLocation,
+      handleLocationError,
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+}
+
+function updateLocation(position) {
+  const location = {
+    latitude: position.coords.latitude,
+    longitude: position.coords.longitude,
+    accuracy: position.coords.accuracy,
+    timestamp: position.timestamp
+  };
+  console.log('Location updated:', location);
+  // Update your app state or trigger distance recalculation here
+}
+
+function handleLocationError(error) {
+  console.error('Location watch error:', error.code, error.message);
+  // Handle the error appropriately in your app
+}
+
+function stopLocationWatch() {
+  if (watchId) {
+    navigator.geolocation.clearWatch(watchId);
+  }
 }
 
 export const authFetch = async (url, options = {}) => {
