@@ -26,6 +26,18 @@ import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
 
+// New component for distance display
+const DistanceDisplay = React.memo(({ distanceInfo, visible }) => {
+  if (!visible) return null;
+  return (
+    <div className={`distance-notice visible`}>
+      Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span>{' '}
+      <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
+      <Compass direction={distanceInfo.direction} />
+    </div>
+  );
+});
+
 function PathPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '' });
@@ -42,15 +54,14 @@ function PathPage() {
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
   const [distanceNoticeVisible, setDistanceNoticeVisible] = useState(false);
   const [showCongratulations, setShowCongratulations] = useState(false);
-  const [challengeKey, setChallengeKey] = useState(0);
   const [isLocationReached, setIsLocationReached] = useState(false);
   const navigate = useNavigate();
   const userLocation = useLocationWatcher();
 
-  const currentChallenge = challenges[challengeIndex];
+  const currentChallenge = useMemo(() => challenges[challengeIndex], [challenges, challengeIndex]);
 
   const updateDistanceAndCheckLocation = useCallback(() => {
-    if (currentChallenge && currentChallenge.targetLocation && userLocation) {
+    if (currentChallenge?.targetLocation && userLocation) {
       console.log("Updating distance and checking location");
       
       const newDistanceInfo = updateDistance(currentChallenge, userLocation);
@@ -68,8 +79,10 @@ function PathPage() {
   }, [currentChallenge, userLocation, challengeState.isCorrect]);
 
   useEffect(() => {
-    updateDistanceAndCheckLocation();
-  }, [updateDistanceAndCheckLocation, userLocation]);
+    if (currentChallenge?.targetLocation) {
+      updateDistanceAndCheckLocation();
+    }
+  }, [updateDistanceAndCheckLocation, currentChallenge]);
 
   useEffect(() => {
     const loadPath = () => {
@@ -166,7 +179,6 @@ function PathPage() {
       if (nextIndex < challenges.length) {
         navigate(`/path/${pathId}/challenge/${nextIndex}`);
         saveHuntProgress(pathId, nextIndex);
-        setChallengeKey(prevKey => prevKey + 1); // Force re-render of Challenge
       } else {
         // Navigate to Congratulations page
         clearHuntProgress();
@@ -285,42 +297,35 @@ function PathPage() {
         ) : (
           <SkipCountdown challengeState={challengeState} />
         )}
-        <button onClick={handleSkipClick}>Skip</button>
       </div>
     );
   };
 
   const memoizedChallenge = useMemo(() => {
-    if (!currentChallenge) return null; // Add this check
+    if (!currentChallenge) return null;
     
     return (
       <Challenge
-        key={challengeKey}
+        key={challengeIndex}
         challenge={currentChallenge}
         challengeState={{ ...challengeState, textVisible: challengeVisible }}
         onStateChange={handleStateChange}
-        userLocation={userLocation}
         onContinue={handleContinueClick}
       />
     );
-  }, [challengeKey, currentChallenge, challengeState, challengeVisible, handleStateChange, userLocation, handleContinueClick]);
+  }, [challengeIndex, currentChallenge, challengeState, challengeVisible, handleStateChange, handleContinueClick]);
 
   return (
     <div className="content-wrapper">
-      <div className={`distance-notice ${contentVisible && distanceNoticeVisible ? 'visible' : ''}`}>
-        {distanceNoticeVisible && (
-          <>
-            Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span>{' '}
-            <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
-            <Compass direction={distanceInfo.direction} />
-          </>
-        )}
-      </div>
+      <DistanceDisplay 
+        distanceInfo={distanceInfo} 
+        visible={contentVisible && distanceNoticeVisible} 
+      />
       <div className="spirit-guide large">
         <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
           <main className="path-content content flex-top">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
-            {currentChallenge && memoizedChallenge} {/* Replace this line */}
+              {memoizedChallenge}
             </div>
           </main>
         </div>
@@ -341,4 +346,4 @@ function PathPage() {
   );
 }
 
-export default PathPage;
+export default React.memo(PathPage);
