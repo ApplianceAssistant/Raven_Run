@@ -1,23 +1,42 @@
 // _variables.scss
 
-// Spooky Colors
+// Dark Mode Colors (default)
 $dark-bg: #121212;
 $darker-bg: #0a0a0a;
 $spooky-accent: #7d1e1e;
+$spooky-accent-B: #681616;
+$spot: #b1f3f8;
 $text-color: #e0e0e0;
 $link-color: #b35959;
 
+// Light Mode Colors
+$light-bg: #ffffff;
+$lighter-bg: #f0f0f0;
+$light-text-color: #000000;
+$light-link-color: #8b0000;
+$light-accent: #ff9999;
+
+// Form and Button Colors (consistent across modes)
+$form-bg: #1e1e1e;
+$form-text: #e0e0e0;
+$button-bg: $spooky-accent;
+$button-text: #e0e0e0;
+$button-disabled-bg: #4a4a4a;
+$button-disabled-text: #a0a0a0;
+
 // Gradients
 $spooky-gradient: linear-gradient(to bottom, $dark-bg, $darker-bg);
-$accent-gradient: linear-gradient(to right, $spooky-accent, darken($spooky-accent, 10%));
+$accent-gradient: linear-gradient(to right, $spooky-accent, darken($spooky-accent-B, 10%));
 
 // Shadows
-$eerie-shadow: 0 0 20px rgba(123, 30, 30, 0.3);
+$eerie-shadow: 0 0 20px rgba(123, 30, 30, 0.5);
+$light-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 
 // Breakpoints
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
 $breakpoint-mobile: $breakpoint-md - 1;
 
 // Mixins
@@ -29,4 +48,35 @@ $breakpoint-mobile: $breakpoint-md - 1;
 
 @mixin spooky-transition {
   transition: all 0.3s ease-in-out;
+}
+
+// Theme mixin
+@mixin theme-aware($property, $dark-value, $light-value) {
+  #{$property}: $dark-value;
+  
+  .light-mode & {
+    #{$property}: $light-value;
+  }
+}
+
+// New mixin for form elements and buttons
+@mixin form-element {
+  background-color: $form-bg;
+  color: $form-text;
+  border: 1px solid $spooky-accent;
+}
+
+@mixin button-style {
+  background-color: $button-bg;
+  color: $button-text;
+
+  .light-mode & {
+    color: $button-text; // Add this line
+  }
+  
+  &:disabled {
+    background-color: $button-disabled-bg;
+    color: $button-disabled-text;
+    cursor: not-allowed;
+  }
 }

@@ -1,0 +1,80 @@
+// GameCreator.scss
+@import 'variables';
+
+.game-creator {
+  margin: 0 auto;
+  padding: 20px;
+
+  .field-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  .path-id-display {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.1em;
+    @include theme-aware('color', darken($text-color, 20%), lighten($light-text-color, 20%));
+    display: inline-block;
+    min-width: 200px;
+    text-align: center;
+  }
+
+  .game-list {
+    .game-item {
+      padding: 15px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid gray;
+
+      h3 {
+        margin-top: 0;
+      }
+
+      p {
+        margin: 5px 0;
+      }
+
+      button {
+        margin-right: 10px;
+      }
+    }
+  }
+  
+  .challenge-type-selector {
+    margin-bottom: 20px;
+  }
+
+  .array-field {
+    .array-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+
+      input {
+        flex-grow: 1;
+      }
+    }
+  }
+
+  .location-field {
+    display: flex;
+    gap: 10px;
+
+    input {
+      flex-grow: 1;
+    }
+  }
+  .challenge-creator{
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-creator {
+    padding: 10px;
+
+    .location-field {
+      flex-direction: column;
+    }
+  }
+}

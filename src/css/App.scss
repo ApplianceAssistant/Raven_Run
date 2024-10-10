@@ -1,20 +1,51 @@
 /* App.scss */
 @import 'variables';
+@import 'floating-ghost';
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;700&display=swap');
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  @include theme-aware('color', $text-color, $light-text-color);
+}
+
+html {
+  overflow: hidden;
+  font-family: 'Crimson Text', serif;
 }
 
 body {
+  font-size: 1.3rem;
   font-family: 'Crimson Text', serif;
-  line-height: 1.6;
+  line-height: 1.2;
+  background: $darker-bg !important;
   color: $text-color;
-  background: $darker-bg;
   min-height: 100vh;
   overflow-x: hidden;
+
+  &.light-mode {
+    background: $light-bg !important;
+    color: $light-text-color;
+  }
+}
+
+label {
+  margin-bottom: 0px;
+}
+
+h1,
+h2,
+h3 {
+  padding: 5px;
+}
+
+.versionDisplay {
+  bottom: 0;
+  right: 0;
+  padding: 5px;
+  font-size: 0.7em;
+  @include theme-aware('color', $link-color, $light-link-color);
 }
 
 .app {
@@ -23,126 +54,940 @@ body {
   min-height: 100vh;
   position: relative;
   z-index: 1;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-// Animated background
-.app::before,
-.app::after {
-  content: "";
+// Dark background with increased floating dots
+.moving-background {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: -1;
-}
+  z-index: -2;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 
-.app::before {
-  background: $spooky-gradient;
-}
-
-.app::after {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23000000" fill-opacity="0.1" width="100" height="100"/><rect fill="%23000000" fill-opacity="0.1" width="50" height="50"/></svg>');
-  background-size: 100px 100px;
-  animation: backgroundMove 30s linear infinite;
-}
-
-@keyframes backgroundMove {
-  0% { background-position: 0 0; }
-  100% { background-position: 100px 100px; }
-}
-
-// Floating mist effect
-.mist {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.mist::before,
-.mist::after {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  right: -50%;
-  bottom: -50%;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="2" /><feComponentTransfer><feFuncR type="linear" slope="0" intercept="0" /><feFuncG type="linear" slope="0" intercept="0" /><feFuncB type="linear" slope="0" intercept="0" /><feFuncA type="linear" slope="0.5" intercept="0" /></feComponentTransfer></filter><rect width="200" height="200" filter="url(%23f)" opacity="0.3" /></svg>');
-  background-size: 800px 800px;
-  opacity: 0.3;
-}
-
-.mist::before {
-  animation: mistMove 60s linear infinite;
-}
-
-.mist::after {
-  animation: mistMove 40s linear infinite reverse;
-}
-
-@keyframes mistMove {
-  0% { transform: translateZ(0) translateX(0) translateY(0); }
-  100% { transform: translateZ(0) translateX(20%) translateY(10%); }
-}
-
-.main-content {
-  flex: 1;
-  padding: 20px;
-  margin-top: 60px;
-  @include spooky-transition;
-
-  @include respond-to($breakpoint-md) {
-    padding: 40px;
+  &.with-background {
+    opacity: 1;
   }
+}
+
+.moving-element {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(ellipse at center,
+      rgba(248, 248, 247, 0.35) 25%,
+      rgba(239, 253, 253, 0.35) 35%,
+      rgba(180, 226, 247, 0.25) 60%,
+      rgba(255, 255, 255, 0.0) 100%);
+  border-radius: 50%;
+  animation: move 15s infinite;
+  opacity: 0;
+
+  .light-mode & {
+    background: radial-gradient(ellipse at center,
+        rgba(0, 0, 0, 0.15) 25%,
+        rgba(0, 0, 0, 0.15) 35%,
+        rgba(0, 0, 0, 0.1) 60%,
+        rgba(255, 255, 255, 0.0) 100%);
+  }
+}
+
+//create second move animation
+@keyframes move {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(.3);
+    opacity: 0.2;
+  }
+
+  25% {
+    transform: translate(100px, 150px) scale(.9);
+    opacity: .4;
+  }
+
+  50% {
+    transform: translate(-100px, 50px) scale(1.2);
+    opacity: 0.6;
+  }
+
+  75% {
+    transform: translate(50px, -100px) scale(1);
+    opacity: 0.5;
+  }
+}
+
+// Content wrapper for centering
+.content-wrapper {
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  min-width: 260px;
+  margin-top: 45px;
 }
 
 .content {
-  max-width: 1200px;
-  margin: 0 auto;
-  background-color: rgba($darker-bg, 0.7);
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: $eerie-shadow;
-  @include spooky-transition;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  flex-grow: 1;
+  justify-content: center;
+  overflow: hidden;
+}
 
-  @include respond-to($breakpoint-md) {
-    padding: 40px;
+.scrollable-content {
+  position: relative;
+  width: 100%;
+  padding-bottom: 35px;
+
+  .bodyContent {
+    min-width: 200px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px;
+    padding-bottom: 50px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .scroll-indicator {
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    padding: 5px 0;
+
+    .arrow {
+      font-size: 24px;
+      @include theme-aware('color', $text-color, $light-text-color);
+      opacity: 0.5;
+      transition: opacity 0.3s ease;
+      animation: verticalShake 1s ease-in-out infinite;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    &.up .arrow.up,
+    &.down .arrow.down,
+    &.both .arrow.updown {
+      display: inline-block;
+    }
+
+    &.up .arrow.down,
+    &.up .arrow.updown,
+    &.down .arrow.up,
+    &.down .arrow.updown,
+    &.both .arrow.up,
+    &.both .arrow.down {
+      display: none;
+    }
   }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  margin-bottom: 20px;
-  color: $spooky-accent;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+.settings-page {
+  .content-wrapper {
+    min-height: calc(100vh - 95px); // Adjusted for header and margin-top
+  }
+
+  .content {
+    margin-top: 50px;
+  }
+
+  .scrollable-content {
+    .bodyContent {
+      padding: 20px;
+    }
+  }
 }
 
-a {
-  color: $link-color;
-  text-decoration: none;
-  @include spooky-transition;
+.flex-top {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.contentHeader {
+  @include theme-aware('color', $text-color, $light-text-color);
+  padding-bottom: 20px;
+  line-height: 1;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.bodyContent {
+  min-width: 200px;
+  overflow-y: auto;
+  padding: 10px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Center content horizontally */
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.challenge-question {
+  margin: 10px;
+}
+
+
+@keyframes verticalShake {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.hint {
+  color: orange;
+  border-top: 1px solid orange;
+  padding-top: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.story-challenge {
+  .continue-button-container {
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .continue-button {
+    @include button-style;
+    background-color: $spooky-accent;
+    color: $text-color;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: darken($spooky-accent, 10%);
+    }
+  }
+}
+
+.text-to-speech {
+  display: flex;
+  align-items: center;
+
+  .speak-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    @include theme-aware('background-color', $spooky-accent, $lighter-bg);
+    @include theme-aware('color', $text-color, $light-text-color);
+    margin-right: 0.5rem;
+
+    &:hover {
+      color: darken($text-color, 15%);
+    }
+  }
+}
+
+// Button styles
+button {
+  @include button-style;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  height: 40px;
+
+  &:hover:not(:disabled) {
+    background-color: darken($spooky-accent, 10%);
+    box-shadow: 0 0 15px rgba($spooky-accent, 0.7);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+  }
+
+  &:disabled {
+    box-shadow: none;
+  }
+}
+
+.submit-button {
+  background-color: rgb(1, 94, 1);
 
   &:hover {
-    color: lighten($link-color, 15%);
-    text-shadow: 0 0 5px rgba($link-color, 0.5);
+    background-color: darken($spooky-accent, 10%);
   }
 }
 
-button {
-  cursor: pointer;
-  background: $accent-gradient;
-  color: $text-color;
+.hint-button {
+  background-color: rgb(150, 98, 3);
+
+  &:hover {
+    background-color: darken($spooky-accent, 10%);
+    box-shadow: 0 0 15px rgba($spooky-accent, 0.7);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
+  }
+}
+
+.continue-button {
+  background-color: rgb(1, 94, 1);
+
+  &:hover {
+    background-color: darken($spooky-accent, 10%);
+  }
+}
+
+/* If you want to ensure buttons are the same width */
+.join-button,
+.enter-button {
+  width: 120px;
+  /* Adjust this value as needed */
+}
+
+.message-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: auto;
+  min-height: 40px;
+}
+
+.error-message,
+.success-message {
+  text-align: center;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  font-size: 0.9em;
+}
+
+.error-message {
+  color: #c40000;
+}
+
+.success-message {
+  color: #02a543;
+}
+
+// Form styles
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-size: 1.2rem;
+
+  // General styles for all input types and textarea
+  input,
+  textarea,
+  text,
+  select {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.1rem;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    @include theme-aware('background-color', rgba($dark-bg, 0.7), rgba($lighter-bg, 0.7));
+    @include theme-aware('color', $text-color, $light-text-color);
+    @include theme-aware('border-color', $text-color, $light-text-color);
+    border-style: solid;
+    border-width: 1px;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
+    }
+  }
+
+  textarea,
+  text {
+    width: 90vw;
+    max-width: 500px;
+  }
+
+
+  // Specific styles for text-like inputs and textarea
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="reset"]):not([type="button"]):not([type="file"]:not([type="select"])),
+  textarea {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  // Ensure non-text inputs also get the focus effect
+  input[type="number"] {
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 25px rgba($spooky-accent, 0.9);
+    }
+  }
+}
+
+// Button styles
+@mixin button-base {
+  padding: 10px 22px;
+  margin: 10px;
   border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+//lobby styles
+.path-list {
+  list-style-type: none;
+  padding: 10px;
+  min-width: 250px;
+
+  .path-item {
+    margin-bottom: 10px;
+
+    &.disabled button {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button {
+      height: auto;
+      width: 100%;
+      padding: 10px;
+      @include theme-aware('background-color', $spooky-accent, $lighter-bg);
+      @include theme-aware('color', $text-color, $light-text-color);
+      border: theme-aware('border', 1px solid $spooky-accent, 1px solid $light-accent);
+      border-radius: 5px;
+      //theme-aware box ::shadow
+      box-shadow: 0 0 10px ;
+
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+
+      &:hover:not(:disabled) {
+        @include theme-aware('background-color', darken($spooky-accent, 10%), darken($lighter-bg, 10%));
+      }
+
+      .day-only-indicator {
+        font-size: 0.8em;
+        opacity: 0.7;
+      }
+    }
+  }
+}
+
+.time-indicator {
+  margin-top: 20px;
+  font-size: 0.9em;
+
+  .day-night-indicator {
+    margin-left: 10px;
+  }
+}
+
+//path page styles
+.path-page {
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.7s ease-in-out;
+
+  &.content-visible {
+    opacity: 1;
+  }
+}
+
+.path-content {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.path-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: rgba($spooky-accent, 1);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+
+  .content-visible & {
+    opacity: 1;
+  }
+}
+
+.distance-notice {
+  margin-bottom: 20px;
+  height: 20px; // Fixed height to maintain space
+  text-align: center;
+  overflow: hidden; // Ensure content doesn't spill out
+
+  .distance-notice-content {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+  }
+
+  &.content-visible .distance-notice-content {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  &.visible {
+    height: auto; // Allow height to adjust when visible
+  }
+}
+
+.completion-feedback {
+  text-align: center;
+  margin-top: 20px;
+  font-weight: bold;
+  /* Or any color that fits your design */
+}
+
+.challenge-wrapper {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.challengeBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+
+  .content-visible & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .challenge {
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+  }
+
+  .challenge-title {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    @include theme-aware('color', $spooky-accent, $light-accent);
+  }
+
+  .challenge-description {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    @include theme-aware('color', $text-color, $light-text-color);
+    padding: 20px;
+  }
+
+  .feedback {
+    @include theme-aware('color', $text-color, $light-text-color);
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    height: 0;
+    overflow: hidden;
+    max-width: 500px;
+  }
+
+  .feedback.visible {
+    opacity: 1;
+    height: auto;
+    margin-bottom: 20px;
+  }
+
+  .green {
+    color: #4CAF50;
+  }
+
+  .story-text {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    padding: 20px;
+    max-width: 500px;
+  }
+}
+
+.content-visible {
+  .path-title {
+    transition-delay: 0.2s;
+  }
+
+  .distance-notice {
+    transition-delay: 0.4s;
+  }
+
+  .challengeBody {
+    transition-delay: 0.6s;
+  }
+}
+
+.return-to-hunt-button {
+  margin-top: 20px;
+  background-color: $spooky-accent;
+  color: $text-color;
   padding: 10px 20px;
   border-radius: 5px;
-  font-size: 16px;
-  @include spooky-transition;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width:200px;
 
   &:hover {
-    background: darken($spooky-accent, 10%);
-    box-shadow: 0 0 10px rgba($spooky-accent, 0.5);
+    background-color: darken($spooky-accent, 10%);
+  }
+}
+
+.visible {
+  opacity: 1;
+}
+
+.center {
+  align-items: center;
+  text-align: center;
+}
+
+.clearMargin {
+  margin: unset;
+}
+
+.button-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  /* Center the buttons horizontally */
+  gap: 20px;
+}
+
+.button-container-bottom {
+  position: fixed;
+  bottom: 10px;
+  width: 100vw;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* Center the buttons horizontally */
+  gap: 10px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+
+  &.visible {
+    opacity: 1;
+  }
+}
+
+.accountForm {
+  max-width: 300px;
+}
+
+.account-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.voice-selector {
+  margin: 20px 0;
+
+  label {
+    display: block;
+    @include theme-aware('color', $text-color, $light-text-color);
+  }
+
+  .stylized-select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    @include theme-aware('background-color', $dark-bg, $light-bg);
+    @include theme-aware('color', $text-color, $light-text-color);
+    @include theme-aware('border', 1px solid $spooky-accent, 1px solid $light-accent);
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 1rem;
+
+    &:focus {
+      outline: none;
+      @include theme-aware('box-shadow', 0 0 0 2px $spooky-accent, 0 0 0 2px $light-accent);
+    }
+  }
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.modal-content {
+  @include theme-aware('background-color', $darker-bg, $light-bg);
+  @include theme-aware('color', $text-color, $light-text-color);
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  &.visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  margin-bottom: 15px;
+  width: 100%;
+  text-align: center;
+
+  h2 {
+    font-size: 1.5em;
+    margin: 0;
+  }
+}
+
+.modal-body {
+  margin-bottom: 20px;
+  transition: opacity 0.3s ease;
+  width: 100%;
+
+  &.text-orange-700 {
+    color: #c45500;
+  }
+
+  &.text-green-600 {
+    color: #059669;
+  }
+
+  &.text-crimson {
+    color: #7d1e1e;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.close-button {
+  border: none;
+}
+
+.hint-counter {
+  font-size: 0.8em;
+  color: #666;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.modal-body {
+
+  ul, ol {
+    padding-left: 20px;
+    margin-bottom: 15px;
+  }
+}
+
+.align-left {
+  text-align: left;
+}
+
+
+.legal-disclaimer {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 20px;
+  text-align: center;
+  padding: 0 10px;
+}
+
+/* Character count styles */
+.char-count {
+  text-align: right;
+  font-size: 0.8em;
+  @include theme-aware('color', $text-color, $light-text-color);
+}
+
+.skip-countdown {
+  font-size: 0.9em;
+  color: #666;
+  text-align: center;
+  width: 100px;
+}
+
+.profile-image-container {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 20px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+  &.small {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 10px;
+  }
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.profile-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.remove-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: $spooky-accent;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: darken($spooky-accent, 10%);
+  }
+
+  .remove-icon {
+    color: $text-color;
+    font-size: 18px;
+    line-height: 1;
+  }
+}
+
+@media (max-width: 300px) {
+  .scrollable-content {
+    .bodyContent {
+      min-width: 150px; // Reduce minimum width for very narrow screens
+    }
   }
 }

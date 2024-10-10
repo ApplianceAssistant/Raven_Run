@@ -1,0 +1,83 @@
+@import 'variables';
+
+.profile-form {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-field label {
+  font-weight: bold;
+}
+
+.profile-field input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.profile-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  height: 40px; // Fixed height to prevent layout shift
+}
+
+.save-changes-button {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: none;
+
+  &.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.profile-image-upload {
+  margin-bottom: 1rem;
+  max-width: 300px;
+}
+
+.ReactCrop {
+  max-width: 100%;
+  margin-bottom: 1rem;
+
+  &__crop-selection {
+    border: 1px solid #fff;
+    border-radius: 50%;
+  }
+}
+
+.upload-progress {
+  margin-top: 1rem;
+  font-size: .8em;
+
+  progress {
+    width: 100%;
+  }
+}
+
+.edit-image-button {
+  position: absolute;
+  bottom: 30px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 1);
+  }
+}
