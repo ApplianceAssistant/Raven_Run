@@ -15,7 +15,6 @@ import LogIn from './components/LogIn';
 import Friends from './components/Friends.js';
 import Congratulations from './components/Congratulations';
 import { checkServerConnectivity, API_URL, authFetch } from './utils/utils.js';
-import { startLocationUpdates, stopLocationUpdates, getCurrentLocation, updateUserLocation } from './utils/utils';
 import HuntDescription from './components/HuntDescription';
 
 
@@ -177,13 +176,6 @@ function AppContent() {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-
-
-
-  // Start location updates when the app initializes
-  if (!locationIntervalRef.current) {
-    locationIntervalRef.current = startLocationUpdates();
-  }
 
   if (authState.isLoading) {
     return <div>Loading...</div>;

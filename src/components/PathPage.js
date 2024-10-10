@@ -20,7 +20,7 @@ import {
   shouldDisplayDistanceNotice,
   checkLocationReached
 } from '../services/challengeService.ts';
-import { getCurrentLocation, getUserUnitPreference, updateUserLocation } from '../utils/utils.js';
+import { getCurrentLocation, getUserUnitPreference } from '../utils/utils.js';
 import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
@@ -42,32 +42,47 @@ function PathPage() {
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
   const [distanceNoticeVisible, setDistanceNoticeVisible] = useState(false);
   const [showCongratulations, setShowCongratulations] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const watchId = useRef(null);
   const navigate = useNavigate();
 
-  const distanceIntervalRef = useRef(null);
-
-  const getRefreshInterval = useCallback((newDistanceInfo) => {
-    console.warn("Getting refresh interval:", newDistanceInfo);
-    const { distance, unit } = newDistanceInfo;
-    const isMetric = getUserUnitPreference();
-    let distanceInMeters;
-
-    if (unit === 'ft') {
-      distanceInMeters = feetToMeters(distance);
-    } else if (unit === 'm') {
-      distanceInMeters = distance;
-    } else if (unit === 'km') {
-      distanceInMeters = milesToKilometers(distance) * 1000;
-    } else {
-      distanceInMeters = milesToKilometers(distance) * 1000;
+  const startLocationWatch = useCallback(() => {
+    if (navigator.geolocation) {
+      watchId.current = navigator.geolocation.watchPosition(
+        updateLocation,
+        handleLocationError,
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
     }
-
-    if (distanceInMeters === null) return 5000; // Default to 9 seconds if distance is unknown
-    if (distanceInMeters <= 100) return 2000; // 2 seconds when very close (less than 100 meters)
-    if (distanceInMeters <= 500) return 3000; // 3 seconds when close (between 50 and 500 meters)
-    if (distanceInMeters <= 1000) return 5000; // 5 seconds when between 500 and 1000 meters
-    return 6000; // 7 seconds when more than 1000 meters away
   }, []);
+
+  const stopLocationWatch = useCallback(() => {
+    if (watchId.current) {
+      navigator.geolocation.clearWatch(watchId.current);
+    }
+  }, []);
+
+  const updateLocation = useCallback((position) => {
+    const newLocation = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      accuracy: position.coords.accuracy,
+      timestamp: position.timestamp
+    };
+    console.log('Location updated:', newLocation);
+    setUserLocation(newLocation);
+  }, []);
+
+  const handleLocationError = useCallback((error) => {
+    //console.error('Location watch error:', error.code, error.message);
+    alert('Error getting location. Please make sure location services are enabled and try again.');
+    // Handle the error appropriately in your app
+  }, []);
+
+  useEffect(() => {
+    startLocationWatch();
+    return () => stopLocationWatch();
+  }, [startLocationWatch, stopLocationWatch]);
 
   useEffect(() => {
     const loadPath = () => {
@@ -96,19 +111,10 @@ function PathPage() {
 
   const currentChallenge = challenges[challengeIndex];
 
-  const updateDistanceAndCheckLocation = useCallback(async () => {
-    if (currentChallenge && currentChallenge.targetLocation) {
+  const updateDistanceAndCheckLocation = useCallback(() => {
+    if (currentChallenge && currentChallenge.targetLocation && userLocation) {
       console.log("Updating distance and checking location");
       
-      // Explicitly update and get the current user location
-      const userLocation = await updateUserLocation();
-      console.log("Current user location:", userLocation);
-
-      if (!userLocation) {
-        console.warn("Unable to get user location");
-        return;
-      }
-
       const newDistanceInfo = updateDistance(currentChallenge, userLocation);
       console.log("New distance info:", newDistanceInfo);
 
@@ -146,12 +152,14 @@ function PathPage() {
       if (locationReached && !challengeState.isCorrect) {
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
       }
-
-      const nextInterval = getRefreshInterval(newDistanceInfo);
-      clearTimeout(distanceIntervalRef.current);
-      distanceIntervalRef.current = setTimeout(updateDistanceAndCheckLocation, nextInterval);
     }
-  }, [currentChallenge, getRefreshInterval, challengeState.isCorrect]);
+  }, [currentChallenge, userLocation, challengeState.isCorrect]);
+
+  useEffect(() => {
+    if (userLocation) {
+      updateDistanceAndCheckLocation();
+    }
+  }, [userLocation, updateDistanceAndCheckLocation]);
 
   useEffect(() => {
     if (challenges.length > 0) {
@@ -160,24 +168,26 @@ function PathPage() {
       setContentVisible(false);
       setChallengeVisible(false);
       setButtonContainerVisible(false);
-      setTimeout(() => {
-        setContentVisible(true);
-        setTimeout(() => {
-          setChallengeVisible(true);
-          setButtonContainerVisible(true);
-        }, 300); // Delay challenge visibility
-      }, 100); // Delay to trigger transition
 
-      if (shouldDisplayDistanceNotice(currentChallenge)) {
-        updateDistanceAndCheckLocation();
-      }
+      // Set up a sequence of state updates
+      const setupSequence = async () => {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        setContentVisible(true);
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+        setChallengeVisible(true);
+        setButtonContainerVisible(true);
+
+        // Check if we should display distance notice and update initially
+        if (shouldDisplayDistanceNotice(currentChallenge)) {
+          updateDistanceAndCheckLocation();
+        }
+      };
+
+      setupSequence();
     }
 
-    return () => {
-      if (distanceIntervalRef.current) {
-        clearTimeout(distanceIntervalRef.current);
-      }
-    };
+    // No need for cleanup function as we're not using intervals anymore
   }, [challengeIndex, challenges, currentChallenge, updateDistanceAndCheckLocation]);
 
   useEffect(() => {

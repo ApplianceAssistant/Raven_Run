@@ -181,10 +181,7 @@ export async function updateUserLocation() {
   }
 }
 
-export function startLocationUpdates(interval = 15000) {
-  updateUserLocation(); // Initial update
-  return setInterval(updateUserLocation, interval);
-}
+
 
 // Function to check server connectivity and measure response time
 export const checkServerConnectivity = async () => {
