@@ -28,7 +28,7 @@ import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils'
 
 function PathPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '' });
+  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false });
   const [modalKey, setModalKey] = useState(0);
   const [currentHint, setCurrentHint] = useState(0);
   const { pathId, challengeIndex: urlChallengeIndex } = useParams();
@@ -91,6 +91,12 @@ function PathPage() {
       }
     }
   }, [currentChallenge, userLocation, challengeState.isCorrect]);
+
+  useEffect(() => {
+    if (currentChallenge && userLocation) {
+      updateDistanceAndCheckLocation();
+    }
+  }, [currentChallenge, userLocation, updateDistanceAndCheckLocation]);
 
   useEffect(() => {
     if (challenges.length > 0) {
@@ -182,7 +188,8 @@ function PathPage() {
         ),
         buttons: [
           { label: 'Close', onClick: () => setIsModalOpen(false) }],
-        type: 'hint'
+        type: 'hint',
+        showTextToSpeech: false
       });
     }
   };
@@ -245,7 +252,8 @@ function PathPage() {
       title: isCorrect ? 'Correct!' : 'Incorrect',
       content: <p className={isCorrect ? 'completion-feedback' : ''}>{contentText}</p>,
       buttons: buttons,
-      type: isCorrect ? 'correct' : 'incorrect'
+      type: isCorrect ? 'correct' : 'incorrect',
+      showTextToSpeech: true
     });
   };
 

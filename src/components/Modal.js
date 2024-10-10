@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ScrollableContent from './ScrollableContent';
 import TextToSpeech from './TextToSpeech';
 
-const Modal = ({ isOpen, onClose, title, content, buttons, type }) => {
+const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeech }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
 
@@ -65,7 +65,7 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type }) => {
         </ScrollableContent>
         {buttons && buttons.length > 0 && (
           <div className="modal-buttons">
-            <TextToSpeech text={textToSpeak} />
+            {showTextToSpeech && <TextToSpeech text={textToSpeak} />}
             {buttons.map((button, index) => (
               <button key={index} onClick={button.onClick} className={button.className}>
                 {button.label}

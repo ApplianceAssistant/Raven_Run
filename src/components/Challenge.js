@@ -131,6 +131,7 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
         title={modalContent.title}
         content={modalContent.content}
         buttons={modalContent.buttons}
+        showTextToSpeech={modalContent.showTextToSpeech}
       />
     </div>
   );

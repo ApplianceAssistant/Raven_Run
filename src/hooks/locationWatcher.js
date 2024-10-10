@@ -29,6 +29,6 @@ export const useLocationWatcher = () => {
       }
     };
   }, []);
-
+  console.warn("new user location: ", userLocation);
   return userLocation;
 };
