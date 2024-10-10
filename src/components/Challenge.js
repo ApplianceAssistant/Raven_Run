@@ -2,10 +2,21 @@ import React, { useEffect, useState } from 'react';
 import Modal from './Modal';
 import ScrollableContent from './ScrollableContent';
 
-export const Challenge = ({ challenge, userLocation, challengeState, onStateChange, onContinue }) => {
+export const Challenge = React.memo(({ challenge, userLocation, challengeState, onStateChange, onContinue }) => {
+  const [localState, setLocalState] = useState(challengeState);
+
+  useEffect(() => {
+    setLocalState(challengeState);
+  }, [challengeState]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
-  
+
+  const handleLocalStateChange = (updates) => {
+    setLocalState(prevState => ({ ...prevState, ...updates }));
+    onStateChange(updates);
+  };
+
   const renderChallenge = () => {
     switch (challenge.type) {
       case 'story':
@@ -97,7 +108,7 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
   );
 
   return (
-    <div className={`challengeBody ${challengeState.textVisible ? 'visible' : ''}`}>
+    <div className={`challengeBody ${localState.textVisible ? 'visible' : ''}`}>
       <ScrollableContent maxHeight="60vh">
         <h2>{challenge.title}</h2>
         <div className="challenge-content">
@@ -133,4 +144,4 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
       />
     </div>
   );
-};
+});

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Challenge } from './Challenge';
 import Compass from './Compass';
@@ -20,11 +20,11 @@ import {
   shouldDisplayDistanceNotice,
   checkLocationReached
 } from '../services/challengeService.ts';
-import { getCurrentLocation, getUserUnitPreference } from '../utils/utils.js';
+import { handleError } from '../utils/utils.js';
+import { useLocationWatcher } from '../hooks/locationWatcher';
 import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
-import { metersToFeet, feetToMeters, kilometersToMiles, milesToKilometers } from '../utils/unitConversion';
 
 function PathPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,47 +42,34 @@ function PathPage() {
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
   const [distanceNoticeVisible, setDistanceNoticeVisible] = useState(false);
   const [showCongratulations, setShowCongratulations] = useState(false);
-  const [userLocation, setUserLocation] = useState(null);
-  const watchId = useRef(null);
+  const [challengeKey, setChallengeKey] = useState(0);
+  const [isLocationReached, setIsLocationReached] = useState(false);
   const navigate = useNavigate();
+  const userLocation = useLocationWatcher();
 
-  const startLocationWatch = useCallback(() => {
-    if (navigator.geolocation) {
-      watchId.current = navigator.geolocation.watchPosition(
-        updateLocation,
-        handleLocationError,
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
+  const currentChallenge = challenges[challengeIndex];
+
+  const updateDistanceAndCheckLocation = useCallback(() => {
+    if (currentChallenge && currentChallenge.targetLocation && userLocation) {
+      console.log("Updating distance and checking location");
+      
+      const newDistanceInfo = updateDistance(currentChallenge, userLocation);
+      console.log("New distance info:", newDistanceInfo);
+
+      setDistanceInfo(newDistanceInfo);
+
+      const { isReached } = checkLocationReached(currentChallenge, userLocation);
+      setIsLocationReached(isReached);
+
+      if (isReached && !challengeState.isCorrect) {
+        displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
+      }
     }
-  }, []);
-
-  const stopLocationWatch = useCallback(() => {
-    if (watchId.current) {
-      navigator.geolocation.clearWatch(watchId.current);
-    }
-  }, []);
-
-  const updateLocation = useCallback((position) => {
-    const newLocation = {
-      latitude: position.coords.latitude,
-      longitude: position.coords.longitude,
-      accuracy: position.coords.accuracy,
-      timestamp: position.timestamp
-    };
-    console.log('Location updated:', newLocation);
-    setUserLocation(newLocation);
-  }, []);
-
-  const handleLocationError = useCallback((error) => {
-    //console.error('Location watch error:', error.code, error.message);
-    alert('Error getting location. Please make sure location services are enabled and try again.');
-    // Handle the error appropriately in your app
-  }, []);
+  }, [currentChallenge, userLocation, challengeState.isCorrect]);
 
   useEffect(() => {
-    startLocationWatch();
-    return () => stopLocationWatch();
-  }, [startLocationWatch, stopLocationWatch]);
+    updateDistanceAndCheckLocation();
+  }, [updateDistanceAndCheckLocation, userLocation]);
 
   useEffect(() => {
     const loadPath = () => {
@@ -109,58 +96,6 @@ function PathPage() {
     saveHuntProgress(pathId, urlChallengeIndex);
   }, [pathId, urlChallengeIndex]);
 
-  const currentChallenge = challenges[challengeIndex];
-
-  const updateDistanceAndCheckLocation = useCallback(() => {
-    if (currentChallenge && currentChallenge.targetLocation && userLocation) {
-      console.log("Updating distance and checking location");
-      
-      const newDistanceInfo = updateDistance(currentChallenge, userLocation);
-      console.log("New distance info:", newDistanceInfo);
-
-      const isMetric = getUserUnitPreference();
-
-      // Convert distance to appropriate units for display
-      let displayDistance = newDistanceInfo.distance;
-      let displayUnit = newDistanceInfo.unit;
-
-      if (!isMetric) {
-        if (newDistanceInfo.unit === 'mi' && newDistanceInfo.distance < 0.1) {
-          displayDistance = Math.round(metersToFeet(milesToKilometers(newDistanceInfo.distance) * 1000));
-          displayUnit = 'ft';
-        } else {
-          displayDistance = Number(displayDistance.toFixed(2));
-        }
-      } else {
-        if (newDistanceInfo.unit === 'km' && newDistanceInfo.distance < 1) {
-          displayDistance = Math.round(newDistanceInfo.distance * 1000);
-          displayUnit = 'm';
-        } else {
-          displayDistance = Number(displayDistance.toFixed(2));
-        }
-      }
-
-      setDistanceInfo({
-        ...newDistanceInfo,
-        displayValue: displayDistance.toString(),
-        unit: displayUnit
-      });
-
-      const locationReached = checkLocationReached(currentChallenge, userLocation);
-      console.log("Location reached:", locationReached);
-
-      if (locationReached && !challengeState.isCorrect) {
-        displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
-      }
-    }
-  }, [currentChallenge, userLocation, challengeState.isCorrect]);
-
-  useEffect(() => {
-    if (userLocation) {
-      updateDistanceAndCheckLocation();
-    }
-  }, [userLocation, updateDistanceAndCheckLocation]);
-
   useEffect(() => {
     if (challenges.length > 0) {
       const initialState = initializeChallengeState();
@@ -186,8 +121,6 @@ function PathPage() {
 
       setupSequence();
     }
-
-    // No need for cleanup function as we're not using intervals anymore
   }, [challengeIndex, challenges, currentChallenge, updateDistanceAndCheckLocation]);
 
   useEffect(() => {
@@ -203,9 +136,6 @@ function PathPage() {
       if (!document.hidden) {
         checkDistanceNoticeVisibility();
         updateDistanceAndCheckLocation();
-        if (distanceNoticeVisible) {
-          updateDistanceAndCheckLocation();
-        }
       }
     };
 
@@ -214,11 +144,11 @@ function PathPage() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [currentChallenge, distanceNoticeVisible, updateDistanceAndCheckLocation]);
+  }, [currentChallenge, updateDistanceAndCheckLocation]);
 
-  const handleStateChange = (updates) => {
+  const handleStateChange = useCallback((updates) => {
     setChallengeState(prevState => updateChallengeState(currentChallenge, prevState, updates));
-  };
+  }, [currentChallenge]);
 
   const handleSubmitClick = () => {
     const newState = handleSubmit(currentChallenge, challengeState);
@@ -227,7 +157,7 @@ function PathPage() {
     displayFeedback(newState.isCorrect, newState.feedback);
   };
 
-  const handleContinueClick = () => {
+  const handleContinueClick = useCallback(() => {
     setIsModalOpen(false);
     setContentVisible(false);
     setChallengeVisible(false);
@@ -236,13 +166,14 @@ function PathPage() {
       if (nextIndex < challenges.length) {
         navigate(`/path/${pathId}/challenge/${nextIndex}`);
         saveHuntProgress(pathId, nextIndex);
+        setChallengeKey(prevKey => prevKey + 1); // Force re-render of Challenge
       } else {
         // Navigate to Congratulations page
         clearHuntProgress();
         navigate('/congratulations');
       }
     }, 500);
-  };
+  }, [challengeIndex, challenges.length, navigate, pathId]);
 
   const showHintModal = () => {
     if (currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0) {
@@ -359,6 +290,21 @@ function PathPage() {
     );
   };
 
+  const memoizedChallenge = useMemo(() => {
+    if (!currentChallenge) return null; // Add this check
+    
+    return (
+      <Challenge
+        key={challengeKey}
+        challenge={currentChallenge}
+        challengeState={{ ...challengeState, textVisible: challengeVisible }}
+        onStateChange={handleStateChange}
+        userLocation={userLocation}
+        onContinue={handleContinueClick}
+      />
+    );
+  }, [challengeKey, currentChallenge, challengeState, challengeVisible, handleStateChange, userLocation, handleContinueClick]);
+
   return (
     <div className="content-wrapper">
       <div className={`distance-notice ${contentVisible && distanceNoticeVisible ? 'visible' : ''}`}>
@@ -370,21 +316,11 @@ function PathPage() {
           </>
         )}
       </div>
-
       <div className="spirit-guide large">
         <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
           <main className="path-content content flex-top">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
-              {currentChallenge && (
-                <Challenge
-                  key={challengeIndex}
-                  challenge={currentChallenge}
-                  challengeState={{ ...challengeState, textVisible: challengeVisible }}
-                  onStateChange={handleStateChange}
-                  userLocation={getCurrentLocation()}
-                  onContinue={handleContinueClick}
-                />
-              )}
+            {currentChallenge && memoizedChallenge} {/* Replace this line */}
             </div>
           </main>
         </div>
