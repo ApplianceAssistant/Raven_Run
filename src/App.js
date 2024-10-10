@@ -102,14 +102,6 @@ function AppContent() {
 
     checkConnection();
   }, []);
-  //debugging
-  useEffect(() => {
-    console.log('Current authState:', authState);
-  }, [authState]);
-
-  useEffect(() => {
-    console.log('Current serverStatus:', serverStatus);
-  }, [serverStatus]);
 
   useEffect(() => {
     // Check if there's a stored auth token or user data
@@ -126,7 +118,6 @@ function AppContent() {
   }, []);
 
   const login = (userData) => {
-    console.log('Logging in user:', userData);
     setAuthState({
       isLoggedIn: true,
       user: userData,
@@ -136,7 +127,6 @@ function AppContent() {
   }
 
   const logout = async () => {
-    console.log('Attempting to log out');
     try {
       const response = await authFetch(`${API_URL}/login.php`, {
         method: 'POST',

@@ -203,8 +203,6 @@ export function handleSubmit(challenge: Challenge, state: ChallengeState): Chall
     correctAnswer = 'Location reached';
   }
 
-  console.log("handleSubmit - isCorrect:", isCorrect, "answer:", state.answer, "correctAnswer:", correctAnswer);
-
   const feedbackText = isCorrect 
     ? challenge.feedbackTexts?.correct || 'Correct!'
     : getNextIncorrectFeedback(challenge);

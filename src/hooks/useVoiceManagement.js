@@ -24,7 +24,6 @@ export const useVoiceManagement = () => {
         );
 
         if (defaultVoice) {
-          console.log(`Using default voice: ${defaultVoice.name}`);
           const voice = availableVoices.find(v => v.name === defaultVoice.name && v.lang === defaultVoice.lang);
           setSelectedVoiceURI(voice.voiceURI);
           localStorage.setItem('selectedVoiceURI', voice.voiceURI);

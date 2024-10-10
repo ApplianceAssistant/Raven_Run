@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Challenge } from './Challenge';
 import Compass from './Compass';
@@ -26,18 +26,6 @@ import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
 
-// New component for distance display
-const DistanceDisplay = React.memo(({ distanceInfo, visible }) => {
-  if (!visible) return null;
-  return (
-    <div className={`distance-notice visible`}>
-      Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span>{' '}
-      <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
-      <Compass direction={distanceInfo.direction} />
-    </div>
-  );
-});
-
 function PathPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '' });
@@ -54,35 +42,11 @@ function PathPage() {
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
   const [distanceNoticeVisible, setDistanceNoticeVisible] = useState(false);
   const [showCongratulations, setShowCongratulations] = useState(false);
-  const [isLocationReached, setIsLocationReached] = useState(false);
   const navigate = useNavigate();
+  const [isLocationReached, setIsLocationReached] = useState(false);
   const userLocation = useLocationWatcher();
 
-  const currentChallenge = useMemo(() => challenges[challengeIndex], [challenges, challengeIndex]);
-
-  const updateDistanceAndCheckLocation = useCallback(() => {
-    if (currentChallenge?.targetLocation && userLocation) {
-      console.log("Updating distance and checking location");
-      
-      const newDistanceInfo = updateDistance(currentChallenge, userLocation);
-      console.log("New distance info:", newDistanceInfo);
-
-      setDistanceInfo(newDistanceInfo);
-
-      const { isReached } = checkLocationReached(currentChallenge, userLocation);
-      setIsLocationReached(isReached);
-
-      if (isReached && !challengeState.isCorrect) {
-        displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
-      }
-    }
-  }, [currentChallenge, userLocation, challengeState.isCorrect]);
-
-  useEffect(() => {
-    if (currentChallenge?.targetLocation) {
-      updateDistanceAndCheckLocation();
-    }
-  }, [updateDistanceAndCheckLocation, currentChallenge]);
+  const currentChallenge = challenges[challengeIndex];
 
   useEffect(() => {
     const loadPath = () => {
@@ -109,6 +73,25 @@ function PathPage() {
     saveHuntProgress(pathId, urlChallengeIndex);
   }, [pathId, urlChallengeIndex]);
 
+  
+
+  const updateDistanceAndCheckLocation = useCallback(() => {
+    if (currentChallenge?.targetLocation && userLocation) {
+      
+      const newDistanceInfo = updateDistance(currentChallenge, userLocation);
+      console.log("New distance info:", newDistanceInfo);
+
+      setDistanceInfo(newDistanceInfo);
+
+      const { isReached } = checkLocationReached(currentChallenge, userLocation);
+      setIsLocationReached(isReached);
+
+      if (isReached && !challengeState.isCorrect) {
+        displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
+      }
+    }
+  }, [currentChallenge, userLocation, challengeState.isCorrect]);
+
   useEffect(() => {
     if (challenges.length > 0) {
       const initialState = initializeChallengeState();
@@ -116,25 +99,19 @@ function PathPage() {
       setContentVisible(false);
       setChallengeVisible(false);
       setButtonContainerVisible(false);
-
-      // Set up a sequence of state updates
-      const setupSequence = async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
+      setTimeout(() => {
         setContentVisible(true);
-        
-        await new Promise(resolve => setTimeout(resolve, 300));
-        setChallengeVisible(true);
-        setButtonContainerVisible(true);
+        setTimeout(() => {
+          setChallengeVisible(true);
+          setButtonContainerVisible(true);
+        }, 300); // Delay challenge visibility
+      }, 100); // Delay to trigger transition
 
-        // Check if we should display distance notice and update initially
-        if (shouldDisplayDistanceNotice(currentChallenge)) {
-          updateDistanceAndCheckLocation();
-        }
-      };
-
-      setupSequence();
+      if (shouldDisplayDistanceNotice(currentChallenge)) {
+        updateDistanceAndCheckLocation();
+      }
     }
-  }, [challengeIndex, challenges, currentChallenge, updateDistanceAndCheckLocation]);
+  }, [challengeIndex, challenges, currentChallenge]);
 
   useEffect(() => {
     const checkDistanceNoticeVisibility = () => {
@@ -148,7 +125,9 @@ function PathPage() {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         checkDistanceNoticeVisibility();
-        updateDistanceAndCheckLocation();
+        if (distanceNoticeVisible) {
+          updateDistanceAndCheckLocation();
+        }
       }
     };
 
@@ -157,7 +136,7 @@ function PathPage() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [currentChallenge, updateDistanceAndCheckLocation]);
+  }, [currentChallenge, distanceNoticeVisible, updateDistanceAndCheckLocation]);
 
   const handleStateChange = useCallback((updates) => {
     setChallengeState(prevState => updateChallengeState(currentChallenge, prevState, updates));
@@ -166,7 +145,6 @@ function PathPage() {
   const handleSubmitClick = () => {
     const newState = handleSubmit(currentChallenge, challengeState);
     setChallengeState(newState);
-    console.log("Submit result:", newState);
     displayFeedback(newState.isCorrect, newState.feedback);
   };
 
@@ -192,7 +170,6 @@ function PathPage() {
       const totalHints = currentChallenge.hints.length;
       const nextHint = (currentHint + 1) % totalHints;
       setCurrentHint(nextHint);
-      console.log("Showing hint:", currentHint, currentChallenge.hints[nextHint]);
       updateModalContent({
         title: 'Hint',
         content: (
@@ -211,7 +188,6 @@ function PathPage() {
   };
 
   const updateModalContent = (newContent) => {
-    console.warn("Updating modal content:", newContent);
     setIsModalOpen(false);
     setTimeout(() => {
       setModalContent(newContent);
@@ -241,7 +217,14 @@ function PathPage() {
   };
 
   const displayFeedback = (isCorrect, feedbackText) => {
-    if (challengeState.isCorrect) return; // Prevent multiple displays of completion feedback
+    const buttons = [];
+    if (isCorrect) {
+      buttons.push({ label: 'Continue', onClick: handleContinueClick, className: 'continue-button' });
+    } else if (currentChallenge.repeatable) {
+      buttons.push({ label: 'Close', onClick: () => setIsModalOpen(false), className: 'close-button' });
+    } else {
+      buttons.push({ label: 'Continue', onClick: handleContinueClick, className: 'continue-button' });
+    }
 
     let contentText = feedbackText;
     if (isCorrect) {
@@ -258,25 +241,12 @@ function PathPage() {
       contentText = incorrectFeedbacks[feedbackIndex] || feedbackText || 'Incorrect. Try again!';
     }
 
-    const buttons = [];
-
-    if (isCorrect || !currentChallenge.repeatable) {
-      buttons.push({ label: 'Continue', onClick: handleContinueClick, className: 'continue-button' });
-    } else {
-      buttons.push({ label: 'Close', onClick: () => setIsModalOpen(false), className: 'close-button' });
-    }
-
     updateModalContent({
       title: isCorrect ? 'Correct!' : 'Incorrect',
       content: <p className={isCorrect ? 'completion-feedback' : ''}>{contentText}</p>,
       buttons: buttons,
       type: isCorrect ? 'correct' : 'incorrect'
     });
-
-    setChallengeState(prevState => ({
-      ...prevState,
-      isCorrect: isCorrect
-    }));
   };
 
   const renderButtons = () => {
@@ -302,31 +272,31 @@ function PathPage() {
     );
   };
 
-  const memoizedChallenge = useMemo(() => {
-    if (!currentChallenge) return null;
-    
-    return (
-      <Challenge
-        key={challengeIndex}
-        challenge={currentChallenge}
-        challengeState={{ ...challengeState, textVisible: challengeVisible }}
-        onStateChange={handleStateChange}
-        onContinue={handleContinueClick}
-      />
-    );
-  }, [challengeIndex, currentChallenge, challengeState, challengeVisible, handleStateChange, handleContinueClick]);
-
   return (
     <div className="content-wrapper">
-      <DistanceDisplay 
-        distanceInfo={distanceInfo} 
-        visible={contentVisible && distanceNoticeVisible} 
-      />
+      <div className={`distance-notice ${contentVisible && distanceNoticeVisible ? 'visible' : ''}`}>
+        {distanceNoticeVisible && (
+          <>
+            Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span>{' '}
+            <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
+            <Compass direction={distanceInfo.direction} />
+          </>
+        )}
+      </div>
+
       <div className="spirit-guide large">
         <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
           <main className="path-content content flex-top">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
-              {memoizedChallenge}
+              {currentChallenge && (
+                <Challenge
+                  key={challengeIndex}
+                  challenge={currentChallenge}
+                  challengeState={{ ...challengeState, textVisible: challengeVisible }}
+                  onStateChange={handleStateChange}
+                  onContinue={handleContinueClick}
+                />
+              )}
             </div>
           </main>
         </div>
@@ -347,4 +317,4 @@ function PathPage() {
   );
 }
 
-export default React.memo(PathPage);
+export default PathPage;

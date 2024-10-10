@@ -21,7 +21,6 @@ function Home() {
   const handleLearnMore = () => {
     navigate('/about');
   }
-  console.log("Home.js: isLoggedIn: ", isLoggedIn);
   return (
     <>
       <div className="background"></div>
