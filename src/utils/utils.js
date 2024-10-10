@@ -130,7 +130,6 @@ export async function updateUserLocation() {
     const location = await getUserLocation();
     currentLocation = location;
     locationListeners.forEach(listener => listener(location));
-    return location;
   } catch (error) {
     console.error("Error updating user location:", error);
   }
