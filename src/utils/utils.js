@@ -6,9 +6,6 @@ export const API_URL = process.env.NODE_ENV === 'production'
   ? 'https://crowtours.com/api'
   : 'http://localhost:5000/api';
 
-//debugger;
-console.log('Current environment:', process.env.NODE_ENV);
-console.log('API_URL:', API_URL);
 
 //function to detect the need for content scrolling
 export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator) {
@@ -113,17 +110,11 @@ export const authFetch = async (url, options = {}) => {
       headers['Authorization'] = `Bearer ${user.token}`;
   }
 
-  console.log('Fetching URL:', url);
-  console.log('Fetch options:', { ...options, headers });
-
   try {
       const response = await fetch(url, {
           ...options,
           headers,
       });
-
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
 
       if (response.status === 401) {
           console.error('Unauthorized access, user might need to log in again');
@@ -142,9 +133,7 @@ export const authFetch = async (url, options = {}) => {
 // Function to check server connectivity and measure response time
 export const checkServerConnectivity = async () => {
   try {
-    console.log("request url: ", `${API_URL}/db-test.php`);
     const response = await axios.get(`${API_URL}/db-test.php`);
-    console.log("response: ", response);
     if (response.data && response.data.status === 'success') {
       return {
         isConnected: true,
@@ -184,7 +173,6 @@ export function calculateDistance(loc1, loc2) {
   const distance = R * c; // Distance in kilometers
   const distanceInMeters = distance * 1000; // Convert to meters
 
-  console.log(`Calculated distance: ${distanceInMeters} meters`);
   return distanceInMeters;
 }
 
