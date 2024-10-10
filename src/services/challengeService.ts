@@ -33,14 +33,12 @@ export function initializeChallengeState(): ChallengeState {
   };
 }
 
-export function updateDistance(challenge: Challenge): {
+export function updateDistance(challenge: Challenge, userLocation: { latitude: number, longitude: number }): {
   distance: number | null, 
   displayValue: string, 
   unit: string,
   direction: string 
 } {
-  
-  const userLocation = getCurrentLocation();
   if (userLocation && hasTargetLocation(challenge)) {
     const { distance, displayValue, unit } = calculateDistanceInfo(userLocation, challenge.targetLocation!);
     const direction = calculateDirection(userLocation, challenge.targetLocation!);
@@ -168,17 +166,17 @@ export function resetHintCycle(challengeId: string): void {
   hintIndexMap.delete(challengeId);
 }
 
-export function checkLocationReached(challenge: Challenge, userLocation: { latitude: number, longitude: number }): boolean {
-  if (!hasTargetLocation(challenge) || !challenge.radius) {
-    return false;
+
+export function checkLocationReached(challenge: Challenge, userLocation: { latitude: number, longitude: number }): { isReached: boolean, distance: number } {
+  if (!hasTargetLocation(challenge) || !challenge.radius || !userLocation || typeof userLocation.latitude !== 'number' || typeof userLocation.longitude !== 'number') {
+    return { isReached: false, distance: Infinity };
   }
 
-  if (!userLocation || typeof userLocation.latitude !== 'number' || typeof userLocation.longitude !== 'number') {
-    return false;
-  }
-  console.warn( "checkLocationReached", challenge, userLocation);
   const { distanceInMeters } = calculateDistanceInfo(userLocation, challenge.targetLocation!);
-  return distanceInMeters <= challenge.radius;
+  return { 
+    isReached: distanceInMeters <= challenge.radius,
+    distance: distanceInMeters
+  };
 }
 
 //helper function to consolidate distance calculation
@@ -282,7 +280,9 @@ export function canDisplayDistance(challenge: Challenge): boolean {
 export function updateChallengeState(challenge: Challenge, currentState: ChallengeState, updates: Partial<ChallengeState>): ChallengeState {
   const newState = { ...currentState, ...updates };
   
-  if (updates.answer !== undefined) {
+  if (updates.isLocationReached !== undefined) {
+    newState.isLocationReached = updates.isLocationReached;
+  } else if (updates.answer !== undefined) {
     newState.isAnswerSelected = true;
     newState.feedback = '';
   }

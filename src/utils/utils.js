@@ -64,74 +64,43 @@ export function getCurrentLocation() {
   return currentLocation;
 }
 
-// Function to get user's location
-function getUserLocation() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported by your browser'));
-    } else {
-      const options = {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
-      };
 
-      navigator.geolocation.getCurrentPosition(
+export const handleError = (error, context) => {
+  console.error(`Error in ${context}:`, error);
+  // Implement more sophisticated error handling here, e.g., sending to a logging service
+};
+
+export const useLocationWatcher = () => {
+  const [userLocation, setUserLocation] = useState(null);
+
+  useEffect(() => {
+    let watchId;
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.watchPosition(
         (position) => {
-          const location = {
+          setUserLocation({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             accuracy: position.coords.accuracy,
             timestamp: position.timestamp
-          };
-          console.log('New location:', location);
-          localStorage.setItem('userLocation', JSON.stringify(location));
-          resolve(location);
+          });
         },
-        (error) => {
-          console.error('Geolocation error:', error.code, error.message);
-          reject(error);
-        },
-        options
+        (error) => handleError(error, 'Location Watcher'),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     }
-  });
-}
 
-// Consider using watchPosition for continuous updates
-let watchId;
+    return () => {
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, []);
 
-function startLocationWatch() {
-  if (navigator.geolocation) {
-    watchId = navigator.geolocation.watchPosition(
-      updateLocation,
-      handleLocationError,
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-  }
-}
+  return userLocation;
+};
 
-function updateLocation(position) {
-  const location = {
-    latitude: position.coords.latitude,
-    longitude: position.coords.longitude,
-    accuracy: position.coords.accuracy,
-    timestamp: position.timestamp
-  };
-  console.log('Location updated:', location);
-  // Update your app state or trigger distance recalculation here
-}
 
-function handleLocationError(error) {
-  console.error('Location watch error:', error.code, error.message);
-  // Handle the error appropriately in your app
-}
-
-function stopLocationWatch() {
-  if (watchId) {
-    navigator.geolocation.clearWatch(watchId);
-  }
-}
 
 export const authFetch = async (url, options = {}) => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -170,22 +139,6 @@ export const authFetch = async (url, options = {}) => {
   }
 };
 
-export async function updateUserLocation() {
-  try {
-    const location = await getUserLocation();
-    currentLocation = location;
-    locationListeners.forEach(listener => listener(location));
-    return location;
-  } catch (error) {
-    console.error("Error updating user location:", error);
-  }
-}
-
-export function startLocationUpdates(interval = 15000) {
-  updateUserLocation(); // Initial update
-  return setInterval(updateUserLocation, interval);
-}
-
 // Function to check server connectivity and measure response time
 export const checkServerConnectivity = async () => {
   try {
@@ -214,11 +167,6 @@ export const checkServerConnectivity = async () => {
       message: 'Failed to connect to the server'
     };
   }
-};
-
-// Function to stop location updates
-export const stopLocationUpdates = (intervalId) => {
-  clearInterval(intervalId);
 };
 
 export function calculateDistance(loc1, loc2) {

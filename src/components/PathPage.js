@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Challenge } from './Challenge';
 import Compass from './Compass';
@@ -20,11 +20,11 @@ import {
   shouldDisplayDistanceNotice,
   checkLocationReached
 } from '../services/challengeService.ts';
-import { getCurrentLocation, getUserUnitPreference, updateUserLocation } from '../utils/utils.js';
+import { handleError } from '../utils/utils.js';
+import { useLocationWatcher } from '../hooks/locationWatcher';
 import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
-import { metersToFeet, feetToMeters, kilometersToMiles, milesToKilometers } from '../utils/unitConversion';
 
 function PathPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,32 +42,34 @@ function PathPage() {
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
   const [distanceNoticeVisible, setDistanceNoticeVisible] = useState(false);
   const [showCongratulations, setShowCongratulations] = useState(false);
+  const [challengeKey, setChallengeKey] = useState(0);
+  const [isLocationReached, setIsLocationReached] = useState(false);
   const navigate = useNavigate();
+  const userLocation = useLocationWatcher();
 
-  const distanceIntervalRef = useRef(null);
+  const currentChallenge = challenges[challengeIndex];
 
-  const getRefreshInterval = useCallback((newDistanceInfo) => {
-    console.warn("Getting refresh interval:", newDistanceInfo);
-    const { distance, unit } = newDistanceInfo;
-    const isMetric = getUserUnitPreference();
-    let distanceInMeters;
+  const updateDistanceAndCheckLocation = useCallback(() => {
+    if (currentChallenge && currentChallenge.targetLocation && userLocation) {
+      console.log("Updating distance and checking location");
+      
+      const newDistanceInfo = updateDistance(currentChallenge, userLocation);
+      console.log("New distance info:", newDistanceInfo);
 
-    if (unit === 'ft') {
-      distanceInMeters = feetToMeters(distance);
-    } else if (unit === 'm') {
-      distanceInMeters = distance;
-    } else if (unit === 'km') {
-      distanceInMeters = milesToKilometers(distance) * 1000;
-    } else {
-      distanceInMeters = milesToKilometers(distance) * 1000;
+      setDistanceInfo(newDistanceInfo);
+
+      const { isReached } = checkLocationReached(currentChallenge, userLocation);
+      setIsLocationReached(isReached);
+
+      if (isReached && !challengeState.isCorrect) {
+        displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
+      }
     }
+  }, [currentChallenge, userLocation, challengeState.isCorrect]);
 
-    if (distanceInMeters === null) return 5000; // Default to 9 seconds if distance is unknown
-    if (distanceInMeters <= 100) return 2000; // 2 seconds when very close (less than 100 meters)
-    if (distanceInMeters <= 500) return 3000; // 3 seconds when close (between 50 and 500 meters)
-    if (distanceInMeters <= 1000) return 5000; // 5 seconds when between 500 and 1000 meters
-    return 6000; // 7 seconds when more than 1000 meters away
-  }, []);
+  useEffect(() => {
+    updateDistanceAndCheckLocation();
+  }, [updateDistanceAndCheckLocation, userLocation]);
 
   useEffect(() => {
     const loadPath = () => {
@@ -94,65 +96,6 @@ function PathPage() {
     saveHuntProgress(pathId, urlChallengeIndex);
   }, [pathId, urlChallengeIndex]);
 
-  const currentChallenge = challenges[challengeIndex];
-
-  const updateDistanceAndCheckLocation = useCallback(async () => {
-    if (currentChallenge && currentChallenge.targetLocation) {
-      console.log("Updating distance and checking location");
-      
-      // Explicitly update and get the current user location
-      const userLocation = await updateUserLocation();
-      console.log("Current user location:", userLocation);
-
-      if (!userLocation) {
-        console.warn("Unable to get user location");
-        return;
-      }
-
-      const newDistanceInfo = updateDistance(currentChallenge, userLocation);
-      console.log("New distance info:", newDistanceInfo);
-
-      const isMetric = getUserUnitPreference();
-
-      // Convert distance to appropriate units for display
-      let displayDistance = newDistanceInfo.distance;
-      let displayUnit = newDistanceInfo.unit;
-
-      if (!isMetric) {
-        if (newDistanceInfo.unit === 'mi' && newDistanceInfo.distance < 0.1) {
-          displayDistance = Math.round(metersToFeet(milesToKilometers(newDistanceInfo.distance) * 1000));
-          displayUnit = 'ft';
-        } else {
-          displayDistance = Number(displayDistance.toFixed(2));
-        }
-      } else {
-        if (newDistanceInfo.unit === 'km' && newDistanceInfo.distance < 1) {
-          displayDistance = Math.round(newDistanceInfo.distance * 1000);
-          displayUnit = 'm';
-        } else {
-          displayDistance = Number(displayDistance.toFixed(2));
-        }
-      }
-
-      setDistanceInfo({
-        ...newDistanceInfo,
-        displayValue: displayDistance.toString(),
-        unit: displayUnit
-      });
-
-      const locationReached = checkLocationReached(currentChallenge, userLocation);
-      console.log("Location reached:", locationReached);
-
-      if (locationReached && !challengeState.isCorrect) {
-        displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
-      }
-
-      const nextInterval = getRefreshInterval(newDistanceInfo);
-      clearTimeout(distanceIntervalRef.current);
-      distanceIntervalRef.current = setTimeout(updateDistanceAndCheckLocation, nextInterval);
-    }
-  }, [currentChallenge, getRefreshInterval, challengeState.isCorrect]);
-
   useEffect(() => {
     if (challenges.length > 0) {
       const initialState = initializeChallengeState();
@@ -160,24 +103,24 @@ function PathPage() {
       setContentVisible(false);
       setChallengeVisible(false);
       setButtonContainerVisible(false);
-      setTimeout(() => {
+
+      // Set up a sequence of state updates
+      const setupSequence = async () => {
+        await new Promise(resolve => setTimeout(resolve, 100));
         setContentVisible(true);
-        setTimeout(() => {
-          setChallengeVisible(true);
-          setButtonContainerVisible(true);
-        }, 300); // Delay challenge visibility
-      }, 100); // Delay to trigger transition
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+        setChallengeVisible(true);
+        setButtonContainerVisible(true);
 
-      if (shouldDisplayDistanceNotice(currentChallenge)) {
-        updateDistanceAndCheckLocation();
-      }
+        // Check if we should display distance notice and update initially
+        if (shouldDisplayDistanceNotice(currentChallenge)) {
+          updateDistanceAndCheckLocation();
+        }
+      };
+
+      setupSequence();
     }
-
-    return () => {
-      if (distanceIntervalRef.current) {
-        clearTimeout(distanceIntervalRef.current);
-      }
-    };
   }, [challengeIndex, challenges, currentChallenge, updateDistanceAndCheckLocation]);
 
   useEffect(() => {
@@ -193,9 +136,6 @@ function PathPage() {
       if (!document.hidden) {
         checkDistanceNoticeVisibility();
         updateDistanceAndCheckLocation();
-        if (distanceNoticeVisible) {
-          updateDistanceAndCheckLocation();
-        }
       }
     };
 
@@ -204,11 +144,11 @@ function PathPage() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [currentChallenge, distanceNoticeVisible, updateDistanceAndCheckLocation]);
+  }, [currentChallenge, updateDistanceAndCheckLocation]);
 
-  const handleStateChange = (updates) => {
+  const handleStateChange = useCallback((updates) => {
     setChallengeState(prevState => updateChallengeState(currentChallenge, prevState, updates));
-  };
+  }, [currentChallenge]);
 
   const handleSubmitClick = () => {
     const newState = handleSubmit(currentChallenge, challengeState);
@@ -217,7 +157,7 @@ function PathPage() {
     displayFeedback(newState.isCorrect, newState.feedback);
   };
 
-  const handleContinueClick = () => {
+  const handleContinueClick = useCallback(() => {
     setIsModalOpen(false);
     setContentVisible(false);
     setChallengeVisible(false);
@@ -226,13 +166,14 @@ function PathPage() {
       if (nextIndex < challenges.length) {
         navigate(`/path/${pathId}/challenge/${nextIndex}`);
         saveHuntProgress(pathId, nextIndex);
+        setChallengeKey(prevKey => prevKey + 1); // Force re-render of Challenge
       } else {
         // Navigate to Congratulations page
         clearHuntProgress();
         navigate('/congratulations');
       }
     }, 500);
-  };
+  }, [challengeIndex, challenges.length, navigate, pathId]);
 
   const showHintModal = () => {
     if (currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0) {
@@ -349,6 +290,21 @@ function PathPage() {
     );
   };
 
+  const memoizedChallenge = useMemo(() => {
+    if (!currentChallenge) return null; // Add this check
+    
+    return (
+      <Challenge
+        key={challengeKey}
+        challenge={currentChallenge}
+        challengeState={{ ...challengeState, textVisible: challengeVisible }}
+        onStateChange={handleStateChange}
+        userLocation={userLocation}
+        onContinue={handleContinueClick}
+      />
+    );
+  }, [challengeKey, currentChallenge, challengeState, challengeVisible, handleStateChange, userLocation, handleContinueClick]);
+
   return (
     <div className="content-wrapper">
       <div className={`distance-notice ${contentVisible && distanceNoticeVisible ? 'visible' : ''}`}>
@@ -360,21 +316,11 @@ function PathPage() {
           </>
         )}
       </div>
-
       <div className="spirit-guide large">
         <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
           <main className="path-content content flex-top">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
-              {currentChallenge && (
-                <Challenge
-                  key={challengeIndex}
-                  challenge={currentChallenge}
-                  challengeState={{ ...challengeState, textVisible: challengeVisible }}
-                  onStateChange={handleStateChange}
-                  userLocation={getCurrentLocation()}
-                  onContinue={handleContinueClick}
-                />
-              )}
+            {currentChallenge && memoizedChallenge} {/* Replace this line */}
             </div>
           </main>
         </div>
