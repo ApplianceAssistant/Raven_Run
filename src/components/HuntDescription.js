@@ -35,7 +35,6 @@ const HuntDescription = () => {
     }, [hunt]);
 
     const handleEnterHunt = () => {
-        console.warn("handleEnterHunt");
         setIsModalOpen(true);
     };
 
