@@ -1,6 +1,6 @@
 import { Challenge, hasTargetLocation, hasHints } from '../types/challengeTypes';
 import { calculateDistance, getCurrentLocation, getUserUnitPreference } from '../utils/utils';
-import { kilometersToMiles, metersToFeet, getLargeDistanceUnit, getDistanceUnit } from '../utils/unitConversion';
+import { kilometersToMiles, metersToFeet, getLargeDistanceUnit, getSmallDistanceUnit } from '../utils/unitConversion';
 import { isStoryChallenge, isMultipleChoiceChallenge, isTrueFalseChallenge, isTextInputChallenge, isTravelChallenge } from '../types/challengeTypes';
 import { paths } from '../data/challenges';
 import { getHuntProgress } from '../utils/huntProgressUtils';
@@ -40,8 +40,9 @@ export function updateDistance(challenge: Challenge, userLocation: { latitude: n
   direction: string 
 } {
   if (userLocation && hasTargetLocation(challenge)) {
-    const { distance, displayValue, unit } = calculateDistanceInfo(userLocation, challenge.targetLocation!);
     const direction = calculateDirection(userLocation, challenge.targetLocation!);
+    const { distance, displayValue, unit } = calculateDistanceInfo(userLocation, challenge.targetLocation!);
+    
     return { distance, displayValue, unit, direction };
   }
   return { distance: null, displayValue: '', unit: '', direction: '' };
@@ -183,12 +184,26 @@ export function checkLocationReached(challenge: Challenge, userLocation: { latit
 function calculateDistanceInfo(userLocation: { latitude: number, longitude: number }, targetLocation: { latitude: number, longitude: number }) {
   const isMetric = getUserUnitPreference();
   const distanceInMeters = calculateDistance(userLocation, targetLocation);
-  const distanceInKilometers = distanceInMeters / 1000;
-  const distance = isMetric ? distanceInKilometers : kilometersToMiles(distanceInKilometers);
-  const displayValue = distance.toFixed(2);
-  const unit = getLargeDistanceUnit(isMetric);
+  const direction = calculateDirection(userLocation, targetLocation);
 
-  return { distance, displayValue, unit, distanceInMeters };
+  let distance: number;
+  let displayValue: string;
+  let unit: string;
+
+  if (distanceInMeters < 1000) {
+    // Use smaller units (feet or meters) for distances less than 1km
+    distance = isMetric ? distanceInMeters : metersToFeet(distanceInMeters);
+    displayValue = Math.round(distance).toString();
+    unit = getSmallDistanceUnit(isMetric);
+  } else {
+    // Use larger units (miles or kilometers) for distances 1km or greater
+    const distanceInKilometers = distanceInMeters / 1000;
+    distance = isMetric ? distanceInKilometers : kilometersToMiles(distanceInKilometers);
+    displayValue = distance.toFixed(2);
+    unit = getLargeDistanceUnit(isMetric);
+  }
+
+  return { distance, displayValue, unit, direction };
 }
 
 export function handleSubmit(challenge: Challenge, state: ChallengeState): ChallengeState {

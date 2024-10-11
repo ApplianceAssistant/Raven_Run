@@ -14,7 +14,7 @@ export const metersToFeet = (meters) => {
     return miles / 0.621371;
   };
   
-  export const getDistanceUnit = (isMetric) => {
+  export const getSmallDistanceUnit = (isMetric) => {
     return isMetric ? 'm' : 'ft';
   };
   

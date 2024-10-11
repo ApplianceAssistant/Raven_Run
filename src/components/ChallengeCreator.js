@@ -4,7 +4,7 @@ import ToggleSwitch from './ToggleSwitch';
 import { Challenge } from '../types/challengeTypes';
 import '../css/GameCreator.scss';
 import ScrollableContent from './ScrollableContent';
-import { feetToMeters, metersToFeet, getDistanceUnit } from '../utils/unitConversion';
+import { feetToMeters, metersToFeet, getSmallDistanceUnit } from '../utils/unitConversion';
 
 const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
   const [currentChallenge, setCurrentChallenge] = useState(challenge || {
@@ -347,7 +347,7 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
               <label htmlFor={fieldName}>
                 {fieldConfig.label}
                 {fieldName === 'radius' && (
-                  <span className="unit-indicator"> ({getDistanceUnit(isMetric)})</span>
+                  <span className="unit-indicator"> ({getSmallDistanceUnit(isMetric)})</span>
                 )}:
               </label>
             )}
