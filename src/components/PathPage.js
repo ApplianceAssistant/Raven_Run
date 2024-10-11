@@ -152,23 +152,20 @@ function PathPage() {
 
   const handleContinueClick = useCallback(() => {
     setIsModalOpen(false);
+    setModalContent({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false });
+
     setTimeout(() => {
       setContentVisible(false);
       setChallengeVisible(false);
       setButtonContainerVisible(false);
-    }, 300);
-    setTimeout(() => {
       setIsLocationReached(false);
       setChallengeState(initializeChallengeState());
-      setModalContent({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false });
 
       const nextIndex = challengeIndex + 1;
       if (nextIndex < challenges.length) {
-        // Step 4: Navigate to the next challenge
         navigate(`/path/${pathId}/challenge/${nextIndex}`);
         saveHuntProgress(pathId, nextIndex);
         
-        // Step 5: After a short delay, make the new challenge visible
         setTimeout(() => {
           setContentVisible(true);
           setTimeout(() => {
@@ -177,11 +174,10 @@ function PathPage() {
           }, 300);
         }, 100);
       } else {
-        // If all challenges are completed
         clearHuntProgress();
         navigate('/congratulations');
       }
-    }, 600); // This should be longer than the first timeout
+    }, 300);
   }, [challengeIndex, challenges.length, navigate, pathId]);
 
   const showHintModal = () => {
