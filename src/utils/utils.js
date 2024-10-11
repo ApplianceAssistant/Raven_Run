@@ -63,8 +63,30 @@ export function getCurrentLocation() {
 
 
 export const handleError = (error, context) => {
-  console.error(`Error in ${context}:`, error);
-  // Implement more sophisticated error handling here, e.g., sending to a logging service
+  let errorMessage = `Error in ${context}: `;
+
+  if (error instanceof GeolocationPositionError) {
+    switch(error.code) {
+      case error.PERMISSION_DENIED:
+        errorMessage += "User denied the request for Geolocation.";
+        break;
+      case error.POSITION_UNAVAILABLE:
+        errorMessage += "Location information is unavailable.";
+        break;
+      case error.TIMEOUT:
+        errorMessage += "The request to get user location timed out.";
+        break;
+      default:
+        errorMessage += "An unknown error occurred.";
+        break;
+    }
+  } else {
+    errorMessage += error.message || 'An unknown error occurred.';
+  }
+
+  console.error(errorMessage);
+  // Optionally, you could dispatch this error to a global error handling system
+  // or update the UI to inform the user about the error
 };
 
 export const authFetch = async (url, options = {}) => {

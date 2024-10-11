@@ -25,15 +25,17 @@ import { useLocationWatcher } from '../hooks/locationWatcher';
 import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
+import { playAudio } from '../utils/audioFeedback';
+import { validateChallengeUrl } from '../utils/urlValidation';
 
 function PathPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false });
   const [modalKey, setModalKey] = useState(0);
   const [currentHint, setCurrentHint] = useState(0);
-  const { pathId, challengeIndex: urlChallengeIndex } = useParams();
   const [pathName, setPathName] = useState('');
   const [challenges, setChallenges] = useState([]);
+  const { pathId, challengeIndex: urlChallengeIndex } = useParams();
   const [challengeIndex, setChallengeIndex] = useState(parseInt(urlChallengeIndex, 10) || 0);
   const [challengeState, setChallengeState] = useState(initializeChallengeState());
   const [contentVisible, setContentVisible] = useState(false);
@@ -42,12 +44,30 @@ function PathPage() {
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
   const [distanceNoticeVisible, setDistanceNoticeVisible] = useState(false);
   const [showCongratulations, setShowCongratulations] = useState(false);
+  
   const navigate = useNavigate();
   const [isLocationReached, setIsLocationReached] = useState(false);
   const [completedChallenges, setCompletedChallenges] = useState(new Set());
-  const userLocation = useLocationWatcher();
+  const { userLocation, error: locationError, isLoading: locationLoading, refreshLocation } = useLocationWatcher();
+  const [manualLocation, setManualLocation] = useState(null);
 
   const currentChallenge = challenges[challengeIndex];
+
+  useEffect(() => {
+    const numericPathId = parseInt(pathId, 10);
+    const numericChallengeIndex = parseInt(urlChallengeIndex, 10);
+    
+    const validatedIndex = validateChallengeUrl(numericPathId, numericChallengeIndex);
+
+    if (validatedIndex !== numericChallengeIndex) {
+      // Redirect to the correct challenge
+      navigate(`/path/${numericPathId}/challenge/${validatedIndex}`, { replace: true });
+    } else {
+      setChallengeIndex(validatedIndex);
+      // Save progress when a new challenge is loaded
+      saveHuntProgress(numericPathId, validatedIndex);
+    }
+  }, [pathId, urlChallengeIndex, navigate]);
 
   useEffect(() => {
     const loadPath = () => {
@@ -77,18 +97,33 @@ function PathPage() {
 
 
   const updateDistanceAndCheckLocation = useCallback(() => {
-    if (currentChallenge?.targetLocation && userLocation && !completedChallenges.has(challengeIndex)) {
-      const newDistanceInfo = updateDistance(currentChallenge, userLocation);
+    const location = manualLocation || userLocation;
+    if (currentChallenge?.targetLocation && location && !completedChallenges.has(challengeIndex)) {
+      const newDistanceInfo = updateDistance(currentChallenge, location);
       setDistanceInfo(newDistanceInfo);
 
-      const { isReached } = checkLocationReached(currentChallenge, userLocation);
+      const { isReached } = checkLocationReached(currentChallenge, location);
       if (isReached && !isLocationReached) {
         setIsLocationReached(true);
         setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
+        playAudio('locationReached');
+
+        if (document.hidden) {
+          sendNotification('Location Reached!', 'You have arrived at your destination.');
+        }
       }
     }
-  }, [currentChallenge, userLocation, isLocationReached]);
+  }, [currentChallenge, userLocation, manualLocation, isLocationReached]);
+
+  const handleManualLocationSubmit = (e) => {
+    e.preventDefault();
+    const lat = parseFloat(e.target.latitude.value);
+    const lon = parseFloat(e.target.longitude.value);
+    if (!isNaN(lat) && !isNaN(lon)) {
+      setManualLocation({ latitude: lat, longitude: lon });
+    }
+  };
 
   useEffect(() => {
     if (currentChallenge && userLocation && !isLocationReached) {
@@ -151,6 +186,9 @@ function PathPage() {
     setChallengeState(newState);
     if (newState.isCorrect) {
       setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
+      playAudio('correct');
+    } else {
+      playAudio('wrong');
     }
     displayFeedback(newState.isCorrect, newState.feedback);
   };
@@ -306,7 +344,19 @@ function PathPage() {
   return (
     <div className="content-wrapper">
       <div className={`distance-notice ${contentVisible && distanceNoticeVisible ? 'visible' : ''}`}>
-        {distanceNoticeVisible && (
+        {locationLoading && <div>Loading your location...</div>}
+        {locationError && (
+          <div className="error-message">
+            <p>{locationError}</p>
+            <button onClick={refreshLocation}>Retry</button>
+            <form onSubmit={handleManualLocationSubmit}>
+              <input type="number" name="latitude" placeholder="Latitude" step="any" required />
+              <input type="number" name="longitude" placeholder="Longitude" step="any" required />
+              <button type="submit">Set Location</button>
+            </form>
+          </div>
+        )}
+        {distanceNoticeVisible && !locationError && !locationLoading && (
           <>
             Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span>{' '}
             <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
