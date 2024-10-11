@@ -77,23 +77,19 @@ function PathPage() {
 
   const updateDistanceAndCheckLocation = useCallback(() => {
     if (currentChallenge?.targetLocation && userLocation) {
-      
       const newDistanceInfo = updateDistance(currentChallenge, userLocation);
-      console.log("New distance info:", newDistanceInfo);
-
       setDistanceInfo(newDistanceInfo);
-
+  
       const { isReached } = checkLocationReached(currentChallenge, userLocation);
-      setIsLocationReached(isReached);
-
-      if (isReached && !challengeState.isCorrect) {
+      if (isReached && !isLocationReached) {
+        setIsLocationReached(true);
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
       }
     }
-  }, [currentChallenge, userLocation, challengeState.isCorrect]);
+  }, [currentChallenge, userLocation, isLocationReached]);
 
   useEffect(() => {
-    if (currentChallenge && userLocation) {
+    if (currentChallenge && userLocation && !isLocationReached) {
       updateDistanceAndCheckLocation();
     }
   }, [currentChallenge, userLocation, updateDistanceAndCheckLocation]);
@@ -158,13 +154,13 @@ function PathPage() {
     setIsModalOpen(false);
     setContentVisible(false);
     setChallengeVisible(false);
+    setIsLocationReached(false);  // Reset isLocationReached for the next challenge
     setTimeout(() => {
       const nextIndex = challengeIndex + 1;
       if (nextIndex < challenges.length) {
         navigate(`/path/${pathId}/challenge/${nextIndex}`);
         saveHuntProgress(pathId, nextIndex);
       } else {
-        // Navigate to Congratulations page
         clearHuntProgress();
         navigate('/congratulations');
       }
@@ -210,6 +206,7 @@ function PathPage() {
       const nextIndex = challengeIndex + 1;
       if (nextIndex < challenges.length) {
         setChallengeIndex(nextIndex);
+        saveHuntProgress(pathId, nextIndex);
       } else {
         // Navigate to Congratulations page
         clearHuntProgress();
