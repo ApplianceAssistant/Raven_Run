@@ -315,6 +315,18 @@ h3 {
   }
 }
 
+.hunt-analysis {
+  margin: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  @include theme-aware('background-color', $spooky-accent, $lighter-bg);
+  width: fit-content;
+  padding: 5px;
+  box-shadow: 0 0 15px rgba($spooky-accent, 0.7);
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
 // Button styles
 button {
   @include button-style;
@@ -505,7 +517,7 @@ form {
       border: theme-aware('border', 1px solid $spooky-accent, 1px solid $light-accent);
       border-radius: 5px;
       //theme-aware box ::shadow
-      box-shadow: 0 0 10px ;
+      box-shadow: 0 0 10px;
 
       cursor: pointer;
       transition: all 0.3s ease;
@@ -592,6 +604,57 @@ form {
   }
 }
 
+.distance-notice .error-message {
+  color: #cc0000;
+  margin-bottom: 10px;
+}
+
+.distance-notice button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.distance-notice form {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.distance-notice input[type="number"] {
+  flex: 1;
+  min-width: 100px;
+  padding: 5px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.distance-notice input[type="submit"] {
+  background-color: #008CBA;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.distance-notice input[type="submit"]:hover {
+  background-color: #007B9A;
+}
+
+#distanceToTarget, #distanceToTargetUnit {
+  font-weight: bold;
+}
 .completion-feedback {
   text-align: center;
   margin-top: 20px;
@@ -704,7 +767,7 @@ form {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width:200px;
+  width: 200px;
 
   &:hover {
     background-color: darken($spooky-accent, 10%);
@@ -887,7 +950,8 @@ form {
 
 .modal-body {
 
-  ul, ol {
+  ul,
+  ol {
     padding-left: 20px;
     margin-bottom: 15px;
   }

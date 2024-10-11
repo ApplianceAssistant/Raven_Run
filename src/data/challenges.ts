@@ -20,7 +20,7 @@ export const paths: Path[] = [
       {
         id: '0',
         type: 'travel',
-        title: 'DO NOT TEST (Broken) Labyrinth of Legends',
+        title: 'Labyrinth of Legends',
         description: `With hushed halls, I stand,\n
           A fortress of forgotten lore.\n
           My shelves, a labyrinth of legends,\n
@@ -37,8 +37,8 @@ export const paths: Path[] = [
           What am I, this haven divine?`,
         question: `Journey to the location described in this riddle.`,
         targetLocation: {
-          latitude: 38.133250,
-          longitude:-85.202717
+          latitude: 38.212354,
+          longitude:-85.219853
         },
         radius: 15,
         hints: [
@@ -239,8 +239,8 @@ export const paths: Path[] = [
         For in these halls, names hold power, you know.`,
         question: "Find the stage described in the rhyme, where theatrical ghosts await.",
         targetLocation: {
-          latitude: 38.211494267619294,
-          longitude: -85.22017165868255
+          latitude: 38.2114204,
+          longitude: -85.2204024
         },
         radius: 15,
         hints: [
@@ -298,8 +298,8 @@ export const paths: Path[] = [
           A working relic from the days of old.`,
         question: "Find the lone survivor of the communication revolution described in the riddle.",
         targetLocation: {
-          latitude: 38.19053616458982,
-          longitude: -85.0911406260606
+          latitude: 38.190568,
+          longitude: -85.091241
         },
         radius: 15,
         hints: [
@@ -355,8 +355,8 @@ export const paths: Path[] = [
           Of passing travelers and county flair?`,
         question: "Locate the unusual sculpture described in the riddle.",
         targetLocation: {
-          latitude: 38.191633120656014,
-          longitude: -85.10006747655054
+          latitude: 38.191667,
+          longitude: -85.100088
         },
         radius: 15,
         hints: [
@@ -387,8 +387,8 @@ export const paths: Path[] = [
         And nature's giant became carving's crown.",
         question: "Find the chainsaw carving described in the rhyme, where art and history intertwine.`,
         targetLocation: {
-          latitude: 38.21222958393675,
-          longitude: -85.23119620387394
+          latitude: 38.212333,
+          longitude: -85.231086
         },
         radius: 20,
         hints: [
@@ -435,7 +435,7 @@ export const paths: Path[] = [
       {
         id: "14",
         type: "travel",
-        title: "Gleaming Guardian of Grain",
+        title: "Guardian of Grain",
         description: `The murder of crows guides you through Shelbyville's streets, their dark forms stark against the moonlit sky. As you follow, an enigmatic verse forms in your mind:\n\n
 
           Where farmland meets artistic flair,\n
@@ -453,8 +453,8 @@ export const paths: Path[] = [
           A paradox of absence and form,`,
         question: "Locate the enigmatic sculpture described in the verse, where modern art meets rural heritage.",
         targetLocation: {
-          latitude: 38.213191687098416,
-          longitude: -85.21807572818331
+          latitude: 38.213484,
+          longitude: -85.218341
         },
         radius: 15,
         hints: [
@@ -628,8 +628,8 @@ export const paths: Path[] = [
         Where every life becomes a song.`,
         question: "Locate the epicenter of Shelby County's stories, where the past and present are immortalized in print.",
         targetLocation: {
-          latitude: 38.2110237,
-          longitude: -85.2162815
+          latitude: 38.21106285,
+          longitude: -85.21631259
         },
         radius: 15,
         hints: [
