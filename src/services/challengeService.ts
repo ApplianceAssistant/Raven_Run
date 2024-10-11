@@ -40,9 +40,7 @@ export function updateDistance(challenge: Challenge, userLocation: { latitude: n
   direction: string 
 } {
   if (userLocation && hasTargetLocation(challenge)) {
-    const direction = calculateDirection(userLocation, challenge.targetLocation!);
-    const { distance, displayValue, unit } = calculateDistanceInfo(userLocation, challenge.targetLocation!);
-    
+    const { distance, displayValue, unit, direction } = calculateDistanceInfo(userLocation, challenge.targetLocation!);
     return { distance, displayValue, unit, direction };
   }
   return { distance: null, displayValue: '', unit: '', direction: '' };
@@ -203,7 +201,7 @@ function calculateDistanceInfo(userLocation: { latitude: number, longitude: numb
     unit = getLargeDistanceUnit(isMetric);
   }
 
-  return { distance, displayValue, unit, direction };
+  return { distance, displayValue, unit, direction, distanceInMeters };
 }
 
 export function handleSubmit(challenge: Challenge, state: ChallengeState): ChallengeState {
