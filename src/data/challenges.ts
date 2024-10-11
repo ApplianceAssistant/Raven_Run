@@ -37,8 +37,8 @@ export const paths: Path[] = [
           What am I, this haven divine?`,
         question: `Journey to the location described in this riddle.`,
         targetLocation: {
-          latitude: 38.134124,
-          longitude: -85.203254
+          latitude: 38.133250,
+          longitude:-85.202717
         },
         radius: 15,
         hints: [
@@ -57,8 +57,8 @@ export const paths: Path[] = [
         description: "The spectral crows guide you through the misty graveyard, their ethereal forms weaving between weathered tombstones. They circle and descend, their otherworldly caws drawing you to a stone that time has laid low, much like the soul it commemorates.",
         question: "Seek the fallen headstone of a woman whose name echoes that of a young nation. Her epitaph holds a clue to unlock the next mystery.",
         targetLocation: {
-          latitude: 38.21208432122716,
-          longitude: -85.22002896736528
+          latitude: 38.212159,
+          longitude: -85.220157
         },
         radius: 15,
         hints: [
@@ -116,8 +116,8 @@ export const paths: Path[] = [
         Where purple magic is always swelling?`,
         question: "Find the location described in the riddle, where herbal magic thrives.",
         targetLocation: {
-          latitude: 38.2216154,
-          longitude: -85.344623
+          latitude: 38.222147,
+          longitude: -85.347739
         },
         radius: 15,
         hints: [
