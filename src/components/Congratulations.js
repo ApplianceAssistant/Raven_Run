@@ -26,15 +26,25 @@ const Congratulations = ({ onClose }) => {
                     <h1>The spirits have been appeased!</h1>
                     <p>Your bravery and wit have led you to victory in the world of shadow.</p>
                     <p>Let your friends know about your paranormal prowess!</p>
-                    <a
-                        href="https://www.facebook.com/CrowTours/"
-                        target="_blank"
-                        description="Crow Tours Facebook Page"
-                        rel="noopener noreferrer"
-                        className="facebook-link"
-                    >
-                        Haunt our Facebook page with your presence<br></br>Share your photos & give us a like!
-                    </a>
+                    <div className="button-container">
+                        <a
+                            href="https://www.facebook.com/CrowTours/"
+                            target="_blank"
+                            description="Crow Tours Facebook Page"
+                            rel="noopener noreferrer"
+                            className="facebook-link"
+                        >
+                            Share photos & give us a like!
+                        </a>
+                        <a href="https://buy.stripe.com/bIY6sf6f2dCE1eoaEE"
+                            target="_blank"
+                            description="Support the developer"
+                            rel="noopener noreferrer"
+                            className="support_dev"
+                        >
+                            Support the developer
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
