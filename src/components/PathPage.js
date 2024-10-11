@@ -79,7 +79,6 @@ function PathPage() {
   const updateDistanceAndCheckLocation = useCallback(() => {
     if (currentChallenge?.targetLocation && userLocation && !completedChallenges.has(challengeIndex)) {
       const newDistanceInfo = updateDistance(currentChallenge, userLocation);
-      console.warn(newDistanceInfo);
       setDistanceInfo(newDistanceInfo);
 
       const { isReached } = checkLocationReached(currentChallenge, userLocation);

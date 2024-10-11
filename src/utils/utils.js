@@ -21,7 +21,6 @@ export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollI
     } else {
       contentHeader.classList.remove('fixed');
     }
-    console.warn("isScrollable: ", isScrollable);
     // Handle scroll indicator
     if (isScrollable) {
       const arrows = scrollIndicator.querySelectorAll('.arrow');
