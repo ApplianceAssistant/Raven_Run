@@ -20,16 +20,16 @@ export const paths: Path[] = [
       {
         id: '0',
         type: 'travel',
-        title: 'Labyrinth of Legends',
+        title: 'Labyrinth of Knowledge',
         description: `With hushed halls, I stand,\n
           A fortress of forgotten lore.\n
-          My shelves, a labyrinth of legends,\n
-          Where minds can wander and explore.\n\n
+          My shelves, a labyrinth of knowledge,\n
+          Where minds can wander and explore.\n
           
           Guardians of wisdom roam my aisles,\n
           Guiding seekers to hidden treasures.\n
           My tomes are lent, not given,\n
-          Returning home after adventures.\n\n
+          Returning home after adventures.\n
           
           In my realm, worlds collide silently,\n
           Facts and fables intertwine.\n
@@ -101,15 +101,15 @@ export const paths: Path[] = [
         In Simpsonville, where stories unfold,\n
         Stands a cottage, quaint and old.\n
         Its walls are white as morning frost,\n
-        In lavender fields, it seems lost.\n\n
+        In lavender fields, it seems lost.\n
         Windows wink with candlelight,\n
         Scenting dreams throughout the night.\n
         A humble abode with magic inside,\n
-        Where herbal wonders do reside.\n\n
+        Where herbal wonders do reside.\n
         Thyme passes slowly 'round its door,\n
         Sage whispers secrets from days of yore.\n
         But one bloom rules this aromatic bower,\n
-        Lending its name and mystic power.\n\n
+        Lending its name and mystic power.\n
         Not grand in size, yet great in fame,\n
         Two adjectives and a flower form its name.\n
         What am I, this enchanted dwelling,\n
@@ -158,7 +158,7 @@ export const paths: Path[] = [
         id: '5',
         type: 'travel',
         title: "Sentinel of the Skies",
-        description: `The crows lead you through the misty dawn, their wings brushing against the first light of day. As you follow, a new verse forms in your mind:\n\n
+        description: `The crows lead you through the misty dawn, their wings brushing against the first light of day. As you follow, a new verse forms in your mind:\n
       
           Rising from the earth, a titan stands,\n
           A pallid globe atop its circular bands.\n
@@ -193,12 +193,12 @@ export const paths: Path[] = [
         id: '6',
         type: 'textInput',
         title: "The Road to Liquid Heights",
-        description: `Standing before the towering water reservoir, you're struck by its imposing presence against the Simpsonville sky. The crows circle overhead, their caws seeming to form words on the wind:\n\n
+        description: `Standing before the towering water reservoir, you're struck by its imposing presence against the Simpsonville sky. The crows circle overhead, their caws seeming to form words on the wind:\n
       
           Beneath the titan's watchful gaze,\n
           A path winds through the morning haze.\n
           Its name speaks of vistas wide and fair,\n
-          And digits that the postman bears.\n\n
+          And digits that the postman bears.\n
       
           This road that leads to watery heights,\n
           Holds secrets of Shelbyville's sights.\n
@@ -226,15 +226,15 @@ export const paths: Path[] = [
         id: "7",
         type: "travel",
         title: "The Haunted Stage",
-        description: `The crows guide you through Shelby's misty streets, their wings casting eerie shadows. As you follow, a new rhyme pervades your thoughts:\n\n
+        description: `The crows guide you through Shelby's misty streets, their wings casting eerie shadows. As you follow, a new rhyme pervades your thoughts:\n
         In Shelbyville's heart, a stage does stand,\n
         Where tales of old enchant the land.\n
         Behind its doors, a story waits,\n
-        Of royal blood and twisted fates.\n\n
+        Of royal blood and twisted fates.\n
         A playhouse where the past still lives,\n
         Where every floorboard creaks and gives.\n
         Seek this place where spirits tread,\n
-        Where actors dare to wake the dead.\n\n
+        Where actors dare to wake the dead.\n
         But as you near, tread soft and slow,\n
         For in these halls, names hold power, you know.`,
         question: "Find the stage described in the rhyme, where theatrical ghosts await.",
@@ -256,7 +256,7 @@ export const paths: Path[] = [
         id: "8",
         type: "textInput",
         title: "Don't Speak Its Name",
-        description: `Standing before the playhouse, you feel the weight of centuries of performances pressing in around you. A poster catches your eye, but the title is obscured. As you strain to read it, a ghostly whisper fills your mind:\n\n
+        description: `Standing before the playhouse, you feel the weight of centuries of performances pressing in around you. A poster catches your eye, but the title is obscured. As you strain to read it, a ghostly whisper fills your mind:\n
         A Scottish king, ambition's slave,\n
         His lady's hands no water can lave.\n
         Witches three with prophecy dark,\n
@@ -287,7 +287,7 @@ export const paths: Path[] = [
         id: "9",
         type: "travel",
         title: "Echo of a Bygone Era",
-        description: `The crows lead you through Shelby County, their wings brushing against the crisp autumn air. As you follow, a whisper of the past reaches your ears:\n\n
+        description: `The crows lead you through Shelby County, their wings brushing against the crisp autumn air. As you follow, a whisper of the past reaches your ears:\n
           In the shadow of progress, it stands alone,\n
           Where coin clicks still spark connection's tone.\n
           Before a diner where breakfasts bloom,\n
@@ -313,74 +313,17 @@ export const paths: Path[] = [
       },
       {
         id: "10",
-        type: "textInput",
-        title: "Whispers on the Wire",
-        description: `Standing before the payphone, you're struck by its stoic presence against the backdrop of the quaint family diner.\n
-        This lone survivor of the communication revolution now stands as a silent witness to countless untold stories.\n
-        Its presence here is an anachronism, a stubborn holdout against the tide of progress in our world of pocket-sized connectivity.\n
-        As you study its weathered frame, you feel compelled to uncover its secrets.`,
-        question: "Out of Change? What number should you dial before the AREA CODE and NUMBER?",
-        correctAnswer: "0",
-        hints: [
-          "Look to the label of crimson.",
-          "Next to where you get change.",
-          "Only for LOCAL CALLS.",
-          "If you don't have a calling card."
-        ],
-        feedbackTexts: {
-          correct: "As your fingers trace the faded numbers, a chill runs down your spine. The payphone stands silent, yet you swear you hear a faint ringing from within and the ghostly echoes of countless conversations. Your crow guide caws once, a sound of approval and urgency. What other forgotten relics might Shelby County be hiding in plain sight?",
-          incorrect: [
-            "The numbers swim before your eyes, rearranging themselves. Perhaps another look will reveal the truth hidden in the decaying plastic.",
-            "A static crackle emanates from the payphone, as if urging you to try again. The secrets of the past are not easily surrendered.",
-            "The crow caws softly, encouraging you to look closer at the weathered digits. Each number is a key to unlocking the payphone's forgotten history."
-          ]
-        },
-        repeatable: true
-      },
-      {
-        id: "11",
-        type: "travel",
-        title: "The Metallic Sentinel",
-        description: `By the roadside, a curious sight to see,\n
-          A man-shaped wonder, as strange as can be.\n
-          Not flesh and bone, but ducts and tin,\n
-          A metallic guardian, where mysteries begin.\n\n
-          Assembled from parts that cool and heat,\n
-          This hollow figure stands complete.\n
-          Wind whistles through its empty core,\n
-          A roadside attraction to explore.\n\n
-          Neither alive nor truly dead,\n
-          With tubes for limbs and pipes for head.\n
-          What tales could this silent watcher share,\n
-          Of passing travelers and county flair?`,
-        question: "Locate the unusual sculpture described in the riddle.",
-        targetLocation: {
-          latitude: 38.191667,
-          longitude: -85.100088
-        },
-        radius: 15,
-        hints: [
-          "Before an aged edifice, this tube-man stands guard.",
-          "At the summit of stone steps, a metallic greeter waits.",
-          "By the road he waits, this man of tubes and seams.",
-          "Climb to meet this ductwork sentry, where architecture meets modern art."
-        ],
-        completionFeedback: "As you approach, the metallic figure looms larger with each step. A crow swoops ahead, landing on the statue's outstretched arm of galvanized steel. This unconventional guardian seems to bridge past and present, its hollow body whispering secrets as the wind sings through its joints.",
-        repeatable: true
-      },
-      {
-        id: "12",
         type: "travel",
         title: "The Chainsaw Surgeon",
-        description: `The crows guide you through Shelby's historic landscape, their wings brushing against the whispers of the past. A rhyme forms in your mind:\n\n
+        description: `The crows guide you through Shelby's historic landscape, their wings brushing against the whispers of the past. A rhyme forms in your mind:\n
         In Shelby's realm, where history thrives,\n
         A tree transformed before your eyes.\n
         With roaring blade and artist's sight,\n
-        An eagle soars, in wood takes flight.\n\n
+        An eagle soars, in wood takes flight.\n
         Stars and stripes beside it stand,\n
         Carved by a steady, daring hand.\n
         But look below, a tale to tell,\n
-        Of Cozine House, where memories dwell.\n\n
+        Of Cozine House, where memories dwell.\n
         Seek this sculpture, bold and free,\n
         Where house and history you'll see.\n
         Where chainsaw art meets hallowed ground,\n
@@ -401,13 +344,13 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "13",
+        id: "11",
         type: "textInput",
         title: "The Surgeon's Mark",
         description: `Standing before the impressive chainsaw carving, you're struck by its powerful presence.\n
         The wooden eagle soars, frozen in flight, with stars and stripes carved proudly beside it.\n
         Below, your eyes are drawn to an inscription that speaks of the Cozine House.\n
-        As you study the intricate details, you realize that hidden within this wooden chronicle is a key to the past:\n\n
+        As you study the intricate details, you realize that hidden within this wooden chronicle is a key to the past:\n
         Numbers etched in woody grain,\n
         A date when this home's life began.\n
         Now wood and steel in union found,\n
@@ -433,20 +376,20 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "14",
+        id: "12",
         type: "travel",
         title: "Guardian of Grain",
-        description: `The murder of crows guides you through Shelbyville's streets, their dark forms stark against the moonlit sky. As you follow, an enigmatic verse forms in your mind:\n\n
+        description: `The murder of crows guides you through Shelbyville's streets, their dark forms stark against the moonlit sky. As you follow, an enigmatic verse forms in your mind:\n
 
           Where farmland meets artistic flair,\n
           A steed of voids stands proud and rare.\n
           Before stone sentinels, cylindrical and tall,\n
-          This airy guardian watches over all.\n\n
+          This airy guardian watches over all.\n
 
           Not flesh, nor solid form complete,\n
           But outlined essence, a sculptural feat.\n
           Where travelers pause and stories unfold,\n
-          This phantom horse breaks the mold.\n\n
+          This phantom horse breaks the mold.\n
 
           Seek the place where welcome abounds,\n
           Where negative space with steel surrounds.\n
@@ -467,16 +410,16 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "15",
+        id: "13",
         type: "multipleChoice",
         title: "Voids of Vision",
         description: `Standing before the ethereal equine sculpture, you're struck by its surreal presence against the backdrop of the imposing silos. The open framework of steel outlines a horse's form, allowing glimpses of the sky and silos through its body. As you move around it, the interplay of solid and void creates an ever-changing silhouette. Your crow companions hop closer, peering curiously through the sculpture's empty spaces.\n
-          As you study this artistic marvel, you ponder its significance:\n\n
+          As you study this artistic marvel, you ponder its significance:\n
       
           In void and stone, a tale is spun,\n
           Of Shelbyville, two eras as one.\n
           A steed of air, no stable required,\n
-          Guarding stories, old and newly inspired.\n\n
+          Guarding stories, old and newly inspired.\n
       
           But why a horse of empty space,\n
           Before these towers from a bygone place?\n
@@ -507,18 +450,18 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: '16',
+        id: '14',
         type: 'travel',
         title: "Fortress of Forgotten Freedom",
-        description: `As night deepens, your crow guides lead you through Shelbyville's shadowy streets. Their urgency grows as you approach your next destination. A haunting verse forms in your mind:\n\n
+        description: `As night deepens, your crow guides lead you through Shelbyville's shadowy streets. Their urgency grows as you approach your next destination. A haunting verse forms in your mind:\n
           Three stories tall, a citadel stands,\n
           Built from stone by long-gone hands.\n
           Once it held those who strayed,\n
-          Now empty cells where shadows played.\n\n
+          Now empty cells where shadows played.\n
           Windows sealed with mortar's might,\n
           Bars entombed from human sight.\n
           On corners perched, green-capped towers rise,\n
-          Silent sentinels 'neath starlit skies.\n\n
+          Silent sentinels 'neath starlit skies.\n
           Tan hewn blocks tell tales untold,\n
           Of justice served in days of old.\n
           What spirits linger, what secrets keep,\n
@@ -535,18 +478,18 @@ export const paths: Path[] = [
           "Find the place where tan stone blocks rise three stories high, holding untold stories within.",
           "The crows circle a structure once filled with the clanging of iron bars, now silent but for the whispers of history."
         ],
-        completionFeedback: `As you approach the towering old jail, its imposing presence seems to push against the very air around it. The crows alight on the green-capped towers, their eyes reflecting the weight of countless untold stories. This fortress of forgotten freedom stands as a silent witness to Shelbyville's past, its sealed windows and bricked-up bars hinting at the lives once contained within. What whispers of history might still echo through these weathered stone walls?\n\nThe crows' caws seem to carry a warning: some secrets are best left undisturbed. Yet, as a seeker of Shelby's hidden truths, you feel compelled to uncover what lies beneath the surface of this formidable structure. What will your next move be in unraveling the mysteries of this stone sentinel?`,
+        completionFeedback: `As you approach the towering old jail, its imposing presence seems to push against the very air around it. The crows alight on the green-capped towers, their eyes reflecting the weight of countless untold stories. This fortress of forgotten freedom stands as a silent witness to Shelbyville's past, its sealed windows and bricked-up bars hinting at the lives once contained within. What whispers of history might still echo through these weathered stone walls?\nThe crows' caws seem to carry a warning: some secrets are best left undisturbed. Yet, as a seeker of Shelby's hidden truths, you feel compelled to uncover what lies beneath the surface of this formidable structure. What will your next move be in unraveling the mysteries of this stone sentinel?`,
         repeatable: true
       },
       {
-        id: '17',
+        id: '15',
         type: 'multipleChoice',
         title: "Portals to the Past",
-        description: `Standing before the imposing old jail, your gaze is drawn to its weathered façade. The crows perch on the green-capped towers, their eyes glinting with spectral knowledge. As you study the building's face on Washington Street, a whispered verse reaches your ears:\n\n
+        description: `Standing before the imposing old jail, your gaze is drawn to its weathered façade. The crows perch on the green-capped towers, their eyes glinting with spectral knowledge. As you study the building's face on Washington Street, a whispered verse reaches your ears:\n
           Stone sentinels stand in solemn row,\n
           Where freedom's light once used to glow.\n
           Most sealed tight by time's decree,\n
-          But some still peer out, defiant and free.\n\n
+          But some still peer out, defiant and free.\n
           Count the eyes that still can see,\n
           On Washington Street, how many be?\n
           These unsealed portals to yesterday,\n
@@ -561,7 +504,7 @@ export const paths: Path[] = [
           "Think of a pair, a duo, a couple."
         ],
         feedbackTexts: {
-          correct: `As you whisper 'two', a chill breeze whistles through the unsealed windows, carrying echoes of long-forgotten voices. The crows nod in approval, their eyes gleaming with otherworldly knowledge. These twin portals to the past seem to hold countless untold stories. What secrets might they have witnessed over the years, and what truths do they still guard?\n\n
+          correct: `As you whisper 'two', a chill breeze whistles through the unsealed windows, carrying echoes of long-forgotten voices. The crows nod in approval, their eyes gleaming with otherworldly knowledge. These twin portals to the past seem to hold countless untold stories. What secrets might they have witnessed over the years, and what truths do they still guard?\n
           Your keen observation skills have unveiled another layer of Shelbyville's hidden history. But remember, in this journey through shadow and time, every revelation often leads to deeper mysteries.`,
           incorrect: [
             "The stone walls seem to shift slightly, as if urging you to look again. Perhaps another careful count of the unsealed windows will reveal the truth.",
@@ -572,18 +515,18 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: '18',
+        id: '16',
         type: 'travel',
         title: "Brew of Creativity",
-        description: `As dawn breaks over Shelbyville, your crow guides lead you towards a hub of local culture and warmth. The aroma of freshly roasted coffee beans wafts through the air, carrying with it whispers of art and community. A rhythmic verse forms in your mind:\n\n
+        description: `As dawn breaks over Shelbyville, your crow guides lead you towards a hub of local culture and warmth. The aroma of freshly roasted coffee beans wafts through the air, carrying with it whispers of art and community. A rhythmic verse forms in your mind:\n
           Where streets of six and main collide,\n
           A haven of warmth and art resides.\n
           Beans roast and grind with careful grace,\n
-          While books and paintings find their place.\n\n
+          While books and paintings find their place.\n
           Outside, cobblestones whisper tales,\n
           Of gatherings beneath triangle veils.\n
           Hues of shade dance overhead,\n
-          While melodies of life are spread.\n\n
+          While melodies of life are spread.\n
           Seek this nexus of brew and song,\n
           Where Shelby's heart beats loud and strong.\n
           What secrets might these coffee grounds impart,\n
@@ -600,13 +543,13 @@ export const paths: Path[] = [
           "Find where cobblestone paths lead to a canopy of colorful triangles, often alive with music.",
           "The crows circle a building where local flavors and local talent brew together in perfect harmony."
         ],
-        completionFeedback: `As you approach 6th & Main, the vibrant energy of the place washes over you. The crows alight on the colorful shades nearby, their eyes reflecting the bustling scene below. The coffee shop stands as a beacon of Shelbyville's creative spirit, its windows offering glimpses of art-adorned walls and shelves lined with books.\n\n
-        The aroma of freshly roasted coffee beans seems to carry whispers of countless conversations, each one a thread in the rich tapestry of local life. The cobblestone walkway beneath your feet feels alive with the echoes of music performances and community gatherings.\n\n
+        completionFeedback: `As you approach 6th & Main, the vibrant energy of the place washes over you. The crows alight on the colorful shades nearby, their eyes reflecting the bustling scene below. The coffee shop stands as a beacon of Shelbyville's creative spirit, its windows offering glimpses of art-adorned walls and shelves lined with books.\n
+        The aroma of freshly roasted coffee beans seems to carry whispers of countless conversations, each one a thread in the rich tapestry of local life. The cobblestone walkway beneath your feet feels alive with the echoes of music performances and community gatherings.\n
         Your corvid guides ruffle their feathers, as if sensing the blend of mundane and mystical energies swirling around this cultural hub. What role might this vibrant space play in the hidden narrative of Shelbyville? And what secrets could be hiding in plain sight, perhaps inscribed in the coffee rings left on well-worn tables?`,
         repeatable: true
       },
       {
-        id: "19",
+        id: "17",
         type: "travel",
         title: "Chronicle of Shadows",
         description: `As dawn approaches, your corvid guides lead you through the lightening streets of Shelbyville.\n
@@ -615,12 +558,12 @@ export const paths: Path[] = [
         Where stories of Shelby take their form,\n
         In ink and paper, beyond the norm.\n
         A beacon of tales, both old and new,\n
-        Chronicling life in every hue.\n\n
+        Chronicling life in every hue.\n
       
         Lens and pen unite with grace,\n
         To capture time in this hallowed space.\n
         Seek the source of county lore,\n
-        Where life's rich tapestry finds its core.\n\n
+        Where life's rich tapestry finds its core.\n
       
         In heart of town, this bastion stands,\n
         Archiving tales of these storied lands.\n
@@ -628,8 +571,8 @@ export const paths: Path[] = [
         Where every life becomes a song.`,
         question: "Locate the epicenter of Shelby County's stories, where the past and present are immortalized in print.",
         targetLocation: {
-          latitude: 38.21106285,
-          longitude: -85.21631259
+          latitude: 38.21108477,
+          longitude: -85.21632472
         },
         radius: 15,
         hints: [
@@ -642,23 +585,23 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "20",
+        id: "18",
         type: "story",
         title: "Echoes of Shelby",
         storyText: `Standing before the Shelby County Life Magazine building, you feel the weight of your nocturnal journey pressing upon you.\n
         The crows that have been your faithful guides throughout this haunting adventure now perch silently, their dark eyes reflecting the rising sun.\n
         Each location pulses with the supernatural energy you've encountered, forming a tapestry of Shelby County's hidden history.\n
-        The crows caw in unison, their voice carrying a final message:\n\n
+        The crows caw in unison, their voice carrying a final message:\n
       
         "Seeker of shadows, chronicler of the unseen,\n
         Your journey through Shelby's heart has been keen.\n
         From dusk till dawn, you've unraveled the thread,\n
-        Of stories untold and secrets long dead.\n\n
+        Of stories untold and secrets long dead.\n
       
         But remember, dear traveler, as night turns to day,\n
         The magic you've witnessed must not fade away.\n
         One task remains to seal this mystical tour,\n
-        To ensure that these tales endure evermore.\n\n
+        To ensure that these tales endure evermore.\n
         To complete your supernatural journey and immortalize your adventure, take a photo of yourself in front of the Shelby County Life Magazine logo.\n
         Post it on social media with the hashtags #CrowTours and #TrackingShadows.\n
         By doing so, you'll not only mark the end of your quest but also become a part of Shelby County's living history.\n

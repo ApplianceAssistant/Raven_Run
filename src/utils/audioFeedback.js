@@ -1,37 +1,69 @@
-// src/utils/audioFeedback.js
-
 const audioFiles = {
-    wrong: ['/audio/wrong_crow_short.mp3', '/audio/wrong_crow_short.ogg', '/audio/wrong_crow_short.au'],
-    correct: ['/audio/correct_crow_short.mp3', '/audio/correct_crow_short.ogg', '/audio/correct_crow_short.au'],
-    locationReached: ['/audio/location_reached_crow.mp3', '/audio/location_reached_crow.ogg', '/audio/location_reached_crow.au'],
-  };
-  
-  const createAudio = (sources) => {
-    const audio = new Audio();
-    sources.forEach(source => {
-      const sourceElement = document.createElement('source');
-      sourceElement.src = source;
-      sourceElement.type = `audio/${source.split('.').pop()}`;
-      audio.appendChild(sourceElement);
+    wrong: ['/audio/wrong_crow_short.mp3', '/audio/wrong_crow_short.ogg'],
+    correct: ['/audio/correct_crow_short.mp3', '/audio/correct_crow_short.ogg'],
+    locationReached: ['/audio/location_reached_crow.mp3', '/audio/location_reached_crow.ogg'],
+};
+
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+const loadAudioBuffer = (url) => {
+    return fetch(url)
+        .then(response => response.arrayBuffer())
+        .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer));
+};
+
+const audioInstances = {};
+
+const loadAudio = (type) => {
+    return new Promise((resolve, reject) => {
+        const audio = new Audio();
+        let loaded = false;
+
+        audioFiles[type].forEach(file => {
+            const source = document.createElement('source');
+            source.src = file;
+            source.type = `audio/${file.split('.').pop()}`;
+            audio.appendChild(source);
+        });
+
+        audio.oncanplaythrough = () => {
+            if (!loaded) {
+                loaded = true;
+                resolve(audio);
+            }
+        };
+
+        audio.onerror = (e) => {
+            if (!loaded) {
+                console.error(`Error loading audio ${type}:`, e);
+                console.error(`Audio error code: ${audio.error ? audio.error.code : 'N/A'}`);
+                console.error(`Audio error message: ${audio.error ? audio.error.message : 'N/A'}`);
+                reject(e);
+            }
+        };
+
+        audio.load();
     });
-    return audio;
-  };
+};
+
+export const playAudio = async (type) => {
+    
+    if (!audioFiles[type]) {
+      console.error(`Audio type "${type}" not found`);
+      return;
+    }
   
-  const audioInstances = Object.fromEntries(
-    Object.entries(audioFiles).map(([key, sources]) => [key, createAudio(sources)])
-  );
-  
-  export const playAudio = (type) => {
-    if (audioInstances[type]) {
-      audioInstances[type].play().catch(error => {
-        console.warn(`Error playing audio (${type}):`, error);
-        // Optionally, you could try to reload the audio here
-        // audioInstances[type].load();
-      });
-    } else {
-      console.warn(`Audio type "${type}" not found`);
+    try {
+      const audioBuffer = await loadAudioBuffer(audioFiles[type][0]);
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContext.destination);
+      source.start(0);
+      
+    } catch (error) {
+      console.error(`Error in playAudio function (${type}):`, error);
     }
   };
-  
-  // Preload audio files
-  Object.values(audioInstances).forEach(audio => audio.load());
+
+// Preload audio files
+Object.keys(audioFiles).forEach(type => loadAudio(type).catch(error => console.warn(`Failed to preload ${type}:`, error)));
