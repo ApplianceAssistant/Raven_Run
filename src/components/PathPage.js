@@ -311,7 +311,6 @@ function PathPage() {
         ) : (
           <SkipCountdown challengeState={challengeState} />
         )}
-        <button onClick={handleSkipClick}>Skip</button>
       </div>
     );
   };
