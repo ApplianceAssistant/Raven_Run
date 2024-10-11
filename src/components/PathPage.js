@@ -25,6 +25,7 @@ import { useLocationWatcher } from '../hooks/locationWatcher';
 import TextToSpeech from './TextToSpeech';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
+import { playAudio } from '../utils/audioFeedback';
 
 function PathPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -86,6 +87,7 @@ function PathPage() {
         setIsLocationReached(true);
         setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
+        playAudio('locationReached').catch(error => console.error('Error playing location reached audio:', error));
       }
     }
   }, [currentChallenge, userLocation, isLocationReached]);
@@ -151,6 +153,9 @@ function PathPage() {
     setChallengeState(newState);
     if (newState.isCorrect) {
       setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
+      playAudio('correct').catch(error => console.error('Error playing correct audio:', error));
+    } else {
+      playAudio('wrong').catch(error => console.error('Error playing wrong audio:', error));
     }
     displayFeedback(newState.isCorrect, newState.feedback);
   };
@@ -179,6 +184,13 @@ function PathPage() {
           setTimeout(() => {
             setChallengeVisible(true);
             setButtonContainerVisible(true);
+            // Check if the next challenge requires location tracking
+            if (shouldDisplayDistanceNotice(challenges[nextIndex])) {
+              setDistanceNoticeVisible(true);
+              updateDistanceAndCheckLocation();
+            } else {
+              setDistanceNoticeVisible(false);
+            }
           }, 300);
         }, 100);
       } else {
@@ -211,7 +223,7 @@ function PathPage() {
         buttons: [
           { label: 'Close', onClick: () => setIsModalOpen(false) }],
         type: 'hint',
-        showTextToSpeech: false
+        showTextToSpeech: true
       });
     }
   };
@@ -221,7 +233,6 @@ function PathPage() {
     setTimeout(() => {
       setModalContent(newContent);
       setModalKey(prevKey => prevKey + 1);  // Force re-render of Modal
-      alert("modal content updated set visible");
       setIsModalOpen(true);
     }, 300); // Adjust this delay as needed to match your modal transition duration
   };
@@ -234,6 +245,7 @@ function PathPage() {
       if (nextIndex < challenges.length) {
         setChallengeIndex(nextIndex);
         saveHuntProgress(pathId, nextIndex);
+        setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
       } else {
         // Navigate to Congratulations page
         clearHuntProgress();

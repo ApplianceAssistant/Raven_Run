@@ -6,7 +6,7 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
 
-  
+
   const renderChallenge = () => {
     switch (challenge.type) {
       case 'story':
@@ -32,16 +32,25 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
     onStateChange({ answer: value });
   };
 
-  const renderStoryChallenge = () => (
-    <div className="story-challenge">
-      <div className="story-text">{challenge.storyText}</div>
-      {challengeState.textVisible && (
-        <div className="continue-button-container">
-          <button onClick={onContinue} className="continue-button">Continue</button>
-        </div>
-      )}
-    </div>
-  );
+  const renderStoryChallenge = () => {
+    const formattedStoryText = challenge.storyText.split('\n').map((line, index) => (
+      <React.Fragment key={index}>
+        {line}
+        {index < challenge.storyText.split('\n').length - 1 && <br />}
+      </React.Fragment>
+    ));
+  
+    return (
+      <div className="story-challenge">
+        <div className="story-text">{formattedStoryText}</div>
+        {challengeState.textVisible && (
+          <div className="continue-button-container">
+            <button onClick={onContinue} className="continue-button">Continue</button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const renderMultipleChoiceChallenge = () => {
     if (!challenge.options || !Array.isArray(challenge.options)) {
