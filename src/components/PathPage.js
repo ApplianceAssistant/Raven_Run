@@ -44,6 +44,7 @@ function PathPage() {
   const [showCongratulations, setShowCongratulations] = useState(false);
   const navigate = useNavigate();
   const [isLocationReached, setIsLocationReached] = useState(false);
+  const [completedChallenges, setCompletedChallenges] = useState(new Set());
   const userLocation = useLocationWatcher();
 
   const currentChallenge = challenges[challengeIndex];
@@ -73,16 +74,17 @@ function PathPage() {
     saveHuntProgress(pathId, urlChallengeIndex);
   }, [pathId, urlChallengeIndex]);
 
-  
+
 
   const updateDistanceAndCheckLocation = useCallback(() => {
-    if (currentChallenge?.targetLocation && userLocation) {
+    if (currentChallenge?.targetLocation && userLocation && !completedChallenges.has(challengeIndex)) {
       const newDistanceInfo = updateDistance(currentChallenge, userLocation);
       setDistanceInfo(newDistanceInfo);
-  
+
       const { isReached } = checkLocationReached(currentChallenge, userLocation);
       if (isReached && !isLocationReached) {
         setIsLocationReached(true);
+        setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
       }
     }
@@ -147,12 +149,18 @@ function PathPage() {
   const handleSubmitClick = () => {
     const newState = handleSubmit(currentChallenge, challengeState);
     setChallengeState(newState);
+    if (newState.isCorrect) {
+      setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
+    }
     displayFeedback(newState.isCorrect, newState.feedback);
   };
 
   const handleContinueClick = useCallback(() => {
     setIsModalOpen(false);
     setModalContent({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false });
+
+    // Mark the current challenge as completed
+    setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
 
     setTimeout(() => {
       setContentVisible(false);
@@ -165,7 +173,7 @@ function PathPage() {
       if (nextIndex < challenges.length) {
         navigate(`/path/${pathId}/challenge/${nextIndex}`);
         saveHuntProgress(pathId, nextIndex);
-        
+
         setTimeout(() => {
           setContentVisible(true);
           setTimeout(() => {
@@ -179,6 +187,11 @@ function PathPage() {
       }
     }, 300);
   }, [challengeIndex, challenges.length, navigate, pathId]);
+
+  // Reset completedChallenges when changing paths
+  useEffect(() => {
+    setCompletedChallenges(new Set());
+  }, [pathId]);
 
   const showHintModal = () => {
     if (currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0) {
