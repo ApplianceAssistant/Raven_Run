@@ -221,7 +221,6 @@ function PathPage() {
     setTimeout(() => {
       setModalContent(newContent);
       setModalKey(prevKey => prevKey + 1);  // Force re-render of Modal
-      alert("modal content updated set visible");
       setIsModalOpen(true);
     }, 300); // Adjust this delay as needed to match your modal transition duration
   };
