@@ -188,7 +188,7 @@ function calculateDistanceInfo(userLocation: { latitude: number, longitude: numb
   let displayValue: string;
   let unit: string;
 
-  if (distanceInMeters < 1000) {
+  if (distanceInMeters < 300) {
     // Use smaller units (feet or meters) for distances less than 1km
     distance = isMetric ? distanceInMeters : metersToFeet(distanceInMeters);
     displayValue = Math.round(distance).toString();

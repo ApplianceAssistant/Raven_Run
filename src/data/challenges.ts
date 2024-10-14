@@ -327,8 +327,8 @@ export const paths: Path[] = [
         Seek this sculpture, bold and free,\n
         Where house and history you'll see.\n
         Where chainsaw art meets hallowed ground,\n
-        And nature's giant became carving's crown.",
-        question: "Find the chainsaw carving described in the rhyme, where art and history intertwine.`,
+        And nature's giant became carving's crown.`,
+        question: `Find the chainsaw carving described in the rhyme, where art and history intertwine.`,
         targetLocation: {
           latitude: 38.212333,
           longitude: -85.231086
