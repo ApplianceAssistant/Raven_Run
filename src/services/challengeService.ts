@@ -120,6 +120,7 @@ export function getTimeUntilSkip(state: ChallengeState): number {
   const timeRemaining = Math.max(fiveMinutesInMs - timeElapsed, 0);
   return Math.ceil(timeRemaining / 1000); // Return remaining time in seconds
 }
+
 // New function to get the next hint
 export const getNextHintState = (challenge: Challenge, prevState: ChallengeState): ChallengeState => {
   if (!challenge.hints || challenge.hints.length === 0) {

@@ -8,42 +8,42 @@
         "version": 0.2,
         "icons": [
             {
-                "src": "/images/icons/crow_logo-72x72.png",
+                "src": "/images/icons/CrowTours_logo-72x72.png?v=1.1",
                 "sizes": "72x72",
                 "type": "image/png"
             },
             {
-                "src": "/images/icons/crow_logo-96x96.png",
+                "src": "/images/icons/CrowTours_logo-96x96.png?v=1.1",
                 "sizes": "96x96",
                 "type": "image/png"
             },
             {
-                "src": "/images/icons/crow_logo-128x128.png",
+                "src": "/images/icons/CrowTours_logo-128x128.png?v=1.1",
                 "sizes": "128x128",
                 "type": "image/png"
             },
             {
-                "src": "/images/icons/crow_logo-144x144.png",
+                "src": "/images/icons/CrowTours_logo-144x144.png?v=1.1",
                 "sizes": "144x144",
                 "type": "image/png"
             },
             {
-                "src": "/images/icons/crow_logo-152x152.png",
+                "src": "/images/icons/CrowTours_logo-152x152.png?v=1.1",
                 "sizes": "152x152",
                 "type": "image/png"
             },
             {
-                "src": "/images/icons/crow_logo-192x192.png",
+                "src": "/images/icons/CrowTours_logo-192x192.png?v=1.1",
                 "sizes": "192x192",
                 "type": "image/png"
             },
             {
-                "src": "/images/icons/crow_logo-384x384.png",
+                "src": "/images/icons/CrowTours_logo-384x384.png?v=1.1",
                 "sizes": "384x384",
                 "type": "image/png"
             },
             {
-                "src": "/images/icons/crow_logo-512x512.png",
+                "src": "/images/icons/CrowTours_logo-512x512.png?v=1.1",
                 "sizes": "512x512",
                 "type": "image/png"
             }
