@@ -206,13 +206,13 @@ h3 {
   }
 }
 
-.settings-page {
+.base-page {
   .content-wrapper {
     min-height: calc(100vh - 95px); // Adjusted for header and margin-top
   }
 
   .content {
-    margin-top: 50px;
+    margin-top: 20px;
   }
 
   .scrollable-content {
@@ -220,6 +220,24 @@ h3 {
       padding: 20px;
     }
   }
+  .base-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    justify-content: center;
+    height: 100%;
+    max-width: 600px;
+  }
+}
+
+.social-links {
+  margin-top: 20px;
+  color: #008CBA;
+}
+.social-links a {
+  margin-right: 10px;
+  color: #4a4a4a;
+  text-decoration: none;
 }
 
 .flex-top {

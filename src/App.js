@@ -14,7 +14,7 @@ import Header from './components/Header';
 import LogIn from './components/LogIn';
 import Friends from './components/Friends.js';
 import Congratulations from './components/Congratulations';
-import AudioTest from './components/AudioTest.js';
+import ThankYou from './components/ThankYou.js';
 import { checkServerConnectivity, API_URL, authFetch } from './utils/utils.js';
 import HuntDescription from './components/HuntDescription';
 
@@ -178,7 +178,7 @@ function AppContent() {
         <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
         <main className="main-content">
           <Routes>
-            <Route path="/audio-test" element={<AudioTest />} />
+            <Route path="/thank_you" element={<ThankYou />} />
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />

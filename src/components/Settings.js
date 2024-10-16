@@ -42,11 +42,11 @@ function Settings() {
   };
 
   return (
-    <div className="settings-page">
+    <div className="base-page">
       <div className="content-wrapper">
         <div className="content">
           <ScrollableContent maxHeight="60vh">
-            <div className="settings-container">
+            <div className="base-container">
               <ToggleSwitch
                 isChecked={isDarkMode}
                 onToggle={toggleDarkMode}
