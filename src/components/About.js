@@ -29,8 +29,8 @@ function About() {
             <p>All the more reason to trust the friends by your side to solve each puzzle and discover the truth!</p>
           </ScrollableContent>
         </div>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }
 
