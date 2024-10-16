@@ -2,14 +2,18 @@ import React, { useState, useEffect } from 'react';
 import ScrollableContent from './ScrollableContent';
 import TextToSpeech from './TextToSpeech';
 
-const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeech }) => {
+const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeech, speak }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
+  const [autoPlayTrigger, setAutoPlayTrigger] = useState(0);
 
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
-      setTimeout(() => setIsVisible(true), 50);
+      setTimeout(() => {
+        setIsVisible(true);
+        setAutoPlayTrigger(prev => prev + 1);
+      }, 50);
     } else {
       setIsVisible(false);
       setTimeout(() => setShouldRender(false), 300);
@@ -50,7 +54,7 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeec
     return '';
   };
 
-  const textToSpeak = `${title}. ${extractTextContent(content)}`;
+  const textToSpeak = `${extractTextContent(speak)}`;
 
   return (
     <div className={`modal-overlay ${isVisible ? 'visible' : ''}`} onClick={handleOverlayClick}>
@@ -65,7 +69,10 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeec
         </ScrollableContent>
         {buttons && buttons.length > 0 && (
           <div className="modal-buttons">
-            {showTextToSpeech && <TextToSpeech text={textToSpeak} />}
+            {showTextToSpeech &&  <TextToSpeech 
+            text={textToSpeak} 
+            autoPlayTrigger={autoPlayTrigger}
+          />}
             {buttons.map((button, index) => (
               <button key={index} onClick={button.onClick} className={button.className}>
                 {button.label}

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, createContext } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './components/ThemeContext';
+import { SettingsProvider } from './utils/SettingsContext';
 import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
@@ -207,11 +208,13 @@ function AppContent() {
 
 function App() {
   return (
+    <SettingsProvider>
     <ThemeProvider>
       <Router>
         <AppContent />
       </Router>
     </ThemeProvider>
+    </SettingsProvider>
   );
 }
 
