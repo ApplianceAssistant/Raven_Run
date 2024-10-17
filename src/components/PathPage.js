@@ -215,7 +215,6 @@ function PathPage() {
       const totalHints = currentChallenge.hints.length;
       const nextHint = (currentHint + 1) % totalHints;
       setCurrentHint(nextHint);
-      console.log("currentChallenge.hints[currentHint]: ", currentChallenge.hints[currentHint]);
       updateModalContent({
         title: 'Hint',
         content: (
@@ -322,7 +321,6 @@ function PathPage() {
         ) : (
           <SkipCountdown challengeState={challengeState} />
         )}
-        <button onClick={handleSkipClick}>Skip</button>
       </div>
     );
   };

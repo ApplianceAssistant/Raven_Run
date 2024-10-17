@@ -6,7 +6,6 @@ import { useSettings } from '../utils/SettingsContext';
 
 function Settings() {
   const { settings, updateSetting } = useSettings();
-  console.log("settings: ", settings);
 
   const handleUnitSystemToggle = () => {
     updateSetting('isMetric', !settings.isMetric);

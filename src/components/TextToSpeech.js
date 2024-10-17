@@ -75,7 +75,6 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   }, [settings.autoSpeak, autoPlayTrigger, speak]);
 
   const handleSpeak = () => {
-    console.log("isSpeaking: ", isSpeaking);
     if (isSpeaking) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
