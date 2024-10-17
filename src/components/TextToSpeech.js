@@ -52,7 +52,7 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
 
     utterance.onerror = (event) => {
       console.error('SpeechSynthesisUtterance error:', event);
-      setIsSpeaking(false);
+      //setIsSpeaking(false);
     };
 
     window.speechSynthesis.speak(utterance);
@@ -75,13 +75,18 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   }, [settings.autoSpeak, autoPlayTrigger, speak]);
 
   const handleSpeak = () => {
+    console.log("isSpeaking: ", isSpeaking);
     if (isSpeaking) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      console.warn("update Setting autoSpeak to false");
       updateSetting('autoSpeak', false);
+      setIsSpeaking(false);
     } else {
       speak();
+      console.warn("update Setting autoSpeak to true");
       updateSetting('autoSpeak', true);
+      setIsSpeaking(true);
     }
   };
 

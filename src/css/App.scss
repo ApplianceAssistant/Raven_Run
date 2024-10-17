@@ -890,13 +890,14 @@ form {
     opacity: 1;
     visibility: visible;
   }
+  
 }
 
 .modal-content {
   @include theme-aware('background-color', $darker-bg, $light-bg);
   @include theme-aware('color', $text-color, $light-text-color);
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 10px;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
@@ -986,6 +987,10 @@ form {
   margin-bottom: 20px;
   text-align: center;
   padding: 0 10px;
+}
+
+.legal {
+  @include theme-aware('background', $dark-bg, $light-bg);
 }
 
 /* Character count styles */

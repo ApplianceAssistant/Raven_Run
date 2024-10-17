@@ -29,6 +29,7 @@ export const SettingsProvider = ({ children }) => {
   }, [settings.autoSpeak]);
 
   const updateSetting = (key, value) => {
+    console.log("updateSetting: ", key, value);
     setSettings(prevSettings => ({ ...prevSettings, [key]: value }));
   };
 
