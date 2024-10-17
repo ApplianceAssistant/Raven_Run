@@ -2,6 +2,7 @@ import React from 'react';
 import '../css/ToggleSwitch.scss';
 
 const ToggleSwitch = ({ checked, onToggle, label, name, id }) => {
+  console.log("ToggleSwitch ","label:", label , " checked: ", checked);
   return (
     <div className="toggle-switch-container">
       <label className="switch">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import ScrollableContent from './ScrollableContent';
 import ToggleSwitch from './ToggleSwitch';
 import VoiceSelector from './VoiceSelector';
@@ -6,6 +6,7 @@ import { useSettings } from '../utils/SettingsContext';
 
 function Settings() {
   const { settings, updateSetting } = useSettings();
+  console.log("settings: ", settings);
 
   const handleUnitSystemToggle = () => {
     updateSetting('isMetric', !settings.isMetric);
@@ -42,17 +43,17 @@ function Settings() {
           <ScrollableContent maxHeight="60vh">
             <div className="settings-container">
               <ToggleSwitch
-                isChecked={settings.isDarkMode}
+                checked={settings.isDarkMode}
                 onToggle={handleDarkModeToggle}
                 label={settings.isDarkMode ? "Dark Mode" : "Light Mode"}
               />
               <ToggleSwitch
-                isChecked={settings.isMetric}
+                checked={settings.isMetric}
                 onToggle={handleUnitSystemToggle}
                 label={settings.isMetric ? "Metric System (km/m)" : "Imperial System (mi/ft)"}
               />
               <ToggleSwitch
-                isChecked={settings.autoSpeak}
+                checked={settings.autoSpeak}
                 onToggle={handleAutoSpeakToggle}
                 label={settings.autoSpeak ? "Auto-Speak On" : "Auto-Speak Off"}
               />
