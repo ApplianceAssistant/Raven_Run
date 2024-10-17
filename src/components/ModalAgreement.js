@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ScrollableContent from './ScrollableContent';
 
 const ModalAgreement = ({ isOpen, onAgree, title, content }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -17,14 +18,17 @@ const ModalAgreement = ({ isOpen, onAgree, title, content }) => {
   if (!shouldRender) return null;
 
   return (
-    <div className={`modal-overlay ${isVisible ? 'visible' : ''}`}>
+    <div className={`modal-overlay legal ${isVisible ? 'visible' : ''}`}>
       <div className={`modal-content ${isVisible ? 'visible' : ''}`}>
         <div className="modal-header">
           <h2>{title}</h2>
         </div>
-        <div className={`modal-body`}>
-          {content}
-        </div>
+        <ScrollableContent maxHeight="60vh">
+          <div className={`modal-body`}>
+            {content}
+          </div>
+        </ScrollableContent>
+
         <p className="legal-disclaimer">
         By using CrowTours.com or participating in any scavenger hunt, you confirm that you have read, understood, and agreed to this disclaimer.
         </p>

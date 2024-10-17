@@ -5,6 +5,7 @@ import Compass from './Compass';
 import Modal from './Modal';
 import SkipCountdown from './SkipCountdown';
 import Congratulations from './Congratulations';
+import { useSettings } from '../utils/SettingsContext';
 import {
   getChallenges,
   getPathName,
@@ -28,8 +29,10 @@ import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils'
 import { playAudio } from '../utils/audioFeedback';
 
 function PathPage() {
+  const [autoPlayTrigger, setAutoPlayTrigger] = useState(0);
+  const { settings } = useSettings();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false });
+  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
   const [modalKey, setModalKey] = useState(0);
   const [currentHint, setCurrentHint] = useState(0);
   const { pathId, challengeIndex: urlChallengeIndex } = useParams();
@@ -110,6 +113,8 @@ function PathPage() {
         setTimeout(() => {
           setChallengeVisible(true);
           setButtonContainerVisible(true);
+          // Trigger auto-play for TextToSpeech
+          setAutoPlayTrigger(prev => prev + 1);
         }, 300); // Delay challenge visibility
       }, 100); // Delay to trigger transition
 
@@ -162,7 +167,7 @@ function PathPage() {
 
   const handleContinueClick = useCallback(() => {
     setIsModalOpen(false);
-    setModalContent({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false });
+    setModalContent({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
 
     // Mark the current challenge as completed
     setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
@@ -223,12 +228,14 @@ function PathPage() {
         buttons: [
           { label: 'Close', onClick: () => setIsModalOpen(false) }],
         type: 'hint',
-        showTextToSpeech: true
+        showTextToSpeech: true,
+        speak: currentChallenge.hints[currentHint]
       });
     }
   };
 
   const updateModalContent = (newContent) => {
+    console.warn("newContent: ", newContent);
     setIsModalOpen(false);
     setTimeout(() => {
       setModalContent(newContent);
@@ -289,7 +296,8 @@ function PathPage() {
       content: <p className={isCorrect ? 'completion-feedback' : ''}>{contentText}</p>,
       buttons: buttons,
       type: isCorrect ? 'correct' : 'incorrect',
-      showTextToSpeech: true
+      showTextToSpeech: true,
+      speak: contentText
     });
   };
 
@@ -298,7 +306,9 @@ function PathPage() {
     return (
       <div className={`button-container-bottom visible`}>
         {(currentChallenge.description || currentChallenge.storyText) &&
-          <TextToSpeech text={currentChallenge.description || currentChallenge.storyText} />
+          <TextToSpeech text={currentChallenge.description || currentChallenge.storyText}
+          autoPlayTrigger={autoPlayTrigger}
+          />
         }
         {canDisplayHints(currentChallenge) && !challengeState.isCorrect && (
           <button onClick={showHintModal} className="hint-button">Hint</button>
@@ -331,15 +341,17 @@ function PathPage() {
         <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
           <main className="path-content content flex-top">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
-              {currentChallenge && (
-                <Challenge
-                  key={challengeIndex}
-                  challenge={currentChallenge}
-                  challengeState={{ ...challengeState, textVisible: challengeVisible }}
-                  onStateChange={handleStateChange}
-                  onContinue={handleContinueClick}
-                />
-              )}
+            {currentChallenge && (
+          <>
+            <Challenge
+              key={challengeIndex}
+              challenge={currentChallenge}
+              challengeState={{ ...challengeState, textVisible: challengeVisible }}
+              onStateChange={handleStateChange}
+              onContinue={handleContinueClick}
+            />
+          </>
+        )}
             </div>
           </main>
         </div>
@@ -353,6 +365,7 @@ function PathPage() {
         buttons={modalContent.buttons}
         type={modalContent.type}
         showTextToSpeech={modalContent.showTextToSpeech}
+        speak={modalContent.speak}
       />
       {showCongratulations && (
         <Congratulations onClose={handleCloseCongratulations} />

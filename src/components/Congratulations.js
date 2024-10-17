@@ -26,24 +26,49 @@ const Congratulations = ({ onClose }) => {
                     <h1>The spirits have been appeased!</h1>
                     <p>Your bravery and wit have led you to victory in the world of shadow.</p>
                     <p>Let your friends know about your paranormal prowess!</p>
-                    <div className="button-container">
+                    <p>
                         <a
                             href="https://www.facebook.com/CrowTours/"
                             target="_blank"
                             description="Crow Tours Facebook Page"
                             rel="noopener noreferrer"
-                            className="facebook-link"
+                            className="button-link"
                         >
-                            Share photos & give us a like!
+                            Join the Facebook Flock!
                         </a>
-                        <a href="https://buy.stripe.com/bIY6sf6f2dCE1eoaEE"
+                    </p>
+
+                    <h2>Enjoy the hunt?</h2>
+                    <p>Support CrowTours Development and Fuel new adventures! Your contribution helps create exciting quests, improve features, and keep our app free.</p>
+                    <div className="button-container">
+                        <a
+                            href="https://donate.stripe.com/dR6g2P0UIdCEbT2148"
                             target="_blank"
-                            description="Support the developer"
+                            description="Donate 30 to CrowTours"
                             rel="noopener noreferrer"
-                            className="support_dev"
+                            className="button-link"
                         >
-                            Support the developer
+                            $30
                         </a>
+                        <a
+                            href="https://donate.stripe.com/fZe7wj1YMgOQg9i6op"
+                            target="_blank"
+                            description="Donate 20 to CrowTours"
+                            rel="noopener noreferrer"
+                            className="button-link"
+                        >
+                            $20
+                        </a>
+                        <a
+                            href="https://donate.stripe.com/9AQ4k78na7ege1a3ce"
+                            target="_blank"
+                            description="Donate 20 to CrowTours"
+                            rel="noopener noreferrer"
+                            className="button-link"
+                        >
+                            $10
+                        </a>
+
                     </div>
                 </div>
             </div>

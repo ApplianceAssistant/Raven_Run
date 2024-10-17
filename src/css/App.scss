@@ -206,13 +206,13 @@ h3 {
   }
 }
 
-.settings-page {
+.base-page {
   .content-wrapper {
     min-height: calc(100vh - 95px); // Adjusted for header and margin-top
   }
 
   .content {
-    margin-top: 50px;
+    margin-top: 20px;
   }
 
   .scrollable-content {
@@ -220,6 +220,24 @@ h3 {
       padding: 20px;
     }
   }
+  .base-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    justify-content: center;
+    height: 100%;
+    max-width: 600px;
+  }
+}
+
+.social-links {
+  margin-top: 20px;
+  color: #008CBA;
+}
+.social-links a {
+  margin-right: 10px;
+  color: #4a4a4a;
+  text-decoration: none;
 }
 
 .flex-top {
@@ -872,13 +890,14 @@ form {
     opacity: 1;
     visibility: visible;
   }
+  
 }
 
 .modal-content {
   @include theme-aware('background-color', $darker-bg, $light-bg);
   @include theme-aware('color', $text-color, $light-text-color);
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 10px;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
@@ -968,6 +987,10 @@ form {
   margin-bottom: 20px;
   text-align: center;
   padding: 0 10px;
+}
+
+.legal {
+  @include theme-aware('background', $dark-bg, $light-bg);
 }
 
 /* Character count styles */

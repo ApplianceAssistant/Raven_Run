@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, createContext } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './components/ThemeContext';
+import { SettingsProvider } from './utils/SettingsContext';
 import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
@@ -14,7 +15,7 @@ import Header from './components/Header';
 import LogIn from './components/LogIn';
 import Friends from './components/Friends.js';
 import Congratulations from './components/Congratulations';
-import AudioTest from './components/AudioTest.js';
+import ThankYou from './components/ThankYou.js';
 import { checkServerConnectivity, API_URL, authFetch } from './utils/utils.js';
 import HuntDescription from './components/HuntDescription';
 
@@ -52,7 +53,7 @@ function BackgroundController() {
 
     // Function to update background visibility
     const updateBackgroundVisibility = () => {
-      const noBackgroundPages = ['/profile', '/settings', '/friends', '/create-profile', '/log-in', '/create'];
+      const noBackgroundPages = ['/profile', '/settings', '/friends', '/create-profile', '/log-in', '/create', '/about', '/contact', '/thank_you'];
       const shouldShowBackground = !noBackgroundPages.includes(location.pathname);
       movingBackground.classList.toggle('with-background', shouldShowBackground);
     }
@@ -70,7 +71,7 @@ function BackgroundController() {
   useEffect(() => {
     const movingBackground = document.querySelector('.moving-background');
     if (movingBackground) {
-      const noBackgroundPages = ['/profile', '/settings', '/friends', '/create-profile', '/log-in', '/create'];
+      const noBackgroundPages = ['/profile', '/settings', '/friends', '/create-profile', '/log-in', '/create', '/about', '/contact', '/thank_you'];
       const shouldShowBackground = !noBackgroundPages.includes(location.pathname);
       movingBackground.classList.toggle('with-background', shouldShowBackground);
     }
@@ -178,7 +179,7 @@ function AppContent() {
         <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
         <main className="main-content">
           <Routes>
-            <Route path="/audio-test" element={<AudioTest />} />
+            <Route path="/thank_you" element={<ThankYou />} />
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
@@ -207,11 +208,13 @@ function AppContent() {
 
 function App() {
   return (
+    <SettingsProvider>
     <ThemeProvider>
       <Router>
         <AppContent />
       </Router>
     </ThemeProvider>
+    </SettingsProvider>
   );
 }
 

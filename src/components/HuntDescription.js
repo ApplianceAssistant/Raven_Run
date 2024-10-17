@@ -7,12 +7,15 @@ import TextToSpeech from './TextToSpeech';
 import ModalAgreement from './ModalAgreement';
 import { analyzeChallenges } from '../utils/challengeAnalysis';
 import { getUserUnitPreference } from '../utils/utils';
+import { useSettings } from '../utils/SettingsContext';
 
 const HuntDescription = () => {
     const { pathId } = useParams();
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [huntAnalysis, setHuntAnalysis] = useState(null);
+    const [autoPlayTrigger, setAutoPlayTrigger] = useState(0);
+    const { settings } = useSettings();
 
     const getHuntData = () => {
         const numericPathId = parseInt(pathId, 10);
@@ -31,6 +34,7 @@ const HuntDescription = () => {
             const isMetric = getUserUnitPreference();
             const analysis = analyzeChallenges(hunt.challenges, isMetric);
             setHuntAnalysis(analysis);
+            setAutoPlayTrigger(prev => prev + 1);
         }
     }, [hunt]);
 
@@ -90,9 +94,12 @@ const HuntDescription = () => {
                 </div>
             </div>
             <div className={`button-container-bottom visible`}>
-                {(hunt.description) &&
-                    <TextToSpeech text={hunt.description} />
-                }
+                {hunt.description && (
+                    <TextToSpeech
+                        text={hunt.description}
+                        autoPlayTrigger={autoPlayTrigger}
+                    />
+                )}
                 <button onClick={handleEnterHunt} className="enter-hunt-button">
                     Start The Hunt
                 </button>

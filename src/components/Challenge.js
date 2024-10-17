@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import Modal from './Modal';
 import ScrollableContent from './ScrollableContent';
 
-export const Challenge = ({ challenge, userLocation, challengeState, onStateChange, onContinue }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [] });
+export const Challenge = ({ challenge, challengeState, onStateChange, onContinue }) => {
 
 
   const renderChallenge = () => {
@@ -134,14 +131,6 @@ export const Challenge = ({ challenge, userLocation, challengeState, onStateChan
           {renderChallenge()}
         </div>
       </ScrollableContent>
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={modalContent.title}
-        content={modalContent.content}
-        buttons={modalContent.buttons}
-        showTextToSpeech={modalContent.showTextToSpeech}
-      />
     </div>
   );
 };

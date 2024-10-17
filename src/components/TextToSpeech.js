@@ -2,25 +2,14 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
 import { useVoiceManagement } from '../hooks/useVoiceManagement';
+import { useSettings } from '../utils/SettingsContext';
 
-const TextToSpeech = ({ text }) => {
+const TextToSpeech = ({ text, autoPlayTrigger }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const { getSelectedVoice } = useVoiceManagement();
+  const { settings, updateSetting } = useSettings();
   const sentencesRef = useRef([]);
   const currentSentenceIndexRef = useRef(0);
-
-  useEffect(() => {
-    // Extract text content from React elements if necessary
-    const textContent = typeof text === 'string' 
-      ? text 
-      : React.isValidElement(text)
-        ? extractTextFromReactElement(text)
-        : '';
-
-    // Split text into sentences
-    sentencesRef.current = textContent.match(/[^.!?]+[.!?]+/g) || [textContent];
-    currentSentenceIndexRef.current = 0;
-  }, [text]);
 
   const extractTextFromReactElement = (element) => {
     if (typeof element === 'string') return element;
@@ -34,45 +23,76 @@ const TextToSpeech = ({ text }) => {
     return '';
   };
 
-  const speakNextSentence = useCallback(() => {
-    if (currentSentenceIndexRef.current < sentencesRef.current.length) {
-      const utterance = new SpeechSynthesisUtterance(sentencesRef.current[currentSentenceIndexRef.current]);
-      const selectedVoice = getSelectedVoice();
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-      }
-      
-      utterance.onend = () => {
-        currentSentenceIndexRef.current++;
-        speakNextSentence();
-      };
+  useEffect(() => {
+    const textContent = typeof text === 'string' 
+      ? text 
+      : React.isValidElement(text)
+        ? extractTextFromReactElement(text)
+        : '';
+    sentencesRef.current = textContent.match(/[^.!?]+[.!?]+/g) || [textContent];
+    currentSentenceIndexRef.current = 0;
+  }, [text]);
 
-      utterance.onerror = (event) => {
-        console.error('SpeechSynthesisUtterance error', event);
-        setIsSpeaking(false);
-      };
-
-      window.speechSynthesis.speak(utterance);
-    } else {
+  const speakSentence = useCallback(() => {
+    if (currentSentenceIndexRef.current >= sentencesRef.current.length) {
       setIsSpeaking(false);
+      return;
     }
+
+    const utterance = new SpeechSynthesisUtterance(sentencesRef.current[currentSentenceIndexRef.current]);
+    const selectedVoice = getSelectedVoice();
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+
+    utterance.onend = () => {
+      currentSentenceIndexRef.current++;
+      speakSentence();
+    };
+
+    utterance.onerror = (event) => {
+      console.error('SpeechSynthesisUtterance error:', event);
+      //setIsSpeaking(false);
+    };
+
+    window.speechSynthesis.speak(utterance);
   }, [getSelectedVoice]);
 
-  const handleSpeak = useCallback(() => {
-    if (!isSpeaking) {
-      currentSentenceIndexRef.current = 0;
-      setIsSpeaking(true);
-      speakNextSentence();
-    } else {
+  const speak = useCallback(() => {
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+
+    currentSentenceIndexRef.current = 0;
+    setIsSpeaking(true);
+    speakSentence();
+  }, [speakSentence]);
+
+  useEffect(() => {
+    if (settings.autoSpeak && autoPlayTrigger) {
+      speak();
+    }
+  }, [settings.autoSpeak, autoPlayTrigger, speak]);
+
+  const handleSpeak = () => {
+    if (isSpeaking) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      console.warn("update Setting autoSpeak to false");
+      updateSetting('autoSpeak', false);
+      setIsSpeaking(false);
+    } else {
+      speak();
+      console.warn("update Setting autoSpeak to true");
+      updateSetting('autoSpeak', true);
+      setIsSpeaking(true);
     }
-  }, [isSpeaking, speakNextSentence]);
+  };
 
   return (
     <div className="text-to-speech">
       <button onClick={handleSpeak} className="speak-button">
-        <FontAwesomeIcon icon={isSpeaking ? faVolumeMute : faVolumeUp} />
+        <FontAwesomeIcon icon={settings.autoSpeak ? faVolumeMute : faVolumeUp} />
       </button>
     </div>
   );
