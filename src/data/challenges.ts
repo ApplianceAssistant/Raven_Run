@@ -12,9 +12,14 @@ export const paths: Path[] = [
   {
     id: 0,
     name: "Tracking Shadows in Shelby County",
-    description: `Welcome to Crow Tours' hunt: Tracking Shadows in Shelby County. As night falls, strange occurrences have been reported across this once-quiet rural community. Inexplicable sounds echo through abandoned barns, eerie figures drift between ancient trees, and an oppressive atmosphere blankets the county.
-      Your mission: uncover the truth behind these supernatural disturbances. Armed with nothing but choice companions, your wits, and a cryptic guide, you'll explore forgotten corners of Shelby County, solving riddles and following clues left by those who came before. But beware—you're not alone in your search. Something watches from the shadows, its presence marked only by the rustle of crow's wings and fleeting glimpses in the moonlight.
-      Can you piece together the dark history of Shelby County before dawn breaks? Or will you become another whispered legend in this haunted land? The shadows are moving. The hunt begins now.`,
+    description: `Welcome to Crow Tours' hunt: Tracking Shadows in Shelby County.\n
+      As night falls, strange occurrences have been reported across this once-quiet rural community.\n
+      Inexplicable sounds echo through abandoned barns, eerie figures drift between ancient trees, and an oppressive atmosphere blankets the county.\n
+      Your mission: uncover the truth behind these supernatural disturbances.\n
+      Armed with nothing but choice companions, your wits, and cryptic guides, you'll explore forgotten corners of Shelby County, solving riddles and following clues left by those who came before.\n
+      But beware—you're not alone in your search. Something watches from the shadows, its presence marked only by the rustle of crow's wings and fleeting glimpses in the moonlight.\n
+      Can you piece together the dark history before dawn breaks? Or will you become another whispered legend in this haunted land?\n
+      The shadows are moving. The hunt begins now.`,
     dayOnly: false,
     challenges: [
       {
@@ -38,7 +43,7 @@ export const paths: Path[] = [
         question: `Journey to the location described in this riddle.`,
         targetLocation: {
           latitude: 38.212354,
-          longitude:-85.219853
+          longitude: -85.219853
         },
         radius: 15,
         hints: [
@@ -86,7 +91,7 @@ export const paths: Path[] = [
           correct: "As the name 'John' passes your lips, a warm breeze caresses your face, carrying the scent of autumn leaves and distant memories. The crows take flight, their wings beating a path westward. What new mysteries await in that direction?",
           incorrect: [
             "A mournful caw pierces the air. The crows shuffle restlessly, urging you to look closer at the stone.",
-            "The wind whispers through the graveyard, carrying fragments of forgotten names. Two choices remain – which one echoes in eternity?",
+            "The wind whispers through the graveyard, carrying fragments of forgotten names. Two choices remain, which one echoes in eternity?",
             "The crows' eyes gleam with anticipation. Surely, this time, you'll uncover the truth etched in stone."
           ]
         },
@@ -610,5 +615,426 @@ export const paths: Path[] = [
         repeatable: true
       }
     ]
-  }
+  },
+  {
+    id: 1,
+    name: "Tides of Mystery in North County",
+    description: `As fog rolls inland, it carries whispers of forgotten tales and untold histories.\n
+      Between the rhythmic sounds of breaking waves and mission bells, a murder of crows takes wing - your mysterious guides through time.\n
+      These wise corvids know the secrets of corridors where footsteps echo across centuries, the humble resting places of pioneers who built towns from dust and dreams, and grand theaters where phantom audiences still applaud.\n
+      Each location holds a piece of North County's soul, waiting to be discovered by those clever enough to decode the riddles and brave enough to seek the truth.\n
+      Follow the crows as they lead you down quiet paths and busy streets, past ancient pepper trees and modern developments.\n
+      Listen for the whispered clues in the ocean breeze, and watch for signs in the shadowy spaces between past and present.\n
+      Your quest begins now. The crows are gathering, the fog is rolling in, and North County's mysteries are calling. Will you answer?`,
+    dayOnly: false,
+    challenges: [
+      {
+        id: '0',
+        type: 'travel',
+        title: `Wave Walker`,
+        description: `Stretched like a finger toward horizon's rim,\n
+          Where wooden planks embrace Pacific air,\n
+          Through changing tides both gentle and more grim,\n
+          This sentinel strides waves without a care.\n
+          
+          Below, adventurers dance as nature swells,\n
+          While patient hunters cast their hopes to fate,\n
+          Each weathered board a thousand stories tells,\n
+          Of sun and storm that shaped these paths to date.\n
+          
+          The crows above join gulls in watchful flight,\n
+          Where once an icon crowned this ocean trail,\n
+          Now changed by fortune's fierce and burning might,\n
+          Yet still this giant stands through storm and gale.`,
+        question: `Find where land reaches boldly into sea, a wooden giant rising from the surf.`,
+        targetLocation: {
+          latitude: 33.204805,
+          longitude: -117.235027
+        },
+        radius: 20,
+        hints: [
+          "Where Mission Ave meets an endless horizon",
+          "Look for the wooden planks that stretch out over the Pacific Ocean",
+          "Listen for the sound of waves crashing against pilings",
+          "The crows circle a structure in the west where the ocean's vastness meets human ingenuity"
+        ],
+        completionFeedback: `A crow shares its perch with scanning pelicans, watching waves crash against the pier's sturdy pillars.\n
+          Images of yesteryear float past like sea spray - horse-drawn carriages, Victorian bathers, WWII sailors, and modern surfers - all part of this endless dance where Oceanside meets the sea.\n
+          Trace your fingers across the weathered names carved in the railings of this 1987 pier, each one a story of the families who built this community.\n
+          Though recent flames claimed the iconic diner, the spirit of resilience remains unbroken.\n
+          The crow takes wing toward your next challenge, soaring past where generations have written their stories in salt air and wooden planks.\n
+          Time to follow its lead - more mysteries await along these historic shores.`,
+        repeatable: true
+      },
+      {
+        id: '1',
+        type: 'travel',
+        title: `Curtains of Shadow`,
+        description: `Where shadows dance on ancient stage,\n
+          And ghosts still turn the tattered page,\n
+          A landmark looms with darkened grace,\n
+          Time-haunted brick marks this cursed place.\n
+          Through windows cracked and doors that creak,\n
+          Where whispered tales of players speak,\n
+          The crows perch high on marquee dim,\n
+          Like specters from a midnight hymn.\n
+          When sailors' spirits still remain,\n
+          Their phantom shows play once again,\n
+          Now actors share their sacred space,\n
+          With those who left no mortal trace.`,
+        question: `Seek the historic theater where dark-winged crows gather above, guarding secrets of performances past and present.`,
+        targetLocation: {
+          latitude: 33.196377,
+          longitude: -117.380081
+        },
+        radius: 15,
+        hints: [
+          "Look where Mission Avenue meets Coast Highway, where shadows lengthen at dusk",
+          "Seek the twin-sided marquee that has guided theater-goers for generations",
+          "The building broods on the corner, its marquee flickering with memories",
+          "Built in 1936, local legends speak of performers who never truly left the stage"
+        ],
+        completionFeedback: `A murder of crows scatters from their perch atop the ominous marquee, their wings cutting through the evening mist as you approach the Sunshine Brooks Theater.\n
+          Their echoing calls seem to awaken something within the old walls - perhaps the spirits of performances past, stirring behind the darkened windows.\n
+          The facade looms before you, its Art Deco features casting strange shadows in the fading light.\n
+          Through the entrance, you might hear the whispered echoes of long-ago applause, the ghostly remnants of countless shows that have graced this historic stage.\n
+          Your corvid guides circle overhead once more, their silhouettes stark against the darkening sky to the east. They beckon you onward, where the line between past and present blurs like footlights in the fog`,
+        repeatable: true
+      },
+      {
+        id: '2',
+        type: 'travel',
+        title: `The Valley King`,
+        description: `White walls rise through morning haze,\n
+          Where friendly ghosts spent countless days,\n
+          A cross points high into the sky,\n
+          While playful crows soar swooping by.\n
+
+          They call it "King of Missions" here,\n
+          Where bells still ring out crystal clear,\n
+          Through garden, church, and sacred ground,\n
+          Ancient secrets wait to be found.\n
+
+          The oldest pepper tree still grows,\n
+          Its branches dance as warm wind blows,\n
+          Two centuries of stories sleep,\n
+          In corridors both wide and deep.\n
+
+          The padres walked these paths of old,\n
+          Now ravens guard their tales untold,\n
+          Through arches curved with Spanish grace,\n
+          Time slows within this peaceful place.`,
+        question: `Find the location where the oldest pepper tree in California still stands, guarding the secrets of the King.`,
+        targetLocation: {
+          latitude: 33.231836,
+          longitude: -117.319631
+        },
+        radius: 20,
+        hints: [
+          "The pepper tree near the entrance was planted in 1830 and still provides shade today.",
+          "Seek the largest of all California missions.",
+          "Look for the white walls and Spanish arches that mark the King of Missions.",
+          "The crows circle a place where the bells still ring out, echoing through the valley."
+        ],
+        completionFeedback: `A curious crow glides down from its perch in the ancient bell tower, landing near the historic pepper tree as you discover Mission San Luis Rey.\n
+          Its feathers gleam in the sunlight filtering through the tree's branches, the same branches that have provided shade to visitors for nearly 200 years.\n
+          The tree's branches sway gently in the breeze, casting dappled shadows on the weathered adobe walls.\n
+          The mission's bells chime softly, their crystal-clear tones echoing through the peaceful grounds, as they have since 1798.\n
+          As you stand in the shade of the pepper tree, you feel the weight of centuries of history pressing down upon you.\n
+          The crows take flight once more, their caws echoing through the courtyard as they guide you onward to your next destination.`,
+        repeatable: true
+      },
+      {
+        id: '3',
+        type: 'travel',
+        title: `End of the Road`,
+        description: `Down a simple earthen trail,\n
+          Where time's harsh stories still prevail,\n
+          Low stone markers dot the ground,\n
+          In sacred silence, barely found.\n
+
+          No marble angels guard this space,\n
+          Just weathered stones set humble place,\n
+          Where pioneers laid down their load,\n
+          At journey's end of life's hard road.\n
+
+          The mission bells still toll nearby,\n
+          As eucalyptus pierce the sky,\n
+          Their branches bend in coastal air,\n
+          Above this ground of simple prayer.\n
+
+          These souls who built our town from dust,\n
+          Through drought and toil, in faith and trust,\n
+          Now rest in peace without display,\n
+          As mission bells mark close of day.`,
+        question: `Find the humble pioneer cemetery where simple markers tell tales of our town's earliest settlers.\n
+        (Note: This location is best visited during daylight hours)`,
+        targetLocation: {
+          latitude: 33.228511,
+          longitude: -117.319447
+        },
+        radius: 20,
+        hints: [
+          "This unadorned cemetery sits atop a small knoll to the south.",
+          "Look for a humble dirt path that whispers of forgotten footsteps - most pass by without seeing this turn into history.",
+          "Between the sounds of modern traffic and mission bells, a narrow trail leads to those who built our town with calloused hands and iron will,",
+          "Where eucalyptus stand like ancient sentinels, their shadows point to modest stones laid flat against the earth. Dragons live forever, not so little boys."
+        ],
+        completionFeedback: `A crow circles quietly overhead as you discover this modest final resting place of Oceanside's pioneers.\n
+          No grand monuments mark their passing - just simple stones that speak of lives spent building a community from wilderness.\n
+          mission bells echo across these grounds just as they did when these settlers walked the earth, marking time's passage over generations of hard work, determination, and faith.\n
+          Each modest marker represents a story of perseverance.\n
+          Your winged guide soars toward the mission towers, leaving you to reflect on the quiet dignity of this place where our town's founders rest in unpretentious peace, their legacy living on in the community they helped create.`,
+        repeatable: true
+      },
+      {
+        id: '4',
+        type: 'travel',
+        title: `The River Crossing`,
+        description: `The crows glide low through valley mist,\n
+        Above steel spans time hasn't kissed.\n
+        A rhyme emerges as wings take flight,\n
+        Over waters flowing day and night:\n
+        
+        Where Mission bells once marked the way,\n
+        A steel giant guards the San Luis Rey.\n
+        Born of rivets, wrought by hand,\n
+        When first machines roamed this land.\n
+        
+        Though cars now cross on modern stone,\n
+        These green trusses stand alone,\n
+        Silent witness to times past,\n
+        Where footsteps now are all that pass.\n
+        
+        Her iron bones still reach shore to shore,\n
+        Through floods and quakes and times of yore.\n
+        What am I, this time-worn friend,\n
+        Where ancient paths and present blend?`,
+        question: `Find the location described in the riddle, where the past and present converge over the San Luis Rey River.`,
+        targetLocation: {
+          latitude: 33.259975,
+          longitude: -117.237880
+        },
+        radius: 20,
+        hints: [
+          "Seek the bridge where steel trusses span the San Luis Rey River, a testament to California's industrial heritage.",
+          "The crows soar between emerald trusses, their wings brushing century-old steel that echoes with hollow songs",
+          "Follow your guides to where the old highway once carried Model T's across rushing waters, now a silent sentinel of progress.",
+          "Listen for the rhythmic caw of crows as they dance between iron beams that have witnessed a hundred California summers"
+        ],
+        completionFeedback: `As you approach the Historic San Luis Rey Bridge, your corvid guides weave gracefully through its massive green trusses, their calls echoing off the ancient steel.\n
+      The bridge stands as a proud testament to early 20th-century engineering, its weathered frame still strong against the California sky.\n
+      The gentle rush of the San Luis Rey River below mingles with the sound of crow wings, creating a haunting melody of past and present.`,
+        repeatable: true,
+      },
+      {
+        id: '5',
+        type: 'travel',
+        title: `The Valley's Crown`,
+        description: `TCrows wheel high o'er twin courtyards fair,\n
+          Where waters once drew frogs to dare.\n
+          A rhyme unfolds in morning light,\n
+          Where history's walls gleam soft and bright:\n
+          
+          Named for waters pooled in clay,\n
+          Where native tongues still softly say\n
+          "Wakhavumi" - frog pond's home,\n
+          Where Luiseño people used to roam.\n
+          
+          Twenty-eight rooms of earth and sun,\n
+          Where two worlds' stories came to run.\n
+          Hispanic grace meets Yankee pride,\n
+          In corridors where legends ride.\n
+          
+          Bandini's daughter danced these halls,\n
+          While Couts built high these adobe walls.\n
+          What am I, this mansion grand,\n
+          Where cultures blend on ancient land?`,
+        question: `Find the location where two worlds merged into one majestic adobe estate.`,
+        targetLocation: {
+          latitude: 33.233780,
+          longitude: -117.253636
+        },
+        radius: 20,
+        hints: [
+          "Seek the place where adobe bricks still carry the fingerprints of those who shaped them, and the scent of sage mingles with history.",
+          "The crows circle a building where the past whispers through sunlit courtyards and clay-tiled roofs.",
+          "Listen for echoes of Ysidora's fandangos in the corridors where California's past still dances.",
+          "I'm where the valley's crown shines brightest, a beacon of California's rich cultural tapestry."
+        ],
+        completionFeedback: `As you approach Rancho Guajome Adobe, your crow companions circle the twin courtyards, their shadows dancing across sun-baked walls that have stood witness to over 170 years of California history.\n
+        The air carries the earthy scent of adobe mixed with wild sage and coastal breezes, just as it did when Cave Couts and his bride Ysidora Bandini first made this their home.`,
+        repeatable: true,
+      },
+      {
+        id: '6',
+        type: 'travel',
+        title: `Stage of Stars`,
+        description: `The crows lead on through evening's veil,\n
+          Where drama's songs and laughter sail.\n
+          A riddle floats on twilight air,\n
+          As shadows dance without a care:\n
+          
+          In Brengle's park where hillsides rise,\n
+          A stage joins earth and starlit skies.\n
+          No walls contain the stories here,\n
+          Where summer dreams bloom year by year.\n
+          
+          Since eighty-one, when darkness falls,\n
+          These grounds become fair theater's halls.\n
+          Orchestra swells and voices soar,\n
+          While moonbeams dance on grassy floor.\n
+          
+          Where Shakespeare meets Broadway's bright ways,\n
+          And picnics greet warm summer days.\n
+          What am I, this twilight scene,\n
+          Where stars above meet stars serene?`,
+        question: `Find the location where performances come alive under the stars.`,
+        targetLocation: {
+          latitude: 33.211685,
+          longitude: -117.221440
+        },
+        radius: 20,
+        hints: [
+          "Listen for phantom melodies of seasons past, where countless standing ovations have echoed through the eucalyptus trees.",
+          "Follow your corvid guides as day surrenders to dusk, when stage lights rival the emerging stars.",
+          "Seek the place where blankets spread on grassy slopes become front-row seats to magic.",
+          "The crows know where music mingles with evening breezes, and where Broadway meets California nights."
+        ],
+        completionFeedback: `The crows settle briefly on the empty stage, as if preparing for their own performance.\n
+        But they soon take wing once more, their shadows dancing across the seats like actors crossing the boards.\n
+        What other enchanted spaces await discovery as your journey through Vista's treasures continues?`,
+        repeatable: true,
+      },
+      {
+        id: '7',
+        type: 'travel',
+        title: `Hilltop Haven`,
+        description: `Where art and nature dance in sunlit space,\n
+        Upon the crown where city meets the sky,\n
+        Each path reveals a new enchanting grace,\n
+        As metal sculptures catch each passing eye.\n
+
+        Through gardens themed from worlds both near and far,\n
+        Mediterranean dreams to desert sand,\n
+        The children's path leads to a wishful star,\n
+        While butterflies paint beauty cross the land.\n
+
+        The wise crows circle round the ancient tree,\n
+        That marks the heart of this enlightened ground,\n
+        Where peace bells ring with gentle harmony,\n
+        And wisdom from the labyrinth is found.\n
+
+        In Bonsai Court where time moves slow and sure,\n
+        The masters' careful pruning tells its tale,\n
+        While herbs and flowers offer nature's cure,\n
+        Along the winding hilltop garden trail.`,
+        question: `Follow the crows to find the location where art, nature, and tranquility converge on a hilltop sanctuary with panoramic views of Vista.`,
+        targetLocation: {
+          latitude: 33.210308,
+          longitude: -117.219438
+        },
+        radius: 20,
+        hints: [
+          "Located at the highest point in Brengle Terrace Park",
+          "Look for the metal dinosaur sculptures standing guard among the gardens.",
+          `Seek out "The Three Kahunas," island-inspired sculptures watching over the gardens and the "Mouth of Truth" to test your way.`,
+          "Listen for the gentle ring of peace bells and the laughter of children as you approach this hilltop sanctuary."
+        ],
+        completionFeedback: `A crow alights upon one of the garden's metal sculptures, its dark feathers contrasting with the gleaming artwork as late afternoon sun bathes the hilltop in golden light.\n
+          You've discovered Alta Vista Gardens, Vista's living museum of botanical wonders and artistic expression.\n
+          As the crow takes wing toward your next destination, it circles once around the meditation labyrinth, casting a fleeting shadow across its contemplative paths.\n
+          Take a moment to appreciate this unique blend of nature and human creativity before continuing your quest.`,
+        repeatable: true
+      },
+      {
+        id: '8',
+        type: 'travel',
+        title: `Dewey's Vault`,
+        description: `As twilight falls on Vista's streets,\n
+          A gentle whisper your ears do greet.\n
+          A rhyme unfolds, a playful guide,\n
+          To knowledge's home, where wonders hide:\n
+          
+          In Vista's heart, a treasure stands,\n
+          Where books are keys to far-off lands.\n
+          Its walls, not stone, but welcoming sight,\n
+          Hold stories that spark imagination's light.\n
+          
+          Shelves lined with tales of every kind,\n
+          Adventures waiting for eager minds.\n
+          Dewey's system, a friendly maze,\n
+          Where curious souls spend countless days.\n
+          
+          Here, Twain's wit and Austen's grace,\n
+          Coexist in this special place.\n
+          In quiet corners, readers dream,\n
+          Of worlds beyond, or so they seem.\n
+          
+          Not shop, nor home, this vibrant space,\n
+          Where every visit leaves a trace.\n
+          What am I, this vault of printed lore,\n
+          Where minds can soar and spirits explore?`,
+        question: `Journey to the location described in this riddle.`,
+        targetLocation: {
+          latitude: 33.202101,
+          longitude: -117.232825
+        },
+        radius: 15,
+        hints: [
+          "Dewey's system guides you through a forest of stories, each shelf a new adventure.",
+          "Seek the building where silence whispers knowledge, and every book opens a door to imagination.",
+          "I'm where stories slumber, waiting to be awakened by curious eyes.",
+          "Seek the building where silence whispers knowledge, and the musty scent of aged paper fills the air."
+        ],
+        completionFeedback: `Bravo! The library, though quiet, feels alive with the potential of unexplored worlds and untold tales.\n
+        The crows settle on the rooftop and nearby trees, their dark eyes gleaming with intelligence as if they're the guardians of this literary sanctuary.\n
+        As you stand before the entrance, you feel a gentle tug urging you onwards.\n
+        The crows ruffle their feathers, preparing to take flight once more.\n
+        Their restlessness hints that your journey through Vista's hidden wonders has only just begun, with more mysterious locations yet to uncover.`,
+        repeatable: true,
+      },
+      {
+        id: '9',
+        type: 'travel',
+        title: 'Echoes of the Ranchos',
+        description: `Crows guide you to a place where time stands still,\n
+          A testament to California's iron will.\n
+          Adobe walls whisper tales of old,\n
+          Of ranchos vast and vaqueros bold.\n
+          
+          Built by hand in days long past,\n
+          A homestead meant for years to last.\n
+          Its name speaks of a "view so fine,"\n
+          Where history and beauty intertwine.\n
+          
+          Ghosts of cattle barons linger here,\n
+          Their legacy persisting year after year.\n
+          Not a castle, nor a common shack,\n
+          But a glimpse of life from way back.\n
+          
+          What am I, this relic standing proud,\n
+          Where past and present are allowed?\n
+          A ranch house from a bygone age,\n
+          California's history on display.`,
+        question: `Find the location described in the riddle, where California's rancho era comes to life.`,
+        targetLocation: {
+          latitude: 33.204805,
+          longitude: -117.235027
+        },
+        radius: 20,
+        hints: [
+          "Seek the place where vaqueros' spurs once jingled, now echoing with the caws of your corvid guides.",
+          "I'm where the past and present converge, a living monument to California's history.",
+          "The crows circle a building that stands as a testament to the golden age of ranchos.",
+          "Follow the crows to where adobe bricks stand strong against time's tide, their earthen scent mingling with the trees of wild wood."
+        ],
+        completionFeedback: `As you approach the adobe ranch house, the crows alight on the roof, their eyes gleaming with otherworldly knowledge.\n
+        The building seems to hum with the echoes of a bygone era, the spirit of California's rancho days still alive within its walls.\n
+        The crows caw in unison, as if urging you to listen to the whispers of history carried on the wind.\n
+        Your journey through Vista's hidden wonders has uncovered another layer of the town's rich tapestry, but more secrets await your discovery.`,
+        repeatable: true,
+      }
+    ]
+  },
 ];
