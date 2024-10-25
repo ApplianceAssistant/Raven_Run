@@ -336,7 +336,7 @@ h3 {
 .hunt-analysis {
   margin: auto;
   margin-top: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   @include theme-aware('background-color', $spooky-accent, $lighter-bg);
   width: fit-content;
   padding: 5px;
@@ -982,9 +982,9 @@ form {
 
 
 .legal-disclaimer {
-  font-size: 0.9em;
-  color: #666;
-  margin-bottom: 20px;
+  font-size: 1rem;
+  @include theme-aware('color', $text-color, $light-text-color);
+  margin-bottom: 5px;
   text-align: center;
   padding: 0 10px;
 }

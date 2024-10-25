@@ -89,7 +89,16 @@ const HuntDescription = () => {
                         </div>
                     )}
                     <ScrollableContent maxHeight="60vh">
-                        <p>{hunt.description}</p>
+                        {hunt.description && (
+                            <p className="challenge-description">
+                                {hunt.description.split('\n').map((line, index) => (
+                                    <React.Fragment key={index}>
+                                        {line}
+                                        {index < hunt.description.split('\n').length - 1 && <br />}
+                                    </React.Fragment>
+                                ))}
+                            </p>
+                        )}
                     </ScrollableContent>
                 </div>
             </div>
