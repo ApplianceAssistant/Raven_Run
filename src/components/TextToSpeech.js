@@ -25,8 +25,8 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   };
 
   useEffect(() => {
-    const textContent = typeof text === 'string' 
-      ? text 
+    const textContent = typeof text === 'string'
+      ? text
       : React.isValidElement(text)
         ? extractTextFromReactElement(text)
         : '';
@@ -35,28 +35,42 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   }, [text]);
 
   const speakSentence = useCallback(() => {
-    if (currentSentenceIndexRef.current >= sentencesRef.current.length) {
-      setIsSpeaking(false);
+    if (!window.speechSynthesis) {
+      console.error('Speech synthesis not supported');
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(sentencesRef.current[currentSentenceIndexRef.current]);
-    const selectedVoice = getSelectedVoice();
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
+    try {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+
+      if (currentSentenceIndexRef.current >= sentencesRef.current.length) {
+        setIsSpeaking(false);
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(sentencesRef.current[currentSentenceIndexRef.current]);
+      const selectedVoice = getSelectedVoice();
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+
+      utterance.onend = () => {
+        currentSentenceIndexRef.current++;
+        speakSentence();
+      };
+
+      utterance.onerror = (event) => {
+        console.error('SpeechSynthesisUtterance error:', event);
+        if (event.error === 'not-allowed') {
+          console.log('Speech synthesis permission denied. Please ensure you interact with the page first.');
+          // Optionally show a user-friendly message to click a button or interact with the page
+        }
+      };
+      window.speechSynthesis.speak(utterance);
+    } catch (error) {
+      console.error('Error cancelling speech:', error);
     }
-
-    utterance.onend = () => {
-      currentSentenceIndexRef.current++;
-      speakSentence();
-    };
-
-    utterance.onerror = (event) => {
-      console.error('SpeechSynthesisUtterance error:', event);
-      //setIsSpeaking(false);
-    };
-
-    window.speechSynthesis.speak(utterance);
   }, [getSelectedVoice]);
 
   const speak = useCallback(() => {
