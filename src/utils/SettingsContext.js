@@ -4,10 +4,10 @@ const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState(() => ({
-    isDarkMode: JSON.parse(localStorage.getItem('darkMode') || 'true'),
+    isDarkMode: JSON.parse(localStorage.getItem('darkMode') || 'false'),
     isMetric: JSON.parse(localStorage.getItem('unitSystem') || 'false'),
     selectedVoiceURI: localStorage.getItem('selectedVoiceURI') || '',
-    autoSpeak: JSON.parse(localStorage.getItem('autoSpeak') || 'true'),
+    autoSpeak: JSON.parse(localStorage.getItem('autoSpeak') || 'false'),
   }));
 
   useEffect(() => {
