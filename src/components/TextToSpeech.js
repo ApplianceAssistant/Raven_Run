@@ -8,6 +8,7 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const { getSelectedVoice } = useVoiceManagement();
   const { settings, updateSetting } = useSettings();
+  const autoSpeakRef = useRef(settings.autoSpeak);
   const sentencesRef = useRef([]);
   const currentSentenceIndexRef = useRef(0);
 
@@ -69,6 +70,7 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   }, [speakSentence]);
 
   useEffect(() => {
+    console.warn("settings.autoSpeak", settings.autoSpeak);
     if (settings.autoSpeak && autoPlayTrigger) {
       speak();
     }

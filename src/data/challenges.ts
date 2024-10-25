@@ -669,19 +669,23 @@ export const paths: Path[] = [
       {
         id: '1',
         type: 'travel',
-        title: `Curtains of Shadow`,
-        description: `Where shadows dance on ancient stage,\n
-          And ghosts still turn the tattered page,\n
-          A landmark looms with darkened grace,\n
-          Time-haunted brick marks this cursed place.\n
-          Through windows cracked and doors that creak,\n
-          Where whispered tales of players speak,\n
-          The crows perch high on marquee dim,\n
-          Like specters from a midnight hymn.\n
-          When sailors' spirits still remain,\n
-          Their phantom shows play once again,\n
-          Now actors share their sacred space,\n
-          With those who left no mortal trace.`,
+        title: `Stage of Time`,
+        description: `Where Coast and Mission's paths align,\n
+          Art Deco beauty stands through time,\n
+          With weathered brick and classic face,\n
+          A landmark claims its rightful place.\n
+          Blue lamps light the coastal way,\n
+          Where stories live from day to day,\n
+          The crows above keep watchful eye,\n
+          On history's stage beneath the sky.\n
+          Since nineteen-thirty-six they say,\n
+          This hall has seen both work and play,\n
+          From sailors' shows in years of war,\n
+          To modern tales behind its door.\n
+          Community's heart still beats within,\n
+          Where curtains rise and tales begin,\n
+          Beneath the marquee's gleaming light,\n
+          Where past and present both unite.`,
         question: `Seek the historic theater where dark-winged crows gather above, guarding secrets of performances past and present.`,
         targetLocation: {
           latitude: 33.196377,
@@ -691,14 +695,12 @@ export const paths: Path[] = [
         hints: [
           "Look where Mission Avenue meets Coast Highway, where shadows lengthen at dusk",
           "Seek the twin-sided marquee that has guided theater-goers for generations",
-          "The building broods on the corner, its marquee flickering with memories",
+          "This building dates to 1936 and remains an active community theater venue",
           "Built in 1936, local legends speak of performers who never truly left the stage"
         ],
-        completionFeedback: `A murder of crows scatters from their perch atop the ominous marquee, their wings cutting through the evening mist as you approach the Sunshine Brooks Theater.\n
-          Their echoing calls seem to awaken something within the old walls - perhaps the spirits of performances past, stirring behind the darkened windows.\n
-          The facade looms before you, its Art Deco features casting strange shadows in the fading light.\n
-          Through the entrance, you might hear the whispered echoes of long-ago applause, the ghostly remnants of countless shows that have graced this historic stage.\n
-          Your corvid guides circle overhead once more, their silhouettes stark against the darkening sky to the east. They beckon you onward, where the line between past and present blurs like footlights in the fog`,
+        completionFeedback: `As you approach the Sunshine Brooks Theater, watchful crows observe from their perch above the iconic marquee, their presence a testament to the enduring spirit of this historic venue.\n
+          Originally built in 1936, this theater served as entertainment for both civilians and military personnel during World War II, evolving through the decades to become a cherished community arts center.\n
+          The crows take wing, circling once before heading east, where more historical treasures await your discovery in downtown Oceanside.`,
         repeatable: true
       },
       {
@@ -790,81 +792,82 @@ export const paths: Path[] = [
       {
         id: '4',
         type: 'travel',
-        title: `The River Crossing`,
-        description: `The crows glide low through valley mist,\n
-        Above steel spans time hasn't kissed.\n
-        A rhyme emerges as wings take flight,\n
-        Over waters flowing day and night:\n
+        title: `The River's Guardian`,
+        description: `The crows glide low through morning air,\n
+        Where concrete spans the sandy lair.\n
+        A tale unfolds as wings take flight,\n
+        Above the riverbed and at great height.\n
         
         Where Mission bells once marked the way,\n
-        A steel giant guards the San Luis Rey.\n
-        Born of rivets, wrought by hand,\n
-        When first machines roamed this land.\n
+        A sentinel guards the San Luis Rey.\n
+        Born of progress, built with pride,\n
+        When first machines crossed countryside.\n
         
-        Though cars now cross on modern stone,\n
-        These green trusses stand alone,\n
-        Silent witness to times past,\n
-        Where footsteps now are all that pass.\n
+        Through canyon walls and golden sand,\n
+        This weathered crossing still does stand,\n
+        Silent witness to days of old,\n
+        Where stories of the past unfold.\n
         
-        Her iron bones still reach shore to shore,\n
-        Through floods and quakes and times of yore.\n
-        What am I, this time-worn friend,\n
-        Where ancient paths and present blend?`,
-        question: `Find the location described in the riddle, where the past and present converge over the San Luis Rey River.`,
+        Her sturdy frame joins shore to shore,\n
+        Above the wash from days of yore.\n
+        What am I, this faithful friend,\n
+        Where Mission Road and canyon blend?`,
+        question: `Find the historic bridge where crows soar above the San Luis Rey River, guarding memories of travelers past.`,
         targetLocation: {
           latitude: 33.259975,
           longitude: -117.237880
         },
         radius: 20,
         hints: [
-          "Seek the bridge where steel trusses span the San Luis Rey River, a testament to California's industrial heritage.",
-          "The crows soar between emerald trusses, their wings brushing century-old steel that echoes with hollow songs",
-          "Follow your guides to where the old highway once carried Model T's across rushing waters, now a silent sentinel of progress.",
-          "Listen for the rhythmic caw of crows as they dance between iron beams that have witnessed a hundred California summers"
+          "Look for the old bridge spanning the San Luis Rey River, where concrete arches tell tales of California's past",
+          "Find where the crows circle above weathered railings, watching the river's endless journey below",
+          "Seek the historic crossing where the old highway once carried travelers on their way to Mission San Luis Rey",
+          "This bridge has watched over the river since the early days of automobiles, now standing as a peaceful pedestrian passage"
         ],
-        completionFeedback: `As you approach the Historic San Luis Rey Bridge, your corvid guides weave gracefully through its massive green trusses, their calls echoing off the ancient steel.\n
-      The bridge stands as a proud testament to early 20th-century engineering, its weathered frame still strong against the California sky.\n
-      The gentle rush of the San Luis Rey River below mingles with the sound of crow wings, creating a haunting melody of past and present.`,
-        repeatable: true,
+        completionFeedback: `As you approach the Historic San Luis Rey Bridge, your corvid guides circle gracefully above its weathered span, their calls echoing across the valley.\n
+      The bridge stands as a testament to early California engineering, its solid frame a reminder of when the first automobiles ventured inland to the Mission.\n
+      Below, the San Luis Rey River continues its ancient journey, while overhead, the crows beckon you onward to discover more hidden history.`,
+        repeatable: true
       },
       {
         id: '5',
         type: 'travel',
-        title: `The Valley's Crown`,
-        description: `TCrows wheel high o'er twin courtyards fair,\n
-          Where waters once drew frogs to dare.\n
-          A rhyme unfolds in morning light,\n
-          Where history's walls gleam soft and bright:\n
+        title: `The Adobe's Secret`,
+        description: `Where ancient oaks cast shadows deep,\n
+          An adobe crown does secrets keep.\n
+          In morning light, the story flows,\n
+          As watching crows share what they know:\n
           
-          Named for waters pooled in clay,\n
-          Where native tongues still softly say\n
-          "Wakhavumi" - frog pond's home,\n
-          Where Luiseño people used to roam.\n
+          From Luiseño wisdom old,\n
+          Comes "Wakhavumi's" tale untold -\n
+          Where frogs once sang by waters clear,\n
+          A rancho rose in frontier year.\n
           
-          Twenty-eight rooms of earth and sun,\n
-          Where two worlds' stories came to run.\n
-          Hispanic grace meets Yankee pride,\n
-          In corridors where legends ride.\n
+          Twenty-eight rooms of Spanish grace,\n
+          In eighteen-fifty-two found its place.\n
+          When Couts and Bandini's love did bring,\n
+          Two cultures' hopes on wedding ring.\n
           
-          Bandini's daughter danced these halls,\n
-          While Couts built high these adobe walls.\n
-          What am I, this mansion grand,\n
-          Where cultures blend on ancient land?`,
-        question: `Find the location where two worlds merged into one majestic adobe estate.`,
+          Twin courtyards bask in golden light,\n
+          Where history's walls still stand so bright.\n
+          What am I, this proud domain,\n
+          Where old California's dreams remain?`,
+        question: `Find the historic adobe estate where Spanish and American traditions merged beneath the watchful eyes of crows.`,
         targetLocation: {
           latitude: 33.233780,
           longitude: -117.253636
         },
         radius: 20,
         hints: [
-          "Seek the place where adobe bricks still carry the fingerprints of those who shaped them, and the scent of sage mingles with history.",
-          "The crows circle a building where the past whispers through sunlit courtyards and clay-tiled roofs.",
-          "Listen for echoes of Ysidora's fandangos in the corridors where California's past still dances.",
-          "I'm where the valley's crown shines brightest, a beacon of California's rich cultural tapestry."
+          "Look for the majestic adobe with its distinctive cupola tower rising above twin courtyards",
+          "Find where stone-lined paths lead to arched corridors, sheltered by ancient pepper trees",
+          "Seek the 1852 rancho where Cave Couts built a twenty-eight room mansion for his bride Ysidora",
+          "Your destination stands proud against the hills, its adobe walls and tile roofs telling tales of California's Mexican and American heritage"
         ],
-        completionFeedback: `As you approach Rancho Guajome Adobe, your crow companions circle the twin courtyards, their shadows dancing across sun-baked walls that have stood witness to over 170 years of California history.\n
-        The air carries the earthy scent of adobe mixed with wild sage and coastal breezes, just as it did when Cave Couts and his bride Ysidora Bandini first made this their home.`,
-        repeatable: true,
+        completionFeedback: `As you discover Rancho Guajome Adobe, the crows soar above its distinctive cupola, guardians of this historic 1852 estate.\n
+        Here, Cave Johnson Couts created a magnificent home for his wife Ysidora Bandini, blending Mexican and American architectural traditions in twenty-eight elegant rooms.\n
+        The crows guide your gaze across the twin courtyards, where the past lives on in every carefully preserved adobe brick and hand-laid tile.`,
+        repeatable: true
       },
       {
         id: '6',
@@ -997,44 +1000,56 @@ export const paths: Path[] = [
       {
         id: '9',
         type: 'travel',
-        title: 'Echoes of the Ranchos',
-        description: `Crows guide you to a place where time stands still,\n
-          A testament to California's iron will.\n
-          Adobe walls whisper tales of old,\n
-          Of ranchos vast and vaqueros bold.\n
+        title: 'Vista of Yesterday',
+        description: `Crows soar high o'er ancient ground,\n
+          Where Machado's dream was found.\n
+          In eighteen-forty-five they say,\n
+          These walls rose up in summer's sway.\n
           
-          Built by hand in days long past,\n
-          A homestead meant for years to last.\n
-          Its name speaks of a "view so fine,"\n
-          Where history and beauty intertwine.\n
+          First a grant from Mexico's hand,\n
+          Then became American land.\n
+          Where sheep once grazed on hillsides green,\n
+          And vaqueros' skills were seen.\n
           
-          Ghosts of cattle barons linger here,\n
-          Their legacy persisting year after year.\n
-          Not a castle, nor a common shack,\n
-          But a glimpse of life from way back.\n
+          Cave Couts Junior's time came next,\n
+          Adding rooms and broader specs.\n
+          A trading post where tribes would meet,\n
+          Where cultures merged on this retreat.\n
           
-          What am I, this relic standing proud,\n
-          Where past and present are allowed?\n
-          A ranch house from a bygone age,\n
-          California's history on display.`,
-        question: `Find the location described in the riddle, where California's rancho era comes to life.`,
+          From Luiseño paths of old,\n
+          To Spanish days and ranchlands bold,\n
+          What am I, this treasured place,\n
+          Where three worlds left their lasting grace?`,
+        question: `Find the historic adobe where Native American, Spanish, and American histories intertwined beneath Vista's skies.`,
         targetLocation: {
           latitude: 33.204805,
           longitude: -117.235027
         },
         radius: 20,
         hints: [
-          "Seek the place where vaqueros' spurs once jingled, now echoing with the caws of your corvid guides.",
-          "I'm where the past and present converge, a living monument to California's history.",
-          "The crows circle a building that stands as a testament to the golden age of ranchos.",
-          "Follow the crows to where adobe bricks stand strong against time's tide, their earthen scent mingling with the trees of wild wood."
+          "Look for the adobe where Jesus Machado's 1845 vision still stands against the California sky",
+          "Find where the old trading post once welcomed Luiseño traders and Spanish vaqueros alike",
+          "Seek the ranch house where Cave Couts Jr expanded the original Mexican-era adobe",
+          "Your destination tells the story of California's transition from Mexican land grant to American territory"
         ],
-        completionFeedback: `As you approach the adobe ranch house, the crows alight on the roof, their eyes gleaming with otherworldly knowledge.\n
-        The building seems to hum with the echoes of a bygone era, the spirit of California's rancho days still alive within its walls.\n
-        The crows caw in unison, as if urging you to listen to the whispers of history carried on the wind.\n
-        Your journey through Vista's hidden wonders has uncovered another layer of the town's rich tapestry, but more secrets await your discovery.`,
-        repeatable: true,
+        completionFeedback: `As you discover Rancho Buena Vista Adobe, the crows circle this witness to California's transformative years.\n
+        Built in 1845 by Jesus Machado on an original Mexican land grant, these walls have watched California change from Mexican territory to American state.\n
+        The crows guide your eyes to the historic trading post where Luiseño people, Spanish settlers, and American pioneers once gathered, each adding their own chapter to this adobe's remarkable story.`,
+        repeatable: true
+      },
+      {
+        id: "10",
+        type: "story",
+        title: "",
+        storyText: `Congratulations, intrepid explorer! You've completed a remarkable journey through North County's hidden histories and sacred spaces.\n
+          The crows that guided you have shared their ancient wisdom, revealing the layers of stories that make this land special - from the mighty Mission San Luis Rey to the humble pioneer cemetery, from historic adobes to modern gardens.\n
+          Each stop on your journey has added a thread to the tapestry of North County's tale: Spanish missionaries and Luiseño traditions, Victorian travelers and vaqueros, actors and artists, pioneers and dreamers.\n
+          Take a moment to reflect on all you've discovered. Perhaps gather your fellow adventurers for a group photo at your favorite location - your own moment of history in these historic places. Share your adventure with #CrowTours and join the community of explorers who've uncovered these hidden treasures.\n
+          The crows circle one final time, their wings catching the golden California light. They seem to nod in approval - you've proven yourself worthy of the secrets they've shared. Though this journey ends, there are always more mysteries to uncover in North County's hidden corners.\n
+          Until our paths cross again, keep exploring, keep discovering, and keep sharing the stories of this remarkable land.`,
+        question: "",
+        repeatable: true
       }
     ]
-  },
+  }
 ];

@@ -23,14 +23,14 @@ const ModalAgreement = ({ isOpen, onAgree, title, content }) => {
         <div className="modal-header">
           <h2>{title}</h2>
         </div>
-        <ScrollableContent maxHeight="60vh">
+        <ScrollableContent maxHeight="55vh">
           <div className={`modal-body`}>
             {content}
           </div>
         </ScrollableContent>
 
         <p className="legal-disclaimer">
-        By using CrowTours.com or participating in any scavenger hunt, you confirm that you have read, understood, and agreed to this disclaimer.
+        By using CrowTours.com, you confirm that you have read, understood, and agreed to this disclaimer.
         </p>
         <button onClick={onAgree} className="agree-button">Agree</button>
       </div>
