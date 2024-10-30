@@ -90,8 +90,8 @@ function AppContent() {
     message: ''
   });
   const [authState, setAuthState] = useState({
-    //olways ligged in for testing
-    isLoggedIn: true,
+    //always logged in for testing
+    isLoggedIn: false,
     user: null,
     isLoading: true,
   });
