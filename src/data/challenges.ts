@@ -258,35 +258,35 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "8",
-        type: "textInput",
-        title: "Don't Speak Its Name",
-        description: `Standing before the playhouse, you feel the weight of centuries of performances pressing in around you. A poster catches your eye, but the title is obscured. As you strain to read it, a ghostly whisper fills your mind:\n
-        A Scottish king, ambition's slave,\n
-        His lady's hands no water can lave.\n
-        Witches three with prophecy dark,\n
-        Set forth a path with tragedy's mark.\n
-        But hush! Its name must not be spoken,\n
-        Lest old theater curses be awoken.\n
-        Superstition holds its sway,\n
-        O'er actors who would this role play.`,
-        question: "What cursed play, by Bard's own hand, will soon upon these boards expand?",
-        correctAnswer: "Macbeth",
-        hints: [
-          "The Bard's tale of a thane turned king, ambition's price paid in full.",
-          "Scottish moors and moving forests set the scene for this tragedy.",
-          "Actors dare not speak its name within the theater's walls.",
-          "Double, double toil and trouble; fire burn and cauldron bubble."
+        "id": "8",
+        "type": "textInput",
+        "title": "A Spirit's Warning",
+        "description": `Standing before the playhouse, a winter's chill grips your heart. A weathered poster flutters in an unseen breeze, its message unclear. As you approach, ghostly bells toll in your mind:\n
+        A miser's heart turned cold as frost,\n
+        Through spirits three, not all is lost.\n
+        Past and present dance through night,\n
+        Future's chains a fearsome sight.\n
+        In Christmas snow his tale unfolds,\n
+        As midnight's bell its message holds.\n
+        Redemption waits with morning's light,\n
+        For him who learns to set things right.`,
+        "question": "What redemptive tale, brought to these boards anew, promises transformation as the night hours grew?",
+        "correctAnswer": "Ebenezer",
+        "hints": [
+          "A Christmas tale of ghostly intervention and change of heart.",
+          "Three spirits guide a lonely soul through time's corridor.",
+          "Counting houses and chains of greed give way to generosity.",
+          "God bless us, every one!"
         ],
-        feedbackTexts: {
-          correct: "As 'Macbeth' forms on your lips, a chill breeze whistles through the theater's eaves. Your crow guide ruffles its feathers, as if sensing the weight of centuries of superstition. In naming the unnamed, you've brushed against the veil between our world and that of the stage. The playhouse seems to hold its breath, waiting to see what consequences your boldness might bring.",
-          incorrect: [
-            "The theater's shadows deepen, and a disembodied sigh echoes from within. Perhaps another moment's reflection will reveal the cursed play's true title.",
-            "A spectral applause echoes faintly, tinged with anticipation. The correct answer awaits your next attempt, but choose wisely - the spirits grow restless.",
-            "Your crow guide caws three times, like a dark omen. The air grows colder, urging you to consider carefully and try again before the final curtain falls."
+        "feedbackTexts": {
+          "correct": "As 'Ebenezer' echoes in the air, distant bells chime softly. Your crow guide shuffles closer, as if seeking warmth against winter's memory. The playhouse seems to glow with an inner light, promising tales of redemption and renewal within its walls.",
+          "incorrect": [
+            "A cold wind whispers past, carrying echoes of chains. Perhaps another moment's reflection will reveal the transformative tale's true name.",
+            "Ghostly laughter mingles with the sound of counting coins. The correct answer awaits your next attempt, but choose wisely - the spirits grow impatient.",
+            "Your crow guide pecks at frozen ground, like marking time's passage. Consider carefully and try again before the night's last bell tolls."
           ]
         },
-        repeatable: true
+        "repeatable": true
       },
       {
         id: "9",
