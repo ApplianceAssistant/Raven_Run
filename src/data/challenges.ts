@@ -258,66 +258,38 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "8",
-        type: "textInput",
-        title: "Don't Speak Its Name",
-        description: `Standing before the playhouse, you feel the weight of centuries of performances pressing in around you. A poster catches your eye, but the title is obscured. As you strain to read it, a ghostly whisper fills your mind:\n
-        A Scottish king, ambition's slave,\n
-        His lady's hands no water can lave.\n
-        Witches three with prophecy dark,\n
-        Set forth a path with tragedy's mark.\n
-        But hush! Its name must not be spoken,\n
-        Lest old theater curses be awoken.\n
-        Superstition holds its sway,\n
-        O'er actors who would this role play.`,
-        question: "What cursed play, by Bard's own hand, will soon upon these boards expand?",
-        correctAnswer: "Macbeth",
-        hints: [
-          "The Bard's tale of a thane turned king, ambition's price paid in full.",
-          "Scottish moors and moving forests set the scene for this tragedy.",
-          "Actors dare not speak its name within the theater's walls.",
-          "Double, double toil and trouble; fire burn and cauldron bubble."
+        "id": "8",
+        "type": "textInput",
+        "title": "A Spirit's Warning",
+        "description": `Standing before the playhouse, a winter's chill grips your heart. A weathered poster flutters in an unseen breeze, its message unclear. As you approach, ghostly bells toll in your mind:\n
+        A miser's heart turned cold as frost,\n
+        Through spirits three, not all is lost.\n
+        Past and present dance through night,\n
+        Future's chains a fearsome sight.\n
+        In Christmas snow his tale unfolds,\n
+        As midnight's bell its message holds.\n
+        Redemption waits with morning's light,\n
+        For him who learns to set things right.`,
+        "question": "What redemptive tale, brought to these boards anew, promises transformation as the night hours grew?",
+        "correctAnswer": "Ebenezer",
+        "hints": [
+          "A Christmas tale of ghostly intervention and change of heart.",
+          "Three spirits guide a lonely soul through time's corridor.",
+          "Counting houses and chains of greed give way to generosity.",
+          "God bless us, every one!"
         ],
-        feedbackTexts: {
-          correct: "As 'Macbeth' forms on your lips, a chill breeze whistles through the theater's eaves. Your crow guide ruffles its feathers, as if sensing the weight of centuries of superstition. In naming the unnamed, you've brushed against the veil between our world and that of the stage. The playhouse seems to hold its breath, waiting to see what consequences your boldness might bring.",
-          incorrect: [
-            "The theater's shadows deepen, and a disembodied sigh echoes from within. Perhaps another moment's reflection will reveal the cursed play's true title.",
-            "A spectral applause echoes faintly, tinged with anticipation. The correct answer awaits your next attempt, but choose wisely - the spirits grow restless.",
-            "Your crow guide caws three times, like a dark omen. The air grows colder, urging you to consider carefully and try again before the final curtain falls."
+        "feedbackTexts": {
+          "correct": "As 'Ebenezer' echoes in the air, distant bells chime softly. Your crow guide shuffles closer, as if seeking warmth against winter's memory. The playhouse seems to glow with an inner light, promising tales of redemption and renewal within its walls.",
+          "incorrect": [
+            "A cold wind whispers past, carrying echoes of chains. Perhaps another moment's reflection will reveal the transformative tale's true name.",
+            "Ghostly laughter mingles with the sound of counting coins. The correct answer awaits your next attempt, but choose wisely - the spirits grow impatient.",
+            "Your crow guide pecks at frozen ground, like marking time's passage. Consider carefully and try again before the night's last bell tolls."
           ]
         },
-        repeatable: true
+        "repeatable": true
       },
       {
         id: "9",
-        type: "travel",
-        title: "Echo of a Bygone Era",
-        description: `The crows lead you through Shelby County, their wings brushing against the crisp autumn air. As you follow, a whisper of the past reaches your ears:\n
-          In the shadow of progress, it stands alone,\n
-          Where coin clicks still spark connection's tone.\n
-          Before a diner where breakfasts bloom,\n
-          It waits, a beacon midst digital gloom.\n
-          Once the sole lifeline, with operators' aid,\n
-          Now rare, but its dial tone hasn't strayed.\n
-          Seek this guardian of tales untold,\n
-          A working relic from the days of old.`,
-        question: "Find the lone survivor of the communication revolution described in the riddle.",
-        targetLocation: {
-          latitude: 38.190568,
-          longitude: -85.091241
-        },
-        radius: 15,
-        hints: [
-          "Look for a coin-operated time capsule, once the lifeblood of long-distance dialogue.",
-          "Its domain lies before a humble establishment where dawn's first light meets the aroma of delicious home-cooked breakfasts.",
-          "Seek an anachronism, a stubborn holdout against the tide of progress in our world of pocket-sized connectivity.",
-          "The crows circle a structure that once connected countless lives, now standing silent amidst the bustle of modern communication."
-        ],
-        completionFeedback: "As you approach the solitary payphone, a wave of nostalgia washes over you. The crows perch atop the booth, their eyes reflecting the ghostly images of countless past conversations. You've found this relic of yesteryear, but its secrets are yet to be fully unveiled. What stories might this silent sentinel hold?",
-        repeatable: true
-      },
-      {
-        id: "10",
         type: "travel",
         title: "The Chainsaw Surgeon",
         description: `The crows guide you through Shelby's historic landscape, their wings brushing against the whispers of the past. A rhyme forms in your mind:\n
@@ -349,7 +321,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "11",
+        id: "10",
         type: "textInput",
         title: "The Surgeon's Mark",
         description: `Standing before the impressive chainsaw carving, you're struck by its powerful presence.\n
@@ -381,11 +353,10 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "12",
+        id: "11",
         type: "travel",
         title: "Guardian of Grain",
         description: `The murder of crows guides you through Shelbyville's streets, their dark forms stark against the moonlit sky. As you follow, an enigmatic verse forms in your mind:\n
-
           Where farmland meets artistic flair,\n
           A steed of voids stands proud and rare.\n
           Before stone sentinels, cylindrical and tall,\n
@@ -415,7 +386,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "13",
+        id: "12",
         type: "multipleChoice",
         title: "Voids of Vision",
         description: `Standing before the ethereal equine sculpture, you're struck by its surreal presence against the backdrop of the imposing silos. The open framework of steel outlines a horse's form, allowing glimpses of the sky and silos through its body. As you move around it, the interplay of solid and void creates an ever-changing silhouette. Your crow companions hop closer, peering curiously through the sculpture's empty spaces.\n
@@ -455,7 +426,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: '14',
+        id: '13',
         type: 'travel',
         title: "Fortress of Forgotten Freedom",
         description: `As night deepens, your crow guides lead you through Shelbyville's shadowy streets. Their urgency grows as you approach your next destination. A haunting verse forms in your mind:\n
@@ -487,7 +458,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: '15',
+        id: '14',
         type: 'multipleChoice',
         title: "Portals to the Past",
         description: `Standing before the imposing old jail, your gaze is drawn to its weathered façade. The crows perch on the green-capped towers, their eyes glinting with spectral knowledge. As you study the building's face on Washington Street, a whispered verse reaches your ears:\n
@@ -520,7 +491,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: '16',
+        id: '15',
         type: 'travel',
         title: "Brew of Creativity",
         description: `As dawn breaks over Shelbyville, your crow guides lead you towards a hub of local culture and warmth. The aroma of freshly roasted coffee beans wafts through the air, carrying with it whispers of art and community. A rhythmic verse forms in your mind:\n
@@ -554,7 +525,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "17",
+        id: "16",
         type: "travel",
         title: "Chronicle of Shadows",
         description: `As dawn approaches, your corvid guides lead you through the lightening streets of Shelbyville.\n
@@ -590,7 +561,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "18",
+        id: "17",
         type: "story",
         title: "Echoes of Shelby",
         storyText: `Standing before the Shelby County Life Magazine building, you feel the weight of your nocturnal journey pressing upon you.\n
