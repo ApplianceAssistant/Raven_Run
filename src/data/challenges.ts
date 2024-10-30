@@ -291,34 +291,6 @@ export const paths: Path[] = [
       {
         id: "9",
         type: "travel",
-        title: "Echo of a Bygone Era",
-        description: `The crows lead you through Shelby County, their wings brushing against the crisp autumn air. As you follow, a whisper of the past reaches your ears:\n
-          In the shadow of progress, it stands alone,\n
-          Where coin clicks still spark connection's tone.\n
-          Before a diner where breakfasts bloom,\n
-          It waits, a beacon midst digital gloom.\n
-          Once the sole lifeline, with operators' aid,\n
-          Now rare, but its dial tone hasn't strayed.\n
-          Seek this guardian of tales untold,\n
-          A working relic from the days of old.`,
-        question: "Find the lone survivor of the communication revolution described in the riddle.",
-        targetLocation: {
-          latitude: 38.190568,
-          longitude: -85.091241
-        },
-        radius: 15,
-        hints: [
-          "Look for a coin-operated time capsule, once the lifeblood of long-distance dialogue.",
-          "Its domain lies before a humble establishment where dawn's first light meets the aroma of delicious home-cooked breakfasts.",
-          "Seek an anachronism, a stubborn holdout against the tide of progress in our world of pocket-sized connectivity.",
-          "The crows circle a structure that once connected countless lives, now standing silent amidst the bustle of modern communication."
-        ],
-        completionFeedback: "As you approach the solitary payphone, a wave of nostalgia washes over you. The crows perch atop the booth, their eyes reflecting the ghostly images of countless past conversations. You've found this relic of yesteryear, but its secrets are yet to be fully unveiled. What stories might this silent sentinel hold?",
-        repeatable: true
-      },
-      {
-        id: "10",
-        type: "travel",
         title: "The Chainsaw Surgeon",
         description: `The crows guide you through Shelby's historic landscape, their wings brushing against the whispers of the past. A rhyme forms in your mind:\n
         In Shelby's realm, where history thrives,\n
@@ -349,7 +321,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "11",
+        id: "10",
         type: "textInput",
         title: "The Surgeon's Mark",
         description: `Standing before the impressive chainsaw carving, you're struck by its powerful presence.\n
@@ -381,11 +353,10 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "12",
+        id: "11",
         type: "travel",
         title: "Guardian of Grain",
         description: `The murder of crows guides you through Shelbyville's streets, their dark forms stark against the moonlit sky. As you follow, an enigmatic verse forms in your mind:\n
-
           Where farmland meets artistic flair,\n
           A steed of voids stands proud and rare.\n
           Before stone sentinels, cylindrical and tall,\n
@@ -415,7 +386,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "13",
+        id: "12",
         type: "multipleChoice",
         title: "Voids of Vision",
         description: `Standing before the ethereal equine sculpture, you're struck by its surreal presence against the backdrop of the imposing silos. The open framework of steel outlines a horse's form, allowing glimpses of the sky and silos through its body. As you move around it, the interplay of solid and void creates an ever-changing silhouette. Your crow companions hop closer, peering curiously through the sculpture's empty spaces.\n
@@ -455,7 +426,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: '14',
+        id: '13',
         type: 'travel',
         title: "Fortress of Forgotten Freedom",
         description: `As night deepens, your crow guides lead you through Shelbyville's shadowy streets. Their urgency grows as you approach your next destination. A haunting verse forms in your mind:\n
@@ -487,7 +458,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: '15',
+        id: '14',
         type: 'multipleChoice',
         title: "Portals to the Past",
         description: `Standing before the imposing old jail, your gaze is drawn to its weathered façade. The crows perch on the green-capped towers, their eyes glinting with spectral knowledge. As you study the building's face on Washington Street, a whispered verse reaches your ears:\n
@@ -520,7 +491,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: '16',
+        id: '15',
         type: 'travel',
         title: "Brew of Creativity",
         description: `As dawn breaks over Shelbyville, your crow guides lead you towards a hub of local culture and warmth. The aroma of freshly roasted coffee beans wafts through the air, carrying with it whispers of art and community. A rhythmic verse forms in your mind:\n
@@ -554,7 +525,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "17",
+        id: "16",
         type: "travel",
         title: "Chronicle of Shadows",
         description: `As dawn approaches, your corvid guides lead you through the lightening streets of Shelbyville.\n
@@ -590,7 +561,7 @@ export const paths: Path[] = [
         repeatable: true
       },
       {
-        id: "18",
+        id: "17",
         type: "story",
         title: "Echoes of Shelby",
         storyText: `Standing before the Shelby County Life Magazine building, you feel the weight of your nocturnal journey pressing upon you.\n
