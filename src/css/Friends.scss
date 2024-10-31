@@ -13,7 +13,6 @@
   margin-bottom: 20px;
   min-width: 270px;
   h3 {
-    @include theme-aware('color', $text-color, $light-text-color);
     margin-bottom: 10px;
     text-align: center;
   }
@@ -25,14 +24,12 @@
     justify-content: space-between;
     align-items: center;
     padding: 5px;
-    @include theme-aware('background-color', lighten($dark-bg, 5%), darken($light-bg, 5%));
     margin-bottom: 5px;
     border-radius: 4px;
     
   }
 
   .placeholder-text {
-    @include theme-aware('color', darken($text-color, 20%), lighten($light-text-color, 20%));
     font-style: italic;
     text-align: center;
     padding: 10px;

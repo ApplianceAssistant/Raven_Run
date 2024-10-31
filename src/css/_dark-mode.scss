@@ -1,0 +1,11 @@
+// _dark-mode.scss
+.dark-mode {
+    --page-bg: #1a1a1a;
+    --text-color: #e0e0e0;
+    --button-bg: #444444;
+    --button-text-color: #ffffff;
+    --button-hover-bg: #666666;
+    --shaddow: 0 0 20px rgba(243, 243, 243, 0.5);
+    --sub-nav-bg: #{darken(#1a1a1a, 10%)};
+  }
+  

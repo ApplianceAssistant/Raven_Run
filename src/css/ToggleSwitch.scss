@@ -43,11 +43,11 @@
 }
 
 input:checked + .slider {
-  background-color: $spooky-accent;
+  background-color: $dark-accent;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px $spooky-accent;
+  box-shadow: 0 0 1px $dark-accent;
 }
 
 input:checked + .slider:before {

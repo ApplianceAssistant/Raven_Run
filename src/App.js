@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, createContext } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { ThemeProvider } from './components/ThemeContext';
+import { ThemeProvider } from './utils/ThemeContext';
 import { SettingsProvider } from './utils/SettingsContext';
 import Home from './components/Home';
 import About from './components/About';
@@ -190,6 +190,10 @@ function AppContent() {
             <Route path="/hunt-description/:pathId" element={<HuntDescription />} />
             <Route path="/path/:pathId/challenge/:challengeIndex" element={<PathPage />} />
             <Route path="/congratulations" element={<Congratulations />} />
+            <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/create" element={<Create />} />
+                <Route path="/friends" element={<Friends />} />
             {authState.isLoggedIn && (
               <>
                 <Route path="/profile" element={<Profile />} />

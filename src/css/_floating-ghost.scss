@@ -34,7 +34,7 @@
 
 .floating-icon {
   font-size: 100px; // Adjust size as needed
-  @include theme-aware('color', $text-color, $light-text-color);
+  color: var(--text-color);
   animation: ghost-animation 10s ease-in-out infinite;
   
   i {
@@ -86,7 +86,6 @@
   }
 
   .close-button {
-    @include button-style;
     margin-top: 1rem;
   }
 }

@@ -61,6 +61,7 @@ const GameCreator = () => {
   };
 
   const handleCreateNewPath = () => {
+    //look here setNewPathData is causing an error
     setNewPathData(prev => ({ ...prev, pathId: generateUniquePathId() }));
     setShowPathForm(true);
   };

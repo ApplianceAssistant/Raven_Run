@@ -1,0 +1,11 @@
+// _light-mode.scss
+.light-mode {
+    --page-bg: #ffffff;
+    --text-color: #333333;
+    --button-bg: #007acc;
+    --button-text-color: #ffffff;
+    --button-hover-bg: #005f99;
+    --shadow: 0 0 20px rgba(94, 94, 94, 0.5);
+    --sub-nav-bg: #{darken(#ffffff, 10%)};
+  }
+  

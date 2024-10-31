@@ -100,7 +100,6 @@ function Lobby() {
 
   return (
     <div className="content-wrapper">
-      <div className="spirit-guide large">
         <div className="content">
           <h2 className="contentHeader">Select your Hunt<br /><span style={{ fontSize: '.9em' }}>(more coming soon)</span></h2>
           <ScrollableContent maxHeight="60vh">
@@ -110,7 +109,7 @@ function Lobby() {
           </ScrollableContent>
           {isHuntInProgress() && (
             <div className="center">
-            <button onClick={continueCurrentHunt} className="return-to-hunt-button">
+            <button onClick={continueCurrentHunt}>
               Return to Hunt
             </button>
             </div>
@@ -123,7 +122,6 @@ function Lobby() {
             </span>
           </p>
         </div>
-      </div>
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
