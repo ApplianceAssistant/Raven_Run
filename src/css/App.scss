@@ -2,21 +2,20 @@
 @import 'variables';
 @import 'floating-ghost';
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;700&display=swap');
-@import './light-mode'; // Import light mode styles
-@import './dark-mode';  // Import dark mode styles
+@import './dark-mode'; // Import dark mode styles
 @import './pirate-theme'; // Import pirate theme styles
 @import './fairy-theme'; // Import fairy theme styles
+
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: var(--text-color);
 }
 
 html {
   overflow: hidden;
-  font-family: 'Crimson Text', serif;
+  font-family: var(--font-family);
 }
 
 body {
@@ -24,12 +23,12 @@ body {
   color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
   font-size: 1.3rem;
-  font-family: 'Crimson Text', serif;
+  font-family: var(--font-family);
   line-height: 1.2;
   min-height: 100vh;
   overflow-x: hidden;
 }
-//remove after test
+
 // Button styles
 button {
   background-color: var(--button-bg);
@@ -41,24 +40,95 @@ button {
   transition: all 0.3s ease;
   font-size: 1rem;
   height: 40px;
-}
 
-.submit-button {
-  background-color: rgb(1, 94, 1);
-
-  &:hover {
-    background-color: darken($dark-accent, 10%);
+  //hover if not disabled
+  &:hover:not(:disabled) {
+    filter: brightness(1.2);
   }
 }
 
-.hint-button {
-  background-color: rgb(150, 98, 3);
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  @include smooth-transition;
 
   &:hover {
-    background-color: darken($dark-accent, 10%);
-    box-shadow: 0 0 15px rgba($dark-accent, 0.7);
+    filter: brightness(1.2);
+  }
+}
+.icon-button {
+  background: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  border-radius: 50%;
+}
+
+// Form styles
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-size: 1.2rem;
+}
+
+// General styles for all input types and textarea
+input,
+textarea,
+text,
+select {
+  font-family: var(--font-family);
+  background-color: var(--input-bg);
+  color: var(--input-text-color);
+  width: 100%;
+  font-size: 1.1rem;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 5px;
+  border-color: var(--border-color);
+  border: 1px solid;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    box-shadow: var(--shadow);
   }
 
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow);
+  }
+}
+
+.selector {
+  margin: 20px 0;
+
+  label {
+    display: block;
+  }
+}
+
+textarea,
+text {
+  width: 90vw;
+  max-width: 500px;
+}
+
+
+// Specific styles for text-like inputs and textarea
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="reset"]):not([type="button"]):not([type="file"]:not([type="select"])),
+textarea {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+// Ensure non-text inputs also get the focus effect
+input[type="number"] {
   &:focus {
     outline: none;
     box-shadow: 0 0 10px rgba($dark-accent, 0.5);
@@ -70,12 +140,86 @@ button {
   }
 }
 
-.continue-button {
-  background-color: rgb(1, 94, 1);
+.toggle-switch-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  margin-right: 10px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--slider-bg-off);
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked+.slider {
+  background-color: var(--slider-bg-on);
+}
+
+
+input:checked+.slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.toggle-label {
+  font-size: 16px;
+  min-width: 100px; // Adjust this value as needed
+  display: inline-block;
+}
+
+.submit-button {
+  background-color: var(--button-bg-save);
+  transition: background-color 0.3s, filter 0.3s;
 
   &:hover {
-    background-color: darken($dark-accent, 10%);
+    filter: brightness(0.9); // Reduces brightness to 90%, making it appear darker
   }
+}
+
+.hint-button {
+  background-color: var(--button-bg-hint);
+}
+
+.continue-button {
+  background-color: var(--button-bg-save);
 }
 
 /* If you want to ensure buttons are the same width */
@@ -100,8 +244,7 @@ h3 {
   bottom: 0;
   right: 0;
   padding: 5px;
-  font-size: 0.7em;
-  color: var(--link-color);
+  font-size: 1rem;
 }
 
 .app {
@@ -135,20 +278,19 @@ h3 {
   width: 10px;
   height: 10px;
   background: radial-gradient(ellipse at center,
-      rgba(248, 248, 247, 0.35) 25%,
-      rgba(239, 253, 253, 0.35) 35%,
-      rgba(180, 226, 247, 0.25) 60%,
-      rgba(255, 255, 255, 0.0) 100%);
-  border-radius: 50%;
-  animation: move 15s infinite;
-  opacity: 0;
-
-  .light-mode & {
-    background: radial-gradient(ellipse at center,
         rgba(0, 0, 0, 0.15) 25%,
         rgba(0, 0, 0, 0.15) 35%,
         rgba(0, 0, 0, 0.1) 60%,
         rgba(255, 255, 255, 0.0) 100%);
+  border-radius: 50%;
+  animation: move 15s infinite;
+  opacity: 0;
+  .dark-mode & {
+    background: radial-gradient(ellipse at center,
+      rgba(248, 248, 247, 0.35) 25%,
+      rgba(239, 253, 253, 0.35) 35%,
+      rgba(180, 226, 247, 0.25) 60%,
+      rgba(255, 255, 255, 0.0) 100%);
   }
 }
 
@@ -180,20 +322,20 @@ h3 {
 // Content wrapper for centering
 .content-wrapper {
   position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 70vw;
-    height: calc(100vh - 65px); // Adjusted for header and margin-top
-    max-width: 600px;
-    min-width: 260px;
-    display: flex;
-    flex-direction: column;
-    overflow: visible;
-    align-items: center;
-    justify-content: space-between;
-    text-align: center;
-    padding: 10px;
-    margin-top: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70vw;
+  height: calc(100vh - 65px); // Adjusted for header and margin-top
+  max-width: 600px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  padding: 10px;
+  margin-top: 45px;
 }
 
 .content {
@@ -263,6 +405,7 @@ h3 {
       padding: 20px;
     }
   }
+
   .base-container {
     display: flex;
     flex-direction: column;
@@ -277,9 +420,9 @@ h3 {
   margin-top: 20px;
   color: #008CBA;
 }
+
 .social-links a {
   margin-right: 10px;
-  color: #4a4a4a;
   text-decoration: none;
 }
 
@@ -338,7 +481,6 @@ h3 {
 
 .text-to-speech {
   display: flex;
-  align-items: center;
 }
 
 .hunt-analysis {
@@ -366,7 +508,7 @@ h3 {
   text-align: center;
   opacity: 1;
   transition: opacity 0.3s ease;
-  font-size: 0.9em;
+  font-size: 1rem;
 }
 
 .error-message {
@@ -375,68 +517,6 @@ h3 {
 
 .success-message {
   color: #02a543;
-}
-
-// Form styles
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  font-size: 1.2rem;
-
-  // General styles for all input types and textarea
-  input,
-  textarea,
-  text,
-  select {
-    font-family: 'Crimson Text', serif;
-    font-size: 1.1rem;
-    padding: 10px;
-    margin: 10px;
-    border-radius: 5px;
-    border-color: var(--border-color);
-    border-style: solid;
-    border-width: 1px;
-    transition: all 0.3s ease;
-
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 10px rgba($dark-accent, 0.5);
-    }
-
-    &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 25px rgba($dark-accent, 0.9);
-    }
-  }
-
-  textarea,
-  text {
-    width: 90vw;
-    max-width: 500px;
-  }
-
-
-  // Specific styles for text-like inputs and textarea
-  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="reset"]):not([type="button"]):not([type="file"]:not([type="select"])),
-  textarea {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-
-  // Ensure non-text inputs also get the focus effect
-  input[type="number"] {
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 10px rgba($dark-accent, 0.5);
-    }
-
-    &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 25px rgba($dark-accent, 0.9);
-    }
-  }
 }
 
 
@@ -459,12 +539,13 @@ form {
 }
 
 .day-only-indicator {
-  font-size: 0.8em;
+  font-size: 1rem;
   opacity: 0.7;
 }
+
 .time-indicator {
   margin-top: 20px;
-  font-size: 0.9em;
+  font-size: 1rem;
 
   .day-night-indicator {
     margin-left: 10px;
@@ -533,9 +614,11 @@ form {
   margin-bottom: 10px;
 }
 
-#distanceToTarget, #distanceToTargetUnit {
+#distanceToTarget,
+#distanceToTargetUnit {
   font-weight: bold;
 }
+
 .completion-feedback {
   text-align: center;
   margin-top: 20px;
@@ -583,7 +666,7 @@ form {
   }
 
   .challenge-title {
-    font-size: 1.5em;
+    font-size: 1.5rem;
     margin-bottom: 10px;
   }
 
@@ -658,6 +741,7 @@ form {
   /* Center the buttons horizontally */
   gap: 20px;
 }
+
 .button-container.home {
   display: flex;
   justify-content: space-between;
@@ -697,32 +781,6 @@ form {
   flex-direction: column;
 }
 
-.selector {
-  margin: 20px 0;
-
-  label {
-    display: block;
-  }
-
-  .stylized-select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid;
-    border-color: var(--border-color);
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 1rem;
-
-    &:focus {
-      outline: none;
-      box-shadow: var(--shadow);
-    }
-  }
-}
-
 /* Modal styles */
 .modal-overlay {
   position: fixed;
@@ -730,7 +788,7 @@ form {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--modal-bg);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -743,7 +801,7 @@ form {
     opacity: 1;
     visibility: visible;
   }
-  
+
 }
 
 .modal-content {
@@ -894,12 +952,7 @@ form {
   background-color: $dark-accent;
   transition: background-color 0.3s ease;
 
-  &:hover {
-    background-color: darken($dark-accent, 10%);
-  }
-
   .remove-icon {
-    color: $text-color;
     font-size: 18px;
     line-height: 1;
   }
@@ -919,23 +972,12 @@ form {
   justify-content: space-between;
   align-items: center;
   z-index: 1000;
-  box-shadow: var(--shaddow);
+  box-shadow: var(--shadow);
   height: 50px;
 
   .logo {
     font-size: 1.5em;
     font-weight: 700;
-
-    a {
-      color: var(--link-color);
-      text-decoration: none;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-      @include smooth-transition;
-
-      &:hover {
-        color: darken($text-color, 15%);
-      }
-    }
   }
 
   .nav-menu {
@@ -982,29 +1024,19 @@ form {
           opacity: 1;
           transform: translateX(0);
         }
-
-        a {
-          text-decoration: none;
-          @include smooth-transition;
-
-          &:hover {
-            color: darken($text-color, 15%);
-            text-shadow: 0 0 5px rgba($text-color, 0.5);
-          }
-        }
       }
     }
   }
 
   .menu-toggle {
+    color: var(--link-color);
     font-size: 1.5em;
     cursor: pointer;
     @include smooth-transition;
     z-index: 1001;
 
     &:hover {
-      color: darken($text-color, 15%);
-      text-shadow: 0 0 5px rgba($text-color, 0.5);
+      filter: brightness(1.2);
     }
 
     &.open {
@@ -1075,6 +1107,7 @@ body.menu-open {
     overflow: hidden;
   }
 }
+
 @media (max-width: 300px) {
   .scrollable-content {
     .bodyContent {

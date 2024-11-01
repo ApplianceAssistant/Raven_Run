@@ -13,7 +13,6 @@ export const SettingsProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(settings.isDarkMode));
     document.body.classList.toggle('dark-mode', settings.isDarkMode);
-    document.body.classList.toggle('light-mode', !settings.isDarkMode);
   }, [settings.isDarkMode]);
 
   useEffect(() => {

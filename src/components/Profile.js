@@ -192,9 +192,9 @@ function Profile() {
             {imagePreview ? (
               <div className="profile-image">
                 <img src={imagePreview} alt="Profile" />
-                <span className="edit-image-button" onClick={handleImageClick}>
+                <button className="edit-image-button icon-button" onClick={handleImageClick}>
                   <FontAwesomeIcon icon={faEdit} />
-                </span>
+                </button>
               </div>
             ) : (
               <div className="profile-image-placeholder" onClick={handleImageClick}>

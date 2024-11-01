@@ -3,26 +3,20 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(() => JSON.parse(localStorage.getItem('darkMode') ?? 'true'));
+  const [isDarkMode] = useState(() => JSON.parse(localStorage.getItem('darkMode') ?? 'false'));
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'default'); // default theme
-
   useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
-    document.body.classList.toggle('dark-mode', isDarkMode);
-    document.body.classList.toggle('light-mode', !isDarkMode);
     document.body.classList.add(theme); // apply theme
   }, [isDarkMode, theme]);
 
-  const toggleDarkMode = () => setIsDarkMode(prevMode => !prevMode);
   const changeTheme = (newTheme) => {
-    console.warn("changeTheme", theme, newTheme);
     document.body.classList.remove(theme); // remove old theme
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
   };
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode, theme, changeTheme }}>
+    <ThemeContext.Provider value={{ isDarkMode, theme, changeTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -46,9 +40,9 @@ export const ThemeSwitcher = () => {
     <div className="selector">
       <label htmlFor="voice-select">Select Theme:</label>
       <select value={theme}
-      onChange={handleThemeChange}
-      aria-label="Select Theme"
-      className="stylized-select">
+        onChange={handleThemeChange}
+        aria-label="Select Theme"
+        className="stylized-select">
         <option value="default">Default</option>
         <option value="pirate-theme">Pirate</option>
         <option value="fairyland-theme">Fairyland</option>

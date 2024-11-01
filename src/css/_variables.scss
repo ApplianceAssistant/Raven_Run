@@ -1,15 +1,24 @@
-// _variables.scss
 // _variables.scss (Base Variables)
 :root {
-  --page-bg: #ffffff;
+  --font-family: 'Roboto', sans-serif;
+  --page-bg: #f7f9fc;
   --text-color: #333333;
-  --button-bg: #007acc;
+  --button-bg: #006bb5;
+  --button-bg-hint: #dfb601;
+  --button-bg-save: #009a00;
+  --button-bg-caution: #e63946;
   --button-text-color: #ffffff;
-  --button-hover-bg: #005f99;
+  --button-hover-bg: #005a8a;
   --button-disabled-bg: #cccccc;
   --button-disabled-text: #666666;
-  --link-color: #7057ff;
-  --border-color: #e0e0e0;
+  --slider-bg-on: #0069b5;
+  --slider-bg-off: #cccccc;
+  --link-color: #574dc1;
+  --border-color: #d4d4d4;
+  --shadow: 0 0 20px rgba(94, 94, 94, 0.5);
+  --input-bg: #f9f9f9;
+  --input-text-color: #333333;
+  --modal-bg: #fafafa;
 }
 
 // Breakpoints
@@ -19,6 +28,7 @@ $breakpoint-lg: 992px;
 $breakpoint-xl: 1200px;
 $breakpoint-mobile: $breakpoint-md - 1;
 
+
 // Dark Mode Colors (default)
 $dark-bg: #121212;
 $darker-bg: #0a0a0a;
@@ -26,23 +36,6 @@ $dark-accent: #797878;
 $dark-accent-B: #d4d4d4;
 $spot: #b1f3f8;
 $text-color: #e0e0e0;
-$link-color: #7057ff;
-
-// Light Mode Colors
-$light-bg: #f8f8f8;
-$lighter-bg: #ffffff;
-$light-text-color: #000000;
-$light-link-color: #7057ff;
-$light-accent: #ff9999;
-
-// Gradients
-$spooky-gradient: linear-gradient(to bottom, $dark-bg, $darker-bg);
-$accent-gradient: linear-gradient(to right, $dark-accent, darken($dark-accent-B, 10%));
-
-// Shadows
-$dark-shadow: 0 0 20px rgba(243, 243, 243, 0.5);
-$light-shadow: 0 0 20px rgba(94, 94, 94, 0.5);
-
 
 
 // Mixins

@@ -1,9 +1,44 @@
 // _fairy-theme.scss
 .fairyland-theme {
-    --page-bg: #e6f7ff;        // Light misty blue background
-    --text-color: #663399;     // Soft lavender text
-    --button-bg: #dda0dd;      // Lavender button
-    --button-text-color: #ffffff;
-    --button-hover-bg: #c387c3;
+  --font-family: 'Playfair Display', serif; // Elegant, whimsical serif for a magical feel
+  --page-bg: #f0f5e9; // Light pastel green for a natural, dreamy background
+  --text-color: #3a2d3d; // Soft plum for a readable but fantasy-inspired text color
+  --button-bg: #a085d3; // Soft lavender for buttons to add a whimsical touch
+  --button-bg-hint: #f4c2c2; // Blush pink hint button to add a gentle accent
+  --button-bg-save: #77c043; // Mossy green for a nature-inspired save button
+  --button-bg-caution: #e57373; // Muted red-pink for caution
+  --button-text-color: #ffffff; // White text for readability on colored buttons
+  --button-hover-bg: #8d70c4; // Darker lavender for a subtle hover effect
+  --button-disabled-bg: #e0e0e0; // Light gray for disabled buttons
+  --button-disabled-text: #888888; // Medium gray for disabled text
+  --slider-bg-on: #a085d3; // Matches button background for a consistent on state
+  --slider-bg-off: #d8d8d8; // Light gray for the off state
+  --link-color: #8364a2; // Soft purple link color to match the fairy theme
+  --border-color: #c1c9a9; // Light green-gray border for a gentle effect
+  --shadow: 0 0 20px rgba(153, 153, 204, 0.5); // Soft, misty purple shadow for a magical depth
+  --input-bg: #f8f3f7; // Light pink-tinted background for inputs
+  --input-text-color: #3a2d3d; // Plum text for inputs to match theme text color
+  --modal-bg: #ffffff; // Pure white for modals to keep them clean and readable
+
+  &.dark-mode {
+    --page-bg: #1e1a26; // Deep twilight purple for a mystical night setting
+    --text-color: #e6e1e9; // Soft lavender-gray for high contrast in dark mode
+    --button-bg: #8364a2; // Darker lavender to match the night theme
+    --button-bg-hint: #b96b73; // Muted rose for hint buttons in dark mode
+    --button-bg-save: #5b8b3b; // Deep forest green for save button
+    --button-bg-caution: #b25a5a; // Muted maroon for caution in dark mode
+    --button-text-color: #ffffff; // White text for button readability
+    --button-hover-bg: #6a4d88; // Slightly darker hover effect
+    --button-disabled-bg: #444444; // Dark gray for disabled buttons
+    --button-disabled-text: #888888; // Medium gray for disabled text
+    --slider-bg-on: #8364a2; // Lavender on-state for slider
+    --slider-bg-off: #666666; // Dark gray for slider off state
+    --link-color: #b6a3cc; // Soft purple for links
+    --border-color: #383240; // Dark gray-purple for a subtle border
+    --shadow: 0 0 20px rgba(102, 102, 153, 0.3); // Softened shadow for a misty effect
+    --input-bg: #2c2635; // Deep purple background for inputs
+    --input-text-color: #e6e1e9; // Light lavender text for readability in dark mode
+    --modal-bg: #27212f; // Darkened modal background for night mood
   }
-  
+}
+
