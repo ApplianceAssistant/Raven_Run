@@ -53,7 +53,7 @@ function BackgroundController() {
 
     // Function to update background visibility
     const updateBackgroundVisibility = () => {
-      const noBackgroundPages = ['/profile', '/settings', '/friends', '/create-profile', '/log-in', '/create', '/about', '/contact', '/thank_you'];
+      const noBackgroundPages = ['/profile', '/friends', '/create-profile', '/log-in', '/create', '/about', '/contact', '/thank_you'];
       const shouldShowBackground = !noBackgroundPages.includes(location.pathname);
       movingBackground.classList.toggle('with-background', shouldShowBackground);
     }
@@ -71,7 +71,7 @@ function BackgroundController() {
   useEffect(() => {
     const movingBackground = document.querySelector('.moving-background');
     if (movingBackground) {
-      const noBackgroundPages = ['/profile', '/settings', '/friends', '/create-profile', '/log-in', '/create', '/about', '/contact', '/thank_you'];
+      const noBackgroundPages = ['/profile', '/friends', '/create-profile', '/log-in', '/create', '/about', '/contact', '/thank_you'];
       const shouldShowBackground = !noBackgroundPages.includes(location.pathname);
       movingBackground.classList.toggle('with-background', shouldShowBackground);
     }

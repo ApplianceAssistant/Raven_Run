@@ -1,6 +1,7 @@
 // _fairy-theme.scss
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
 
+
 .fairyland-theme {
   --font-family: 'Playfair Display', serif; // Elegant, whimsical serif for a magical feel
   //--page-bg: #f0f5e9; // Light pastel green for a natural, dreamy background
@@ -14,10 +15,10 @@
   --button-hover-bg: #8d70c4; // Darker lavender for a subtle hover effect
   --button-disabled-bg: #e0e0e0; // Light gray for disabled buttons
   --button-disabled-text: #888888; // Medium gray for disabled text
-  --slider-bg-on: #a085d3; // Matches button background for a consistent on state
-  --slider-bg-off: #d8d8d8; // Light gray for the off state
+  --slider-bg-on: #8860d3; // Matches button background for a consistent on state
+  --slider-bg-off: #b3a4d1; // Light gray for the off state
   --link-color: #8364a2; // Soft purple link color to match the fairy theme
-  --border-color: #c1c9a9; // Light green-gray border for a gentle effect
+  --border-color: #c9cac4; // Light green-gray border for a gentle effect
   --shadow: 0 0 20px rgba(153, 153, 204, 0.5); // Soft, misty purple shadow for a magical depth
   --input-bg: #f8f3f7; // Light pink-tinted background for inputs
   --input-text-color: #3a2d3d; // Plum text for inputs to match theme text color
@@ -38,7 +39,7 @@
     --slider-bg-on: #8364a2; // Lavender on-state for slider
     --slider-bg-off: #666666; // Dark gray for slider off state
     --link-color: #b6a3cc; // Soft purple for links
-    --border-color: #383240; // Dark gray-purple for a subtle border
+    --border-color: #ceb6ee; // Dark gray-purple for a subtle border
     --input-bg: #2c2635; // Deep purple background for inputs
     --input-text-color: #e6e1e9; // Light lavender text for readability in dark mode
     --modal-bg: #27212f; // Darkened modal background for night mood

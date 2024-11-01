@@ -37,6 +37,7 @@ function Settings() {
   return (
     <div className="base-page">
       <div className="content-wrapper">
+      <div className="spirit-guide large"></div>
         <div className="content">
           <ScrollableContent maxHeight="60vh">
             <div className="settings-container">

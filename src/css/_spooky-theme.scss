@@ -18,27 +18,27 @@
   --slider-bg-on: #a83434;
   --slider-bg-off: #bababa;
   --link-color: #7a3f3f; // Muted red for links
-  --border-color: #d1d1d1;
+  --border-color: #e7e4e4;
   --shadow: 0 0 20px rgba(94, 94, 94, 0.5);
   --input-bg: #ececec;
   --input-text-color: #2c2c2c;
   --modal-bg: #ffffff;
 
   &.dark-mode {
-    --page-bg: #0b0b0d;
-    --text-color: #d3d3d3;
-    --button-bg: #4a1d1d; // Deep, dark red for button
+    --page-bg: #1c1c24;
+    --text-color: #e7e5e5;
+    --button-bg: #722d2d; // Deep, dark red for button
     --button-bg-hint: #2a2a2a;
     --button-bg-save: #3d4e38; // Darker olive green for save
-    --button-bg-caution: #631e1e;
+    --button-bg-caution: #b40101;
     --button-text-color: #e0e0e0;
     --button-hover-bg: #3e1414; // Darker red for hover
     --button-disabled-bg: #333333;
     --button-disabled-text: #777777;
-    --slider-bg-on: #631e1e;
-    --slider-bg-off: #585858;
-    --link-color: #9e6f6f; // Muted warm red for links
-    --border-color: #2e2e2e;
+    --slider-bg-on: #722d2d;
+    --slider-bg-off: #838282;
+    --link-color: #b15b5b; // Muted warm red for links
+    --border-color: #eeeded;
     --input-bg: #1a1a1a;
     --input-text-color: #d3d3d3;
     --modal-bg: #101010;
