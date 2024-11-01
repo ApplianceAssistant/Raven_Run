@@ -1,0 +1,45 @@
+// _jurassic-theme.scss
+@import url('https://fonts.googleapis.com/css2?family=Staatliches:wght@400;700&display=swap');
+
+.jurassic-theme {
+    --font-family: 'Staatliches', sans-serif; // Bold, blocky font with a prehistoric feel
+    --page-bg: #e3e0cf; // Light sandy beige to resemble aged stone
+    --text-color: #3e3b31; // Dark earthy brown for readable contrast
+    --button-bg: #6b8e23; // Olive green for a natural, jungle-inspired touch
+    --button-bg-hint: #c8b784; // Muted sand beige for hint buttons
+    --button-bg-save: #4a6e31; // Deep forest green for a "safe" tone
+    --button-bg-caution: #a52a2a; // Rusty red-brown for a cautionary effect
+    --button-text-color: #ffffff; // White for clarity on colored buttons
+    --button-hover-bg: #556b2f; // Dark olive for a subtle hover effect
+    --button-disabled-bg: #d3d3d3; // Gray for disabled buttons
+    --button-disabled-text: #808080; // Medium gray for disabled text
+    --slider-bg-on: #6b8e23; // Olive green matching button background for on-state
+    --slider-bg-off: #b8b894; // Light stone gray for off-state
+    --link-color: #4e643d; // Muted forest green for links
+    --border-color: #a49f87; // Sandy gray for subtle borders
+    --shadow: 0 0 20px rgba(77, 77, 77, 0.5); // Earthy shadow effect for depth
+    --input-bg: #f4f1e3; // Light stone background for inputs
+    --input-text-color: #3e3b31; // Dark earthy brown to match main text color
+    --modal-bg: #ffffff; // Clean white for a readable modal background
+
+    &.dark-mode {
+        --page-bg: #2a2c28; // Deep, forested green-gray for a nighttime jungle vibe
+        --text-color: #d4d0b1; // Pale sandy gray for contrast
+        --button-bg: #556b2f; // Dark olive for the button background
+        --button-bg-hint: #6c6754; // Muted stone brown for hint buttons
+        --button-bg-save: #3b5d25; // Deep forest green for save
+        --button-bg-caution: #7b2c2c; // Dark rusty red for caution
+        --button-text-color: #ffffff; // White text for readability on buttons
+        --button-hover-bg: #4b5a24; // Deeper olive green on hover
+        --button-disabled-bg: #555555; // Dark gray for disabled buttons
+        --button-disabled-text: #888888; // Medium gray for disabled text
+        --slider-bg-on: #6b8e23; // Same olive green for on-state
+        --slider-bg-off: #4e4e3d; // Dark earthy gray for off-state
+        --link-color: #9c9f84; // Pale forest green for links
+        --border-color: #5d5b4f; // Dark gray-brown for borders
+        --input-bg: #3a3a32; // Dark stone background for inputs
+        --input-text-color: #d4d0b1; // Light sandy gray for input text
+        --modal-bg: #2f2f2a; // Darkened modal background for night effect
+        --shadow: 0 0 20px rgba(243, 243, 243, 0.5);
+    }
+}

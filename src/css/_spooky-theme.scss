@@ -1,9 +1,47 @@
 // _spooky-theme.scss
+//@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&display=swap'); //spooky typeface
+//@import url('https://fonts.googleapis.com/css2?family=Creepster:wght@400;700&display=swap'); //creepshow typeface
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Wet+Paint:wght@400;700&display=swap'); //spooky typeface
+
 .spooky-theme {
-    --page-bg: #f4e4c1;        // Old parchment background
-    --text-color: #4a2f1f;     // Deep brown text
-    --button-bg: #8b4513;      // Rustic brown button
-    --button-text-color: #f0dcb1;
-    --button-hover-bg: #6f3a1a;
-    --link-color: #b35959;
+  --font-family: 'Rubik Wet Paint', serif;
+  --page-bg: #f1f1f1;
+  --text-color: #2c2c2c;
+  --button-bg: #7a2d2d; // Dark, blood red
+  --button-bg-hint: #bababa;
+  --button-bg-save: #4e5b44; // Muted olive green
+  --button-bg-caution: #a83434;
+  --button-text-color: #ffffff;
+  --button-hover-bg: #5e2323; // Deeper blood red for hover
+  --button-disabled-bg: #d3d3d3;
+  --button-disabled-text: #a0a0a0;
+  --slider-bg-on: #a83434;
+  --slider-bg-off: #bababa;
+  --link-color: #7a3f3f; // Muted red for links
+  --border-color: #d1d1d1;
+  --shadow: 0 0 20px rgba(94, 94, 94, 0.5);
+  --input-bg: #ececec;
+  --input-text-color: #2c2c2c;
+  --modal-bg: #ffffff;
+
+  &.dark-mode {
+    --page-bg: #0b0b0d;
+    --text-color: #d3d3d3;
+    --button-bg: #4a1d1d; // Deep, dark red for button
+    --button-bg-hint: #2a2a2a;
+    --button-bg-save: #3d4e38; // Darker olive green for save
+    --button-bg-caution: #631e1e;
+    --button-text-color: #e0e0e0;
+    --button-hover-bg: #3e1414; // Darker red for hover
+    --button-disabled-bg: #333333;
+    --button-disabled-text: #777777;
+    --slider-bg-on: #631e1e;
+    --slider-bg-off: #585858;
+    --link-color: #9e6f6f; // Muted warm red for links
+    --border-color: #2e2e2e;
+    --input-bg: #1a1a1a;
+    --input-text-color: #d3d3d3;
+    --modal-bg: #101010;
+    --shadow: 0 0 20px rgba(243, 243, 243, 0.5);
   }
+}

@@ -1,7 +1,10 @@
 // _fairy-theme.scss
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+
 .fairyland-theme {
   --font-family: 'Playfair Display', serif; // Elegant, whimsical serif for a magical feel
-  --page-bg: #f0f5e9; // Light pastel green for a natural, dreamy background
+  //--page-bg: #f0f5e9; // Light pastel green for a natural, dreamy background
+  --page-bg: linear-gradient(75deg, #f0f5e9, #d8d8d8); // Soft pastel green gradient for a dreamy, natural feel
   --text-color: #3a2d3d; // Soft plum for a readable but fantasy-inspired text color
   --button-bg: #a085d3; // Soft lavender for buttons to add a whimsical touch
   --button-bg-hint: #f4c2c2; // Blush pink hint button to add a gentle accent
@@ -21,7 +24,8 @@
   --modal-bg: #ffffff; // Pure white for modals to keep them clean and readable
 
   &.dark-mode {
-    --page-bg: #1e1a26; // Deep twilight purple for a mystical night setting
+    //--page-bg: #1e1a26; // Deep twilight purple for a mystical night setting
+    --page-bg: linear-gradient(145deg, #1e1a26, #2a2133); // Deep twilight gradient from purple to dusky violet for a mystical night setting
     --text-color: #e6e1e9; // Soft lavender-gray for high contrast in dark mode
     --button-bg: #8364a2; // Darker lavender to match the night theme
     --button-bg-hint: #b96b73; // Muted rose for hint buttons in dark mode
@@ -35,10 +39,9 @@
     --slider-bg-off: #666666; // Dark gray for slider off state
     --link-color: #b6a3cc; // Soft purple for links
     --border-color: #383240; // Dark gray-purple for a subtle border
-    --shadow: 0 0 20px rgba(102, 102, 153, 0.3); // Softened shadow for a misty effect
     --input-bg: #2c2635; // Deep purple background for inputs
     --input-text-color: #e6e1e9; // Light lavender text for readability in dark mode
     --modal-bg: #27212f; // Darkened modal background for night mood
+    --shadow: 0 0 20px rgba(243, 243, 243, 0.5);
   }
 }
-

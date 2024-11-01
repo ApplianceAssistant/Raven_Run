@@ -28,16 +28,6 @@ $breakpoint-lg: 992px;
 $breakpoint-xl: 1200px;
 $breakpoint-mobile: $breakpoint-md - 1;
 
-
-// Dark Mode Colors (default)
-$dark-bg: #121212;
-$darker-bg: #0a0a0a;
-$dark-accent: #797878;
-$dark-accent-B: #d4d4d4;
-$spot: #b1f3f8;
-$text-color: #e0e0e0;
-
-
 // Mixins
 @mixin respond-to($breakpoint) {
   @media (min-width: $breakpoint) {

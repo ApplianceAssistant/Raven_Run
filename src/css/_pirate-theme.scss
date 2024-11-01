@@ -1,7 +1,9 @@
 // _pirate-theme.scss
-@import './variables.scss';
+@import url('https://fonts.googleapis.com/css2?family=Pirata+One:wght@400;700&display=swap');
+
 .pirate-theme {
-  --font-family: 'Merriweather', serif;
+  //--font-family: 'Merriweather', serif;
+  --font-family: 'Pirata One', serif;
   --page-bg: #f4e4c1;
   --text-color: #4a2f1f;
   --button-bg: #6e360d;
@@ -38,6 +40,6 @@
     --input-text-color: #f5dbbe;
     --link-color: #8b4513;
     --border-color: #8b4513;
-    --shadow: 0 0 20px rgba(243, 243, 243, 0.3);
+    --shadow: 0 0 20px rgba(243, 243, 243, 0.5);
   }
 }

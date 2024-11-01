@@ -44,8 +44,12 @@ export const ThemeSwitcher = () => {
         aria-label="Select Theme"
         className="stylized-select">
         <option value="default">Default</option>
+        <option value="jurassic-theme">Jurassic</option>
         <option value="pirate-theme">Pirate</option>
         <option value="fairyland-theme">Fairyland</option>
+        <option value="galactic-theme">Galactic</option>
+        <option value="spooky-theme">Spooky</option>
+        
         {/* Add more options here as needed */}
       </select>
     </div>
