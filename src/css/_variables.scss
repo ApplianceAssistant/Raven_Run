@@ -13,15 +13,16 @@
   --button-disabled-text: #666666;
   --slider-bg-on: #0069b5;
   --slider-bg-off: #cccccc;
-  --link-color: #574dc1;
+  --link-color: #006bb5;
   --border-color: #ffffff;
-  --shadow: 0 0 20px rgba(94, 94, 94, 0.5);
+  --shadow: rgba(94, 94, 94, 0.5);
   --input-bg: #f9f9f9;
   --input-text-color: #333333;
-  --modal-bg: #fafafa;
+  --modal-bg: #f7f9fc;
 }
 
 // Breakpoints
+$breakpoint-xs: 200px;
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 992px;

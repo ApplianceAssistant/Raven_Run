@@ -69,7 +69,7 @@ app.post('/api/db-query', async (req, res) => {
   }
 });
 
-app.get('/api/test', (req, res) => {
+app.get('/api/db-test', (req, res) => {
   console.log('Test API route hit');
   res.json({ message: 'Test API route successful' });
 });

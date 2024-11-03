@@ -77,7 +77,7 @@ const HuntDescription = () => {
 
     return (
         <div className="content-wrapper">
-            <div className="spirit-guide large">
+            <div className="spirit-guide"></div>
                 <div className="hunt-description content">
                     <h2>{hunt.name}</h2>
                     {huntAnalysis && (
@@ -101,7 +101,7 @@ const HuntDescription = () => {
                         )}
                     </ScrollableContent>
                 </div>
-            </div>
+            
             <div className={`button-container-bottom visible`}>
                 {hunt.description && (
                     <TextToSpeech

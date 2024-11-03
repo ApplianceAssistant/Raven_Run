@@ -28,7 +28,7 @@ export const AuthContext = createContext(null);
 
 function BackgroundController() {
   const location = useLocation();
-
+  const noBackgroundPages = ['/profile', '/friends', '/create-profile', '/log-in', '/create', '/about', '/contact', '/thank_you'];
   useEffect(() => {
     // Create moving background elements
     const movingBackground = document.createElement('div');
@@ -53,7 +53,6 @@ function BackgroundController() {
 
     // Function to update background visibility
     const updateBackgroundVisibility = () => {
-      const noBackgroundPages = ['/profile', '/friends', '/create-profile', '/log-in', '/create', '/about', '/contact', '/thank_you'];
       const shouldShowBackground = !noBackgroundPages.includes(location.pathname);
       movingBackground.classList.toggle('with-background', shouldShowBackground);
     }
@@ -71,7 +70,7 @@ function BackgroundController() {
   useEffect(() => {
     const movingBackground = document.querySelector('.moving-background');
     if (movingBackground) {
-      const noBackgroundPages = ['/profile', '/friends', '/create-profile', '/log-in', '/create', '/about', '/contact', '/thank_you'];
+      
       const shouldShowBackground = !noBackgroundPages.includes(location.pathname);
       movingBackground.classList.toggle('with-background', shouldShowBackground);
     }

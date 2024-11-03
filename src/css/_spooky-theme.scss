@@ -19,7 +19,7 @@
   --slider-bg-off: #bababa;
   --link-color: #7a3f3f; // Muted red for links
   --border-color: #e7e4e4;
-  --shadow: 0 0 20px rgba(94, 94, 94, 0.5);
+  --shadow: rgba(94, 94, 94, 0.5);
   --input-bg: #ececec;
   --input-text-color: #2c2c2c;
   --modal-bg: #ffffff;
@@ -42,6 +42,6 @@
     --input-bg: #1a1a1a;
     --input-text-color: #d3d3d3;
     --modal-bg: #101010;
-    --shadow: 0 0 20px rgba(243, 243, 243, 0.5);
+    --shadow: rgba(243, 243, 243, 0.5);
   }
 }

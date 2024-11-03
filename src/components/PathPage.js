@@ -337,7 +337,7 @@ function PathPage() {
         )}
       </div>
 
-      <div className="spirit-guide large">
+      <div className="spirit-guide"></div>
         <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
           <main className="path-content content flex-top">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
@@ -355,7 +355,7 @@ function PathPage() {
             </div>
           </main>
         </div>
-      </div>
+      
       {renderButtons()}
       <Modal
         isOpen={isModalOpen}

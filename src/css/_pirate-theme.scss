@@ -20,7 +20,7 @@
   --input-text-color: #3f1d1d;
   --link-color: #00406b;
   --border-color: #8b4513;
-  --shadow: 0 0 20px rgba(94, 94, 94, 0.5);
+  --shadow: rgba(94, 94, 94, 0.5);
 
   // Dark mode colors
   &.dark-mode {
@@ -40,6 +40,6 @@
     --input-text-color: #f5dbbe;
     --link-color: #8b4513;
     --border-color: #f0d7c6;
-    --shadow: 0 0 20px rgba(243, 243, 243, 0.5);
+    --shadow: rgba(243, 243, 243, 0.5);
   }
 }

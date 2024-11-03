@@ -5,7 +5,7 @@ import { handleScroll } from '../utils/utils';
 function About() {
   return (
     <div className="content-wrapper">
-      <div className="spirit-guide large">
+      <div className="spirit-guide"></div>
         <div className="content">
           <h1 className="contentHeader">Like to play games?</h1>
           <ScrollableContent maxHeight="60vh">
@@ -29,7 +29,7 @@ function About() {
             <p>All the more reason to trust the friends by your side to solve each puzzle and discover the truth!</p>
           </ScrollableContent>
         </div>
-      </div>
+      
     </div>
   );
 }

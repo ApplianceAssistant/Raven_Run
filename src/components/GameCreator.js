@@ -133,7 +133,9 @@ const GameCreator = () => {
   };
 
   const handleDeleteChallenge = () => {
+    console.log('Deleting challenge called');
     if (currentChallenge && selectedGame) {
+      console.warn('Deleting challenge:', currentChallenge);
       const updatedChallenges = selectedGame.challenges.filter(
         challenge => challenge.id !== currentChallenge.id
       );
@@ -147,6 +149,8 @@ const GameCreator = () => {
       setShowChallengeCreator(false);
       setAllRequiredFieldsFilled(false);
       setIsEditing(false);
+    } else {
+      alert('Error deleting challenge. Please try again.');
     }
   };
 
@@ -187,6 +191,7 @@ const GameCreator = () => {
   };
 
   const handleNext = () => {
+    console.log('Next called');
     if (currentChallenge) {
       let updatedChallenges;
       if (isEditing) {
@@ -320,6 +325,7 @@ const GameCreator = () => {
   };
 
   const renderButtons = () => {
+    console.log('Button container visible:', buttonContainerVisible);
     if (!currentChallenge) return null;
     return (
       <div className={`button-container-bottom visible`}>

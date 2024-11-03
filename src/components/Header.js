@@ -90,8 +90,6 @@ function Header({ isMenuOpen, toggleMenu }) {
           {isMenuOpen ? '✕' : '☰'}
         </div>
       </header>
-
-      <div className={`menu-overlay ${isMenuOpen ? 'open' : ''}`} onClick={toggleMenu}></div>
     </>
   );
 }

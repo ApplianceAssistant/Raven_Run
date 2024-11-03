@@ -221,7 +221,7 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
                 <button 
                     type="button" 
                     onClick={() => removeIncorrectFeedback(index)} 
-                    className="remove-button"
+                    className="icon-button"
                     aria-label="Remove feedback"
                   >
                     <span className="remove-icon">×</span>
@@ -321,10 +321,9 @@ const ChallengeCreator = ({ challenge, onUpdate, onRequiredFieldsCheck }) => {
                   <button 
                     type="button" 
                     onClick={() => removeArrayItem(index, fieldName)} 
-                    className="remove-button"
+                    className="remove icon-button"
                     aria-label="Remove item"
-                  >
-                    <span className="remove-icon">×</span>
+                  >X
                   </button>
                 </div>
               ))}

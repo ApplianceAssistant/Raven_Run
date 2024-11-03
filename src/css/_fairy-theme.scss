@@ -19,7 +19,7 @@
   --slider-bg-off: #b3a4d1; // Light gray for the off state
   --link-color: #8364a2; // Soft purple link color to match the fairy theme
   --border-color: #c9cac4; // Light green-gray border for a gentle effect
-  --shadow: 0 0 20px rgba(153, 153, 204, 0.5); // Soft, misty purple shadow for a magical depth
+  --shadow: rgba(153, 153, 204, 0.5); // Soft, misty purple shadow for a magical depth
   --input-bg: #f8f3f7; // Light pink-tinted background for inputs
   --input-text-color: #3a2d3d; // Plum text for inputs to match theme text color
   --modal-bg: #ffffff; // Pure white for modals to keep them clean and readable
@@ -43,6 +43,6 @@
     --input-bg: #2c2635; // Deep purple background for inputs
     --input-text-color: #e6e1e9; // Light lavender text for readability in dark mode
     --modal-bg: #27212f; // Darkened modal background for night mood
-    --shadow: 0 0 20px rgba(243, 243, 243, 0.5);
+    --shadow: rgba(243, 243, 243, 0.5);
   }
 }
