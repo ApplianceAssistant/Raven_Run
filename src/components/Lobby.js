@@ -101,7 +101,8 @@ function Lobby() {
   return (
     <div className="content-wrapper">
         <div className="content">
-          <h2 className="contentHeader">Select your Hunt<br /><span style={{ fontSize: '.9em' }}>(more coming soon)</span></h2>
+          <h2 className="contentHeader">Select your Hunt<br /></h2>
+          <p>(More Coming soon)</p>
           <ScrollableContent maxHeight="60vh">
             <div className="default-paths-section">
               {renderPathList(paths, "")}

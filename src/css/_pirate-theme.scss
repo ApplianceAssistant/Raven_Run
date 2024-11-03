@@ -1,9 +1,10 @@
 // _pirate-theme.scss
 @import url('https://fonts.googleapis.com/css2?family=Pirata+One:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap');
 
 .pirate-theme {
-  //--font-family: 'Merriweather', serif;
-  --font-family: 'Pirata One', serif;
+  --font-family: 'Merriweather', serif;
+  --font-family-heading: 'Pirata One', serif;
   --page-bg: #f4e4c1;
   --text-color: #4a2f1f;
   --button-bg: #6e360d;

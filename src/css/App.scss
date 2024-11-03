@@ -116,10 +116,6 @@ select {
 
 .selector {
   margin: 20px 0;
-
-  label {
-    display: block;
-  }
 }
 
 textarea,
@@ -128,6 +124,17 @@ text {
   max-width: 500px;
 }
 
+label {
+  margin-bottom: 0px;
+  font-family: var(--font-family-heading);
+}
+
+h1,
+h2,
+h3 {
+  padding: 5px;
+  font-family: var(--font-family-heading);
+}
 
 // Specific styles for text-like inputs and textarea
 input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="reset"]):not([type="button"]):not([type="file"]:not([type="select"])),
@@ -240,17 +247,6 @@ input:checked+.slider:before {
   /* Adjust this value as needed */
 }
 
-
-label {
-  margin-bottom: 0px;
-}
-
-h1,
-h2,
-h3 {
-  padding: 5px;
-}
-
 .versionDisplay {
   bottom: 0;
   right: 0;
@@ -343,7 +339,6 @@ h3 {
   flex-direction: column;
   overflow: visible;
   align-items: center;
-  justify-content: space-between;
   text-align: center;
   padding: 10px;
   margin-top: 45px;
@@ -904,9 +899,10 @@ h3 {
 
 .skip-countdown {
   font-size: 0.9em;
-  color: #666;
+  color: var(--text-color);
   text-align: center;
   width: 100px;
+  opacity: .7;
 }
 
 .profile-image-container {

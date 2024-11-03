@@ -1,10 +1,11 @@
 // _spooky-theme.scss
-//@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&display=swap'); //spooky typeface
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&display=swap'); //spooky typeface
 //@import url('https://fonts.googleapis.com/css2?family=Creepster:wght@400;700&display=swap'); //creepshow typeface
 @import url('https://fonts.googleapis.com/css2?family=Rubik+Wet+Paint:wght@400;700&display=swap'); //spooky typeface
 
 .spooky-theme {
-  --font-family: 'Rubik Wet Paint', serif;
+  --font-family: 'Cormorant Garamond', serif;
+  --font-family-heading: 'Rubik Wet Paint', serif;
   --page-bg: #f1f1f1;
   --text-color: #2c2c2c;
   --button-bg: #7a2d2d; // Dark, blood red

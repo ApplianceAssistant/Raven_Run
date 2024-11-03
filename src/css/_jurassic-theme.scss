@@ -1,8 +1,11 @@
 // _jurassic-theme.scss
 @import url('https://fonts.googleapis.com/css2?family=Staatliches:wght@400;700&display=swap');
+//import Special Elite
+@import url('https://fonts.googleapis.com/css2?family=Unkempt&display=swap');
 
 .jurassic-theme {
-    --font-family: 'Staatliches', sans-serif; // Bold, blocky font with a prehistoric feel
+    --font-family: 'Unkempt', serif;
+    --font-family-heading: 'Staatliches', serif;
     --page-bg: #e3e0cf; // Light sandy beige to resemble aged stone
     --text-color: #3e3b31; // Dark earthy brown for readable contrast
     --button-bg: #6b8e23; // Olive green for a natural, jungle-inspired touch
@@ -40,6 +43,6 @@
         --input-bg: #3a3a32; // Dark stone background for inputs
         --input-text-color: #d4d0b1; // Light sandy gray for input text
         --modal-bg: #2f2f2a; // Darkened modal background for night effect
-        --shadow:  rgba(243, 243, 243, 0.5);
+        --shadow: rgba(243, 243, 243, 0.5);
     }
 }

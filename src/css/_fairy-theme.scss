@@ -1,10 +1,11 @@
 // _fairy-theme.scss
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lavishly+Yours:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Shantell+Sans:wght@400;700&display=swap');
 
 
 .fairyland-theme {
-  --font-family: 'Playfair Display', serif; // Elegant, whimsical serif for a magical feel
-  //--page-bg: #f0f5e9; // Light pastel green for a natural, dreamy background
+  --font-family: 'Shantell Sans', serif; // Elegant, whimsical serif for a magical feel
+  --font-family-heading: 'Lavishly Yours', serif;
   --page-bg: linear-gradient(75deg, #f0f5e9, #d8d8d8); // Soft pastel green gradient for a dreamy, natural feel
   --text-color: #3a2d3d; // Soft plum for a readable but fantasy-inspired text color
   --button-bg: #a085d3; // Soft lavender for buttons to add a whimsical touch

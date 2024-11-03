@@ -1,9 +1,10 @@
 // _galactic-theme.scss
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@100;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Electrolize:wght@400;700&display=swap');
 
 .galactic-theme {
-    --font-family: 'Orbitron', sans-serif;
-  
+    --font-family: 'Electrolize', serif;
+    --font-family-heading: 'Orbitron', serif;
     --page-bg: linear-gradient(135deg, #e0f7ff, #f9e0ff); // Light blue-to-pink nebula gradient
     --text-color: #2d3142; // Dark navy for readability and contrast
     --button-bg: #6a5acd; // Spacey lavender blue
