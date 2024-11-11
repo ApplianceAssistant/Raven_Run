@@ -21,9 +21,7 @@ import HuntDescription from './components/HuntDescription';
 import ThemeContainer from './components/ThemeContainer.js';
 import { useTheme } from './utils/ThemeContext';
 
-
 import './css/App.scss';
-import './css/SpiritGuide.scss';
 
 export const AuthContext = createContext(null);
 

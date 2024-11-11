@@ -5,7 +5,7 @@
 .pirate-theme {
   --font-family: 'Merriweather', serif;
   --font-family-heading: 'Pirata One', serif;
-  --page-bg: #f8f2e5;
+  --page-bg: #faeccf;
   --text-color: #4a2f1f;
   --button-bg: #6e360d;
   --button-bg-hint: #dfb601;
@@ -20,12 +20,12 @@
   --input-bg: #f7f1e6;
   --input-text-color: #3f1d1d;
   --link-color: #00406b;
-  --border-color: #8b4513;
+  --border-color: #f7f1e6;
   --shadow: rgba(94, 94, 94, 0.5);
 
   // Dark mode colors
   &.dark-mode {
-    --page-bg: #2c1b0f;
+    --page-bg: #3a2e26;
     --text-color: #f5dbbe;
     --button-bg: #603311;
     --button-bg-hint: #dfb601;
@@ -43,6 +43,7 @@
     --border-color: #f0d7c6;
     --shadow: rgba(243, 243, 243, 0.5);
   }
+
 }
 
 .burning-ember {
@@ -73,19 +74,19 @@
     transform: translateX(calc(var(--sway-distance) * -0.5)) rotate(90deg) scale(0.9);
   }
   40% {
-    transform: translateX(0) rotate(-20deg) scale(1.2);
+    transform: translateX(calc(var(--sway-distance) * 1)) rotate(-20deg) scale(.8);
     background: radial-gradient(circle at 30% 30%, rgba(255, 196, 77, 0.9), rgba(182, 63, 23, 0.5), rgba(255, 0, 0, 0));
-    box-shadow: 0 0 10px rgba(200, 100, 50, 0.5);
+    box-shadow: 0 0 10px rgba(200, 100, 50, 0.3);
   }
   60% {
-    transform: translateX(calc(var(--sway-distance) * 0.5)) rotate(-180deg) scale(0.8);
-    background: radial-gradient(circle at 30% 30%, rgba(230, 100, 50, 0.6), rgba(180, 50, 20, 0.3), rgba(100, 0, 0, 0));
-    box-shadow: 0 0 8px rgba(150, 80, 40, 0.4);
+    transform: translateX(0) rotate(180deg) scale(0.2);
+    opacity: 0.2;
+    box-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
   }
   80% {
-    transform: translateX(0) rotate(180deg) scale(0.7);
-    opacity: 0.5;
-    box-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
+    transform: translateX(0) rotate(180deg) scale(0.3);
+    opacity: 0.1;
+    box-shadow: 0 0 5px rgba(100, 100, 100, 0.1);
   }
   100% {
     top: 120%;

@@ -7,24 +7,45 @@ import { LazyExoticComponent } from 'react';
  */
 
 /** @type {{ spooky: ThemeConfig, pirate: ThemeConfig }} */
-const themesConfig = {
+export const themesConfig = {
+  'default': {
+    className: '',
+    background: '',
+    isCanvasTheme: false,
+    style: '',
+  },
   'spooky-theme': {
     className: 'spirit-guide',
     background: () => import('../effects/SpiritSpots'),
+    isCanvasTheme: false,
+    style: () => import('../css/_spooky-theme.scss'),
   },
   'fairyland-theme': {
-    className: 'spirit-guide',
+    className: 'fairy-guide',
     background: () => import('../effects/FallingLeaves'),
+    isCanvasTheme: false,
+    style: () => import('../css/_fairy-theme.scss'),
   },
   'pirate-theme': {
-    className: 'pirate-theme',
+    className: 'pirate-flag',
     background: () => import('../effects/BurningEmbers'),
+    isCanvasTheme: true,
+    style: () => import('../css/_pirate-theme.scss'),
   },
   'ocean-theme': {
-    className: 'ocean-theme',
+    className: 'diving-bell',
     background: () => import('../effects/bubbleEffect'),
+    isCanvasTheme: false,
+    style: () => import('../css/_ocean-theme.scss'),
+  },
+  'jurassic-theme': {
+    className: 'trees',
+    background: () => import('../effects/FloatingSpores'),
+    isCanvasTheme: false,
+    style: () => import('../css/_jurassic-theme.scss'),
   },
 };
+
 
 // Routes where backgrounds should not be shown
 export const noThemeElementPages = [

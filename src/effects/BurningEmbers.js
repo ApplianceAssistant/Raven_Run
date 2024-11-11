@@ -1,23 +1,20 @@
+// PirateEffects.js
 import React from 'react';
 
-const BurningEmbers = () => {
+// BurningEmbers React Component
+export const BurningEmbers = () => {
   return (
     <>
       {[...Array(30)].map((_, i) => {
-        // Randomize ember size
-        const width = Math.random() * 12 + 10; // Range: 10px to 22px
-        const height = Math.random() * 5 + 2; // Range: 2px to 7px
-
-        // Calculate animation duration based on size (larger embers fall faster)
+        const width = Math.random() * 12 + 10;
+        const height = Math.random() * 5 + 2;
         const maxSize = 22;
         const minDuration = 7;
         const maxDuration = 15;
         const sizeFactor = (maxSize - width) / maxSize;
         const animationDuration = minDuration + sizeFactor * (maxDuration - minDuration);
-
-        // Randomize additional properties
-        const swayDistance = Math.random() * 100 - 50; // Range: -50px to 50px
-        const flickerDuration = Math.random() * 0.2 + 0.3; // Range: 0.3s to 0.5s
+        const swayDistance = Math.random() * 100 - 50;
+        const flickerDuration = Math.random() * 0.2 + 0.3;
         const easingOptions = ['ease-in-out', 'ease-in', 'ease-out', 'cubic-bezier(0.42, 0, 0.58, 1)'];
         const easing = easingOptions[Math.floor(Math.random() * easingOptions.length)];
 

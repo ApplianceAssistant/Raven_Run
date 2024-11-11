@@ -6,7 +6,7 @@ const SpiritSpots = () => {
       {[...Array(15)].map((_, i) => (
         <div
           key={i}
-          className="moving-element"
+          className="spirit-spot"
           style={{
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,

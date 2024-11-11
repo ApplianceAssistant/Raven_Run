@@ -43,6 +43,7 @@ const BackgroundController = ({ theme }) => {
           <EffectComponent />
         </div>
       )}
+      
     </Suspense>
   );
 };

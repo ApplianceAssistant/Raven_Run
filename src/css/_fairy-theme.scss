@@ -48,6 +48,104 @@
   }
 }
 
+.fairy-guide {
+  position: fixed;
+  border-radius: 50%;
+  transition: all 1s ease-in-out;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60vw;
+  height: 70vh;
+  max-width: 500px;
+  max-height: 1200px;
+  min-width: 200px;
+  background: radial-gradient(ellipse at center,
+      rgba(255, 255, 204, 0.2) 20%,
+      rgba(255, 204, 255, 0.15) 40%,
+      rgba(204, 255, 255, 0.1) 70%,
+      rgba(255, 255, 255, 0) 100%);
+  box-shadow: 0 0 50px rgba(255, 255, 200, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+
+  .dark-mode & {
+    background: radial-gradient(ellipse at center,
+        rgba(255, 255, 180, 0.3) 20%,
+        rgba(240, 210, 255, 0.2) 40%,
+        rgba(200, 240, 240, 0.15) 70%,
+        rgba(255, 255, 255, 0) 100%);
+    box-shadow: 0 0 60px rgba(255, 255, 240, 0.5);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(circle at center,
+        rgba(255, 255, 200, 0.3),
+        rgba(255, 150, 255, 0.2),
+        rgba(150, 255, 255, 0.1),
+        rgba(255, 255, 255, 0));
+    animation: fairyFlare 4s ease-in-out infinite, colorShift 8s ease-in-out infinite;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(circle at center,
+        rgba(255, 255, 230, 0.2),
+        rgba(240, 180, 250, 0.15),
+        rgba(180, 240, 255, 0.1),
+        rgba(255, 255, 255, 0));
+    animation: fairyFlare 6s ease-in-out infinite reverse, colorShift 10s ease-in-out infinite;
+  }
+}
+
+/* Keyframes for Fairy Flare (Gentle Pulsing) */
+@keyframes fairyFlare {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+    box-shadow: 0 0 40px rgba(255, 255, 200, 0.4);
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+    box-shadow: 0 0 60px rgba(255, 255, 230, 0.6);
+  }
+}
+
+/* Keyframes for Subtle Color Shifting */
+@keyframes colorShift {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  33% {
+    filter: hue-rotate(45deg);
+  }
+  66% {
+    filter: hue-rotate(90deg);
+  }
+  100% {
+    filter: hue-rotate(0deg);
+  }
+}
+
+
+
 .falling-leaf {
   position: absolute;
   width: 20px;
