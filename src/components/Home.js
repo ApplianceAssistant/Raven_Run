@@ -28,26 +28,19 @@ function Home() {
 
   return (
     <>
-      <div className="background"></div>
-      <div className="content-wrapper">
-          <div className="content">
-            <div className="bodyContent">
-              <div className="button-container home">
-                {isLoggedIn ? (
-                  <>
-                  <button onClick={handleCreate} className="join-button">Create</button>
-                  <button onClick={handlePlay}className="enter-button">Play</button>
-                </>
-                ) : (
-                  <>
-                    <button onClick={handleCreateIndex} className="join-button">Create</button>
-                    <button onClick={handlePlayIndex}className="enter-button">Play</button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-      </div>
+        <div className="button-container home">
+          {isLoggedIn ? (
+            <>
+              <button onClick={handleCreate} className="join-button">Create</button>
+              <button onClick={handlePlay} className="enter-button">Play</button>
+            </>
+          ) : (
+            <>
+              <button onClick={handleCreateIndex} className="join-button">Create</button>
+              <button onClick={handlePlayIndex} className="enter-button">Play</button>
+            </>
+          )}
+        </div>
     </>
   );
 }

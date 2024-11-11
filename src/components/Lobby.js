@@ -92,37 +92,35 @@ function Lobby() {
                 </span>
               )}
             </button>
-          </li>          
+          </li>
         ))}
       </ul>
     </>
   );
 
   return (
-    <div className="content-wrapper">
-        <div className="content">
-          <h2 className="contentHeader">Select your Hunt<br /></h2>
-          <p>(More Coming soon)</p>
-          <ScrollableContent maxHeight="60vh">
-            <div className="default-paths-section">
-              {renderPathList(paths, "")}
-            </div>
-          </ScrollableContent>
-          {isHuntInProgress() && (
-            <div className="center">
+    <>
+        <h2 className="contentHeader">Select your Hunt<br /></h2>
+        <p>(More Coming soon)</p>
+        <ScrollableContent maxHeight="60vh">
+          <div className="default-paths-section">
+            {renderPathList(paths, "")}
+          </div>
+        </ScrollableContent>
+        {isHuntInProgress() && (
+          <div className="center">
             <button onClick={continueCurrentHunt}>
               Return to Hunt
             </button>
-            </div>
-          )}
-          <p className="time-indicator">
-            Time: {formatTime(currentTime)}
-            <span className="day-night-indicator">
-              <FontAwesomeIcon icon={isDaytime() ? faSun : faMoon} />
-              {isDaytime() ? ' Day' : ' Night'}
-            </span>
-          </p>
-        </div>
+          </div>
+        )}
+        <p className="time-indicator">
+          Time: {formatTime(currentTime)}
+          <span className="day-night-indicator">
+            <FontAwesomeIcon icon={isDaytime() ? faSun : faMoon} />
+            {isDaytime() ? ' Day' : ' Night'}
+          </span>
+        </p>
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -135,7 +133,7 @@ function Lobby() {
         ]}
         showTextToSpeech={false}
       />
-    </div>
+    </>
   );
 }
 

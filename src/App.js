@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, createContext } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, createContext } from 'react';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './utils/ThemeContext';
 import { SettingsProvider } from './utils/SettingsContext';
 import Home from './components/Home';
@@ -18,7 +18,8 @@ import Congratulations from './components/Congratulations';
 import ThankYou from './components/ThankYou.js';
 import { checkServerConnectivity, API_URL, authFetch } from './utils/utils.js';
 import HuntDescription from './components/HuntDescription';
-
+import ThemeContainer from './components/ThemeContainer.js';
+import { useTheme } from './utils/ThemeContext';
 
 
 import './css/App.scss';
@@ -26,70 +27,16 @@ import './css/SpiritGuide.scss';
 
 export const AuthContext = createContext(null);
 
-function BackgroundController() {
-  const location = useLocation();
-  const noBackgroundPages = ['/profile', '/friends', '/create-profile', '/log-in', '/create', '/about', '/contact', '/thank_you'];
-  useEffect(() => {
-    // Create moving background elements
-    const movingBackground = document.createElement('div');
-    movingBackground.className = 'moving-background';
-
-    for (let i = 0; i < 15; i++) {
-      const element = document.createElement('div');
-      element.className = 'moving-element';
-
-      // Initial position
-      element.style.left = `${Math.random() * 100}%`;
-      element.style.top = `${Math.random() * 100}%`;
-
-      // Set random animation delays
-      element.style.animationDelay = `${Math.random() * 20}s`;
-      element.style.animationDuration = `${Math.random() * 4 + 6}s`; // 6-10s duration
-
-      movingBackground.appendChild(element);
-    }
-
-    document.body.appendChild(movingBackground);
-
-    // Function to update background visibility
-    const updateBackgroundVisibility = () => {
-      const shouldShowBackground = !noBackgroundPages.includes(location.pathname);
-      movingBackground.classList.toggle('with-background', shouldShowBackground);
-    }
-
-    // Initial call to set correct visibility
-    updateBackgroundVisibility();
-
-    // Clean up function
-    return () => {
-      document.body.removeChild(movingBackground);
-    };
-  }, []); // Empty dependency array means this effect runs once on mount
-
-  // Effect to update background visibility on route changes
-  useEffect(() => {
-    const movingBackground = document.querySelector('.moving-background');
-    if (movingBackground) {
-      
-      const shouldShowBackground = !noBackgroundPages.includes(location.pathname);
-      movingBackground.classList.toggle('with-background', shouldShowBackground);
-    }
-  }, [location]);
-
-  return null; // This component doesn't render anything
-}
-
 function AppContent() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const locationIntervalRef = useRef(null);
+  const { theme } = useTheme();
   const [serverStatus, setServerStatus] = useState({
     isConnected: false,
     isDatabaseConnected: false,
     message: ''
   });
   const [authState, setAuthState] = useState({
-    //always logged in for testing
     isLoggedIn: false,
     user: null,
     isLoading: true,
@@ -100,12 +47,10 @@ function AppContent() {
       const status = await checkServerConnectivity();
       setServerStatus(status);
     };
-
     checkConnection();
   }, []);
 
   useEffect(() => {
-    // Check if there's a stored auth token or user data
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setAuthState({
@@ -114,7 +59,7 @@ function AppContent() {
         isLoading: false,
       });
     } else {
-      setAuthState(prevState => ({ ...prevState, isLoading: false }));
+      setAuthState((prevState) => ({ ...prevState, isLoading: false }));
     }
   }, []);
 
@@ -125,7 +70,7 @@ function AppContent() {
       isLoading: false,
     });
     localStorage.setItem('user', JSON.stringify(userData));
-  }
+  };
 
   const logout = async () => {
     try {
@@ -154,7 +99,6 @@ function AppContent() {
       }
     } catch (error) {
       console.error('Logout error:', error);
-      // Optionally, you can still log out the user on the client-side even if the server request fails
       setAuthState({
         isLoggedIn: false,
         user: null,
@@ -178,31 +122,30 @@ function AppContent() {
         <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
         <main className="main-content">
           <Routes>
-            <Route path="/thank_you" element={<ThankYou />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/path/:pathId" element={<PathPage />} />
-            <Route path="/lobby" element={<Lobby />} />
-            <Route path="/create-profile" element={<CreateProfile />} />
-            <Route path="/log-in" element={<LogIn />} />
-            <Route path="/hunt-description/:pathId" element={<HuntDescription />} />
-            <Route path="/path/:pathId/challenge/:challengeIndex" element={<PathPage />} />
-            <Route path="/congratulations" element={<Congratulations />} />
-            <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/create" element={<Create />} />
-                <Route path="/friends" element={<Friends />} />
+            <Route path="/thank_you" element={<ThemeContainer theme={theme}><ThankYou /></ThemeContainer>} />
+            <Route path="/" element={<ThemeContainer theme={theme}><Home /></ThemeContainer>} />
+            <Route path="/about" element={<ThemeContainer theme={theme}><About /></ThemeContainer>} />
+            <Route path="/contact" element={<ThemeContainer theme={theme}><Contact /></ThemeContainer>} />
+            <Route path="/path/:pathId" element={<ThemeContainer theme={theme}><PathPage /></ThemeContainer>} />
+            <Route path="/lobby" element={<ThemeContainer theme={theme}><Lobby /></ThemeContainer>} />
+            <Route path="/create-profile" element={<ThemeContainer theme={theme}><CreateProfile /></ThemeContainer>} />
+            <Route path="/log-in" element={<ThemeContainer theme={theme}><LogIn /></ThemeContainer>} />
+            <Route path="/hunt-description/:pathId" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
+            <Route path="/path/:pathId/challenge/:challengeIndex" element={<ThemeContainer theme={theme}><PathPage /></ThemeContainer>} />
+            <Route path="/congratulations" element={<ThemeContainer theme={theme}><Congratulations /></ThemeContainer>} />
+            <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
+            <Route path="/settings" element={<ThemeContainer theme={theme}><Settings /></ThemeContainer>} />
+            <Route path="/create" element={<ThemeContainer theme={theme}><Create /></ThemeContainer>} />
+            <Route path="/friends" element={<ThemeContainer theme={theme}><Friends /></ThemeContainer>} />
             {authState.isLoggedIn && (
               <>
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/create" element={<Create />} />
-                <Route path="/friends" element={<Friends />} />
+                <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
+                <Route path="/settings" element={<ThemeContainer theme={theme}><Settings /></ThemeContainer>} />
+                <Route path="/create" element={<ThemeContainer theme={theme}><Create /></ThemeContainer>} />
+                <Route path="/friends" element={<ThemeContainer theme={theme}><Friends /></ThemeContainer>} />
               </>
             )}
           </Routes>
-          <BackgroundController />
         </main>
       </div>
     </AuthContext.Provider>
@@ -212,11 +155,11 @@ function AppContent() {
 function App() {
   return (
     <SettingsProvider>
-    <ThemeProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </ThemeProvider>
+      <ThemeProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </ThemeProvider>
     </SettingsProvider>
   );
 }

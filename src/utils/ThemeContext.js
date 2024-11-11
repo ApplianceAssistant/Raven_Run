@@ -49,6 +49,7 @@ export const ThemeSwitcher = () => {
         <option value="fairyland-theme">Fairyland</option>
         <option value="galactic-theme">Galactic</option>
         <option value="spooky-theme">Spooky</option>
+        <option value="ocean-theme">Ocean</option>
         
         {/* Add more options here as needed */}
       </select>

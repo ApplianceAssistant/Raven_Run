@@ -35,44 +35,39 @@ function Settings() {
   };
 
   return (
-    <div className="base-page">
-      <div className="content-wrapper">
-      <div className="spirit-guide"></div>
-        <div className="content">
-          <ScrollableContent maxHeight="60vh">
-            <div className="settings-container">
-            <ThemeSwitcher></ThemeSwitcher>
-              <ToggleSwitch
-                checked={settings.isDarkMode}
-                onToggle={handleDarkModeToggle}
-                label={settings.isDarkMode ? "Dark Mode" : "Light Mode"}
-              />
-              <ToggleSwitch
-                checked={settings.isMetric}
-                onToggle={handleUnitSystemToggle}
-                label={settings.isMetric ? "Metric System (km/m)" : "Imperial System (mi/ft)"}
-              />
-              <ToggleSwitch
-                checked={settings.autoSpeak}
-                onToggle={handleAutoSpeakToggle}
-                label={settings.autoSpeak ? "Auto-Speak On" : "Auto-Speak Off"}
-              />
-              
-              <div className="voice-settings">
-                <VoiceSelector
-                  selectedVoiceURI={settings.selectedVoiceURI}
-                  onVoiceChange={handleVoiceChange}
-                />
-                <button onClick={testVoice} className="test-voice-button">
-                  Test Voice
-                </button>
-              </div>
-              
-            </div>
-          </ScrollableContent>
+    <>
+      <ScrollableContent maxHeight="60vh">
+        <div className="settings-container">
+          <ThemeSwitcher></ThemeSwitcher>
+          <ToggleSwitch
+            checked={settings.isDarkMode}
+            onToggle={handleDarkModeToggle}
+            label={settings.isDarkMode ? "Dark Mode" : "Light Mode"}
+          />
+          <ToggleSwitch
+            checked={settings.isMetric}
+            onToggle={handleUnitSystemToggle}
+            label={settings.isMetric ? "Metric System (km/m)" : "Imperial System (mi/ft)"}
+          />
+          <ToggleSwitch
+            checked={settings.autoSpeak}
+            onToggle={handleAutoSpeakToggle}
+            label={settings.autoSpeak ? "Auto-Speak On" : "Auto-Speak Off"}
+          />
+
+          <div className="voice-settings">
+            <VoiceSelector
+              selectedVoiceURI={settings.selectedVoiceURI}
+              onVoiceChange={handleVoiceChange}
+            />
+            <button onClick={testVoice} className="test-voice-button">
+              Test Voice
+            </button>
+          </div>
+
         </div>
-      </div>
-    </div>
+      </ScrollableContent>
+    </>
   );
 }
 

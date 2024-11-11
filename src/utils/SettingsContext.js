@@ -8,6 +8,7 @@ export const SettingsProvider = ({ children }) => {
     isMetric: JSON.parse(localStorage.getItem('unitSystem') || 'false'),
     selectedVoiceURI: localStorage.getItem('selectedVoiceURI') || '',
     autoSpeak: JSON.parse(localStorage.getItem('autoSpeak') || 'false'),
+    theme: localStorage.getItem('theme') || 'default',
   }));
 
   useEffect(() => {
