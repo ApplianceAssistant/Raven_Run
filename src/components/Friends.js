@@ -126,74 +126,72 @@ function Friends() {
     };
 
     return (
-        <div className="content-wrapper">
-            <div className="content">
-                <ScrollableContent maxHeight="60vh">
-                    {error && <p className="error-message">{error}</p>}
-                    <div className="friends-search">
-                        <button onClick={handleSearch} className="search-button">Search</button>
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search users"
-                            className="search-input"
-                        />
-                    </div>
-                    <div className="search-results">
-                        {searchResults.map(user => (
-                            <div key={user.id} className="user-item">
-                                {user.username}
-                                <button onClick={() => sendFriendRequest(user.id)}>Add Friend</button>
+        <div className="content">
+            <ScrollableContent maxHeight="60vh">
+                {error && <p className="error-message">{error}</p>}
+                <div className="friends-search">
+                    <button onClick={handleSearch} className="search-button">Search</button>
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search users"
+                        className="search-input"
+                    />
+                </div>
+                <div className="search-results">
+                    {searchResults.map(user => (
+                        <div key={user.id} className="user-item">
+                            {user.username}
+                            <button onClick={() => sendFriendRequest(user.id)}>Add Friend</button>
+                        </div>
+                    ))}
+                </div>
+                <div className="friend-requests">
+                    <h3>Friend Requests</h3>
+                    {friendRequests.length > 0 ? (
+                        friendRequests.map(request => (
+                            <div key={request.id} className="request-item">
+                                {request.sender_username}
+                                <button onClick={() => acceptFriendRequest(request.id)}>Accept</button>
                             </div>
-                        ))}
-                    </div>
-                    <div className="friend-requests">
-                        <h3>Friend Requests</h3>
-                        {friendRequests.length > 0 ? (
-                            friendRequests.map(request => (
-                                <div key={request.id} className="request-item">
-                                    {request.sender_username}
-                                    <button onClick={() => acceptFriendRequest(request.id)}>Accept</button>
+                        ))
+                    ) : (
+                        <p className="placeholder-text">No pending requests</p>
+                    )}
+                </div>
+                <div className="friends-list">
+                    <h3>Your Friends</h3>
+                    {friends.length > 0 ? (
+                        friends.map(friend => (
+                            <div key={friend.id} className="friend-item">
+                                {friend.username}
+                                <div className="profile-image-container small">
+                                    {friend.profile_picture_url ? (
+                                        <div className="profile-image">
+                                            <img src={friend.profile_picture_url} alt="Profile" />
+                                        </div>
+                                    ) : (
+                                        <div className="profile-image-placeholder">
+                                            <FontAwesomeIcon icon={faUser} size="1x" />
+                                        </div>
+                                    )}
                                 </div>
-                            ))
-                        ) : (
-                            <p className="placeholder-text">No pending requests</p>
-                        )}
-                    </div>
-                    <div className="friends-list">
-                        <h3>Your Friends</h3>
-                        {friends.length > 0 ? (
-                            friends.map(friend => (
-                                <div key={friend.id} className="friend-item">
-                                    {friend.username}
-                                    <div className="profile-image-container small">
-                                        {friend.profile_picture_url ? (
-                                            <div className="profile-image">
-                                                <img src={friend.profile_picture_url} alt="Profile" />
-                                            </div>
-                                        ) : (
-                                            <div className="profile-image-placeholder">
-                                                <FontAwesomeIcon icon={faUser} size="1x" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => removeFriend(friend.id)}
-                                        className="remove-button"
-                                        aria-label="Remove feedback"
-                                    >
-                                        <span className="remove-icon">×</span>
-                                    </button>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="placeholder-text">No connections yet</p>
-                        )}
-                    </div>
-                </ScrollableContent>
-            </div>
+                                <button
+                                    type="button"
+                                    onClick={() => removeFriend(friend.id)}
+                                    className="remove-button"
+                                    aria-label="Remove feedback"
+                                >
+                                    <span className="remove-icon">×</span>
+                                </button>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="placeholder-text">No connections yet</p>
+                    )}
+                </div>
+            </ScrollableContent>
         </div>
     );
 }

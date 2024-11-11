@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
-import '../css/Header.scss';
+import '../css/App.scss';
 
 function Header({ isMenuOpen, toggleMenu }) {
   const { isLoggedIn, logout } = useContext(AuthContext);
@@ -21,15 +21,16 @@ function Header({ isMenuOpen, toggleMenu }) {
         { label: 'Home', path: '/' },
         { label: 'About', path: '/about' },
         { label: 'Contact', path: '/contact' },
-        //{ label: 'Create', path: '/create' },
+        { label: 'Create', path: '/create' },
         { label: 'Settings', path: '/settings' },
-        //{ label: 'Log Out', path: '/logout' }  // We'll handle this specially
+        { label: 'Log Out', path: '/logout' }  // We'll handle this specially
       ];
     } else {
       const baseItems = [
         { label: 'Home', path: '/' },
         { label: 'About', path: '/about' },
-        { label: 'Contact', path: '/contact' }
+        { label: 'Contact', path: '/contact' },
+        { label: 'Settings', path: '/settings' },
       ];
       if (location.pathname === '/log-in') {
         return [...baseItems, { label: 'Create Profile', path: '/create-profile' }];
@@ -89,8 +90,6 @@ function Header({ isMenuOpen, toggleMenu }) {
           {isMenuOpen ? '✕' : '☰'}
         </div>
       </header>
-
-      <div className={`menu-overlay ${isMenuOpen ? 'open' : ''}`} onClick={toggleMenu}></div>
     </>
   );
 }

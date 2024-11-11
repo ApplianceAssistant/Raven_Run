@@ -1,0 +1,226 @@
+// _spooky-theme.scss
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&display=swap'); //spooky typeface
+//@import url('https://fonts.googleapis.com/css2?family=Creepster:wght@400;700&display=swap'); //creepshow typeface
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Wet+Paint:wght@400;700&display=swap'); //spooky typeface
+
+.spooky-theme {
+  --font-family: 'Cormorant Garamond', serif;
+  --font-family-heading: 'Rubik Wet Paint', serif;
+  --page-bg: #f1f1f1;
+  --text-color: #2c2c2c;
+  --button-bg: #7a2d2d; // Dark, blood red
+  --button-bg-hint: #bababa;
+  --button-bg-save: #4e5b44; // Muted olive green
+  --button-bg-caution: #a83434;
+  --button-text-color: #ffffff;
+  --button-hover-bg: #5e2323; // Deeper blood red for hover
+  --button-disabled-bg: #d3d3d3;
+  --button-disabled-text: #a0a0a0;
+  --slider-bg-on: #a83434;
+  --slider-bg-off: #bababa;
+  --link-color: #7a3f3f; // Muted red for links
+  --border-color: #e7e4e4;
+  --shadow: rgba(94, 94, 94, 0.5);
+  --input-bg: #ececec;
+  --input-text-color: #2c2c2c;
+  --modal-bg: #ffffff;
+
+  &.dark-mode {
+    --page-bg: #1c1c24;
+    --text-color: #e7e5e5;
+    --button-bg: #722d2d; // Deep, dark red for button
+    --button-bg-hint: #2a2a2a;
+    --button-bg-save: #3d4e38; // Darker olive green for save
+    --button-bg-caution: #b40101;
+    --button-text-color: #e0e0e0;
+    --button-hover-bg: #3e1414; // Darker red for hover
+    --button-disabled-bg: #333333;
+    --button-disabled-text: #777777;
+    --slider-bg-on: #722d2d;
+    --slider-bg-off: #838282;
+    --link-color: #b15b5b; // Muted warm red for links
+    --border-color: #eeeded;
+    --input-bg: #1a1a1a;
+    --input-text-color: #d3d3d3;
+    --modal-bg: #101010;
+    --shadow: rgba(243, 243, 243, 0.5);
+  }
+}
+
+.spirit-spot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(ellipse at center,
+      rgba(0, 0, 0, 0.15) 25%,
+      rgba(0, 0, 0, 0.15) 35%,
+      rgba(0, 0, 0, 0.1) 60%,
+      rgba(255, 255, 255, 0.0) 100%);
+  border-radius: 50%;
+  animation: move 15s infinite;
+  opacity: 0;
+
+  .dark-mode & {
+    background: radial-gradient(ellipse at center,
+        rgba(248, 248, 247, 0.35) 25%,
+        rgba(239, 253, 253, 0.35) 35%,
+        rgba(180, 226, 247, 0.25) 60%,
+        rgba(255, 255, 255, 0.0) 100%);
+  }
+}
+
+//create second move animation
+@keyframes move {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(.3);
+    opacity: 0.2;
+  }
+
+  25% {
+    transform: translate(100px, 150px) scale(.9);
+    opacity: .4;
+  }
+
+  50% {
+    transform: translate(-100px, 50px) scale(1.2);
+    opacity: 0.6;
+  }
+
+  75% {
+    transform: translate(50px, -100px) scale(1);
+    opacity: 0.5;
+  }
+}
+
+.spirit-guide {
+  position: fixed;
+  transition: all 1s ease-in-out;
+  --spirit-guide-color: rgb(var(--spirit-guide-red), var(--spirit-guide-green), var(--spirit-guide-blue));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70vw;
+  height: 75vh;
+  max-width: 600px;
+  max-height: 1500px;
+  min-width: 260px;
+  background: radial-gradient(ellipse at center,
+      rgba(0, 0, 0, 0.1) 25%,
+      rgba(0, 0, 0, 0.08) 35%,
+      rgba(0, 0, 0, 0.05) 60%,
+      rgba(0, 0, 0, 0.0) 100%);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+  transition: 0.5s ease-in-out, transform 1s ease-in-out;
+  border-radius: 50% / 50%;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+
+  .dark-mode & {
+    background: radial-gradient(ellipse at center,
+        rgba(var(--spirit-guide-red), var(--spirit-guide-green), var(--spirit-guide-blue), 0.397) 25%,
+        rgba(var(--spirit-guide-red), var(--spirit-guide-green), var(--spirit-guide-blue), 0.315) 35%,
+        rgba(var(--spirit-guide-red), var(--spirit-guide-green), var(--spirit-guide-blue), 0.123) 60%,
+        rgba(var(--spirit-guide-red), var(--spirit-guide-green), var(--spirit-guide-blue), 0.0) 100%);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+  }
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  &::before {
+    background: radial-gradient(ellipse at center,
+        rgba(0, 0, 0, 0.08) 0%,
+        rgba(0, 0, 0, 0.06) 35%,
+        rgba(0, 0, 0, 0.04) 70%,
+        rgba(0, 0, 0, 0.0) 100%);
+    animation:
+      fluctuateSize 5s ease-in-out infinite,
+      fluctuatePosition 7s ease-in-out infinite,
+      fluctuateIntensity 7s ease-in-out infinite;
+
+    .dark-mode & {
+      background: radial-gradient(ellipse at center,
+          rgba(248, 248, 247, 0.2) 0%,
+          rgba(239, 253, 253, 0.15) 35%,
+          rgba(180, 226, 247, 0.1) 70%,
+          rgba(255, 255, 255, 0.0) 100%);
+    }
+  }
+
+  &::after {
+    background: radial-gradient(ellipse at center,
+        rgba(0, 0, 0, 0.05) 0%,
+        rgba(0, 0, 0, 0.04) 35%,
+        rgba(0, 0, 0, 0.03) 70%,
+        rgba(0, 0, 0, 0.0) 100%);
+    animation:
+      fluctuateSize 7s ease-in-out infinite reverse,
+      fluctuatePosition 7s ease-in-out infinite reverse,
+      fluctuateIntensity 10s ease-in-out infinite;
+
+    .dark-mode & {
+      background: radial-gradient(ellipse at center,
+          rgba(248, 248, 247, 0.1) 0%,
+          rgba(239, 253, 253, 0.08) 35%,
+          rgba(180, 226, 247, 0.05) 70%,
+          rgba(255, 255, 255, 0.0) 100%);
+    }
+  }
+}
+
+@keyframes fluctuateSize {
+
+  0%,
+  100% {
+    transform: scale(.9);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes fluctuateIntensity {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes fluctuatePosition {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(5px, 7px);
+  }
+
+  50% {
+    transform: translate(-7px, 5px);
+  }
+
+  75% {
+    transform: translate(6px, -7px);
+  }
+}

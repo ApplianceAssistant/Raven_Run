@@ -1,0 +1,208 @@
+// _fairy-theme.scss
+@import url('https://fonts.googleapis.com/css2?family=Lavishly+Yours:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Shantell+Sans:wght@400;700&display=swap');
+
+
+.fairyland-theme {
+  --font-family: 'Shantell Sans', serif; // Elegant, whimsical serif for a magical feel
+  --font-family-heading: 'Lavishly Yours', serif;
+  --page-bg: linear-gradient(75deg, #f0f5e9, #d8d8d8); // Soft pastel green gradient for a dreamy, natural feel
+  --text-color: #3a2d3d; // Soft plum for a readable but fantasy-inspired text color
+  --button-bg: #a085d3; // Soft lavender for buttons to add a whimsical touch
+  --button-bg-hint: #f4c2c2; // Blush pink hint button to add a gentle accent
+  --button-bg-save: #77c043; // Mossy green for a nature-inspired save button
+  --button-bg-caution: #e57373; // Muted red-pink for caution
+  --button-text-color: #ffffff; // White text for readability on colored buttons
+  --button-hover-bg: #8d70c4; // Darker lavender for a subtle hover effect
+  --button-disabled-bg: #e0e0e0; // Light gray for disabled buttons
+  --button-disabled-text: #888888; // Medium gray for disabled text
+  --slider-bg-on: #8860d3; // Matches button background for a consistent on state
+  --slider-bg-off: #b3a4d1; // Light gray for the off state
+  --link-color: #8364a2; // Soft purple link color to match the fairy theme
+  --border-color: #c9cac4; // Light green-gray border for a gentle effect
+  --shadow: rgba(153, 153, 204, 0.5); // Soft, misty purple shadow for a magical depth
+  --input-bg: #f8f3f7; // Light pink-tinted background for inputs
+  --input-text-color: #3a2d3d; // Plum text for inputs to match theme text color
+  --modal-bg: #ffffff; // Pure white for modals to keep them clean and readable
+
+  &.dark-mode {
+    //--page-bg: #1e1a26; // Deep twilight purple for a mystical night setting
+    --page-bg: linear-gradient(145deg, #1e1a26, #2a2133); // Deep twilight gradient from purple to dusky violet for a mystical night setting
+    --text-color: #e6e1e9; // Soft lavender-gray for high contrast in dark mode
+    --button-bg: #8364a2; // Darker lavender to match the night theme
+    --button-bg-hint: #b96b73; // Muted rose for hint buttons in dark mode
+    --button-bg-save: #5b8b3b; // Deep forest green for save button
+    --button-bg-caution: #b25a5a; // Muted maroon for caution in dark mode
+    --button-text-color: #ffffff; // White text for button readability
+    --button-hover-bg: #6a4d88; // Slightly darker hover effect
+    --button-disabled-bg: #444444; // Dark gray for disabled buttons
+    --button-disabled-text: #888888; // Medium gray for disabled text
+    --slider-bg-on: #8364a2; // Lavender on-state for slider
+    --slider-bg-off: #666666; // Dark gray for slider off state
+    --link-color: #b6a3cc; // Soft purple for links
+    --border-color: #ceb6ee; // Dark gray-purple for a subtle border
+    --input-bg: #2c2635; // Deep purple background for inputs
+    --input-text-color: #e6e1e9; // Light lavender text for readability in dark mode
+    --modal-bg: #27212f; // Darkened modal background for night mood
+    --shadow: rgba(243, 243, 243, 0.5);
+  }
+}
+
+.fairy-guide {
+  position: fixed;
+  border-radius: 50%;
+  transition: all 1s ease-in-out;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60vw;
+  height: 70vh;
+  max-width: 500px;
+  max-height: 1200px;
+  min-width: 200px;
+  background: radial-gradient(ellipse at center,
+      rgba(255, 255, 204, 0.2) 20%,
+      rgba(255, 204, 255, 0.15) 40%,
+      rgba(204, 255, 255, 0.1) 70%,
+      rgba(255, 255, 255, 0) 100%);
+  box-shadow: 0 0 50px rgba(255, 255, 200, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+
+  .dark-mode & {
+    background: radial-gradient(ellipse at center,
+        rgba(255, 255, 180, 0.3) 20%,
+        rgba(240, 210, 255, 0.2) 40%,
+        rgba(200, 240, 240, 0.15) 70%,
+        rgba(255, 255, 255, 0) 100%);
+    box-shadow: 0 0 60px rgba(255, 255, 240, 0.5);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(circle at center,
+        rgba(255, 255, 200, 0.3),
+        rgba(255, 150, 255, 0.2),
+        rgba(150, 255, 255, 0.1),
+        rgba(255, 255, 255, 0));
+    animation: fairyFlare 4s ease-in-out infinite, colorShift 8s ease-in-out infinite;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(circle at center,
+        rgba(255, 255, 230, 0.2),
+        rgba(240, 180, 250, 0.15),
+        rgba(180, 240, 255, 0.1),
+        rgba(255, 255, 255, 0));
+    animation: fairyFlare 6s ease-in-out infinite reverse, colorShift 10s ease-in-out infinite;
+  }
+}
+
+/* Keyframes for Fairy Flare (Gentle Pulsing) */
+@keyframes fairyFlare {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+    box-shadow: 0 0 40px rgba(255, 255, 200, 0.4);
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+    box-shadow: 0 0 60px rgba(255, 255, 230, 0.6);
+  }
+}
+
+/* Keyframes for Subtle Color Shifting */
+@keyframes colorShift {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  33% {
+    filter: hue-rotate(45deg);
+  }
+  66% {
+    filter: hue-rotate(90deg);
+  }
+  100% {
+    filter: hue-rotate(0deg);
+  }
+}
+
+
+
+.falling-leaf {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: url('../images/assets/leaf.png') no-repeat center/cover;
+  border-radius: 50%;
+  opacity: 0;
+  animation: fallAndSway 15s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+}
+
+/* Alternate leaf colors for variety */
+.falling-leaf:nth-child(4n + 1) {
+  filter: hue-rotate(30deg);
+}
+
+.falling-leaf:nth-child(4n + 2) {
+  filter: hue-rotate(90deg);
+}
+
+.falling-leaf:nth-child(4n + 3) {
+  filter: hue-rotate(180deg);
+}
+
+.falling-leaf:nth-child(4n + 4) {
+  filter: hue-rotate(0deg);
+}
+
+/* Enhanced Fall and Sway Animation */
+@keyframes fallAndSway {
+  0% {
+    top: -10%;
+    transform: translateX(0) scale(0.8) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(20px) scale(1) rotate(90deg);
+  }
+  30% {
+    transform: translateX(-20px) scale(0.7) rotate(180deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateX(40px) scale(1.2) rotate(270deg);
+    opacity: 1;
+  }
+  70% {
+    transform: translateX(-40px) scale(0.7) rotate(360deg);
+    opacity: 0.7;
+  }
+  85% {
+    transform: translateX(20px) scale(1) rotate(450deg);
+    opacity: 0.9;
+  }
+  100% {
+    top: 110%;
+    transform: translateX(0) scale(0.8) rotate(540deg);
+    opacity: 0;
+  }
+}

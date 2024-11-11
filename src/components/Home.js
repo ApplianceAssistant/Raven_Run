@@ -7,43 +7,40 @@ function Home() {
   const { isLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleJoin = () => {
-    navigate('/create-profile');
-  };
-
-  const handleLogIn = () => {
-    navigate('/log-in');
+  const handleCreateIndex = () => {
+    //route user to non logged in create hunt details page
+    navigate('/create');
+  }
+  const handleCreate = () => {
+    //route user to non logged in create hunt details page
+    navigate('/create');
   }
 
-  const handleEnter = () => {
+  const handlePlayIndex = () => {
+    //route user to non logged in play details page
+    navigate('/lobby');
+  }
+
+  const handlePlay = () => {
+    //route user to the play lobby
     navigate('/lobby');
   };
-  const handleLearnMore = () => {
-    navigate('/about');
-  }
+
   return (
     <>
-      <div className="background"></div>
-      <div className="content-wrapper">
-        <div className="spirit-guide large">
-          <div className="content">
-            <div className="bodyContent">
-              <div className="button-container">
-                {isLoggedIn ? (
-                  <button onClick={handleEnter} className="enter-button">Lobby</button>
-                ) : (
-                  <>
-                    <button onClick={handleJoin} className="join-button">Join</button>
-                    <button onClick={handleLogIn}className="enter-button">Log In</button>
-                  </>
-                )}
-              </div>
-              <h3>Crow Tours is currently in alpha testing</h3>
-              <p>We're excited to have you join our flock of early explorers! Your feedback is invaluable in helping us refine and improve the game.</p>
-            </div>
-          </div>
+        <div className="button-container home">
+          {isLoggedIn ? (
+            <>
+              <button onClick={handleCreate} className="join-button">Create</button>
+              <button onClick={handlePlay} className="enter-button">Play</button>
+            </>
+          ) : (
+            <>
+              <button onClick={handleCreateIndex} className="join-button">Create</button>
+              <button onClick={handlePlayIndex} className="enter-button">Play</button>
+            </>
+          )}
         </div>
-      </div>
     </>
   );
 }

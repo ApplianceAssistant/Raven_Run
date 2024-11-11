@@ -8,12 +8,12 @@ export const SettingsProvider = ({ children }) => {
     isMetric: JSON.parse(localStorage.getItem('unitSystem') || 'false'),
     selectedVoiceURI: localStorage.getItem('selectedVoiceURI') || '',
     autoSpeak: JSON.parse(localStorage.getItem('autoSpeak') || 'false'),
+    theme: localStorage.getItem('theme') || 'default',
   }));
 
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(settings.isDarkMode));
     document.body.classList.toggle('dark-mode', settings.isDarkMode);
-    document.body.classList.toggle('light-mode', !settings.isDarkMode);
   }, [settings.isDarkMode]);
 
   useEffect(() => {

@@ -1,0 +1,115 @@
+// _jurassic-theme.scss
+@import url('https://fonts.googleapis.com/css2?family=Staatliches:wght@400;700&display=swap');
+//import Special Elite
+@import url('https://fonts.googleapis.com/css2?family=Unkempt&display=swap');
+
+.jurassic-theme {
+    --font-family: 'Unkempt', serif;
+    --font-family-heading: 'Staatliches', serif;
+    --page-bg: #e3e0cf; // Light sandy beige to resemble aged stone
+    --text-color: #3e3b31; // Dark earthy brown for readable contrast
+    --button-bg: #6b8e23; // Olive green for a natural, jungle-inspired touch
+    --button-bg-hint: #c8b784; // Muted sand beige for hint buttons
+    --button-bg-save: #4a6e31; // Deep forest green for a "safe" tone
+    --button-bg-caution: #a52a2a; // Rusty red-brown for a cautionary effect
+    --button-text-color: #ffffff; // White for clarity on colored buttons
+    --button-hover-bg: #556b2f; // Dark olive for a subtle hover effect
+    --button-disabled-bg: #d3d3d3; // Gray for disabled buttons
+    --button-disabled-text: #808080; // Medium gray for disabled text
+    --slider-bg-on: #6b8e23; // Olive green matching button background for on-state
+    --slider-bg-off: #b8b894; // Light stone gray for off-state
+    --link-color: #4e643d; // Muted forest green for links
+    --border-color: #706d5c; // Sandy gray for subtle borders
+    --shadow: rgba(77, 77, 77, 0.5); // Earthy shadow effect for depth
+    --input-bg: #f4f1e3; // Light stone background for inputs
+    --input-text-color: #3e3b31; // Dark earthy brown to match main text color
+    --modal-bg: #ffffff; // Clean white for a readable modal background
+
+    &.dark-mode {
+        --page-bg: #2a2c28; // Deep, forested green-gray for a nighttime jungle vibe
+        --text-color: #d4d0b1; // Pale sandy gray for contrast
+        --button-bg: #556b2f; // Dark olive for the button background
+        --button-bg-hint: #6c6754; // Muted stone brown for hint buttons
+        --button-bg-save: #3b5d25; // Deep forest green for save
+        --button-bg-caution: #7b2c2c; // Dark rusty red for caution
+        --button-text-color: #ffffff; // White text for readability on buttons
+        --button-hover-bg: #4b5a24; // Deeper olive green on hover
+        --button-disabled-bg: #555555; // Dark gray for disabled buttons
+        --button-disabled-text: #888888; // Medium gray for disabled text
+        --slider-bg-on: #6b8e23; // Same olive green for on-state
+        --slider-bg-off: #4e4e3d; // Dark earthy gray for off-state
+        --link-color: #9c9f84; // Pale forest green for links
+        --border-color: #c5c1aa; // Dark gray-brown for borders
+        --input-bg: #3a3a32; // Dark stone background for inputs
+        --input-text-color: #d4d0b1; // Light sandy gray for input text
+        --modal-bg: #2f2f2a; // Darkened modal background for night effect
+        --shadow: rgba(243, 243, 243, 0.5);
+        .spore {
+            background: radial-gradient(circle, rgba(145, 170, 53, 0.9), rgba(120, 141, 3, 0));
+        }
+        .trees {
+            opacity: .4;
+        }
+    }
+
+    .trees {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        height: 100vh;
+        background: url('../images/assets/jurassic-trees.png') no-repeat center bottom;
+        background-size: cover;
+        opacity: 0.2;
+        margin-top: -30px;
+    }
+
+    .spore {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: radial-gradient(circle, rgba(250, 252, 179, 0.7), rgba(255, 255, 255, 0));
+        border-radius: 50%;
+        filter: blur(2px);
+        animation: driftSpore 20s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+    }
+
+    /* Randomized variations */
+    .spore:nth-child(3n) {
+        animation-duration: 22s;
+        animation-delay: -5s;
+    }
+
+    .spore:nth-child(4n) {
+        animation-duration: 18s;
+        animation-delay: -10s;
+    }
+
+    .spore:nth-child(5n) {
+        animation-duration: 30s;
+        animation-delay: -15s;
+    }
+}
+
+/* Floating Spores Animations */
+@keyframes driftSpore {
+    0% {
+      transform: translate(0, 0);
+      opacity: 0.8;
+    }
+    25% {
+      transform: translate(60px, 20px);
+      opacity: 0.6;
+    }
+    50% {
+      transform: translate(120px, 60px);
+      opacity: 0.9;
+    }
+    75% {
+      transform: translate(60px, -120px);
+      opacity: 0.4;
+    }
+    100% {
+      transform: translate(0, 0);
+      opacity: 0.1;
+    }
+  }

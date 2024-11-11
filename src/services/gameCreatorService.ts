@@ -41,6 +41,7 @@ export const generateUniquePathId = async (length: number = 12): Promise<string>
       console.error('Error checking path_id uniqueness:', error);
       // If there's an error, we'll assume it's unique to avoid an infinite loop
       isUnique = true;
+      return generatedPathId;
     }
   }
 

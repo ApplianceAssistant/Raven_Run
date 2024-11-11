@@ -76,32 +76,31 @@ const HuntDescription = () => {
     );
 
     return (
-        <div className="content-wrapper">
-            <div className="spirit-guide large">
-                <div className="hunt-description content">
-                    <h2>{hunt.name}</h2>
-                    {huntAnalysis && (
-                        <div className="hunt-analysis">
-                            <p>Total Challenges: {huntAnalysis.totalChallenges}</p>
-                            {huntAnalysis.maxDistance && (
-                                <p>Distance: {huntAnalysis.maxDistance} {huntAnalysis.unit}</p>
-                            )}
-                        </div>
-                    )}
-                    <ScrollableContent maxHeight="60vh">
-                        {hunt.description && (
-                            <p className="challenge-description">
-                                {hunt.description.split('\n').map((line, index) => (
-                                    <React.Fragment key={index}>
-                                        {line}
-                                        {index < hunt.description.split('\n').length - 1 && <br />}
-                                    </React.Fragment>
-                                ))}
-                            </p>
+        <>
+            <div className="hunt-description content">
+                <h2>{hunt.name}</h2>
+                {huntAnalysis && (
+                    <div className="hunt-analysis">
+                        <p>Total Challenges: {huntAnalysis.totalChallenges}</p>
+                        {huntAnalysis.maxDistance && (
+                            <p>Distance: {huntAnalysis.maxDistance} {huntAnalysis.unit}</p>
                         )}
-                    </ScrollableContent>
-                </div>
+                    </div>
+                )}
+                <ScrollableContent maxHeight="60vh">
+                    {hunt.description && (
+                        <p className="challenge-description">
+                            {hunt.description.split('\n').map((line, index) => (
+                                <React.Fragment key={index}>
+                                    {line}
+                                    {index < hunt.description.split('\n').length - 1 && <br />}
+                                </React.Fragment>
+                            ))}
+                        </p>
+                    )}
+                </ScrollableContent>
             </div>
+
             <div className={`button-container-bottom visible`}>
                 {hunt.description && (
                     <TextToSpeech
@@ -119,7 +118,7 @@ const HuntDescription = () => {
                 title="Disclaimer"
                 content={disclaimerContent}
             />
-        </div>
+        </>
     );
 };
 

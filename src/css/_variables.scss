@@ -1,38 +1,28 @@
-// _variables.scss
-
-// Dark Mode Colors (default)
-$dark-bg: #121212;
-$darker-bg: #0a0a0a;
-$spooky-accent: #7d1e1e;
-$spooky-accent-B: #681616;
-$spot: #b1f3f8;
-$text-color: #e0e0e0;
-$link-color: #b35959;
-
-// Light Mode Colors
-$light-bg: #ffffff;
-$lighter-bg: #f0f0f0;
-$light-text-color: #000000;
-$light-link-color: #8b0000;
-$light-accent: #ff9999;
-
-// Form and Button Colors (consistent across modes)
-$form-bg: #1e1e1e;
-$form-text: #e0e0e0;
-$button-bg: $spooky-accent;
-$button-text: #e0e0e0;
-$button-disabled-bg: #4a4a4a;
-$button-disabled-text: #a0a0a0;
-
-// Gradients
-$spooky-gradient: linear-gradient(to bottom, $dark-bg, $darker-bg);
-$accent-gradient: linear-gradient(to right, $spooky-accent, darken($spooky-accent-B, 10%));
-
-// Shadows
-$eerie-shadow: 0 0 20px rgba(123, 30, 30, 0.5);
-$light-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+// _variables.scss (Base Variables)
+:root {
+  --font-family: 'Roboto', sans-serif;
+  --page-bg: #f7f9fc;
+  --text-color: #333333;
+  --button-bg: #006bb5;
+  --button-bg-hint: #dfb601;
+  --button-bg-save: #009a00;
+  --button-bg-caution: #e63946;
+  --button-text-color: #ffffff;
+  --button-hover-bg: #005a8a;
+  --button-disabled-bg: #cccccc;
+  --button-disabled-text: #666666;
+  --slider-bg-on: #0069b5;
+  --slider-bg-off: #cccccc;
+  --link-color: #006bb5;
+  --border-color: #ffffff;
+  --shadow: rgba(94, 94, 94, 0.5);
+  --input-bg: #f9f9f9;
+  --input-text-color: #333333;
+  --modal-bg: #f7f9fc;
+}
 
 // Breakpoints
+$breakpoint-xs: 200px;
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 992px;
@@ -46,37 +36,6 @@ $breakpoint-mobile: $breakpoint-md - 1;
   }
 }
 
-@mixin spooky-transition {
+@mixin smooth-transition {
   transition: all 0.3s ease-in-out;
-}
-
-// Theme mixin
-@mixin theme-aware($property, $dark-value, $light-value) {
-  #{$property}: $dark-value;
-  
-  .light-mode & {
-    #{$property}: $light-value;
-  }
-}
-
-// New mixin for form elements and buttons
-@mixin form-element {
-  background-color: $form-bg;
-  color: $form-text;
-  border: 1px solid $spooky-accent;
-}
-
-@mixin button-style {
-  background-color: $button-bg;
-  color: $button-text;
-
-  .light-mode & {
-    color: $button-text; // Add this line
-  }
-  
-  &:disabled {
-    background-color: $button-disabled-bg;
-    color: $button-disabled-text;
-    cursor: not-allowed;
-  }
 }

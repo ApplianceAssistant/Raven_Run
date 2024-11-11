@@ -9,15 +9,15 @@ const VoiceSelector = () => {
   };
 
   if (isLoading) {
-    return <div className="voice-selector">Loading voices...</div>;
+    return <div className="selector">Loading voices...</div>;
   }
 
   if (voices.length === 0) {
-    return <div className="voice-selector">No voices available</div>;
+    return <div className="selector">No voices available</div>;
   }
 
   return (
-    <div className="voice-selector">
+    <div className="selector">
       <label htmlFor="voice-select">Select Voice:</label>
       <select
         id="voice-select"

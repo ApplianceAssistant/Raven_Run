@@ -12,9 +12,7 @@
     margin-bottom: 15px;
   }
   .path-id-display {
-    font-family: 'Crimson Text', serif;
     font-size: 1.1em;
-    @include theme-aware('color', darken($text-color, 20%), lighten($light-text-color, 20%));
     display: inline-block;
     min-width: 200px;
     text-align: center;

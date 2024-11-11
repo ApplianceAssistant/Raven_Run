@@ -68,7 +68,7 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeec
           </div>
         </ScrollableContent>
         {buttons && buttons.length > 0 && (
-          <div className="modal-buttons">
+          <div className="button-container">
             {showTextToSpeech &&  <TextToSpeech 
             text={textToSpeak} 
             autoPlayTrigger={autoPlayTrigger}

@@ -1,0 +1,47 @@
+// _galactic-theme.scss
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@100;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Electrolize:wght@400;700&display=swap');
+
+.galactic-theme {
+    --font-family: 'Electrolize', serif;
+    --font-family-heading: 'Orbitron', serif;
+    --page-bg: linear-gradient(135deg, #e0f7ff, #f9e0ff); // Light blue-to-pink nebula gradient
+    --text-color: #2d3142; // Dark navy for readability and contrast
+    --button-bg: #6a5acd; // Spacey lavender blue
+    --button-bg-hint: #b4a7e7; // Soft lavender hint button
+    --button-bg-save: #4caf50; // Bright, galaxy-green save button
+    --button-bg-caution: #f56565; // Caution red, reminiscent of red giant stars
+    --button-text-color: #ffffff; // White for contrast against colored buttons
+    --button-hover-bg: #5a4db2; // Deeper lavender for hover effect
+    --button-disabled-bg: #e0e0e0; // Light gray for disabled buttons
+    --button-disabled-text: #888888; // Medium gray for disabled text
+    --slider-bg-on: #8d83cf; // Matches button background for on-state
+    --slider-bg-off: #afb7d4; // Soft gray-blue for off-state
+    --link-color: #557de8; // Bright blue link color for cosmic feel
+    --border-color: #555666; // Light bluish-lavender border for subtlety
+    --shadow: rgba(153, 153, 204, 0.4); // Soft, misty shadow for depth
+    --input-bg: #f3f7ff; // Soft, nebula-inspired light blue
+    --input-text-color: #2d3142; // Dark navy for readability
+    --modal-bg: #ffffff; // Clean white for modals to ensure readability
+  
+    &.dark-mode {
+      --page-bg: linear-gradient(145deg, #25205f, #210f38, #070016); // Deep purple-blue gradient with black for nebula effect
+      --text-color: #d9dce4; // Soft white-gray for readability on dark backgrounds
+      --button-bg: #53358c; // Rich purple for a vibrant space feel
+      --button-bg-hint: #6c58a7; // Softened violet hint button for dark mode
+      --button-bg-save: #3f8f4a; // Galaxy green with darker tones for save
+      --button-bg-caution: #b23a3a; // Deep red for caution in dark mode
+      --button-text-color: #ffffff; // White text for clarity on buttons
+      --button-hover-bg: #442a74; // Darker purple for hover effect
+      --button-disabled-bg: #444444; // Deep gray for disabled buttons
+      --button-disabled-text: #888888; // Medium gray for disabled text
+      --slider-bg-on: #53358c; // Matches button background for slider on-state
+      --slider-bg-off: #69698d; // Dark muted blue-gray for off-state
+      --link-color: #8aa3ff; // Bright nebula blue for links
+      --border-color: #babae7; // Dark bluish-gray for borders in dark mode
+      --input-bg: #1c1c2e; // Dark blue-black for input background
+      --input-text-color: #d9dce4; // Light gray text in inputs
+      --modal-bg: #2b2b3d; // Deep space-inspired modal background
+      --shadow:  rgba(243, 243, 243, 0.5);
+    }
+  }

@@ -1,0 +1,22 @@
+// _dark-mode.scss
+
+.dark-mode {
+  --page-bg: #121212;
+  --text-color: #e2e2e2;
+  --button-bg: #005f8c;
+  --button-bg-hint: #dfb601;
+  --button-bg-save: #007700;
+  --button-bg-caution: #b92d35;
+  --button-text-color: #ffffff;
+  --button-hover-bg: #004d73;
+  --button-disabled-bg: #444444;
+  --button-disabled-text: #888888;
+  --slider-bg-on: #007acc;
+  --slider-bg-off: #666666;
+  --link-color: #a0a8ff;
+  --border-color: #2a2a2a;
+  --shadow: rgba(243, 243, 243, 0.5);
+  --input-bg: #313131;
+  --input-text-color: #eeeeee;
+  --modal-bg: #1c1c1c;
+}
