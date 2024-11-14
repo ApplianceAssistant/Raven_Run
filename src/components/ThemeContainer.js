@@ -33,8 +33,6 @@ const ThemeContainer = ({ children, theme }) => {
       canvas.height = canvas.clientHeight;
   
       if (theme === 'pirate-theme') {
-        animatePirateFlag(ctx, canvas);
-      } else if (theme === 'jurassic-theme') {
         animateSeaSurface(ctx, canvas);
       }
   
