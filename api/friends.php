@@ -1,9 +1,9 @@
 <?php
 
-require_once('../server/db_connection.php');
-require_once('errorHandler.php');
-require_once('../server/encryption.php');
-require_once('auth.php');
+require_once(__DIR__ . '/../server/db_connection.php');
+require_once(__DIR__ . '/errorHandler.php');
+require_once(__DIR__ . '/auth.php');
+require_once(__DIR__ . '/../server/encryption.php');
 
 /*$user = authenticateUser();
 if (!$user) {

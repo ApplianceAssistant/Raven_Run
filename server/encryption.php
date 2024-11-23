@@ -1,55 +1,55 @@
 <?php
-// Enable error reporting
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-$configPath = realpath($_SERVER["DOCUMENT_ROOT"] . '/../private_html/conf.php');
-
-if ($configPath === false) {
-    die('Configuration file not found');
-}
-if (!is_readable($configPath)) {
-    die('Configuration file not readable');
-}
-$mainConfig = include($configPath);
-
-// Verify that the configuration was loaded successfully
-if (!is_array($mainConfig)) {
-    die('Invalid configuration file');
-}
-
-// Now we can use $mainConfig['ENCRYPTION_KEY'] and $mainConfig['SALT']
 
 function encryptData($data) {
-    global $mainConfig;
-    $cipher = "aes-256-gcm";
-    $ivlen = openssl_cipher_iv_length($cipher);
+    $key = getenv('ENCRYPTION_KEY');
+    if (!$key) {
+        throw new Exception('Encryption key not found');
+    }
+    
+    $ivlen = openssl_cipher_iv_length($cipher = "AES-256-CBC");
     $iv = openssl_random_pseudo_bytes($ivlen);
-    $tag = "";
-    $encrypted = openssl_encrypt($data, $cipher, $mainConfig['ENCRYPTION_KEY'], OPENSSL_RAW_DATA, $iv, $tag);
-    return base64_encode($iv . $encrypted . $tag);
+    $ciphertext_raw = openssl_encrypt($data, $cipher, $key, OPENSSL_RAW_DATA, $iv);
+    $hmac = hash_hmac('sha256', $ciphertext_raw, $key, true);
+    return base64_encode($iv . $hmac . $ciphertext_raw);
 }
 
 function decryptData($encryptedData) {
-    global $mainConfig;
-    $cipher = "aes-256-gcm";
-    $data = base64_decode($encryptedData);
-    $ivlen = openssl_cipher_iv_length($cipher);
-    $iv = substr($data, 0, $ivlen);
-    $taglen = 16; // GCM tag length is always 16 bytes
-    $tag = substr($data, -$taglen);
-    $encrypted = substr($data, $ivlen, -$taglen);
-    return openssl_decrypt($encrypted, $cipher, $mainConfig['ENCRYPTION_KEY'], OPENSSL_RAW_DATA, $iv, $tag);
+    $key = getenv('ENCRYPTION_KEY');
+    if (!$key) {
+        throw new Exception('Encryption key not found');
+    }
+    
+    $c = base64_decode($encryptedData);
+    $ivlen = openssl_cipher_iv_length($cipher = "AES-256-CBC");
+    $iv = substr($c, 0, $ivlen);
+    $hmac = substr($c, $ivlen, $sha2len = 32);
+    $ciphertext_raw = substr($c, $ivlen + $sha2len);
+    $original_plaintext = openssl_decrypt($ciphertext_raw, $cipher, $key, OPENSSL_RAW_DATA, $iv);
+    $calcmac = hash_hmac('sha256', $ciphertext_raw, $key, true);
+    if (hash_equals($hmac, $calcmac)) {
+        return $original_plaintext;
+    }
+    return false;
 }
 
 function hashPassword($password) {
-    global $mainConfig;
-    return password_hash($password . $mainConfig['SALT'], PASSWORD_BCRYPT);
+    $salt = getenv('SALT');
+    if (!$salt) {
+        throw new Exception('Salt not found');
+    }
+    
+    // Add salt to password before hashing
+    $saltedPassword = $password . $salt;
+    return password_hash($saltedPassword, PASSWORD_BCRYPT);
 }
 
 function verifyPassword($password, $hash) {
-    global $mainConfig;
-    return password_verify($password . $mainConfig['SALT'], $hash);
+    $salt = getenv('SALT');
+    if (!$salt) {
+        throw new Exception('Salt not found');
+    }
+    
+    // Add salt to password before verifying
+    $saltedPassword = $password . $salt;
+    return password_verify($saltedPassword, $hash);
 }
-?>

@@ -18,8 +18,32 @@ function CreateProfile() {
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
   const [token, setToken] = useState('');
 
+  // Add a custom hook for form state management
+  const useFormState = (initialState) => {
+    const [formState, setFormState] = useState(initialState);
+    const [errors, setErrors] = useState({});
+
+    const updateField = (field, value) => {
+      setFormState(prev => ({ ...prev, [field]: value }));
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    };
+
+    return [formState, updateField, errors, setErrors];
+  };
+
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  // Add loading states for individual operations
+  const [loadingStates, setLoadingStates] = useState({
+    usernameCheck: false,
+    emailCheck: false,
+    submission: false
+  });
+
+  const setLoading = (operation, isLoading) => {
+    setLoadingStates(prev => ({ ...prev, [operation]: isLoading }));
+  };
 
   const [serverStatus, setServerStatus] = useState({
     isConnected: false,
@@ -34,9 +58,11 @@ function CreateProfile() {
   }, []);
 
   const checkUnique = async (field, value) => {
+    console.warn("field: ", field, " value: ", value);
     try {
       const response = await fetch(`${API_URL}/users.php?action=check_unique&field=${field}&value=${value}`);
       const data = await response.json();
+      console.log("data: ", data);
       return data.isUnique;
     } catch (error) {
       console.error(`Error checking ${field} uniqueness:`, error);
@@ -52,8 +78,29 @@ function CreateProfile() {
     };
   };
 
-  const debouncedUsernameCheck = debounce(async (value) => {
-    if (value) {
+  // Add rate limiting to API checks
+  const rateLimitedCheck = (checkFn) => {
+    let lastCall = 0;
+    const minInterval = 500; // ms
+
+    return async (...args) => {
+      const now = Date.now();
+      if (now - lastCall < minInterval) {
+        return;
+      }
+      lastCall = now;
+      return checkFn(...args);
+    };
+  };
+
+  const debouncedUsernameCheck = rateLimitedCheck(async (value) => {
+    if (!validateUsername(value)) {
+      setIsUsernameUnique(false);
+      setErrorMessage('Invalid username format');
+      return;
+    }
+    setLoading('usernameCheck', true);
+    try {
       const isUnique = await checkUnique('username', value);
       setIsUsernameUnique(isUnique);
       if (!isUnique) {
@@ -61,17 +108,24 @@ function CreateProfile() {
       } else {
         setErrorMessage('');
       }
+    } finally {
+      setLoading('usernameCheck', false);
     }
   }, 300);
 
   const debouncedEmailCheck = debounce(async (value) => {
     if (value) {
-      const isUnique = await checkUnique('email', value);
-      setIsEmailUnique(isUnique);
-      if (!isUnique) {
-        setErrorMessage('This email is already associated with an profile.');
-      } else {
-        setErrorMessage('');
+      setLoading('emailCheck', true);
+      try {
+        const isUnique = await checkUnique('email', value);
+        setIsEmailUnique(isUnique);
+        if (!isUnique) {
+          setErrorMessage('This email is already associated with an existing profile.');
+        } else {
+          setErrorMessage('');
+        }
+      } finally {
+        setLoading('emailCheck', false);
       }
     }
   }, 300);
@@ -93,73 +147,93 @@ function CreateProfile() {
     setIsPasswordValid(validatePassword(password));
   }, [password]);
 
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const validateUsername = (username) => {
+    const regex = /^[a-zA-Z0-9_]{3,20}$/;
+    return regex.test(username);
+  };
+
+  // Update form validation
   const isFormValid = () => {
-    return username && email && isPasswordValid && isUsernameUnique && isEmailUnique;
+    return (
+      username &&
+      validateUsername(username) &&
+      email &&
+      validateEmail(email) &&
+      isPasswordValid &&
+      isUsernameUnique &&
+      isEmailUnique
+    );
+  };
+
+  const handleSuccess = (data) => {
+    setSuccessMessage(data.message);
+    setToken(data.token);
+    setModalContent({
+      title: 'Welcome!',
+      message: `Welcome, ${data.username}! What would you like to do next?`,
+      options: [
+        { label: 'Settings', route: '/settings' },
+        { label: 'Find a Game', route: '/lobby' },
+        { label: 'Create', route: '/create' }
+      ]
+    });
+    setShowModal(true);
+    login({ id: data.id, username: data.username, token: data.token });
+  };
+
+  const handleError = (error) => {
+    setErrorMessage(error.message || 'An error occurred. Please try again.');
+    setSuccessMessage('');
   };
 
   const handleSubmit = async (action) => {
-    setIsLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-
-    if (!serverStatus.isConnected || !serverStatus.isDatabaseConnected) {
-      setErrorMessage('Cannot perform action: Server or database is not connected');
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const payload = {
-        action,
-        username,
-        email,
-        password,
-      };
-      console.log('Sending payload:', payload);
+      setLoading('submission', true);
+      setErrorMessage('');
+
+      // Validate inputs before submission
+      if (!isFormValid()) {
+        throw new Error('Please fill all fields correctly');
+      }
+
+      let hashedPassword;
+      try {
+        // Hash password client-side before transmission
+        hashedPassword = await hashPassword(password);
+      } catch (hashError) {
+        console.error('Password hashing error:', hashError);
+        throw new Error('Error processing password. Please try again.');
+      }
 
       const response = await fetch(`${API_URL}/users.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest', // CSRF protection
         },
-        body: JSON.stringify(payload),
+        credentials: 'include', // For cookies if needed
+        body: JSON.stringify({
+          action,
+          username: username.trim(),
+          email: email.toLowerCase().trim(),
+          password: hashedPassword,
+        }),
       });
 
-      const responseText = await response.text();
-      console.log('Full response text:', responseText);
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-        console.log('Parsed response data:', data);
-      } catch (error) {
-        console.error('Error parsing JSON:', error);
-        throw new Error('Invalid response from server');
-      }
-
       if (!response.ok) {
-        throw new Error(data.error || 'An error occurred');
-      }
-      if (data.success) {
-        setSuccessMessage(data.message);
-        setToken(data.token);
-        setModalContent({
-          title: 'Welcome!',
-          message: `Welcome, ${data.username}! What would you like to do next?`,
-          options: [
-            { label: 'Settings', route: '/settings' },
-            { label: 'Find a Game', route: '/lobby' },
-            { label: 'Create', route: '/create' }
-          ]
-        });
-        setShowModal(true);
-        login({ id: data.id, username: data.username, token: data.token });
-      } else {
-        throw new Error(data.message || 'An error occurred');
+        const error = await response.json();
+        throw new Error(error.message || 'Server error');
       }
 
+      const data = await response.json();
+      handleSuccess(data);
     } catch (error) {
-      setErrorMessage(error.message || 'An error occurred. Please try again.');
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
@@ -175,26 +249,32 @@ function CreateProfile() {
         <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
           <div className="account-field">
             <label htmlFor="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              onBlur={(e) => debouncedUsernameCheck(e.target.value)}
-              required
-            />
+            <div className="input-wrapper">
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                onBlur={(e) => debouncedUsernameCheck(e.target.value)}
+                required
+              />
+              {loadingStates.usernameCheck && <span className="loading-spinner">⌛</span>}
+            </div>
             {!isUsernameUnique && <p className="error-message">Username is already taken</p>}
           </div>
           <div className="account-field">
             <label htmlFor="email">Email:</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onBlur={(e) => debouncedEmailCheck(e.target.value)}
-              required
-            />
+            <div className="input-wrapper">
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={(e) => debouncedEmailCheck(e.target.value)}
+                required
+              />
+              {loadingStates.emailCheck && <span className="loading-spinner">⌛</span>}
+            </div>
             {!isEmailUnique && <p className="error-message">Email is already in use</p>}
           </div>
           <div className="account-field">
@@ -214,11 +294,12 @@ function CreateProfile() {
           </div>
           <div className="button-container">
             <button
+              type="submit"
               onClick={() => handleSubmit('create')}
-              disabled={!isFormValid() || isLoading}
-              className={`submit-button ${!isFormValid() || isLoading ? 'disabled' : ''}`}
+              disabled={!isFormValid() || loadingStates.submission}
+              className={loadingStates.submission ? 'loading' : ''}
             >
-              Create Profile
+              {loadingStates.submission ? 'Creating...' : 'Create Profile'}
             </button>
           </div>
         </form>

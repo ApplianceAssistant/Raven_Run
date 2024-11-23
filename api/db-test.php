@@ -1,29 +1,21 @@
 <?php
-
-require_once('../server/db_connection.php');
-require_once('errorHandler.php');
+// Include the database connection file that has CORS headers
+require_once __DIR__ . '/../server/db_connection.php';
 
 try {
-  $conn = getDbConnection();
-  $stmt = $conn->prepare('SELECT 1 as test');
-  $stmt->execute();
-  $result = $stmt->get_result();
-  $row = $result->fetch_assoc();
-  
-  echo json_encode([
-      'status' => 'success',
-      'message' => 'Database connection successful',
-      'data' => $row
-  ]);
-
-  $stmt->close();
-  $conn->close();
+    // Get database connection
+    $conn = getDbConnection();
+    
+    // Test the connection
+    $testQuery = "SELECT 1";
+    $result = $conn->query($testQuery);
+    
+    if ($result) {
+        echo json_encode(['status' => 'success', 'message' => 'Database connection successful']);
+    } else {
+        throw new Exception("Query failed");
+    }
 } catch (Exception $e) {
-  http_response_code(500);
-  echo json_encode([
-      'status' => 'error',
-      'message' => 'Database connection failed',
-      'error' => $e->getMessage()
-  ]);
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => 'Database connection failed: ' . $e->getMessage()]);
 }
-?>

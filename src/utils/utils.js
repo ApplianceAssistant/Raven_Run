@@ -2,10 +2,55 @@
 
 import axios from 'axios';
 
-export const API_URL = process.env.NODE_ENV === 'production'
-  ? 'https://crowtours.com/api'
-  : 'http://localhost:5000/api';
+// In development, always use localhost
+const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
 
+export const API_URL = process.env.REACT_APP_API_URL || (
+  isDevelopment
+    ? 'http://localhost:5000/api'
+    : process.env.NODE_ENV === 'staging'
+      ? process.env.STAGING_URL + '/api'
+      : process.env.PRODUCTION_URL + '/api'
+);
+
+// Configure axios defaults
+axios.defaults.baseURL = API_URL;
+axios.defaults.withCredentials = true; // Enable CORS credentials
+
+// Get salt from environment variables
+const SALT = process.env.REACT_APP_SALT;
+if (!SALT) {
+  throw new Error('Security configuration error: SALT not found in environment');
+}
+
+/**
+ * Hash a password using SHA-256 and return a base64 string
+ * Note: This is for initial hashing only. The server will apply additional hashing.
+ * @param {string} password - The password to hash
+ * @returns {Promise<string>} The hashed password
+ */
+export async function hashPassword(password) {
+  try {
+    if (!password) {
+      throw new Error('Password is required');
+    }
+
+    // Convert password string to bytes
+    const encoder = new TextEncoder();
+    const passwordData = encoder.encode(password + SALT);
+
+    // Hash the password using SHA-256
+    const hashBuffer = await crypto.subtle.digest('SHA-256', passwordData);
+
+    // Convert hash to hex string
+    return Array.from(new Uint8Array(hashBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  } catch (error) {
+    console.error('Password hashing failed:', error);
+    throw new Error('Password processing failed');
+  }
+}
 
 //function to detect the need for content scrolling
 export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator) {
