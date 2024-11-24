@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
+const fs = require('fs');
+const winston = require('winston');
 const { getDbConnection } = require('./db_connection');
 const userRoutes = require('../api/users');
 const dbTestRoute = require('../api/db-test');
@@ -13,6 +15,41 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const ENV = process.env.NODE_ENV || 'development';
 process.env.APP_ENV = ENV;
+
+// Create logs directory if it doesn't exist
+const logsDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
+}
+
+// Configure Winston logger
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ 
+      filename: path.join(logsDir, 'error.log'), 
+      level: 'error',
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+    }),
+    new winston.transports.File({ 
+      filename: path.join(logsDir, 'combined.log'),
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+    })
+  ]
+});
+
+// Add console transport in development
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple()
+  }));
+}
 
 // CORS configuration for development
 const corsOptions = {
@@ -30,13 +67,15 @@ app.use(cors(corsOptions));
 // Parse JSON bodies
 app.use(express.json());
 
-// Debug logging middleware
+// Enhanced logging middleware
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Request headers:', req.headers);
-  if (req.body && Object.keys(req.body).length > 0) {
-    console.log('Request body:', req.body);
-  }
+  logger.info({
+    method: req.method,
+    url: req.url,
+    headers: req.headers,
+    body: req.body,
+    timestamp: new Date().toISOString()
+  });
   next();
 });
 
@@ -63,11 +102,17 @@ app.use('/api/db-test', dbTestRoute);
 // Special handling for PHP endpoints
 app.all('/api/*.php', (req, res) => {
   // Log the PHP request
-  console.log('PHP endpoint requested:', req.path);
+  logger.info({
+    method: req.method,
+    url: req.url,
+    headers: req.headers,
+    body: req.body,
+    timestamp: new Date().toISOString()
+  });
   
   // Instead of redirecting to production, serve the local PHP file
   const phpFile = path.join(__dirname, '..', req.path);
-  console.log('Attempting to serve PHP file:', phpFile);
+  logger.info(`Attempting to serve PHP file: ${phpFile}`);
   
   // Here we'll need to execute the PHP file
   // For now, let's respond with a message about the configuration needed
@@ -89,10 +134,22 @@ app.get('*', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(500).json({
-    status: 'error',
-    message: ENV === 'development' ? err.message : 'Internal Server Error'
+  logger.error({
+    error: {
+      message: err.message,
+      stack: err.stack
+    },
+    request: {
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      body: req.body
+    },
+    timestamp: new Date().toISOString()
+  });
+  
+  res.status(500).json({ 
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error' 
   });
 });
 
