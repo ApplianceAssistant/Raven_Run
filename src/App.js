@@ -34,10 +34,10 @@ function AppContent() {
     isDatabaseConnected: false,
     message: ''
   });
-  const [authState, setAuthState] = useState({
-    isLoggedIn: false,
-    user: null,
-    isLoading: true,
+
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
   });
 
   useEffect(() => {
@@ -48,25 +48,8 @@ function AppContent() {
     checkConnection();
   }, []);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setAuthState({
-        isLoggedIn: true,
-        user: JSON.parse(storedUser),
-        isLoading: false,
-      });
-    } else {
-      setAuthState((prevState) => ({ ...prevState, isLoading: false }));
-    }
-  }, []);
-
   const login = (userData) => {
-    setAuthState({
-      isLoggedIn: true,
-      user: userData,
-      isLoading: false,
-    });
+    setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
@@ -85,23 +68,18 @@ function AppContent() {
 
       const data = await response.json();
 
-      if (data.success) {
-        setAuthState({
-          isLoggedIn: false,
-          user: null,
-        });
+      if (data.status === 'success') {
         localStorage.removeItem('user');
-        navigate('/'); // Redirect to home page after logout
+        setUser(null);
+        navigate('/');
       } else {
         console.error('Logout failed:', data.message);
       }
     } catch (error) {
       console.error('Logout error:', error);
-      setAuthState({
-        isLoggedIn: false,
-        user: null,
-      });
+      // Even if the server request fails, clear local state
       localStorage.removeItem('user');
+      setUser(null);
       navigate('/');
     }
   };
@@ -110,12 +88,15 @@ function AppContent() {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  if (authState.isLoading) {
-    return <div>Loading...</div>;
-  }
+  const authContextValue = {
+    user,
+    login,
+    logout,
+    isAuthenticated: !!user
+  };
 
   return (
-    <AuthContext.Provider value={{ ...authState, login, logout }}>
+    <AuthContext.Provider value={authContextValue}>
       <div className="app">
         <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
         <main className="main-content">
@@ -135,7 +116,7 @@ function AppContent() {
             <Route path="/settings" element={<ThemeContainer theme={theme}><Settings /></ThemeContainer>} />
             <Route path="/create" element={<ThemeContainer theme={theme}><Create /></ThemeContainer>} />
             <Route path="/friends" element={<ThemeContainer theme={theme}><Friends /></ThemeContainer>} />
-            {authState.isLoggedIn && (
+            {authContextValue.isAuthenticated && (
               <>
                 <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
                 <Route path="/settings" element={<ThemeContainer theme={theme}><Settings /></ThemeContainer>} />

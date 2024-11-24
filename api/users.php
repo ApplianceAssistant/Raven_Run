@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . '/../server/db_connection.php');
+require_once(__DIR__ . '/../server/encryption.php');
 require_once(__DIR__ . '/errorHandler.php');
 require_once(__DIR__ . '/auth.php');
 
@@ -89,8 +90,8 @@ try {
                 throw new Exception("Username already exists", 409);
             }
 
-            // Hash password
-            $hashedPassword = password_hash($userData['password'], PASSWORD_DEFAULT);
+            // Hash password            
+            $hashedPassword = hashPassword($userData['password']);
 
             // Insert new user
             $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");

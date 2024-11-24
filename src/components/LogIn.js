@@ -29,9 +29,23 @@ function LogIn() {
     }, []);
 
     const handleSubmit = async (action) => {
+        console.warn("action: ", action, " email: ", email);  
         setIsLoading(true);
         setErrorMessage('');
         setSuccessMessage('');
+
+        // Basic input validation
+        if (!email || !email.includes('@')) {
+            setErrorMessage('Please enter a valid email address');
+            setIsLoading(false);
+            return;
+        }
+
+        if (!password || password.length < 8) {
+            setErrorMessage('Password must be at least 8 characters long');
+            setIsLoading(false);
+            return;
+        }
 
         if (!serverStatus.isConnected || !serverStatus.isDatabaseConnected) {
             setErrorMessage('Cannot perform action: Server or database is not connected');
@@ -40,37 +54,60 @@ function LogIn() {
         }
 
         try {
+            console.log("Making request to:", `${API_URL}/login.php`);
             const response = await authFetch(`${API_URL}/login.php`, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     action,
                     email,
                     password,
                 }),
+                credentials: 'include' 
             });
 
             const data = await response.json();
+            console.log("Response status:", response.status);
+            console.warn("Response data:", data);
 
             if (!response.ok) {
-                throw new Error(data.error || 'An error occurred');
-            }
-            if (data.success) {
-                setSuccessMessage(data.message);
-                setModalContent({
-                    title: 'Welcome Back!',
-                    message: `Welcome back, ${data.username}! What would you like to do?`,
-                    options: [
-                        { label: 'Profile', route: '/profile' },
-                        { label: 'Find a Game', route: '/lobby' },
-                        { label: 'Create', route: '/create' }
-                    ]
-                });
-                setIsModalOpen(true);
-                login({ id: data.id, username: data.username, token: data.token });
-            } else {
+                if (response.status === 429) {
+                    throw new Error('Too many login attempts. Please try again later.');
+                }
                 throw new Error(data.message || 'An error occurred');
             }
 
+            if (data.status === 'success') {
+                const handleSuccess = (data) => {
+                    // Store user data in localStorage
+                    const userData = {
+                      id: data.user.id,
+                      username: data.user.username,
+                      token: data.user.token
+                    };
+                    console.log("userData: ", userData);
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    login(userData); // Pass the complete userData object to login context
+                    setSuccessMessage(data.message || 'Login successful!') //delay
+                    setTimeout(() => {
+                        setIsModalOpen(true);
+                        setModalContent({
+                            title: `Welcome, ${userData.username}!`,
+                            message: ` What would you like to do next?`,
+                            options: [
+                                { label: 'Settings', route: '/settings' },
+                                { label: 'Find a Game', route: '/lobby' },
+                                { label: 'Create', route: '/create' }
+                            ]
+                        });
+                    }, 1000);
+                };
+                handleSuccess(data);
+            } else {
+                throw new Error(data.message || 'Login failed');
+            }
         } catch (error) {
             console.error('Error:', error);
             setErrorMessage(error.message || 'An error occurred. Please try again.');

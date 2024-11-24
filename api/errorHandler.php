@@ -2,7 +2,7 @@
 
 require_once(__DIR__ . '/../server/db_connection.php');
 
-function handleError($errno, $errstr, $errfile, $errline)
+function handleError($errno = 500, $errstr = 'Unknown error', $errfile = 'Unknown file', $errline = 0)
 {
     $error = [
         'code' => $errno,

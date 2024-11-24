@@ -4,7 +4,7 @@ import { AuthContext } from '../App';
 import '../css/App.scss';
 
 function Header({ isMenuOpen, toggleMenu }) {
-  const { isLoggedIn, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -16,13 +16,15 @@ function Header({ isMenuOpen, toggleMenu }) {
   };
   
   const getMenuItems = () => {
-    if (isLoggedIn) {
+    if (isAuthenticated) {
       return [
         { label: 'Home', path: '/' },
         { label: 'About', path: '/about' },
         { label: 'Contact', path: '/contact' },
         { label: 'Create', path: '/create' },
         { label: 'Settings', path: '/settings' },
+        { label: 'Friends', path: '/friends' },
+        { label: 'Profile', path: '/profile' },
         { label: 'Log Out', path: '/logout' }  // We'll handle this specially
       ];
     } else {

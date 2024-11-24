@@ -132,6 +132,7 @@ function Profile() {
         formData.append('profile_picture_url', imagePreview);
       }
       const xhr = new XMLHttpRequest();
+      
       xhr.open('POST', `${API_URL}/users.php`, true);
   
       xhr.upload.onprogress = (event) => {
@@ -144,6 +145,8 @@ function Profile() {
   
       xhr.onload = function () {
         if (xhr.status === 200) {
+          //this is giving an error Unexpected end of JSON input (xhr.responseText empty)
+          console.log("xhr.responseText: ", xhr.responseText);
           const result = JSON.parse(xhr.responseText);
           if (result.success) {
             setSuccess('Profile updated successfully');
@@ -199,7 +202,7 @@ function Profile() {
             ) : (
               <div className="profile-image-placeholder" onClick={handleImageClick}>
                 <FontAwesomeIcon icon={faUser} size="3x" />
-                <p>Your profile photo here</p>
+                <p>Profile Image</p>
               </div>
             )}
           </div>

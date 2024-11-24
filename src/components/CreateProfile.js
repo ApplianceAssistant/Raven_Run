@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
-import { checkServerConnectivity, API_URL, hashPassword } from '../utils/utils.js';
+import { checkServerConnectivity, API_URL } from '../utils/utils.js';
 import Modal from './Modal';
 
 function CreateProfile() {
@@ -171,6 +171,14 @@ function CreateProfile() {
   };
 
   const handleSuccess = (data) => {
+    // Store user data in localStorage
+    const userData = {
+      id: data.id,
+      username: data.username,
+      token: data.token
+    };
+    localStorage.setItem('user', JSON.stringify(userData));
+    
     setSuccessMessage(data.message);
     setToken(data.token);
     setModalContent({
@@ -183,7 +191,7 @@ function CreateProfile() {
       ]
     });
     setShowModal(true);
-    login({ id: data.id, username: data.username, token: data.token });
+    login(userData); // Pass the complete userData object to login context
   };
 
   const handleError = (error) => {
@@ -201,15 +209,6 @@ function CreateProfile() {
         throw new Error('Please fill all fields correctly');
       }
 
-      let hashedPassword;
-      try {
-        // Hash password client-side before transmission
-        hashedPassword = await hashPassword(password);
-      } catch (hashError) {
-        console.error('Password hashing error:', hashError);
-        throw new Error('Error processing password. Please try again.');
-      }
-
       const response = await fetch(`${API_URL}/users.php`, {
         method: 'POST',
         headers: {
@@ -221,7 +220,7 @@ function CreateProfile() {
           action,
           username: username.trim(),
           email: email.toLowerCase().trim(),
-          password: hashedPassword,
+          password: password, // Send plain password over HTTPS
         }),
       });
 
