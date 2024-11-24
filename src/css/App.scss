@@ -1063,10 +1063,6 @@ body.menu-open {
       transform: translateX(0);
     }
   }
-
-  .menu-toggle {
-    display: none;
-  }
 }
 
 @media (max-width: $breakpoint-sm) {

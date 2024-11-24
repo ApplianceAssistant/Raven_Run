@@ -1,47 +1,33 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
-
+import Welcome from './Welcome';
 
 function Home() {
-  const { isLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { isAuthenticated } = useContext(AuthContext);
 
   const handleCreateIndex = () => {
-    //route user to non logged in create hunt details page
     navigate('/create');
-  }
-  const handleCreate = () => {
-    //route user to non logged in create hunt details page
-    navigate('/create');
-  }
-
-  const handlePlayIndex = () => {
-    //route user to non logged in play details page
-    navigate('/lobby');
-  }
-
-  const handlePlay = () => {
-    //route user to the play lobby
-    navigate('/lobby');
   };
 
+  const handlePlayIndex = () => {
+    navigate('/play');
+  };
+
+  if (!isAuthenticated) {
+    return <Welcome />;
+  }
+
   return (
-    <>
-        <div className="button-container home">
-          {isLoggedIn ? (
-            <>
-              <button onClick={handleCreate} className="join-button">Create</button>
-              <button onClick={handlePlay} className="enter-button">Play</button>
-            </>
-          ) : (
-            <>
-              <button onClick={handleCreateIndex} className="join-button">Create</button>
-              <button onClick={handlePlayIndex} className="enter-button">Play</button>
-            </>
-          )}
+    <div className="home">
+      <div className="content">
+        <div className="button-container">
+          <button onClick={handleCreateIndex} className="join-button">Create</button>
+          <button onClick={handlePlayIndex} className="enter-button">Play</button>
         </div>
-    </>
+      </div>
+    </div>
   );
 }
 
