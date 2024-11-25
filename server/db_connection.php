@@ -1,23 +1,23 @@
 <?php
+// Configure error reporting at the very top
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/logs/php_errors.log');
 
-// Set CORS headers
-header('Access-Control-Allow-Origin: http://localhost:5000');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Credentials: true');
-
-// If this is a preflight request, end it here
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('HTTP/1.1 204 No Content');
-    exit(0);
+// Create logs directory if it doesn't exist
+if (!file_exists(__DIR__ . '/logs')) {
+    mkdir(__DIR__ . '/logs', 0777, true);
 }
 
-header('Content-Type: application/json');
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-header('X-XSS-Protection: 1; mode=block');
+// Include CORS configuration
+require_once __DIR__ . '/config/cors.php';
+
+// Handle CORS before any output
+handleCors();
+
+// Start session before any output
+session_start();
 
 // deny direct access to env file
 if (php_sapi_name() !== 'cli') {
@@ -30,17 +30,34 @@ if (php_sapi_name() !== 'cli') {
 // Load environment variables manually
 function loadEnv() {
     $dotenv = __DIR__ . '/../.env';
+    error_log("Loading environment from: " . $dotenv);
+    
     if (file_exists($dotenv)) {
+        error_log(".env file exists");
         $lines = file($dotenv, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
             if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
                 list($key, $value) = explode('=', $line, 2);
                 $key = trim($key);
                 $value = trim($value);
+                
+                // Remove surrounding quotes if present
+                $value = trim($value, '"\'');
+                
+                // Handle ${VAR} style interpolation
+                $value = preg_replace_callback('/\${([^}]+)}/', function($matches) {
+                    return getenv($matches[1]) ?: $matches[0];
+                }, $value);
+                
+                error_log("Setting env var: {$key} = {$value}");
                 putenv(sprintf('%s=%s', $key, $value));
                 $_ENV[$key] = $value;
+                $_SERVER[$key] = $value;  // Also set in $_SERVER for good measure
             }
         }
+        error_log("Environment variables loaded: " . print_r($_ENV, true));
+    } else {
+        error_log(".env file not found at: " . $dotenv);
     }
 }
 
@@ -54,23 +71,6 @@ if (!$env) {
     $env = (strpos($host, 'localhost') !== false || $host === '127.0.0.1') ? 'development' : 'production';
     putenv("APP_ENV=$env");
 }
-
-// Set CORS headers based on environment
-$allowedOrigins = [
-    'production' => [getenv('PRODUCTION_URL')],
-    'staging' => [getenv('STAGING_URL')],
-    'development' => ['http://localhost:3000', 'http://localhost:5000', 'http://127.0.0.1:3000', 'http://127.0.0.1:5000']
-];
-
-$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-if (isset($allowedOrigins[$env]) && in_array($origin, $allowedOrigins[$env])) {
-    header("Access-Control-Allow-Origin: $origin");
-    header('Access-Control-Allow-Credentials: true');
-    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-}
-
-session_start();
 
 function validateConfig($config) {
     $required = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
@@ -96,17 +96,28 @@ function getDbConnection() {
             $host = getenv('DB_HOST') ?: 'localhost';
             $user = getenv('DB_USER') ?: 'crow_local';
             $password = getenv('DB_PASSWORD') ?: 'uQMXWPP6ys';
-            $database = getenv('DB_NAME') ?: 'raven_run';
+            $database = getenv('DB_NAME') ?: 'crow_tours';
             $port = getenv('DB_PORT') ?: 3306;
 
-            // Create connection
-            $GLOBALS['db_connection'] = @new mysqli($host, $user, $password, $database, $port);
-
-            // Check connection
-            if ($GLOBALS['db_connection']->connect_error) {
-                error_log("Connection failed: " . $GLOBALS['db_connection']->connect_error);
+            error_log("DB Connection Attempt - Host: $host, User: $user, Database: $database, Port: $port");
+            
+            // Test if we can connect without selecting a database first
+            $test_conn = @new mysqli($host, $user, $password, null, $port);
+            if ($test_conn->connect_error) {
+                error_log("Initial connection failed (without database): " . $test_conn->connect_error);
                 return null;
             }
+            
+            // Now try to select the database
+            if (!$test_conn->select_db($database)) {
+                error_log("Database selection failed: " . $test_conn->error);
+                $test_conn->close();
+                return null;
+            }
+            
+            $GLOBALS['db_connection'] = $test_conn;
+
+            error_log("Database connection and selection successful");
 
             // Set charset to utf8mb4
             if (!$GLOBALS['db_connection']->set_charset("utf8mb4")) {

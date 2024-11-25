@@ -28,7 +28,14 @@ try {
             $stmt->bind_param("s", $value);
             $stmt->execute();
             $result = $stmt->get_result();
-            return ['isUnique' => ($result->num_rows === 0)];
+            $response = ['isUnique' => ($result->num_rows === 0)];
+            
+            // Add debug info to response
+            if (isset($GLOBALS['cors_debug'])) {
+                $response['debug'] = $GLOBALS['cors_debug'];
+            }
+            
+            return $response;
         } catch (Exception $e) {
             throw $e;
         }

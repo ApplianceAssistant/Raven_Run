@@ -29,7 +29,6 @@ function LogIn() {
     }, []);
 
     const handleSubmit = async (action) => {
-        console.warn("action: ", action, " email: ", email);  
         setIsLoading(true);
         setErrorMessage('');
         setSuccessMessage('');

@@ -58,11 +58,9 @@ function CreateProfile() {
   }, []);
 
   const checkUnique = async (field, value) => {
-    console.warn("field: ", field, " value: ", value);
     try {
       const response = await fetch(`${API_URL}/users.php?action=check_unique&field=${field}&value=${value}`);
       const data = await response.json();
-      console.log("data: ", data);
       return data.isUnique;
     } catch (error) {
       console.error(`Error checking ${field} uniqueness:`, error);
@@ -200,6 +198,7 @@ function CreateProfile() {
   };
 
   const handleSubmit = async (action) => {
+    console.log("API_URL: ", API_URL, "action", action);
     try {
       setLoading('submission', true);
       setErrorMessage('');
@@ -213,15 +212,15 @@ function CreateProfile() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest', // CSRF protection
+          'Accept': 'application/json'
         },
-        credentials: 'include', // For cookies if needed
+        credentials: 'include',
         body: JSON.stringify({
           action,
-          username: username.trim(),
-          email: email.toLowerCase().trim(),
-          password: password, // Send plain password over HTTPS
-        }),
+          username: username,
+          password: password,
+          email: email
+        })
       });
 
       if (!response.ok) {

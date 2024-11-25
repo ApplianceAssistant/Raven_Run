@@ -7,7 +7,7 @@ const isDevelopment = process.env.NODE_ENV === 'development' || window.location.
 
 export const API_URL = process.env.REACT_APP_API_URL || (
   isDevelopment
-    ? 'http://localhost:5000/api'
+    ? 'http://localhost:8000/api'
     : process.env.NODE_ENV === 'staging'
       ? process.env.STAGING_URL + '/api'
       : process.env.PRODUCTION_URL + '/api'
@@ -168,6 +168,7 @@ export const authFetch = async (url, options = {}) => {
 export const checkServerConnectivity = async () => {
   try {
     const response = await axios.get(`${API_URL}/db-test.php`);
+    console.log("Response data:", response.data);
     if (response.data && response.data.status === 'success') {
       return {
         isConnected: true,

@@ -4,7 +4,6 @@ const path = require('path');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const winston = require('winston');
-const { getDbConnection } = require('./db_connection');
 const userRoutes = require('../api/users');
 const dbTestRoute = require('../api/db-test');
 
@@ -87,17 +86,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '..')));
-
-// Handle manifest.json
-app.get('/src/manifest.json', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'src', 'manifest.json'));
-});
-
 // API routes
 app.use('/api/users', userRoutes);
 app.use('/api/db-test', dbTestRoute);
+
+// Serve static files
+app.use(express.static(path.join(__dirname, '..')));
 
 // Special handling for PHP endpoints
 app.all('/api/*.php', (req, res) => {

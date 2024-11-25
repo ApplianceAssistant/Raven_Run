@@ -1,8 +1,8 @@
 <?php
-if (!function_exists('getAuthorizationHeader')) {
-    require_once(__DIR__ . '/../server/db_connection.php');
-    require_once(__DIR__ . '/errorHandler.php');
+require_once(__DIR__ . '/../server/db_connection.php');
+require_once(__DIR__ . '/errorHandler.php');
 
+if (!function_exists('getAuthorizationHeader')) {
     function getAuthorizationHeader() {
         $headers = null;
         if (isset($_SERVER['Authorization'])) {

@@ -2,59 +2,28 @@
   RewriteEngine On
   RewriteBase /
 
-  # Allow API access based on environment
-  SetEnvIf Origin "^http(s)?://localhost:(\d+)$" ALLOW_ORIGIN=$0
-  SetEnvIf Origin "^https://crowtours\.com$" ALLOW_ORIGIN=$0
-  SetEnvIf Origin "^https://phpstack-1356899-4990868\.cloudwaysapps\.com$" ALLOW_ORIGIN=$0
+  # Handle React routing
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.html [QSA,L]
 
-  # Set CORS headers for API endpoints
-  Header set Access-Control-Allow-Origin %{ALLOW_ORIGIN}e env=ALLOW_ORIGIN
-  Header set Access-Control-Allow-Credentials "true" env=ALLOW_ORIGIN
-  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS" env=ALLOW_ORIGIN
-  Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With" env=ALLOW_ORIGIN
-
-  # Handle OPTIONS preflight requests
-  RewriteCond %{REQUEST_METHOD} OPTIONS
-  RewriteRule ^api/ - [R=204,L]
-
-  # Allow direct access to API endpoints for allowed origins
-  RewriteCond %{REQUEST_METHOD} ^(GET|POST|OPTIONS)$
-  RewriteRule ^api/ - [L]
-
-  # Allow direct access to existing files and directories
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d [OR]
-  RewriteCond %{REQUEST_FILENAME} -l
-  RewriteRule ^ - [L]
-
-  # Rewrite all other requests to index.html for React routing
-  RewriteRule . /index.html [L]
-
-  # Protect sensitive files
-  <FilesMatch "^(\.env|\.env\..+|composer\.json|composer\.lock|package\.json|package-lock\.json|\.gitignore)$">
-    Order allow,deny
-    Deny from all
-  </FilesMatch>
-
-  # Protect dot files and directories
-  <FilesMatch "^\.">
-    Order allow,deny
-    Deny from all
-  </FilesMatch>
+  # Redirect HTTP to HTTPS in production
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP_HOST} !^localhost
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
   # Prevent directory listing
   Options -Indexes
 
-  # Prevent access to sensitive directories
-  RedirectMatch 403 ^/private_html/?$
-  RedirectMatch 403 ^/server/?$
-  RedirectMatch 403 ^/node_modules/?$
-  RedirectMatch 403 ^/vendor/?$
-
-  # Block access to backup and source files
-  <FilesMatch "\.(bak|config|sql|fla|psd|ini|log|sh|inc|swp|dist|orig|save)$">
+  # Protect .env file
+  <Files .env>
     Order allow,deny
     Deny from all
-    Satisfy All
+  </Files>
+
+  # Protect configuration files
+  <FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
   </FilesMatch>
 </IfModule>
