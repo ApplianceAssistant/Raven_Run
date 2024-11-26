@@ -121,7 +121,7 @@ app.all('/api/*.php', (req, res) => {
 
 // Catch-all route for React app
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
 // Error handling middleware

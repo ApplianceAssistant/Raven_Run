@@ -35,13 +35,4 @@ mv build/.* . 2>/dev/null || true  # Don't error if no hidden files
 echo "Cleaning up..."
 rm -rf build
 
-# Ensure PHP files have correct permissions
-echo "Setting correct permissions..."
-find . -type f -name "*.php" -exec chmod 644 {} \;
-find . -type d -exec chmod 755 {} \;
-
-# Verify PHP API is accessible
-echo "Verifying PHP API access..."
-curl -s -o /dev/null -w "%{http_code}" https://phpstack-1356899-4990868.cloudwaysapps.com/api/healthcheck.php || echo "Warning: API check failed"
-
 echo "Deployment completed successfully."
