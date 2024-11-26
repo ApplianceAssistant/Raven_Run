@@ -1,3 +1,3 @@
 @echo off
 echo Starting PHP development server for API...
-php -S localhost:8000 -t api api/router.php
+php -S localhost:8000
