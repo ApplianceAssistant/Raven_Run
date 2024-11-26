@@ -187,7 +187,7 @@ releaseDbConnection();
 // Output results
 echo json_encode([
     'timestamp' => date('Y-m-d H:i:s'),
-    'baseUrl' => 'http://localhost:8000',
+    'baseUrl' => getenv('REACT_APP_API_URL') ?: '/api',
     'endpoints' => $apiEndpoints,
     'server' => [
         'document_root' => $_SERVER['DOCUMENT_ROOT'],
@@ -195,4 +195,4 @@ echo json_encode([
         'php_include_path' => get_include_path(),
         'included_files' => array_keys($GLOBALS['included_files'])
     ]
-], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+]);

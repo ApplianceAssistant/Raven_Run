@@ -52,9 +52,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 // CORS configuration for development
 const corsOptions = {
-  origin: ENV === 'development' 
-    ? 'http://localhost:5000'  // Development
-    : [process.env.PRODUCTION_URL, process.env.STAGING_URL], // Production/Staging
+  origin: process.env[`${ENV.toUpperCase()}_CORS_ORIGINS`]?.split(',') || process.env.CORS_ORIGIN,
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']

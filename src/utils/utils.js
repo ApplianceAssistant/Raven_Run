@@ -2,16 +2,7 @@
 
 import axios from 'axios';
 
-// In development, always use localhost
-const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
-
-export const API_URL = process.env.REACT_APP_API_URL || (
-  isDevelopment
-    ? 'http://localhost:8000/api'
-    : process.env.NODE_ENV === 'staging'
-      ? process.env.STAGING_URL + '/api'
-      : process.env.PRODUCTION_URL + '/api'
-);
+export const API_URL = process.env.REACT_APP_API_URL || '/api';
 
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;

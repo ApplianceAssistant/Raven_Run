@@ -6,6 +6,10 @@ if [[ ! "$PWD" == */public_html ]]; then
     exit 1
 fi
 
+# Remove development-only files
+echo "Removing development-only files..."
+rm -f start-api.bat
+
 # Install dependencies
 npm install
 
