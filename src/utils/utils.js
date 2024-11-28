@@ -3,12 +3,12 @@
 import axios from 'axios';
 
 const getApiUrl = () => {
-  const env = process.env.NODE_ENV || 'development';
+  const env = process.env.REACT_APP_NODE_ENV || process.env.NODE_ENV || 'development';
   switch (env) {
     case 'production':
-      return `${process.env.PRODUCTION_URL}/api`;
+      return `${process.env.REACT_APP_PRODUCTION_URL}/api`;
     case 'staging':
-      return `${process.env.STAGING_URL}/api`;
+      return `${process.env.REACT_APP_STAGING_URL}/api`;
     default:
       return process.env.REACT_APP_API_URL || '/api';
   }
