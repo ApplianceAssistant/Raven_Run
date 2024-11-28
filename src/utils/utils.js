@@ -4,6 +4,14 @@ import axios from 'axios';
 
 const getApiUrl = () => {
   const env = process.env.REACT_APP_NODE_ENV || process.env.NODE_ENV || 'development';
+  console.warn('Current environment:', env);
+  console.warn('Available env vars:', {
+    REACT_APP_NODE_ENV: process.env.REACT_APP_NODE_ENV,
+    NODE_ENV: process.env.NODE_ENV,
+    REACT_APP_STAGING_URL: process.env.REACT_APP_STAGING_URL,
+    REACT_APP_PRODUCTION_URL: process.env.REACT_APP_PRODUCTION_URL
+  });
+  
   switch (env) {
     case 'production':
       return `${process.env.REACT_APP_PRODUCTION_URL}/api`;
