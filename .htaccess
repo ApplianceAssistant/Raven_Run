@@ -1,29 +1,28 @@
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
+# Enable rewrite engine
+RewriteEngine On
 
-  # Handle React routing
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^ index.html [QSA,L]
+# If the request is for an existing file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-  # Redirect HTTP to HTTPS in production
-  RewriteCond %{HTTPS} off
-  RewriteCond %{HTTP_HOST} !^localhost
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# If the request is for the API, don't rewrite
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^ - [L]
 
-  # Prevent directory listing
-  Options -Indexes
+# If the request is for a static file, don't rewrite
+RewriteCond %{REQUEST_URI} \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$
+RewriteRule ^ - [L]
 
-  # Protect .env file
-  <Files .env>
-    Order allow,deny
-    Deny from all
-  </Files>
+# Rewrite all other requests to index.html
+RewriteRule ^ index.html [L]
 
-  # Protect configuration files
-  <FilesMatch "^\.">
-    Order allow,deny
-    Deny from all
-  </FilesMatch>
-</IfModule>
+# Set security headers
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "DENY"
+Header set X-XSS-Protection "1; mode=block"
+
+# Enable CORS
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
