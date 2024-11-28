@@ -1,8 +1,9 @@
 <?php
 
 function encryptData($data) {
-    $key = getenv('ENCRYPTION_KEY');
+    $key = $_ENV['ENCRYPTION_KEY'] ?? null;
     if (!$key) {
+        error_log("Encryption key not found in environment variables. Available vars: " . print_r($_ENV, true));
         throw new Exception('Encryption key not found');
     }
     
@@ -14,8 +15,9 @@ function encryptData($data) {
 }
 
 function decryptData($encryptedData) {
-    $key = getenv('ENCRYPTION_KEY');
+    $key = $_ENV['ENCRYPTION_KEY'] ?? null;
     if (!$key) {
+        error_log("Encryption key not found in environment variables. Available vars: " . print_r($_ENV, true));
         throw new Exception('Encryption key not found');
     }
     
@@ -33,8 +35,9 @@ function decryptData($encryptedData) {
 }
 
 function hashPassword($password) {
-    $salt = getenv('SALT');
+    $salt = $_ENV['SALT'] ?? null;
     if (!$salt) {
+        error_log("Salt not found in environment variables. Available vars: " . print_r($_ENV, true));
         throw new Exception('Salt not found');
     }
     
@@ -44,8 +47,9 @@ function hashPassword($password) {
 }
 
 function verifyPassword($password, $hash) {
-    $salt = getenv('SALT');
+    $salt = $_ENV['SALT'] ?? null;
     if (!$salt) {
+        error_log("Salt not found in environment variables. Available vars: " . print_r($_ENV, true));
         throw new Exception('Salt not found');
     }
     

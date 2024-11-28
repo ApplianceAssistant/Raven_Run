@@ -186,14 +186,14 @@ releaseDbConnection();
 
 // Get the environment-specific API URL
 function getApiUrl() {
-    $env = getenv('NODE_ENV') ?: 'development';
+    $env = $_ENV['NODE_ENV'] ?? 'development';
     switch ($env) {
         case 'production':
-            return getenv('PRODUCTION_URL') . '/api';
+            return $_ENV['PRODUCTION_URL'] . '/api';
         case 'staging':
-            return getenv('STAGING_URL') . '/api';
+            return $_ENV['STAGING_URL'] . '/api';
         default:
-            return getenv('REACT_APP_API_URL') ?: '/api';
+            return $_ENV['REACT_APP_API_URL'] ?? '/api';
     }
 }
 

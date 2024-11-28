@@ -69,7 +69,7 @@ function loadEnv() {
 loadEnv();
 
 // Detect environment
-$env = getenv('APP_ENV');
+$env = $_ENV['APP_ENV'] ?? null;
 if (!$env) {
     // Check if we're running locally
     $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
@@ -81,8 +81,9 @@ if (!$env) {
 function validateConfig($config) {
     $required = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
     foreach ($required as $field) {
-        if (!isset($config[$field]) || empty($config[$field])) {
-            throw new Exception("Missing required configuration: {$field}");
+        if (empty($config[$field])) {
+            error_log("Missing required database configuration: $field");
+            return false;
         }
     }
     return true;
@@ -99,45 +100,36 @@ $GLOBALS['db_connection_count'] = 0;
 function getDbConnection() {
     if (!isset($GLOBALS['db_connection']) || !($GLOBALS['db_connection'] instanceof mysqli) || $GLOBALS['db_connection']->connect_errno) {
         try {
-            $host = $_ENV['DB_HOST'] ?: 'localhost';
-            $user = $_ENV['DB_USER'] ?: 'crow_local';
-            $password = $_ENV['DB_PASSWORD'] ?: 'uQMXWPP6ys';
-            $database = $_ENV['DB_NAME'] ?: 'crow_tours';
-            $port = $_ENV['DB_PORT'] ?: 3306;
+            $host = $_ENV['DB_HOST'] ?? 'localhost';
+            $user = $_ENV['DB_USER'] ?? 'crow_local';
+            $password = $_ENV['DB_PASSWORD'] ?? 'uQMXWPP6ys';
+            $database = $_ENV['DB_NAME'] ?? 'crow_tours';
+            $port = $_ENV['DB_PORT'] ?? 3306;
 
             error_log("DB Connection Attempt - Host: $host, User: $user, Database: $database, Port: $port");
             
             // Test if we can connect without selecting a database first
             $test_conn = @new mysqli($host, $user, $password, null, $port);
+            
             if ($test_conn->connect_error) {
-                error_log("Initial connection failed (without database): " . $test_conn->connect_error);
+                error_log("Failed to connect to MySQL: " . $test_conn->connect_error);
                 return null;
             }
-            
+
             // Now try to select the database
             if (!$test_conn->select_db($database)) {
-                error_log("Database selection failed: " . $test_conn->error);
-                $test_conn->close();
+                error_log("Failed to select database: " . $test_conn->error);
                 return null;
             }
-            
+
             $GLOBALS['db_connection'] = $test_conn;
-
             error_log("Database connection and selection successful");
-
-            // Set charset to utf8mb4
-            if (!$GLOBALS['db_connection']->set_charset("utf8mb4")) {
-                error_log("Error setting charset utf8mb4: " . $GLOBALS['db_connection']->error);
-                return null;
-            }
         } catch (Exception $e) {
             error_log("Database connection error: " . $e->getMessage());
             return null;
         }
     }
     
-    // Increment connection reference count
-    $GLOBALS['db_connection_count']++;
     return $GLOBALS['db_connection'];
 }
 

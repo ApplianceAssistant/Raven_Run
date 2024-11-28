@@ -8,9 +8,9 @@ $path = $_SERVER['REQUEST_URI'];
 // Add environment debugging
 $envDebug = [
     'env_file_exists' => file_exists(__DIR__ . '/../.env'),
-    'app_env' => getenv('APP_ENV'),
-    'dev_cors' => getenv('DEVELOPMENT_CORS_ORIGINS'),
-    'cors_origin' => getenv('CORS_ORIGIN'),
+    'app_env' => $_ENV['APP_ENV'] ?? null,
+    'dev_cors' => $_ENV['DEVELOPMENT_CORS_ORIGINS'] ?? null,
+    'cors_origin' => $_ENV['CORS_ORIGIN'] ?? null,
     'env_vars' => $_ENV,
     'server_vars' => array_filter($_SERVER, function($key) {
         return in_array($key, ['APP_ENV', 'DEVELOPMENT_CORS_ORIGINS', 'CORS_ORIGIN']);

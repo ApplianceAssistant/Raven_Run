@@ -1,14 +1,12 @@
 <?php
-// Set development environment
-putenv('APP_ENV=development');
-
+// Load environment variables
 require_once 'db_connection.php';
 
 echo "Database Configuration:\n";
-echo "Host: " . getenv('DB_HOST') . "\n";
-echo "User: " . getenv('DB_USER') . "\n";
-echo "Database: " . getenv('DB_NAME') . "\n";
-echo "Port: " . getenv('DB_PORT') . "\n\n";
+echo "Host: " . ($_ENV['DB_HOST'] ?? 'not set') . "\n";
+echo "User: " . ($_ENV['DB_USER'] ?? 'not set') . "\n";
+echo "Database: " . ($_ENV['DB_NAME'] ?? 'not set') . "\n";
+echo "Port: " . ($_ENV['DB_PORT'] ?? 'not set') . "\n\n";
 
 echo "Test 1: First connection attempt\n";
 $conn1 = getDbConnection();
