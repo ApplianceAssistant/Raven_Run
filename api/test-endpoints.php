@@ -184,10 +184,23 @@ foreach ($apiEndpoints as $key => &$endpoint) {
 // Release database connection
 releaseDbConnection();
 
+// Get the environment-specific API URL
+function getApiUrl() {
+    $env = getenv('NODE_ENV') ?: 'development';
+    switch ($env) {
+        case 'production':
+            return getenv('PRODUCTION_URL') . '/api';
+        case 'staging':
+            return getenv('STAGING_URL') . '/api';
+        default:
+            return getenv('REACT_APP_API_URL') ?: '/api';
+    }
+}
+
 // Output results
 echo json_encode([
     'timestamp' => date('Y-m-d H:i:s'),
-    'baseUrl' => getenv('REACT_APP_API_URL') ?: '/api',
+    'baseUrl' => getApiUrl(),
     'endpoints' => $apiEndpoints,
     'server' => [
         'document_root' => $_SERVER['DOCUMENT_ROOT'],

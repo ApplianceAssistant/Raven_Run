@@ -2,7 +2,19 @@
 
 import axios from 'axios';
 
-export const API_URL = process.env.REACT_APP_API_URL || '/api';
+const getApiUrl = () => {
+  const env = process.env.NODE_ENV || 'development';
+  switch (env) {
+    case 'production':
+      return `${process.env.PRODUCTION_URL}/api`;
+    case 'staging':
+      return `${process.env.STAGING_URL}/api`;
+    default:
+      return process.env.REACT_APP_API_URL || '/api';
+  }
+};
+
+export const API_URL = getApiUrl();
 
 // Configure axios defaults
 axios.defaults.baseURL = API_URL;
