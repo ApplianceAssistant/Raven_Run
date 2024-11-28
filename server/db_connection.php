@@ -35,26 +35,31 @@ function loadEnv() {
     if (file_exists($dotenv)) {
         error_log(".env file exists");
         $lines = file($dotenv, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $env_vars = [];
+        
+        // First pass: collect all variables
         foreach ($lines as $line) {
             if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
                 list($key, $value) = explode('=', $line, 2);
                 $key = trim($key);
                 $value = trim($value);
-                
-                // Remove surrounding quotes if present
                 $value = trim($value, '"\'');
-                
-                // Handle ${VAR} style interpolation
-                $value = preg_replace_callback('/\${([^}]+)}/', function($matches) {
-                    return getenv($matches[1]) ?: $matches[0];
-                }, $value);
-                
-                error_log("Setting env var: {$key} = {$value}");
-                putenv(sprintf('%s=%s', $key, $value));
-                $_ENV[$key] = $value;
-                $_SERVER[$key] = $value;  // Also set in $_SERVER for good measure
+                $env_vars[$key] = $value;
             }
         }
+        
+        // Second pass: handle interpolation and set variables
+        foreach ($env_vars as $key => $value) {
+            // Handle ${VAR} style interpolation
+            $value = preg_replace_callback('/\${([^}]+)}/', function($matches) use ($env_vars) {
+                return isset($env_vars[$matches[1]]) ? $env_vars[$matches[1]] : $matches[0];
+            }, $value);
+            
+            error_log("Setting env var: {$key} = {$value}");
+            $_ENV[$key] = $value;
+            $_SERVER[$key] = $value;
+        }
+        
         error_log("Environment variables loaded: " . print_r($_ENV, true));
     } else {
         error_log(".env file not found at: " . $dotenv);
@@ -69,7 +74,8 @@ if (!$env) {
     // Check if we're running locally
     $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
     $env = (strpos($host, 'localhost') !== false || $host === '127.0.0.1') ? 'development' : 'production';
-    putenv("APP_ENV=$env");
+    $_ENV['APP_ENV'] = $env;
+    $_SERVER['APP_ENV'] = $env;
 }
 
 function validateConfig($config) {
@@ -93,11 +99,11 @@ $GLOBALS['db_connection_count'] = 0;
 function getDbConnection() {
     if (!isset($GLOBALS['db_connection']) || !($GLOBALS['db_connection'] instanceof mysqli) || $GLOBALS['db_connection']->connect_errno) {
         try {
-            $host = getenv('DB_HOST') ?: 'localhost';
-            $user = getenv('DB_USER') ?: 'crow_local';
-            $password = getenv('DB_PASSWORD') ?: 'uQMXWPP6ys';
-            $database = getenv('DB_NAME') ?: 'crow_tours';
-            $port = getenv('DB_PORT') ?: 3306;
+            $host = $_ENV['DB_HOST'] ?: 'localhost';
+            $user = $_ENV['DB_USER'] ?: 'crow_local';
+            $password = $_ENV['DB_PASSWORD'] ?: 'uQMXWPP6ys';
+            $database = $_ENV['DB_NAME'] ?: 'crow_tours';
+            $port = $_ENV['DB_PORT'] ?: 3306;
 
             error_log("DB Connection Attempt - Host: $host, User: $user, Database: $database, Port: $port");
             
