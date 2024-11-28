@@ -170,6 +170,8 @@ export const authFetch = async (url, options = {}) => {
 // Function to check server connectivity and measure response time
 export const checkServerConnectivity = async () => {
   try {
+    console.warn('Checking server connectivity... from: ', `${API_URL}/db-test.php`);
+    const start = Date.now();
     const response = await axios.get(`${API_URL}/db-test.php`);
     console.log("Response data:", response.data);
     if (response.data && response.data.status === 'success') {
