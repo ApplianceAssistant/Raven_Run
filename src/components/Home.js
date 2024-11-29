@@ -12,7 +12,7 @@ function Home() {
   };
 
   const handlePlayIndex = () => {
-    navigate('/play');
+    navigate('/lobby');
   };
 
   if (!isAuthenticated) {

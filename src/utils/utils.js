@@ -233,3 +233,46 @@ export function getUserUnitPreference() {
   const savedUnitSystem = localStorage.getItem('unitSystem');
   return savedUnitSystem ? JSON.parse(savedUnitSystem) : false; // Default to false (imperial) if not set
 }
+
+/**
+ * Formats a phone number as user types, showing partial formatting
+ * @param {string} phone - Raw phone number
+ * @returns {string} Formatted phone number
+ */
+export function formatPhoneNumber(phone) {
+    if (!phone) return '';
+    
+    // Remove all non-digit characters
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Format based on length
+    if (cleaned.length <= 3) {
+        return cleaned;
+    } else if (cleaned.length <= 6) {
+        return `(${cleaned.slice(0,3)}) ${cleaned.slice(3)}`;
+    } else {
+        return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}${cleaned.length > 6 ? '-' + cleaned.slice(6, 10) : ''}`;
+    }
+}
+
+/**
+ * Compresses a phone number to just digits
+ * @param {string} phone - Phone number in any format
+ * @returns {string} Compressed phone number (just digits) or empty string if invalid
+ */
+export function compressPhoneNumber(phone) {
+    if (!phone) return '';
+    const cleaned = phone.replace(/\D/g, '');
+    return cleaned.length === 10 ? cleaned : '';
+}
+
+/**
+ * Validates if a phone number has exactly 10 digits
+ * @param {string} phone - Phone number to validate
+ * @returns {boolean} True if valid 10-digit number
+ */
+export function isValidPhoneNumber(phone) {
+    if (!phone) return false;
+    const cleaned = phone.replace(/\D/g, '');
+    return cleaned.length === 10;
+}

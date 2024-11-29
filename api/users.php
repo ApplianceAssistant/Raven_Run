@@ -126,18 +126,36 @@ try {
                 throw new Exception("User ID is required for update", 400);
             }
 
+            // Validate phone number if present
+            if (!empty($userData['phone']) && $userData['phone'] !== 'null') {
+                $phone = preg_replace('/\D/', '', $userData['phone']);
+                if (strlen($phone) !== 10) {
+                    throw new Exception("Invalid phone number format", 400);
+                }
+                $userData['phone'] = $phone; // Store compressed format
+            } else {
+                $userData['phone'] = null; // Ensure empty phone is stored as NULL
+            }
+
             $userId = $userData['id'];
             $updateFields = [];
             $types = "";
             $values = [];
 
             $allowedFields = ['username', 'email', 'phone', 'first_name', 'last_name', 'profile_picture_url'];
+            $nullableFields = ['phone', 'first_name', 'last_name'];
             
             foreach ($allowedFields as $field) {
                 if (isset($userData[$field])) {
-                    $updateFields[] = "$field = ?";
-                    $types .= "s";
-                    $values[] = $userData[$field];
+                    $value = $userData[$field];
+                    // Convert empty strings and 'null' to NULL for optional fields
+                    if (in_array($field, $nullableFields) && (empty($value) || $value === 'null')) {
+                        $updateFields[] = "$field = NULL";
+                    } else {
+                        $updateFields[] = "$field = ?";
+                        $types .= "s";
+                        $values[] = $value;
+                    }
                 }
             }
 
@@ -151,7 +169,10 @@ try {
 
             $query = "UPDATE users SET " . implode(", ", $updateFields) . " WHERE id = ?";
             $stmt = $conn->prepare($query);
-            $stmt->bind_param($types, ...$values);
+            
+            if (!empty($values)) {
+                $stmt->bind_param($types, ...$values);
+            }
 
             if (!$stmt->execute()) {
                 throw new Exception("Failed to update user: " . $stmt->error, 500);
@@ -196,18 +217,41 @@ try {
             break;
 
         case 'POST':
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = [];
+            if ($_SERVER['CONTENT_TYPE'] && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false) {
+                // Handle form data
+                $data = $_POST;
+                
+                // Handle file upload if present
+                if (isset($_FILES['profile_picture'])) {
+                    $uploadDir = __DIR__ . '/../uploads/profiles/';
+                    if (!file_exists($uploadDir)) {
+                        mkdir($uploadDir, 0777, true);
+                    }
+                    
+                    $fileName = uniqid() . '_' . basename($_FILES['profile_picture']['name']);
+                    $targetPath = $uploadDir . $fileName;
+                    
+                    if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetPath)) {
+                        $data['profile_picture_url'] = '/uploads/profiles/' . $fileName;
+                    }
+                }
+            } else {
+                // Handle JSON data
+                $data = json_decode(file_get_contents('php://input'), true);
+            }
+            
             if (!$data) {
-                handleError(400, "Invalid JSON data");
+                handleError(400, "Invalid request data");
                 exit(0);
             }
 
             if (isset($data['action']) && $data['action'] === 'update') {
                 $user = updateUser($data);
-                echo json_encode(['status' => 'success', 'user' => $user]);
+                echo json_encode(['success' => true, 'user' => $user]);
             } else {
                 $user = createUser($data);
-                echo json_encode(['status' => 'success', 'user' => $user]);
+                echo json_encode(['success' => true, 'user' => $user]);
             }
             break;
 

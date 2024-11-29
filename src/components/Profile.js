@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../App';
-import { API_URL } from '../utils/utils';
+import { API_URL, formatPhoneNumber, compressPhoneNumber, isValidPhoneNumber } from '../utils/utils';
 import ScrollableContent from './ScrollableContent';
 import '../css/Profile.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -54,8 +54,23 @@ function Profile() {
       const response = await fetch(`${API_URL}/users.php?action=get&id=${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       const userData = await response.json();
-      setProfileData(userData);
-      setOriginalData(userData);
+      
+      // Clean up the data - convert 'null' strings and null values to empty strings
+      const cleanedData = Object.fromEntries(
+        Object.entries(userData).map(([key, value]) => [
+          key,
+          value === null || value === 'null' ? '' : value
+        ])
+      );
+
+      // Format phone number before setting state
+      const formattedData = {
+        ...userData,
+        phone: userData.phone ? formatPhoneNumber(userData.phone) : ''
+      };
+      
+      setProfileData(formattedData);
+      setOriginalData(formattedData);
       setImagePreview(userData.profile_picture_url);
     } catch (error) {
       setError('Failed to load user data');
@@ -63,7 +78,17 @@ function Profile() {
   };
 
   const handleInputChange = (e) => {
-    setProfileData({ ...profileData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'phone') {
+      // Only allow digits and format
+      const digitsOnly = value.replace(/\D/g, '');
+      if (digitsOnly.length <= 10) { // Prevent more than 10 digits
+        const formattedPhone = formatPhoneNumber(digitsOnly);
+        setProfileData(prev => ({ ...prev, [name]: formattedPhone }));
+      }
+    } else {
+      setProfileData(prev => ({ ...prev, [name]: value || '' }));
+    }
   };
 
   const handleImageChange = (e) => {
@@ -109,6 +134,12 @@ function Profile() {
     if (e) e.preventDefault();
     if (!hasChanges) return;
   
+     // Validate phone number if present
+     if (profileData.phone && !isValidPhoneNumber(profileData.phone)) {
+      setError('Please enter a valid 10-digit phone number');
+      return;
+    }
+
     setError('');
     setSuccess('');
     setUploadProgress(0);
@@ -117,11 +148,18 @@ function Profile() {
       const formData = new FormData();
       formData.append('action', 'update');
       formData.append('id', user.id);
-  
+      console.warn("formdata: ", formData);
       // Append all profile data
       Object.keys(profileData).forEach(key => {
         if (key !== 'profile_picture_url') {
-          formData.append(key, profileData[key]);
+          let value = profileData[key];
+          // Convert empty strings or 'null' to empty string for optional fields
+          if (key === 'phone' && value) {
+            value = compressPhoneNumber(value);
+          } else if (['first_name', 'last_name', 'phone'].includes(key)) {
+            value = (!value || value === 'null') ? '' : value;
+          }
+          formData.append(key, value);
         }
       });
   
