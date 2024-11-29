@@ -5,12 +5,14 @@ import ScrollableContent from './ScrollableContent';
 import '../css/Profile.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { useMessage } from '../utils/MessageProvider';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const CROP_SIZE = 200; // Fixed size for crop box
 
 function Profile() {
   const { user, login } = useContext(AuthContext);
+  const { showError, showSuccess } = useMessage();
   const fileInputRef = useRef(null);
   const [profileData, setProfileData] = useState({
     username: '',
@@ -21,8 +23,6 @@ function Profile() {
     profile_picture_url: ''
   });
   const [originalData, setOriginalData] = useState({});
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
@@ -73,7 +73,7 @@ function Profile() {
       setOriginalData(formattedData);
       setImagePreview(userData.profile_picture_url);
     } catch (error) {
-      setError('Failed to load user data');
+      showError('Failed to load user data');
     }
   };
 
@@ -95,7 +95,7 @@ function Profile() {
     const file = e.target.files[0];
     if (file) {
       if (file.size > MAX_FILE_SIZE) {
-        setError(`File size should not exceed ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
+        showError(`File size must be less than 5MB`);
         return;
       }
       const reader = new FileReader();
@@ -143,26 +143,22 @@ function Profile() {
     if (e) e.preventDefault();
     if (!hasChanges) return;
 
-    // Validate phone number if present
-    if (profileData.phone && !isValidPhoneNumber(profileData.phone)) {
-      setError('Please enter a valid 10-digit phone number');
+    if (!isValidPhoneNumber(profileData.phone)) {
+      showError('Please enter a valid 10-digit phone number');
       return;
     }
 
-    setError('');
-    setSuccess('');
     setUploadProgress(0);
 
     try {
       const formData = new FormData();
       formData.append('action', 'update');
       formData.append('id', user.id);
-      console.warn("formdata: ", formData);
+      
       // Append all profile data
       Object.keys(profileData).forEach(key => {
         if (key !== 'profile_picture_url') {
           let value = profileData[key];
-          // Convert empty strings or 'null' to empty string for optional fields
           if (key === 'phone' && value) {
             value = compressPhoneNumber(value);
           } else if (['first_name', 'last_name', 'phone'].includes(key)) {
@@ -175,18 +171,17 @@ function Profile() {
       // Handle profile picture
       if (imagePreview && imagePreview !== originalData.profile_picture_url) {
         try {
-          // Convert data URL to Blob
           const response = await fetch(imagePreview);
           const blob = await response.blob();
           formData.append('profile_picture', blob, 'profile.jpg');
         } catch (error) {
           console.error('Error converting image:', error);
-          setError('Failed to process image');
+          showError('Failed to process image');
           return;
         }
       }
-      const xhr = new XMLHttpRequest();
 
+      const xhr = new XMLHttpRequest();
       xhr.open('POST', `${API_URL}/users.php`, true);
 
       xhr.upload.onprogress = (event) => {
@@ -199,36 +194,34 @@ function Profile() {
 
       xhr.onload = function () {
         if (xhr.status === 200) {
-          //this is giving an error Unexpected end of JSON input (xhr.responseText empty)
-          console.log("xhr.responseText: ", xhr.responseText);
           try {
             const result = JSON.parse(xhr.responseText);
             if (result.success) {
-              setSuccess('Profile updated successfully');
+              showSuccess('Profile updated successfully');
               login(result.user);
               setOriginalData(result.user);
               setImagePreview(result.user.profile_picture_url);
             } else {
-              setError(result.message || 'Failed to update profile.');
+              showError(result.message || 'Failed to update profile.');
             }
           } catch (error) {
             console.error('Error parsing response:', error, 'Response:', xhr.responseText);
-            setError('Failed to process server response');
+            showError('Failed to process server response');
           }
         } else {
-          setError(`Failed to update profile (${xhr.status})`);
+          showError(`Failed to update profile (${xhr.status})`);
         }
       };
 
       xhr.onerror = function () {
         console.error('XHR error:', xhr.statusText);
-        setError('Network error occurred');
+        showError('Network error occurred');
       };
 
       xhr.send(formData);
     } catch (error) {
       console.error('Error in handleSubmit:', error);
-      setError(error.message);
+      showError(error.message);
     } finally {
       setUploadProgress(0);
     }
@@ -239,16 +232,12 @@ function Profile() {
   return (
     <div className="content-wrapper">
       <div className="content center">
-        <div className="message-display">
-          {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
-          {uploadProgress > 0 && (
-            <div className="upload-progress">
-              <progress value={uploadProgress} max="100" />
-              <span>{uploadProgress}% Uploaded</span>
-            </div>
-          )}
-        </div>
+        {uploadProgress > 0 && (
+          <div className="upload-progress">
+            <progress value={uploadProgress} max="100" />
+            <span>{uploadProgress}% Uploaded</span>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="profile-form" onKeyDown={handleKeyDown}>
           <div className="profile-image-container">
             {imagePreview ? (

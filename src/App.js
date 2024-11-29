@@ -20,6 +20,8 @@ import { checkServerConnectivity, API_URL, authFetch } from './utils/utils.js';
 import HuntDescription from './components/HuntDescription';
 import ThemeContainer from './components/ThemeContainer.js';
 import { useTheme } from './utils/ThemeContext';
+import { MessageProvider } from './utils/MessageProvider';
+import MessageDisplay from './components/MessageDisplay';
 
 import './css/App.scss';
 
@@ -97,9 +99,10 @@ function AppContent() {
 
   return (
     <AuthContext.Provider value={authContextValue}>
-      <div className="app">
-        <Header isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
-        <main className="main-content">
+      <div className={`app ${theme}`}>
+        <Header isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+        <MessageDisplay />
+        <div className="main-content">
           <Routes>
             <Route path="/thank_you" element={<ThemeContainer theme={theme}><ThankYou /></ThemeContainer>} />
             <Route path="/" element={<ThemeContainer theme={theme}><Home /></ThemeContainer>} />
@@ -125,7 +128,7 @@ function AppContent() {
               </>
             )}
           </Routes>
-        </main>
+        </div>
       </div>
     </AuthContext.Provider>
   );
@@ -133,13 +136,15 @@ function AppContent() {
 
 function App() {
   return (
-    <SettingsProvider>
+    <Router>
       <ThemeProvider>
-        <Router>
-          <AppContent />
-        </Router>
+        <SettingsProvider>
+          <MessageProvider>
+            <AppContent />
+          </MessageProvider>
+        </SettingsProvider>
       </ThemeProvider>
-    </SettingsProvider>
+    </Router>
   );
 }
 
