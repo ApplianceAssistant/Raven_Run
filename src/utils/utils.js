@@ -8,6 +8,7 @@ const getApiUrl = () => {
   console.warn('Available env vars:', {
     REACT_APP_NODE_ENV: process.env.REACT_APP_NODE_ENV,
     NODE_ENV: process.env.NODE_ENV,
+    REACT_APP_DEVELOPMENT_URL: process.env.REACT_APP_DEVELOPMENT_URL,
     REACT_APP_STAGING_URL: process.env.REACT_APP_STAGING_URL,
     REACT_APP_PRODUCTION_URL: process.env.REACT_APP_PRODUCTION_URL
   });
@@ -18,7 +19,7 @@ const getApiUrl = () => {
     case 'staging':
       return `${process.env.REACT_APP_STAGING_URL}/api`;
     default:
-      return process.env.REACT_APP_API_URL || '/api';
+      return `${process.env.REACT_APP_DEVELOPMENT_URL}/api`;
   }
 };
 

@@ -9,8 +9,15 @@ function getAllowedOrigins() {
     }
 
     $env = $_ENV['APP_ENV'] ?? 'development';
+
+    // In development, always allow localhost:5000
+    if ($env === 'development') {
+        return ['http://localhost:5000'];
+    }
+
+    // Get CORS origins from environment variables
     $originsEnvVar = strtoupper($env) . '_CORS_ORIGINS';
-    $originsString = $_ENV[$originsEnvVar] ?? $_ENV['CORS_ORIGIN'] ?? '*';
+    $originsString = $_ENV[$originsEnvVar] ?? '*';
     
     $debug = [
         'environment' => $env,

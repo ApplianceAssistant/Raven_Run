@@ -189,11 +189,11 @@ function getApiUrl() {
     $env = $_ENV['NODE_ENV'] ?? 'development';
     switch ($env) {
         case 'production':
-            return $_ENV['PRODUCTION_URL'] . '/api';
+            return $_ENV['REACT_APP_PRODUCTION_URL'] . '/api';
         case 'staging':
-            return $_ENV['STAGING_URL'] . '/api';
+            return $_ENV['REACT_APP_STAGING_URL'] . '/api';
         default:
-            return $_ENV['REACT_APP_API_URL'] ?? '/api';
+            return $_ENV['REACT_APP_DEVELOPMENT_URL'];
     }
 }
 
