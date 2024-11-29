@@ -96,8 +96,8 @@ select {
   color: var(--input-text-color);
   width: 100%;
   font-size: 1.1rem;
-  padding: 10px;
-  margin: 10px;
+  padding: 5px;
+  margin: 5px;
   border-radius: 5px;
   border-color: var(--border-color);
   border: 1px solid;
@@ -317,7 +317,6 @@ canvas {
   width: 100%;
   max-width: 700px;
   flex-grow: 1;
-  justify-content: center;
   overflow: hidden;
   padding: 20px;
 }

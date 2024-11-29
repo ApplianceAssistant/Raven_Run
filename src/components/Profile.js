@@ -4,8 +4,10 @@ import { API_URL, formatPhoneNumber, compressPhoneNumber, isValidPhoneNumber } f
 import ScrollableContent from './ScrollableContent';
 import '../css/Profile.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEdit, faCog, faUserFriends } from '@fortawesome/free-solid-svg-icons';
 import { useMessage } from '../utils/MessageProvider';
+import Settings from './Settings';
+import Friends from './Friends';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const CROP_SIZE = 200; // Fixed size for crop box
@@ -14,6 +16,8 @@ function Profile() {
   const { user, login } = useContext(AuthContext);
   const { showError, showSuccess } = useMessage();
   const fileInputRef = useRef(null);
+  const scrollableRef = useRef(null);
+  const [activeTab, setActiveTab] = useState('profile');
   const [profileData, setProfileData] = useState({
     username: '',
     email: '',
@@ -77,17 +81,16 @@ function Profile() {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'phone') {
+  const handleInputChange = (field, value) => {
+    if (field === 'phone') {
       // Only allow digits and format
       const digitsOnly = value.replace(/\D/g, '');
       if (digitsOnly.length <= 10) { // Prevent more than 10 digits
         const formattedPhone = formatPhoneNumber(digitsOnly);
-        setProfileData(prev => ({ ...prev, [name]: formattedPhone }));
+        setProfileData(prev => ({ ...prev, [field]: formattedPhone }));
       }
     } else {
-      setProfileData(prev => ({ ...prev, [name]: value || '' }));
+      setProfileData(prev => ({ ...prev, [field]: value || '' }));
     }
   };
 
@@ -126,19 +129,6 @@ function Profile() {
     img.src = imageDataUrl;
   };
 
-  const handleImageClick = (e) => {
-    e.preventDefault(); // Prevent form submission
-    fileInputRef.current.click();
-  };
-
-  const handleKeyDown = (e) => {
-    // If Enter is pressed and the target is not a button
-    if (e.key === 'Enter' && e.target.type !== 'button') {
-      e.preventDefault(); // Prevent default form submission
-      handleSubmit();
-    }
-  };
-
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (!hasChanges) return;
@@ -154,7 +144,7 @@ function Profile() {
       const formData = new FormData();
       formData.append('action', 'update');
       formData.append('id', user.id);
-      
+
       // Append all profile data
       Object.keys(profileData).forEach(key => {
         if (key !== 'profile_picture_url') {
@@ -227,71 +217,98 @@ function Profile() {
     }
   };
 
-  const skipKeys = ['profile_picture_url', 'id', 'created_at', 'updated_at', 'password', 'total_points'];
+  const handleCancel = () => {
+    setProfileData(originalData);
+    setImagePreview(originalData.profile_picture_url);
+  };
 
   return (
-    <div className="content-wrapper">
-      <div className="content center">
-        {uploadProgress > 0 && (
-          <div className="upload-progress">
-            <progress value={uploadProgress} max="100" />
-            <span>{uploadProgress}% Uploaded</span>
-          </div>
-        )}
-        <form onSubmit={handleSubmit} className="profile-form" onKeyDown={handleKeyDown}>
-          <div className="profile-image-container">
-            {imagePreview ? (
-              <div className="profile-image">
-                <img src={imagePreview} alt="Profile" />
-                <button type="button" className="edit-image-button icon-button" onClick={handleImageClick}>
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
-              </div>
-            ) : (
-              <div className="profile-image-placeholder" onClick={handleImageClick}>
-                <FontAwesomeIcon icon={faUser} size="3x" />
-                <p>Profile Image</p>
-              </div>
-            )}
-          </div>
-          <div className="profile-buttons">
-            <button
-              type="submit"
-              className={`save-changes-button ${hasChanges ? 'visible' : ''}`}
-              disabled={!hasChanges}
-            >
-              Save Changes
-            </button>
-          </div>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-            accept="image/*"
-            style={{ display: 'none' }}
-          />
-          
-          <ScrollableContent maxHeight="50vh">
-            {Object.entries(profileData).map(([key, value]) => {
-              if (!skipKeys.includes(key)) {
-                return (
-                  <div key={key} className="profile-field">
-                    <label htmlFor={key}>{fieldNameMapping[key] || key}:</label>
-                    <input
-                      type={key === 'email' ? 'email' : 'text'}
-                      id={key}
-                      name={key}
-                      value={key === 'phone' ? formatPhoneNumber(value || '') : (value || '')}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                );
-              }
-              return null;
-            })}
-          </ScrollableContent>
-        </form>
+    <div className="profile-container">
+      <div className="profile-tabs">
+        <button
+          className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+          onClick={() => setActiveTab('profile')}
+        >
+          <FontAwesomeIcon icon={faUser} /> Profile
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveTab('settings')}
+        >
+          <FontAwesomeIcon icon={faCog} /> Settings
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'friends' ? 'active' : ''}`}
+          onClick={() => setActiveTab('friends')}
+        >
+          <FontAwesomeIcon icon={faUserFriends} /> Friends
+        </button>
       </div>
+
+      <ScrollableContent maxHeight="calc(100vh - 250px)">
+        <div className="tab-content">
+          {activeTab === 'profile' && (
+            <>
+              <div className="profile-header">
+                <div className="profile-picture-container">
+                  <div className="profile-picture">
+                    {profileData.profile_picture_url || imagePreview ? (
+                      <img
+                        src={imagePreview || `${API_URL}/uploads/${profileData.profile_picture_url}`}
+                        alt="Profile"
+                        className="profile-image"
+                      />
+                    ) : (
+                      <FontAwesomeIcon icon={faUser} className="default-profile-icon" />
+                    )}
+                  </div>
+                  <button className="edit-picture-button" onClick={() => fileInputRef.current.click()}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                </div>
+                <h2>{profileData.username || 'Loading...'}</h2>
+              </div>
+
+              <form className="profile-form" onSubmit={handleSubmit}>
+                {hasChanges && (
+                  <div className="button-group">
+                    <button type="submit" className="save-button">
+                      Save Changes
+                    </button>
+                    <button type="button" className="cancel-button" onClick={handleCancel}>
+                      Cancel
+                    </button>
+                  </div>
+                )}
+                {Object.entries(fieldNameMapping).map(([field, label]) => {
+                  if (field === 'profile_picture_url') return null;
+                  return (
+                    <div key={field} className="form-group">
+                      <label htmlFor={field}>{label}:</label>
+                      <input
+                        type={field === 'email' ? 'email' : 'text'}
+                        id={field}
+                        value={field === 'phone' ? formatPhoneNumber(profileData[field]) : profileData[field]}
+                        onChange={(e) => handleInputChange(field, e.target.value)}
+                        disabled={field === 'email'}
+                      />
+                    </div>
+                  );
+                })}
+              </form>
+            </>
+          )}
+          {activeTab === 'settings' && <Settings />}
+          {activeTab === 'friends' && <Friends />}
+        </div>
+      </ScrollableContent>
     </div>
   );
 }

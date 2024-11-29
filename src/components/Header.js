@@ -21,9 +21,9 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
         { label: 'Home', path: '/' },
         { label: 'About', path: '/about' },
         { label: 'Contact', path: '/contact' },
-        { label: 'Create', path: '/create' },
-        { label: 'Settings', path: '/settings' },
-        { label: 'Friends', path: '/friends' },
+        //{ label: 'Create', path: '/create' },
+        //{ label: 'Settings', path: '/settings' },
+        //{ label: 'Friends', path: '/friends' },
         { label: 'Profile', path: '/profile' },
         { label: 'Log Out', path: '/logout' }  // We'll handle this specially
       ];
