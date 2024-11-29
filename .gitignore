@@ -9,6 +9,9 @@
 #vscode files
 .vscode/
 
+#uploaded files
+/uploads
+
 # Environment files
 .env
 .env.local

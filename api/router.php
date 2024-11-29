@@ -26,6 +26,27 @@ error_log("Path: " . $path);
 // Remove leading slash if present
 $path = ltrim($path, '/');
 
+// Handle uploads directory requests
+if (strpos($path, 'uploads/') === 0) {
+    $file = __DIR__ . '/../' . $path;
+    if (file_exists($file)) {
+        // Set appropriate content type
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+        $content_types = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif'
+        ];
+        if (isset($content_types[$ext])) {
+            header('Content-Type: ' . $content_types[$ext]);
+        }
+        readfile($file);
+        exit();
+    }
+    // If file not found, continue to normal routing
+}
+
 // If the path is empty, serve index
 if (empty($path)) {
     echo json_encode([
