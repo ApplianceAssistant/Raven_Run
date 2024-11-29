@@ -5,6 +5,7 @@ import ScrollableContent from './ScrollableContent';
 import '../css/Friends.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { useMessage } from '../utils/MessageProvider';
 
 function Friends() {
     const { user } = useContext(AuthContext);
@@ -12,7 +13,7 @@ function Friends() {
     const [friendRequests, setFriendRequests] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [error, setError] = useState('');
+    const { showError, showSuccess } = useMessage();
 
     useEffect(() => {
         if (user) {
@@ -28,7 +29,7 @@ function Friends() {
             const data = await response.json();
             setFriends(data.friends);
         } catch (error) {
-            setError('Failed to load friends');
+            showError('Failed to load friends');
         }
     };
 
@@ -39,7 +40,7 @@ function Friends() {
             const data = await response.json();
             setFriendRequests(data.friend_requests);
         } catch (error) {
-            setError('Failed to load friend requests');
+            showError('Failed to load friend requests');
         }
     };
 
@@ -50,7 +51,7 @@ function Friends() {
             const data = await response.json();
             setSearchResults(data.users);
         } catch (error) {
-            setError('Failed to search users');
+            showError('Failed to search users');
         }
     };
 
@@ -66,9 +67,9 @@ function Friends() {
                 })
             });
             if (!response.ok) throw new Error('Failed to send friend request');
-            // Update UI or show success message
+            showSuccess('Friend request sent successfully');
         } catch (error) {
-            setError('Failed to send friend request');
+            showError('Failed to send friend request');
         }
     };
 
@@ -85,8 +86,9 @@ function Friends() {
             if (!response.ok) throw new Error('Failed to accept friend request');
             fetchFriends();
             fetchFriendRequests();
+            showSuccess('Friend request accepted');
         } catch (error) {
-            setError('Failed to accept friend request');
+            showError('Failed to accept friend request');
         }
     };
 
@@ -102,8 +104,9 @@ function Friends() {
             });
             if (!response.ok) throw new Error('Failed to ignore friend request');
             fetchFriendRequests();
+            showSuccess('Friend request ignored');
         } catch (error) {
-            setError('Failed to ignore friend request');
+            showError('Failed to ignore friend request');
         }
     };
 
@@ -120,15 +123,15 @@ function Friends() {
             });
             if (!response.ok) throw new Error('Failed to remove friend');
             fetchFriends();
+            showSuccess('Friend removed successfully');
         } catch (error) {
-            setError('Failed to remove friend');
+            showError('Failed to remove friend');
         }
     };
 
     return (
         <div className="content">
             <ScrollableContent maxHeight="60vh">
-                {error && <p className="error-message">{error}</p>}
                 <div className="friends-search">
                     <button onClick={handleSearch} className="search-button">Search</button>
                     <input

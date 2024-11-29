@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import '../css/App.scss';
 
-function Header({ isMenuOpen, toggleMenu }) {
+function Header({ isMenuOpen, setIsMenuOpen }) {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ function Header({ isMenuOpen, toggleMenu }) {
   const handleLogout = (e) => {
     e.preventDefault();
     logout();
-    toggleMenu();
+    setIsMenuOpen(false);
     navigate('/');
   };
   
@@ -78,7 +78,7 @@ function Header({ isMenuOpen, toggleMenu }) {
                     if (item.label === 'Log Out') {
                       handleLogout(e);
                     } else {
-                      toggleMenu();
+                      setIsMenuOpen(false);
                     }
                   }}
                 >
@@ -88,7 +88,7 @@ function Header({ isMenuOpen, toggleMenu }) {
             ))}
           </ul>
         </nav>
-        <div className={`menu-toggle ${isMenuOpen ? 'open' : ''}`} onClick={toggleMenu}>
+        <div className={`menu-toggle ${isMenuOpen ? 'open' : ''}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? '✕' : '☰'}
         </div>
       </header>

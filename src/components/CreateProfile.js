@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { checkServerConnectivity, API_URL } from '../utils/utils.js';
 import Modal from './Modal';
+import { useMessage } from '../utils/MessageProvider';
 
 function CreateProfile() {
   const [username, setUsername] = useState('');
@@ -12,8 +13,6 @@ function CreateProfile() {
   const [isEmailUnique, setIsEmailUnique] = useState(true);
   const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
   const [token, setToken] = useState('');
@@ -33,6 +32,7 @@ function CreateProfile() {
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { showError, showSuccess } = useMessage();
 
   // Add loading states for individual operations
   const [loadingStates, setLoadingStates] = useState({
@@ -94,7 +94,7 @@ function CreateProfile() {
   const debouncedUsernameCheck = rateLimitedCheck(async (value) => {
     if (!validateUsername(value)) {
       setIsUsernameUnique(false);
-      setErrorMessage('Invalid username format');
+      showError('Invalid username format');
       return;
     }
     setLoading('usernameCheck', true);
@@ -102,9 +102,7 @@ function CreateProfile() {
       const isUnique = await checkUnique('username', value);
       setIsUsernameUnique(isUnique);
       if (!isUnique) {
-        setErrorMessage(`${value} is already taken, please choose a different username.`);
-      } else {
-        setErrorMessage('');
+        showError(`${value} is already taken, please choose a different username.`);
       }
     } finally {
       setLoading('usernameCheck', false);
@@ -118,9 +116,7 @@ function CreateProfile() {
         const isUnique = await checkUnique('email', value);
         setIsEmailUnique(isUnique);
         if (!isUnique) {
-          setErrorMessage('This email is already associated with an existing profile.');
-        } else {
-          setErrorMessage('');
+          showError('This email is already associated with an existing profile.');
         }
       } finally {
         setLoading('emailCheck', false);
@@ -177,7 +173,7 @@ function CreateProfile() {
     };
     localStorage.setItem('user', JSON.stringify(userData));
     
-    setSuccessMessage(data.message);
+    showSuccess(data.message);
     setToken(data.token);
     setModalContent({
       title: 'Welcome!',
@@ -193,17 +189,13 @@ function CreateProfile() {
   };
 
   const handleError = (error) => {
-    setErrorMessage(error.message || 'An error occurred. Please try again.');
-    setSuccessMessage('');
+    showError(error.message || 'An error occurred. Please try again.');
   };
 
   const handleSubmit = async (action) => {
     console.log("API_URL: ", API_URL, "action", action);
     try {
       setLoading('submission', true);
-      setErrorMessage('');
-
-      // Validate inputs before submission
       if (!isFormValid()) {
         throw new Error('Please fill all fields correctly');
       }
@@ -242,8 +234,6 @@ function CreateProfile() {
       <div className="bodyContent center">
         <h1>Welcome, Brave Adventurer</h1>
         {isLoading && <div className="loader">Loading...</div>}
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        {successMessage && <p className="success-message">{successMessage}</p>}
         <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
           <div className="account-field">
             <label htmlFor="username">Username:</label>

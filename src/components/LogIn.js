@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { checkServerConnectivity, API_URL, authFetch } from '../utils/utils.js';
 import Modal from './Modal';
+import { useMessage } from '../utils/MessageProvider';
 
 function LogIn() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
 
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
+    const { showError, showSuccess } = useMessage();
 
     const [serverStatus, setServerStatus] = useState({
         isConnected: false,
@@ -30,24 +30,22 @@ function LogIn() {
 
     const handleSubmit = async (action) => {
         setIsLoading(true);
-        setErrorMessage('');
-        setSuccessMessage('');
 
         // Basic input validation
         if (!email || !email.includes('@')) {
-            setErrorMessage('Please enter a valid email address');
+            showError('Please enter a valid email address');
             setIsLoading(false);
             return;
         }
 
         if (!password || password.length < 8) {
-            setErrorMessage('Password must be at least 8 characters long');
+            showError('Password must be at least 8 characters long');
             setIsLoading(false);
             return;
         }
 
         if (!serverStatus.isConnected || !serverStatus.isDatabaseConnected) {
-            setErrorMessage('Cannot perform action: Server or database is not connected');
+            showError('Cannot perform action: Server or database is not connected');
             setIsLoading(false);
             return;
         }
@@ -89,7 +87,7 @@ function LogIn() {
                     console.log("userData: ", userData);
                     localStorage.setItem('user', JSON.stringify(userData));
                     login(userData); // Pass the complete userData object to login context
-                    setSuccessMessage(data.message || 'Login successful!') //delay
+                    showSuccess(data.message || 'Login successful!');
                     setTimeout(() => {
                         setIsModalOpen(true);
                         setModalContent({
@@ -99,17 +97,17 @@ function LogIn() {
                                 { label: 'Settings', route: '/settings' },
                                 { label: 'Find a Game', route: '/lobby' },
                                 { label: 'Create', route: '/create' }
-                            ]
+                            ],
+                            type: 'success',
+                            showTextToSpeech: true,
+                            speak: `Welcome, ${userData.username}! What would you like to do next?`
                         });
                     }, 1000);
                 };
                 handleSuccess(data);
-            } else {
-                throw new Error(data.message || 'Login failed');
             }
         } catch (error) {
-            console.error('Error:', error);
-            setErrorMessage(error.message || 'An error occurred. Please try again.');
+            showError(error.message || 'An error occurred during login');
         } finally {
             setIsLoading(false);
         }
@@ -120,8 +118,6 @@ function LogIn() {
             <div className="bodyContent center">
                 <h1>Welcome Back, Adventurer</h1>
                 {isLoading && <div className="loader">Loading...</div>}
-                {errorMessage && <p className="error-message">{errorMessage}</p>}
-                {successMessage && <p className="success-message">{successMessage}</p>}
                 <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
                     <div className="account-field">
                         <label htmlFor="email">Email:</label>
