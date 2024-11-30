@@ -60,9 +60,9 @@ const GameCreator = () => {
     }
   };
 
-  const handleCreateNewPath = () => {
-    //look here setNewPathData is causing an error
-    setNewPathData(prev => ({ ...prev, pathId: generateUniquePathId() }));
+  const handleCreateNewPath = async () => {
+    const pathId = await generateUniquePathId();
+    setNewPathData(prev => ({ ...prev, pathId }));
     setShowPathForm(true);
   };
 
@@ -242,7 +242,7 @@ const GameCreator = () => {
 
   const renderPathForm = () => (
     <div className="path-form">
-      <h2 className="contentHeader">{isEditingPath ? "Edit Path" : "Create New Path"}</h2>
+      <h2 className="contentHeader">{isEditingPath ? "Edit Game" : "Create New Game"}</h2>
       <div className="field-container">
         <div className="path-id-display">ID: {newPathData.pathId}</div>
       </div>
@@ -349,7 +349,7 @@ const GameCreator = () => {
       {isLoading ? (
         <div>Loading...</div>
       ) : (
-        <>
+        < >
           <div className="content game-creator">
             {renderContent()}
           </div>
@@ -372,7 +372,7 @@ const GameCreator = () => {
               }
             ]}
           />
-        </>
+        </ >
       )}
       </div>
     </div>

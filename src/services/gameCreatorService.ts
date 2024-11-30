@@ -32,6 +32,7 @@ export const generateUniquePathId = async (length: number = 12): Promise<string>
 
     try {
       const response = await fetch(`${API_URL}/api/paths.php?action=check_path_id&path_id=${generatedPathId}`);
+      console.log("response: ", response);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

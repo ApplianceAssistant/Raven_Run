@@ -1,30 +1,16 @@
 <?php
 
-require_once('../server/db_connection.php');
-require_once('errorHandler.php');
-require_once('../server/encryption.php');
-require_once('auth.php');
+require_once (__DIR__ . '/../server/db_connection.php');
+require_once (__DIR__ . '/../server/encryption.php');
+require_once (__DIR__ . '/errorHandler.php');
+require_once (__DIR__ . '/auth.php');
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Set content type to JSON
+header('Content-Type: application/json');
 
 // Ensure the request is coming from an authenticated user
-$user = authenticateUser();
-/*if (!$user) {
-    http_response_code(401);
-    echo json_encode(["error" => "Unauthorized"]);
-    exit;
-}*/
-if(isset($_SESSION['user_id'])) {
-    $user = $_SESSION['user_id'];
-} else {
-    handleError(E_USER_ERROR, "User not found", __FILE__, __LINE__);
-    exit;
-}
 try {
     $conn = getDbConnection();
-
     // Handle different API endpoints
     $method = $_SERVER['REQUEST_METHOD'];
     $action = $_GET['action'] ?? '';
@@ -46,7 +32,6 @@ try {
                 $stmt->execute();
                 $result = $stmt->get_result();
                 $games = $result->fetch_all(MYSQLI_ASSOC);
-
                 echo json_encode($games);
             } elseif ($action === 'get' && isset($_GET['path_id'])) {
                 $pathId = $_GET['path_id'];
@@ -83,7 +68,6 @@ try {
                 $stmt->bind_param("s", $pathId);
                 $stmt->execute();
                 $result = $stmt->get_result();
-                
                 if ($result->num_rows > 0) {
                     // Path exists, check if it belongs to the current user
                     $path = $result->fetch_assoc();
@@ -160,8 +144,12 @@ try {
             break;
     }
 
-    $conn->close();
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(["error" => $e->getMessage()]);
+    echo json_encode(["error" => "Internal Server Error", "details" => [
+        "code" => $e->getCode(),
+        "message" => $e->getMessage(),
+        "file" => $e->getFile(),
+        "line" => $e->getLine()
+    ]]);
 }
