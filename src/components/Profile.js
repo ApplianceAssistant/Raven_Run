@@ -133,7 +133,8 @@ function Profile() {
     if (e) e.preventDefault();
     if (!hasChanges) return;
 
-    if (!isValidPhoneNumber(profileData.phone)) {
+    // Only validate phone number if it's not empty
+    if (profileData.phone && !isValidPhoneNumber(profileData.phone)) {
       showError('Please enter a valid 10-digit phone number');
       return;
     }
