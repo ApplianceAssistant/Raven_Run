@@ -1,8 +1,8 @@
 import React from 'react';
 
-const PathStructure = ({ game, onChallengeClick }) => {
+const GameStructure = ({ game, onChallengeClick }) => {
   return (
-    <div className="path-structure">
+    <div className="game-structure">
       <h1 className="contentHeader">{game.name}</h1>
       <p>{game.description}</p>
       <h2>Challenges:</h2>
@@ -18,4 +18,4 @@ const PathStructure = ({ game, onChallengeClick }) => {
   );
 };
 
-export default PathStructure;
+export default GameStructure;

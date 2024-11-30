@@ -495,12 +495,12 @@ canvas {
 }
 
 //lobby styles
-.path-list {
+.game-list {
   list-style-type: none;
   padding: 10px;
   min-width: 250px;
 
-  .path-item {
+  .game-item {
     margin-bottom: 10px;
 
     button {
@@ -525,8 +525,8 @@ canvas {
   }
 }
 
-//path page styles
-.path-page {
+//game page styles
+.game-page {
   display: flex;
   flex-direction: column;
   opacity: 0;
@@ -537,7 +537,7 @@ canvas {
   }
 }
 
-.path-content {
+.game-content {
   margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
@@ -547,7 +547,7 @@ canvas {
   position: relative;
 }
 
-.path-title {
+.game-title {
   text-align: center;
   margin-bottom: 20px;
   opacity: 0;
@@ -679,7 +679,7 @@ canvas {
 }
 
 .content-visible {
-  .path-title {
+  .game-title {
     transition-delay: 0.2s;
   }
 

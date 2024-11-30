@@ -42,7 +42,7 @@ const ThemeContainer = ({ children, theme }) => {
     }, [isCanvasTheme, theme]);
 
   // Determine if we should show the theme element based on the current route
-  const shouldShowThemeElement = !noThemeElementPages.includes(location.pathname);
+  const shouldShowThemeElement = !noThemeElementPages.includes(location.gamename);
 
   return (
     <div className="content-wrapper">

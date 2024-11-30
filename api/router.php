@@ -15,23 +15,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Get the requested path
+// Get the requested game
 $request_uri = $_SERVER['REQUEST_URI'];
-$path = parse_url($request_uri, PHP_URL_PATH);
+$game = parse_url($request_uri, PHP_URL_PATH);
 
 // Debug logging
 error_log("Request URI: " . $request_uri);
-error_log("Path: " . $path);
+error_log("Game: " . $game);
 
 // Remove leading slash if present
-$path = ltrim($path, '/');
+$game = ltrim($game, '/');
 
 // Handle uploads directory requests
-if (strpos($path, 'uploads/') === 0) {
-    $file = __DIR__ . '/../' . $path;
+if (strpos($game, 'uploads/') === 0) {
+    $file = __DIR__ . '/../' . $game;
     if (file_exists($file)) {
         // Set appropriate content type
-        $ext = pathinfo($file, PATHINFO_EXTENSION);
+        $ext = gameinfo($file, PATHINFO_EXTENSION);
         $content_types = [
             'jpg' => 'image/jpeg',
             'jpeg' => 'image/jpeg',
@@ -47,8 +47,8 @@ if (strpos($path, 'uploads/') === 0) {
     // If file not found, continue to normal routing
 }
 
-// If the path is empty, serve index
-if (empty($path)) {
+// If the game is empty, serve index
+if (empty($game)) {
     echo json_encode([
         'status' => 'ok',
         'message' => 'API server running',
@@ -57,8 +57,8 @@ if (empty($path)) {
     exit();
 }
 
-// Map the path to the corresponding PHP file
-$file = __DIR__ . '/' . $path;
+// Map the game to the corresponding PHP file
+$file = __DIR__ . '/' . $game;
 
 error_log("Looking for file: " . $file);
 
@@ -66,8 +66,8 @@ if (file_exists($file)) {
     error_log("File found: " . $file);
     // Set up the environment
     $_SERVER['SCRIPT_FILENAME'] = $file;
-    $_SERVER['SCRIPT_NAME'] = '/' . $path;
-    $_SERVER['PHP_SELF'] = '/' . $path;
+    $_SERVER['SCRIPT_NAME'] = '/' . $game;
+    $_SERVER['PHP_SELF'] = '/' . $game;
     $_SERVER['DOCUMENT_ROOT'] = __DIR__;
     
     // Include the PHP file
@@ -77,7 +77,7 @@ if (file_exists($file)) {
     header('HTTP/1.1 404 Not Found');
     echo json_encode([
         'error' => 'Endpoint not found',
-        'path' => $path,
+        'game' => $game,
         'file' => $file,
         'document_root' => __DIR__
     ]);

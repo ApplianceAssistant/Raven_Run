@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { saveGame, getGames, deleteGame, isValidGame, generateUniquePathId } from '../services/gameCreatorService';
+import { saveGame, getGames, deleteGame, isValidGame, generateUniqueGameId } from '../services/gameCreatorService';
 import { saveGameToLocalStorage, getGamesFromLocalStorage, updateChallengeInLocalStorage, deleteGameFromLocalStorage } from '../utils/localStorageUtils';
 import ChallengeCreator from './ChallengeCreator';
-import PathDisplay from './PathDisplay';
+import GameDisplay from './GameDisplay';
 import Modal from './Modal';
 import ToggleSwitch from './ToggleSwitch';
 import '../css/GameCreator.scss';
@@ -10,14 +10,14 @@ import '../css/GameCreator.scss';
 const GameCreator = () => {
   const [games, setGames] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
-  const [showPathForm, setShowPathForm] = useState(false);
-  const [newPathData, setNewPathData] = useState({ name: '', description: '', public: false, pathId: '' });
+  const [showGameForm, setShowGameForm] = useState(false);
+  const [newGameData, setNewGameData] = useState({ name: '', description: '', public: false, gameId: '' });
   const [isPublic, setIsPublic] = useState(false);
   const [currentChallenge, setCurrentChallenge] = useState(null);
   const [showChallengeCreator, setShowChallengeCreator] = useState(false);
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isEditingPath, setIsEditingPath] = useState(false);
+  const [isEditingGame, setIsEditingGame] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [gameToDelete, setGameToDelete] = useState(null);
   const [buttonContainerVisible, setButtonContainerVisible] = useState(false);
@@ -34,79 +34,79 @@ const GameCreator = () => {
 
   useEffect(() => {
     if (selectedGame && !isLoading) {
-      setNewPathData({
+      setNewGameData({
         name: selectedGame.name,
         description: selectedGame.description,
         public: selectedGame.public ?? false,
-        pathId: selectedGame.pathId || generateUniquePathId()
+        gameId: selectedGame.gameId || generateUniqueGameId()
       });
       setIsPublic(selectedGame.public ?? false);
     }
   }, [selectedGame, isLoading]);
 
   useEffect(() => {
-  }, [isPublic, newPathData.public]);
+  }, [isPublic, newGameData.public]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (name === "public") {
       setIsPublic(checked);
-      setNewPathData(prev => ({ ...prev, public: checked }));
+      setNewGameData(prev => ({ ...prev, public: checked }));
     } else {
-      setNewPathData(prev => ({
+      setNewGameData(prev => ({
         ...prev,
         [name]: type === 'checkbox' ? checked : value
       }));
     }
   };
 
-  const handleCreateNewPath = async () => {
-    const pathId = await generateUniquePathId();
-    setNewPathData(prev => ({ ...prev, pathId }));
-    setShowPathForm(true);
+  const handleCreateNewGame = async () => {
+    const gameId = await generateUniqueGameId();
+    setNewGameData(prev => ({ ...prev, gameId }));
+    setShowGameForm(true);
   };
 
-  const handlePathFormSubmit = () => {
-    if (isValidGame(newPathData)) {
+  const handleGameFormSubmit = () => {
+    if (isValidGame(newGameData)) {
       const newGame = {
-        ...newPathData,
+        ...newGameData,
         id: Date.now(),
         challenges: [],
-        public: newPathData.public,
-        pathId: newPathData.pathId
+        public: newGameData.public,
+        gameId: newGameData.gameId
       };
       setGames(prevGames => [...prevGames, newGame]);
       setSelectedGame(newGame);
       saveGame(newGame);
-      setShowPathForm(false);
-      setNewPathData({ name: '', description: '', public: false, pathId: '' });
+      setShowGameForm(false);
+      setNewGameData({ name: '', description: '', public: false, gameId: '' });
     } else {
-      alert('Please enter a path title');
+      alert('Please enter a game title');
     }
   };
 
-  const handleSelectPath = (game) => {
+  const handleSelectGame = (game) => {
     setIsPublic(game.public);
     setSelectedGame(game);
-    setNewPathData(prevData => ({
+    setNewGameData(prevData => ({
       ...prevData,
       name: game.name,
       description: game.description,
       public: game.public,
-      pathId: game.pathId
+      gameId: game.gameId
     }));
-    setIsEditingPath(true);
+    setIsEditingGame(true);
   };
 
-  const handlePathUpdate = () => {
-    if (isValidGame(newPathData)) {
-      const updatedGame = { ...selectedGame, ...newPathData };
+  const handleGameUpdate = () => {
+    if (isValidGame(newGameData)) {
+      const updatedGame = { ...selectedGame, ...newGameData };
       setSelectedGame(updatedGame);
       setGames(prevGames => prevGames.map(g => g.id === updatedGame.id ? updatedGame : g));
       saveGame(updatedGame);
-      setIsEditingPath(false);
+      setIsEditingGame(false);
     } else {
-      alert('Please enter a path title');
+      alert('Please enter a game title');
     }
   };
 
@@ -117,13 +117,13 @@ const GameCreator = () => {
 
   const handleConfirmedDelete = () => {
     if (gameToDelete) {
-      handleDeletePath(gameToDelete.id);
+      handleDeleteGame(gameToDelete.id);
       setIsDeleteModalOpen(false);
       setGameToDelete(null);
     }
   };
 
-  const handleDeletePath = (gameId) => {
+  const handleDeleteGame = (gameId) => {
     const updatedGames = games.filter(game => game.id !== gameId);
     setGames(updatedGames);
     deleteGame(gameId);
@@ -221,7 +221,7 @@ const GameCreator = () => {
 
   const renderGameList = () => (
     <div className="game-list">
-      <h2 className="contentHeader">{games.length > 0 ? "Saved Paths" : "Create Your First Path"}</h2>
+      <h2 className="contentHeader">{games.length > 0 ? "Saved Games" : "Create Your First Game"}</h2>
       {games.length > 0 ? (
         games.map(game => (
           <div key={game.id} className="game-item">
@@ -229,43 +229,43 @@ const GameCreator = () => {
             <p>{game.description}</p>
             <p>Challenges: {game.challenges.length}</p>
             <p>Created: {new Date(game.id).toLocaleDateString()}</p>
-            <button onClick={() => handleSelectPath(game)}>Select</button>
+            <button onClick={() => handleSelectGame(game)}>Select</button>
             <button onClick={() => handleDeleteConfirmation(game)}>Delete</button>
           </div>
         ))
       ) : (
-        <p>You haven't created any paths yet.<br></br>Click the button below to get started!</p>
+        <p>You haven't created any games yet.<br></br>Click the button below to get started!</p>
       )}
-      <button onClick={handleCreateNewPath}>Create New Path</button>
+      <button onClick={handleCreateNewGame}>Create New Game</button>
     </div>
   );
 
-  const renderPathForm = () => (
-    <div className="path-form">
-      <h2 className="contentHeader">{isEditingPath ? "Edit Game" : "Create New Game"}</h2>
+  const renderGameForm = () => (
+    <div className="game-form">
+      <h2 className="contentHeader">{isEditingGame ? "Edit Game" : "Create New Game"}</h2>
       <div className="field-container">
-        <div className="path-id-display">ID: {newPathData.pathId}</div>
+        <div className="game-id-display">ID: {newGameData.gameId}</div>
       </div>
       <form className="content flex-top">
         <div className="field-container">
-          <label htmlFor="pathName">Path Name:</label>
+          <label htmlFor="gameName">Game Name:</label>
           <input
             type="text"
-            id="pathName"
+            id="gameName"
             name="name"
-            placeholder="Enter path name"
-            value={newPathData.name}
+            placeholder="Enter game name"
+            value={newGameData.name}
             onChange={handleInputChange}
             required
           />
         </div>
         <div className="field-container">
-          <label htmlFor="pathDescription">Path Description:</label>
+          <label htmlFor="gameDescription">Game Description:</label>
           <textarea
-            id="pathDescription"
+            id="gameDescription"
             name="description"
-            placeholder="Enter path description"
-            value={newPathData.description}
+            placeholder="Enter game description"
+            value={newGameData.description}
             onChange={handleInputChange}
             rows="4"
           />
@@ -279,17 +279,17 @@ const GameCreator = () => {
             }}
             label={isPublic ? 'Public' : 'Private'}
             name="public"
-            id="pathPublic"
+            id="gamePublic"
           />
         </div>
         <div className="button-container">
           <button type="button" onClick={() => {
-            setIsEditingPath(false);
-            setShowPathForm(false);
+            setIsEditingGame(false);
+            setShowGameForm(false);
             setSelectedGame(null);
           }}>Cancel</button>
-          <button type="button" onClick={isEditingPath ? handlePathUpdate : handlePathFormSubmit} className="submit-button">
-            {isEditingPath ? "Update Path" : "Create Path"}
+          <button type="button" onClick={isEditingGame ? handleGameUpdate : handleGameFormSubmit} className="submit-button">
+            {isEditingGame ? "Update Game" : "Create Game"}
           </button>
         </div>
       </form>
@@ -297,8 +297,8 @@ const GameCreator = () => {
   );
 
   const renderContent = () => {
-    if (isEditingPath || showPathForm) {
-      return renderPathForm();
+    if (isEditingGame || showGameForm) {
+      return renderGameForm();
     }
 
     if (!selectedGame) {
@@ -316,7 +316,7 @@ const GameCreator = () => {
     }
 
     return (
-      <PathDisplay
+      <GameDisplay
         game={selectedGame}
         onCreateNewChallenge={handleCreateNewChallenge}
         onEditChallenge={handleEditChallenge}
@@ -325,7 +325,6 @@ const GameCreator = () => {
   };
 
   const renderButtons = () => {
-    console.log('Button container visible:', buttonContainerVisible);
     if (!currentChallenge) return null;
     return (
       <div className={`button-container-bottom visible`}>
@@ -337,7 +336,7 @@ const GameCreator = () => {
           <button onClick={handleNext}>{isEditing ? 'Update' : 'Next'}</button>
         )}
         {!showChallengeCreator && (
-          <button onClick={() => setSelectedGame(null)}>Back to Path List</button>
+          <button onClick={() => setSelectedGame(null)}>Back to Game List</button>
         )}
       </div>
     );
@@ -358,7 +357,7 @@ const GameCreator = () => {
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
             title="Confirm Delete"
-            content={`Are you sure you want to delete this path and all of its challenges?`}
+            content={`Are you sure you want to delete this game and all of its challenges?`}
             buttons={[
               {
                 label: 'Cancel',

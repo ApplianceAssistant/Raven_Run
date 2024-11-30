@@ -77,7 +77,7 @@ try {
             $user = $result->fetch_assoc();
             
             if ($user && $user['profile_picture_url']) {
-                // Convert relative path to full URL
+                // Convert relative game to full URL
                 $user['profile_picture_url'] = getBaseUrl() . $user['profile_picture_url'];
             }
             
@@ -255,10 +255,10 @@ try {
                     }
 
                     $fileName = uniqid() . '_' . basename($_FILES['profile_picture']['name']);
-                    $targetPath = $uploadDir . $fileName;
+                    $targetGame = $uploadDir . $fileName;
 
-                    if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetPath)) {
-                        // Store the relative path in the database
+                    if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetGame)) {
+                        // Store the relative game in the database
                         $data['profile_picture_url'] = '/uploads/profiles/' . $fileName;
                     }
                 }

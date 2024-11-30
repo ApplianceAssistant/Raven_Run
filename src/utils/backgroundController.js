@@ -13,7 +13,7 @@ const BackgroundController = ({ theme }) => {
   const [fadeIn, setFadeIn] = useState(false);
 
   // Determine if the background should be displayed based on the current route
-  const shouldShowBackground = !noThemeElementPages.includes(location.pathname);
+  const shouldShowBackground = !noThemeElementPages.includes(location.gamename);
 
   useEffect(() => {
     const loadBackgroundEffect = async () => {

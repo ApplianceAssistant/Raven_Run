@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
+const game = require('game');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const winston = require('winston');
@@ -8,7 +8,7 @@ const userRoutes = require('../api/users');
 const dbTestRoute = require('../api/db-test');
 
 // Load environment variables from project root .env
-dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
+dotenv.config({ game: game.resolve(__dirname, '..', '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,7 +16,7 @@ const ENV = process.env.NODE_ENV || 'development';
 process.env.APP_ENV = ENV;
 
 // Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, 'logs');
+const logsDir = game.join(__dirname, 'logs');
 if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir);
 }
@@ -30,13 +30,13 @@ const logger = winston.createLogger({
   ),
   transports: [
     new winston.transports.File({ 
-      filename: path.join(logsDir, 'error.log'), 
+      filename: game.join(logsDir, 'error.log'), 
       level: 'error',
       maxsize: 5242880, // 5MB
       maxFiles: 5,
     }),
     new winston.transports.File({ 
-      filename: path.join(logsDir, 'combined.log'),
+      filename: game.join(logsDir, 'combined.log'),
       maxsize: 5242880, // 5MB
       maxFiles: 5,
     })
@@ -89,7 +89,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/db-test', dbTestRoute);
 
 // Serve static files
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(game.join(__dirname, '..')));
 
 // Special handling for PHP endpoints
 app.all('/api/*.php', (req, res) => {
@@ -103,7 +103,7 @@ app.all('/api/*.php', (req, res) => {
   });
   
   // Instead of redirecting to production, serve the local PHP file
-  const phpFile = path.join(__dirname, '..', req.path);
+  const phpFile = game.join(__dirname, '..', req.game);
   logger.info(`Attempting to serve PHP file: ${phpFile}`);
   
   // Here we'll need to execute the PHP file
@@ -121,7 +121,7 @@ app.all('/api/*.php', (req, res) => {
 
 // Catch-all route for React app
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'index.html'));
+  res.sendFile(game.join(__dirname, '..', 'index.html'));
 });
 
 // Error handling middleware

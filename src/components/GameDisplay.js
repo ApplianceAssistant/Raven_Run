@@ -1,10 +1,10 @@
 import React from 'react';
-import '../css/PathDisplay.scss';
+import '../css/GameDisplay.scss';
 
-const PathDisplay = ({ game, onCreateNewChallenge, onEditChallenge }) => {
+const GameDisplay = ({ game, onCreateNewChallenge, onEditChallenge }) => {
   return (
-    <div className="path-display">
-      <h2>{game.name || 'Untitled Path'}</h2>
+    <div className="game-display">
+      <h2>{game.name || 'Untitled Game'}</h2>
       <p>{game.description || 'No description provided.'}</p>
       
       <h3>Challenges:</h3>
@@ -33,4 +33,4 @@ const PathDisplay = ({ game, onCreateNewChallenge, onEditChallenge }) => {
   );
 };
 
-export default PathDisplay;
+export default GameDisplay;

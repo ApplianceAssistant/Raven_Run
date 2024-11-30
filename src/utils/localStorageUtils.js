@@ -32,8 +32,8 @@ export const decryptData = (encryptedData) => {
  */
 export const saveGameToLocalStorage = (game) => {
   const games = getGamesFromLocalStorage();
-  const updatedGames = games.map(g => g.path_id === game.path_id ? { ...g, ...game, public: game.public } : g);
-  if (!updatedGames.some(g => g.path_id === game.path_id)) {
+  const updatedGames = games.map(g => g.game_id === game.game_id ? { ...g, ...game, public: game.public } : g);
+  if (!updatedGames.some(g => g.game_id === game.game_id)) {
     updatedGames.push({ ...game, public: game.public ?? false });
   }
   const encryptedGames = encryptData(updatedGames);
@@ -75,10 +75,10 @@ export const getDebugGamesFromLocalStorage = () => {
  * @param {number} gameId
  * @param {Challenge} updatedChallenge
  */
-export const updateChallengeInLocalStorage = (pathId, updatedChallenge) => {
+export const updateChallengeInLocalStorage = (gameId, updatedChallenge) => {
   const games = getGamesFromLocalStorage();
   const updatedGames = games.map(game => {
-    if (game.path_id === pathId) {
+    if (game.game_id === gameId) {
       const updatedChallenges = game.challenges.map(challenge => 
         challenge.id === updatedChallenge.id ? updatedChallenge : challenge
       );
@@ -96,9 +96,9 @@ export const updateChallengeInLocalStorage = (pathId, updatedChallenge) => {
 /**
  * @param {number} gameId
  */
-export const deleteGameFromLocalStorage = (pathId) => {
+export const deleteGameFromLocalStorage = (gameId) => {
   const games = getGamesFromLocalStorage();
-  const updatedGames = games.filter(game => game.path_id !== pathId);
+  const updatedGames = games.filter(game => game.game_id !== gameId);
   const encryptedGames = encryptData(updatedGames);
   localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
 

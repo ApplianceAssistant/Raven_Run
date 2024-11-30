@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../server/db_connection.php';
 
-// Get request method and path
+// Get request method and game
 $method = $_SERVER['REQUEST_METHOD'];
-$path = $_SERVER['REQUEST_URI'];
+$game = $_SERVER['REQUEST_URI'];
 
 // Add environment debugging
 $envDebug = [
@@ -23,7 +23,7 @@ $response = [
     'message' => 'API endpoint accessible',
     'request' => [
         'method' => $method,
-        'path' => $path,
+        'game' => $game,
         'headers' => getallheaders(),
         'query' => $_GET,
         'body' => json_decode(file_get_contents('php://input'), true)

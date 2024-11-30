@@ -2,9 +2,9 @@
 
 const HUNT_PROGRESS_KEY = 'huntProgress';
 
-export const saveHuntProgress = (pathId, challengeIndex) => {
+export const saveHuntProgress = (gameId, challengeIndex) => {
   const progress = {
-    pathId: parseInt(pathId, 10),
+    gameId: parseInt(gameId, 10),
     challengeIndex: parseInt(challengeIndex, 10),
     timestamp: Date.now()
   };

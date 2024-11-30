@@ -10,7 +10,7 @@ export namespace GameTypes {
     description: string;
     challenges: Challenge[];
     public: boolean;
-    pathId: string; // New property for the unique path ID
+    gameId: string; // New property for the unique game ID
   }
 
   export interface Challenge {
@@ -21,17 +21,17 @@ export namespace GameTypes {
   }
 }
 
-// Function to generate a unique path ID
-export const generateUniquePathId = async (length: number = 12): Promise<string> => {
+// Function to generate a unique game ID
+export const generateUniqueGameId = async (length: number = 12): Promise<string> => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let isUnique = false;
-  let generatedPathId = '';
+  let generatedGameId = '';
 
   while (!isUnique) {
-    generatedPathId = Array.from({ length }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
+    generatedGameId = Array.from({ length }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
 
     try {
-      const response = await fetch(`${API_URL}/api/paths.php?action=check_path_id&path_id=${generatedPathId}`);
+      const response = await fetch(`${API_URL}/api/games.php?action=check_game_id&game_id=${generatedGameId}`);
       console.log("response: ", response);
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -39,27 +39,27 @@ export const generateUniquePathId = async (length: number = 12): Promise<string>
       const data: { isUnique: boolean } = await response.json();
       isUnique = data.isUnique;
     } catch (error) {
-      console.error('Error checking path_id uniqueness:', error);
+      console.error('Error checking game_id uniqueness:', error);
       // If there's an error, we'll assume it's unique to avoid an infinite loop
       isUnique = true;
-      return generatedPathId;
+      return generatedGameId;
     }
   }
 
-  return generatedPathId;
+  return generatedGameId;
 };
 
 export const saveGame = async (game: GameTypes.Game): Promise<void> => {
-  let pathId = game.pathId;
+  let gameId = game.gameId;
   
-  if (!pathId) {
-    pathId = await generateUniquePathId();
+  if (!gameId) {
+    gameId = await generateUniqueGameId();
   }
 
   const gameWithPublic: GameTypes.Game = { 
     ...game, 
     public: game.public ?? false,
-    pathId: pathId
+    gameId: gameId
   };
   
   const isServerReachable = (await checkServerConnectivity()).isConnected;
@@ -74,13 +74,13 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
           title: gameWithPublic.name,
           description: gameWithPublic.description,
           is_public: gameWithPublic.public ? 1 : 0,
-          path_id: gameWithPublic.pathId,
+          game_id: gameWithPublic.gameId,
           challenges: JSON.stringify(gameWithPublic.challenges)
         }
       };
       console.log('Sending payload:', payload);
 
-      const response = await fetch(`${API_URL}/api/paths.php`, {
+      const response = await fetch(`${API_URL}/api/games.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ export const deleteGame = async (gameId: number): Promise<void> => {
 
   if (isServerReachable) {
     try {
-      const response = await fetch(`${API_URL}/api/paths.php`, {
+      const response = await fetch(`${API_URL}/api/games.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,7 +148,7 @@ export const getGames = async (): Promise<GameTypes.Game[]> => {
 
   if (isServerReachable) {
     try {
-      const response = await authFetch(`${API_URL}/api/paths.php?action=get_games`);
+      const response = await authFetch(`${API_URL}/api/games.php?action=get_games`);
       const responseText = await response.text();
       console.log('Full response text:', responseText);
 
@@ -189,11 +189,11 @@ export const getGames = async (): Promise<GameTypes.Game[]> => {
       // Update local storage with the final list of games
       serverGames.forEach(saveGameToLocalStorage);
 
-      // Process games and generate pathIds where necessary
+      // Process games and generate gameIds where necessary
       const processedGames = await Promise.all(serverGames.map(async game => ({
         ...game,
         public: game.public ?? false,
-        pathId: game.pathId || await generateUniquePathId()
+        gameId: game.gameId || await generateUniqueGameId()
       })));
 
       return processedGames;

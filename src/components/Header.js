@@ -18,44 +18,44 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
   const getMenuItems = () => {
     if (isAuthenticated) {
       return [
-        { label: 'Home', path: '/' },
-        { label: 'About', path: '/about' },
-        { label: 'Contact', path: '/contact' },
-        //{ label: 'Create', path: '/create' },
-        //{ label: 'Settings', path: '/settings' },
-        //{ label: 'Friends', path: '/friends' },
-        { label: 'Profile', path: '/profile' },
-        { label: 'Log Out', path: '/logout' }  // We'll handle this specially
+        { label: 'Home', game: '/' },
+        { label: 'About', game: '/about' },
+        { label: 'Contact', game: '/contact' },
+        //{ label: 'Create', game: '/create' },
+        //{ label: 'Settings', game: '/settings' },
+        //{ label: 'Friends', game: '/friends' },
+        { label: 'Profile', game: '/profile' },
+        { label: 'Log Out', game: '/logout' }  // We'll handle this specially
       ];
     } else {
       const baseItems = [
-        { label: 'Home', path: '/' },
-        { label: 'About', path: '/about' },
-        { label: 'Contact', path: '/contact' },
-        { label: 'Settings', path: '/settings' },
+        { label: 'Home', game: '/' },
+        { label: 'About', game: '/about' },
+        { label: 'Contact', game: '/contact' },
+        { label: 'Settings', game: '/settings' },
       ];
-      if (location.pathname === '/log-in') {
-        return [...baseItems, { label: 'Create Profile', path: '/create-profile' }];
-      } else if (location.pathname === '/create-profile') {
-        return [...baseItems, { label: 'Log In', path: '/log-in' }];
+      if (location.gamename === '/log-in') {
+        return [...baseItems, { label: 'Create Profile', game: '/create-profile' }];
+      } else if (location.gamename === '/create-profile') {
+        return [...baseItems, { label: 'Log In', game: '/log-in' }];
       } else {
         return [
           ...baseItems,
-          { label: 'Create Profile', path: '/create-profile' },
-          { label: 'Log In', path: '/log-in' }
+          { label: 'Create Profile', game: '/create-profile' },
+          { label: 'Log In', game: '/log-in' }
         ];
       }
     }
   };
 
-  const isProfileGroup = ['/profile', '/settings', '/friends'].includes(location.pathname);
+  const isProfileGroup = ['/profile', '/settings', '/friends'].includes(location.gamename);
 
   const menuItems = getMenuItems();
 
   const subNavItems = [
-    { path: '/profile', label: 'Profile' },
-    { path: '/settings', label: 'Settings' },
-    { path: '/friends', label: 'Friends' }
+    { game: '/profile', label: 'Profile' },
+    { game: '/settings', label: 'Settings' },
+    { game: '/friends', label: 'Friends' }
   ];
 
   return (
@@ -73,7 +73,7 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
             {menuItems.map((item, index) => (
               <li key={item.label} className={isMenuOpen ? 'open' : ''} style={{transitionDelay: `${index * 0.1}s`}}>
                 <Link 
-                  to={item.path}
+                  to={item.game}
                   onClick={(e) => {
                     if (item.label === 'Log Out') {
                       handleLogout(e);

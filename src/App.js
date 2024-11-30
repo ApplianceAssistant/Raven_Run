@@ -8,7 +8,7 @@ import Contact from './components/Contact';
 import CreateProfile from './components/CreateProfile';
 import Profile from './components/Profile.js';
 import Lobby from './components/Lobby';
-import PathPage from './components/PathPage';
+import GamePage from './components/GamePage';
 import Settings from './components/Settings';
 import Create from './components/GameCreator';
 import Header from './components/Header';
@@ -108,12 +108,12 @@ function AppContent() {
             <Route path="/" element={<ThemeContainer theme={theme}><Home /></ThemeContainer>} />
             <Route path="/about" element={<ThemeContainer theme={theme}><About /></ThemeContainer>} />
             <Route path="/contact" element={<ThemeContainer theme={theme}><Contact /></ThemeContainer>} />
-            <Route path="/path/:pathId" element={<ThemeContainer theme={theme}><PathPage /></ThemeContainer>} />
+            <Route path="/game/:gameId" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
             <Route path="/lobby" element={<ThemeContainer theme={theme}><Lobby /></ThemeContainer>} />
             <Route path="/create-profile" element={<ThemeContainer theme={theme}><CreateProfile /></ThemeContainer>} />
             <Route path="/log-in" element={<ThemeContainer theme={theme}><LogIn /></ThemeContainer>} />
-            <Route path="/hunt-description/:pathId" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
-            <Route path="/path/:pathId/challenge/:challengeIndex" element={<ThemeContainer theme={theme}><PathPage /></ThemeContainer>} />
+            <Route path="/hunt-description/:gameId" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
+            <Route path="/game/:gameId/challenge/:challengeIndex" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
             <Route path="/congratulations" element={<ThemeContainer theme={theme}><Congratulations /></ThemeContainer>} />
             <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
             <Route path="/settings" element={<ThemeContainer theme={theme}><Settings /></ThemeContainer>} />

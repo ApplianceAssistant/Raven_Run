@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { paths } from '../data/challenges';
+import { games } from '../data/challenges';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import ScrollableContent from './ScrollableContent';
 import TextToSpeech from './TextToSpeech';
@@ -10,7 +10,7 @@ import { getUserUnitPreference } from '../utils/utils';
 import { useSettings } from '../utils/SettingsContext';
 
 const HuntDescription = () => {
-    const { pathId } = useParams();
+    const { gameId } = useParams();
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [huntAnalysis, setHuntAnalysis] = useState(null);
@@ -18,11 +18,11 @@ const HuntDescription = () => {
     const { settings } = useSettings();
 
     const getHuntData = () => {
-        const numericPathId = parseInt(pathId, 10);
-        let hunt = paths.find(p => p.id === numericPathId);
+        const numericGameId = parseInt(gameId, 10);
+        let hunt = games.find(p => p.id === numericGameId);
         if (!hunt) {
-            const customPaths = getGamesFromLocalStorage();
-            hunt = customPaths.find(p => p.id === numericPathId);
+            const customGames = getGamesFromLocalStorage();
+            hunt = customGames.find(p => p.id === numericGameId);
         }
         return hunt;
     };
@@ -44,7 +44,7 @@ const HuntDescription = () => {
 
     const handleAgree = () => {
         setIsModalOpen(false);
-        navigate(`/path/${pathId}/challenge/0`);
+        navigate(`/game/${gameId}/challenge/0`);
     };
 
     if (!hunt) {

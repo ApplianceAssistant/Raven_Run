@@ -2,7 +2,7 @@ import { Challenge, hasTargetLocation, hasHints } from '../types/challengeTypes'
 import { calculateDistance, getCurrentLocation, getUserUnitPreference } from '../utils/utils';
 import { kilometersToMiles, metersToFeet, getLargeDistanceUnit, getSmallDistanceUnit } from '../utils/unitConversion';
 import { isStoryChallenge, isMultipleChoiceChallenge, isTrueFalseChallenge, isTextInputChallenge, isTravelChallenge } from '../types/challengeTypes';
-import { paths } from '../data/challenges';
+import { games } from '../data/challenges';
 import { getHuntProgress } from '../utils/huntProgressUtils';
 
 // Define the ChallengeState interface
@@ -138,18 +138,18 @@ export const getNextHintState = (challenge: Challenge, prevState: ChallengeState
 // Map to keep track of hint indices for each challenge
 const hintIndexMap = new Map<string, number>();
 
-export function getPath(pathId: number) {
-  return paths.find(path => path.id === pathId);
+export function getGame(gameId: number) {
+  return games.find(game => game.id === gameId);
 }
 
-export function getChallenges(pathId: number): Challenge[] {
-  const path = getPath(pathId);
-  return path ? path.challenges : [];
+export function getChallenges(gameId: number): Challenge[] {
+  const game = getGame(gameId);
+  return game ? game.challenges : [];
 }
 
-export function getPathName(pathId: number): string {
-  const path = getPath(pathId);
-  return path ? path.name : 'Unknown Path';
+export function getGameName(gameId: number): string {
+  const game = getGame(gameId);
+  return game ? game.name : 'Unknown Game';
 }
 
 export function getNextHint(challenge: Challenge): string {
@@ -307,9 +307,9 @@ export function shouldDisplaySubmitButton(challenge: Challenge, state: Challenge
 }
 
 export default {
-  getPath,
+  getGame,
   getChallenges,
-  getPathName,
+  getGameName,
   checkLocationReached,
   checkAnswer,
   getNextIncorrectFeedback,

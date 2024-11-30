@@ -1,6 +1,6 @@
 import { Challenge } from '../types/challengeTypes';
 
-interface Path {
+interface Game {
   id: number;
   name: string;
   description: string;
@@ -8,7 +8,7 @@ interface Path {
   challenges: Challenge[];
 }
 
-export const paths: Path[] = [
+export const games: Game[] = [
   {
     id: 0,
     name: "Tracking Shadows in Shelby County",
@@ -88,7 +88,7 @@ export const paths: Path[] = [
           "The answer lies within four letters, a name as sturdy as the nation they helped build."
         ],
         feedbackTexts: {
-          correct: "As the name 'John' passes your lips, a warm breeze caresses your face, carrying the scent of autumn leaves and distant memories. The crows take flight, their wings beating a path westward. What new mysteries await in that direction?",
+          correct: "As the name 'John' passes your lips, a warm breeze caresses your face, carrying the scent of autumn leaves and distant memories. The crows take flight, their wings beating a game westward. What new mysteries await in that direction?",
           incorrect: [
             "A mournful caw pierces the air. The crows shuffle restlessly, urging you to look closer at the stone.",
             "The wind whispers through the graveyard, carrying fragments of forgotten names. Two choices remain, which one echoes in eternity?",
@@ -201,7 +201,7 @@ export const paths: Path[] = [
         description: `Standing before the towering water reservoir, you're struck by its imposing presence against the Simpsonville sky. The crows circle overhead, their caws seeming to form words on the wind:\n
       
           Beneath the titan's watchful gaze,\n
-          A path winds through the morning haze.\n
+          A game winds through the morning haze.\n
           Its name speaks of vistas wide and fair,\n
           And digits that the postman bears.\n
       
@@ -516,7 +516,7 @@ export const paths: Path[] = [
         hints: [
           "Look for a place where the scent of freshly roasted coffee mingles with the sound of turning pages.",
           "Seek a gathering spot near an intersection that shares its name with the establishment.",
-          "Find where cobblestone paths lead to a canopy of colorful triangles, often alive with music.",
+          "Find where cobblestone games lead to a canopy of colorful triangles, often alive with music.",
           "The crows circle a building where local flavors and local talent brew together in perfect harmony."
         ],
         completionFeedback: `As you approach 6th & Main, the vibrant energy of the place washes over you. The crows alight on the colorful shades nearby, their eyes reflecting the bustling scene below. The coffee shop stands as a beacon of Shelbyville's creative spirit, its windows offering glimpses of art-adorned walls and shelves lined with books.\n
@@ -594,7 +594,7 @@ export const paths: Path[] = [
       Between the rhythmic sounds of breaking waves and mission bells, a murder of crows takes wing - your mysterious guides through time.\n
       These wise corvids know the secrets of corridors where footsteps echo across centuries, the humble resting places of pioneers who built towns from dust and dreams, and grand theaters where phantom audiences still applaud.\n
       Each location holds a piece of North County's soul, waiting to be discovered by those clever enough to decode the riddles and brave enough to seek the truth.\n
-      Follow the crows as they lead you down quiet paths and busy streets, past ancient pepper trees and modern developments.\n
+      Follow the crows as they lead you down quiet games and busy streets, past ancient pepper trees and modern developments.\n
       Listen for the whispered clues in the ocean breeze, and watch for signs in the shadowy spaces between past and present.\n
       Your quest begins now. The crows are gathering, the fog is rolling in, and North County's mysteries are calling. Will you answer?`,
     dayOnly: false,
@@ -611,7 +611,7 @@ export const paths: Path[] = [
           Below, adventurers dance as nature swells,\n
           While patient hunters cast their hopes to fate,\n
           Each weathered board a thousand stories tells,\n
-          Of sun and storm that shaped these paths to date.\n
+          Of sun and storm that shaped these games to date.\n
           
           The crows above join gulls in watchful flight,\n
           Where once an icon crowned this ocean trail,\n
@@ -641,7 +641,7 @@ export const paths: Path[] = [
         id: '1',
         type: 'travel',
         title: `Stage of Time`,
-        description: `Where Coast and Mission's paths align,\n
+        description: `Where Coast and Mission's games align,\n
           Art Deco beauty stands through time,\n
           With weathered brick and classic face,\n
           A landmark claims its rightful place.\n
@@ -693,7 +693,7 @@ export const paths: Path[] = [
           Two centuries of stories sleep,\n
           In corridors both wide and deep.\n
 
-          The padres walked these paths of old,\n
+          The padres walked these games of old,\n
           Now ravens guard their tales untold,\n
           Through arches curved with Spanish grace,\n
           Time slows within this peaceful place.`,
@@ -749,7 +749,7 @@ export const paths: Path[] = [
         radius: 20,
         hints: [
           "This unadorned cemetery sits atop a small knoll to the south.",
-          "Look for a humble dirt path that whispers of forgotten footsteps - most pass by without seeing this turn into history.",
+          "Look for a humble dirt game that whispers of forgotten footsteps - most pass by without seeing this turn into history.",
           "Between the sounds of modern traffic and mission bells, a narrow trail leads to those who built our town with calloused hands and iron will,",
           "Where eucalyptus stand like ancient sentinels, their shadows point to modest stones laid flat against the earth. Dragons live forever, not so little boys."
         ],
@@ -831,7 +831,7 @@ export const paths: Path[] = [
         radius: 20,
         hints: [
           "Look for the majestic adobe with its distinctive cupola tower rising above twin courtyards",
-          "Find where stone-lined paths lead to arched corridors, sheltered by ancient pepper trees",
+          "Find where stone-lined games lead to arched corridors, sheltered by ancient pepper trees",
           "Seek the 1852 rancho where Cave Couts built a twenty-eight room mansion for his bride Ysidora",
           "Your destination stands proud against the hills, its adobe walls and tile roofs telling tales of California's Mexican and American heritage"
         ],
@@ -886,12 +886,12 @@ export const paths: Path[] = [
         title: `Hilltop Haven`,
         description: `Where art and nature dance in sunlit space,\n
         Upon the crown where city meets the sky,\n
-        Each path reveals a new enchanting grace,\n
+        Each game reveals a new enchanting grace,\n
         As metal sculptures catch each passing eye.\n
 
         Through gardens themed from worlds both near and far,\n
         Mediterranean dreams to desert sand,\n
-        The children's path leads to a wishful star,\n
+        The children's game leads to a wishful star,\n
         While butterflies paint beauty cross the land.\n
 
         The wise crows circle round the ancient tree,\n
@@ -917,7 +917,7 @@ export const paths: Path[] = [
         ],
         completionFeedback: `A crow alights upon one of the garden's metal sculptures, its dark feathers contrasting with the gleaming artwork as late afternoon sun bathes the hilltop in golden light.\n
           You've discovered Alta Vista Gardens, Vista's living museum of botanical wonders and artistic expression.\n
-          As the crow takes wing toward your next destination, it circles once around the meditation labyrinth, casting a fleeting shadow across its contemplative paths.\n
+          As the crow takes wing toward your next destination, it circles once around the meditation labyrinth, casting a fleeting shadow across its contemplative games.\n
           Take a moment to appreciate this unique blend of nature and human creativity before continuing your quest.`,
         repeatable: true
       },
@@ -987,7 +987,7 @@ export const paths: Path[] = [
           A trading post where tribes would meet,\n
           Where cultures merged on this retreat.\n
           
-          From Luiseño paths of old,\n
+          From Luiseño games of old,\n
           To Spanish days and ranchlands bold,\n
           What am I, this treasured place,\n
           Where three worlds left their lasting grace?`,
@@ -1017,7 +1017,7 @@ export const paths: Path[] = [
           Each stop on your journey has added a thread to the tapestry of North County's tale: Spanish missionaries and Luiseño traditions, Victorian travelers and vaqueros, actors and artists, pioneers and dreamers.\n
           Take a moment to reflect on all you've discovered. Perhaps gather your fellow adventurers for a group photo at your favorite location - your own moment of history in these historic places. Share your adventure with #CrowTours and join the community of explorers who've uncovered these hidden treasures.\n
           The crows circle one final time, their wings catching the golden California light. They seem to nod in approval - you've proven yourself worthy of the secrets they've shared. Though this journey ends, there are always more mysteries to uncover in North County's hidden corners.\n
-          Until our paths cross again, keep exploring, keep discovering, and keep sharing the stories of this remarkable land.`,
+          Until our games cross again, keep exploring, keep discovering, and keep sharing the stories of this remarkable land.`,
         question: "",
         repeatable: true
       }

@@ -10,13 +10,13 @@ ini_set('display_errors', 1);
 $GLOBALS['included_files'] = [];
 
 function safeInclude($file) {
-    $fullPath = realpath($file);
-    if (!$fullPath) {
+    $fullGame = realgame($file);
+    if (!$fullGame) {
         return false;
     }
     
-    if (!isset($GLOBALS['included_files'][$fullPath])) {
-        $GLOBALS['included_files'][$fullPath] = true;
+    if (!isset($GLOBALS['included_files'][$fullGame])) {
+        $GLOBALS['included_files'][$fullGame] = true;
         return include $file;
     }
     return true;
@@ -42,14 +42,14 @@ function captureOutput($file, $method = 'GET', $data = null) {
     }
     
     // Include the file
-    $fullPath = __DIR__ . $file;
-    if (file_exists($fullPath)) {
+    $fullGame = __DIR__ . $file;
+    if (file_exists($fullGame)) {
         try {
             // Get headers before including file
             $headers = headers_list();
             
             // Include the file safely
-            safeInclude($fullPath);
+            safeInclude($fullGame);
             
             // Get the output
             $output = ob_get_clean();
@@ -205,7 +205,7 @@ echo json_encode([
     'server' => [
         'document_root' => $_SERVER['DOCUMENT_ROOT'],
         'script_filename' => $_SERVER['SCRIPT_FILENAME'],
-        'php_include_path' => get_include_path(),
+        'php_include_game' => get_include_game(),
         'included_files' => array_keys($GLOBALS['included_files'])
     ]
 ]);

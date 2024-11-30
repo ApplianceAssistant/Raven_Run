@@ -1,9 +1,9 @@
 import random
 import string
 
-def generate_unique_path_id(length=12):
+def generate_unique_game_id(length=12):
     """
-    Generate a random string of characters and numbers to serve as a unique path ID.
+    Generate a random string of characters and numbers to serve as a unique game ID.
     
     :param length: The length of the ID string (default is 12)
     :return: A string containing random letters (both cases) and numbers
@@ -17,9 +17,9 @@ def generate_unique_path_id(length=12):
     return unique_id
 
 # Example usage
-path_id = generate_unique_path_id()
-print(f"Generated path ID: {path_id}")
+game_id = generate_unique_game_id()
+print(f"Generated game ID: {game_id}")
 
 # You can also specify a custom length
-custom_length_id = generate_unique_path_id(length=16)
-print(f"Custom length path ID: {custom_length_id}")
+custom_length_id = generate_unique_game_id(length=16)
+print(f"Custom length game ID: {custom_length_id}")

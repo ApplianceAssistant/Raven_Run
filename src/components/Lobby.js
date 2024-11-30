@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ScrollableContent from './ScrollableContent';
 import { faLongArrowUp, faLongArrowDown, faArrowsV, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
-import { paths } from '../data/challenges';
+import { games } from '../data/challenges';
 import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
 import { isHuntInProgress, getHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
 import Modal from './Modal';
@@ -11,9 +11,9 @@ import Modal from './Modal';
 function Lobby() {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [customPaths, setCustomPaths] = useState([]);
+  const [customGames, setCustomGames] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPathId, setSelectedPathId] = useState(null);
+  const [selectedGameId, setSelectedGameId] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
@@ -21,44 +21,44 @@ function Lobby() {
   }, []);
 
   useEffect(() => {
-    const storedPaths = getGamesFromLocalStorage();
-    setCustomPaths(storedPaths);
+    const storedGames = getGamesFromLocalStorage();
+    setCustomGames(storedGames);
   }, []);
 
-  const handlePathSelect = (pathId) => {
+  const handleGameSelect = (gameId) => {
     if (isHuntInProgress()) {
-      setSelectedPathId(pathId);
+      setSelectedGameId(gameId);
       setIsModalOpen(true);
     } else {
-      startNewHunt(pathId);
+      startNewHunt(gameId);
     }
   };
 
-  const startNewHunt = (pathId) => {
-    const selectedPath = [...paths, ...customPaths].find(p => p.id === pathId);
-    if (selectedPath && selectedPath.description) {
-      navigate(`/hunt-description/${pathId}`);
+  const startNewHunt = (gameId) => {
+    const selectedGame = [...games, ...customGames].find(p => p.id === gameId);
+    if (selectedGame && selectedGame.description) {
+      navigate(`/hunt-description/${gameId}`);
     } else {
-      navigate(`/path/${pathId}/challenge/0`);
+      navigate(`/game/${gameId}/challenge/0`);
     }
   };
 
   const continueCurrentHunt = () => {
     const progress = getHuntProgress();
     if (progress) {
-      navigate(`/path/${progress.pathId}/challenge/${progress.challengeIndex}`);
+      navigate(`/game/${progress.gameId}/challenge/${progress.challengeIndex}`);
     }
   };
 
   const abandonCurrentHunt = () => {
     clearHuntProgress();
-    startNewHunt(selectedPathId);
+    startNewHunt(selectedGameId);
   };
 
   useEffect(() => {
-    // Fetch custom paths from local storage
-    const storedPaths = getGamesFromLocalStorage();
-    setCustomPaths(storedPaths);
+    // Fetch custom games from local storage
+    const storedGames = getGamesFromLocalStorage();
+    setCustomGames(storedGames);
   }, []);
 
   const isDaytime = () => {
@@ -68,25 +68,25 @@ function Lobby() {
 
   const isCloseToNight = () => {
     const hour = currentTime.getHours();
-    return hour >= 17; // Disable day-only paths after 5 PM
+    return hour >= 17; // Disable day-only games after 5 PM
   };
 
   const formatTime = (date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const renderPathList = (pathList, title) => (
+  const renderGameList = (gameList, title) => (
     <>
       <h3>{title}</h3>
-      <ul className="path-list">
-        {pathList.map((path) => (
-          <li key={path.id} className={`path-item ${path.dayOnly && isCloseToNight() ? 'disabled' : ''}`}>
+      <ul className="game-list">
+        {gameList.map((game) => (
+          <li key={game.id} className={`game-item ${game.dayOnly && isCloseToNight() ? 'disabled' : ''}`}>
             <button
-              onClick={() => handlePathSelect(path.id)}
-              disabled={path.dayOnly && isCloseToNight()}
+              onClick={() => handleGameSelect(game.id)}
+              disabled={game.dayOnly && isCloseToNight()}
             >
-              {path.name}
-              {path.dayOnly && (
+              {game.name}
+              {game.dayOnly && (
                 <span className="day-only-indicator">
                   <FontAwesomeIcon icon={faSun} /> Day Only
                 </span>
@@ -103,8 +103,8 @@ function Lobby() {
         <h2 className="contentHeader">Select your Hunt<br /></h2>
         <p>(More Coming soon)</p>
         <ScrollableContent maxHeight="60vh">
-          <div className="default-paths-section">
-            {renderPathList(paths, "")}
+          <div className="default-games-section">
+            {renderGameList(games, "")}
           </div>
         </ScrollableContent>
         {isHuntInProgress() && (

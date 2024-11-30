@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Challenge } from './Challenge';
-import Compass from './Compass';
-import Modal from './Modal';
-import SkipCountdown from './SkipCountdown';
-import Congratulations from './Congratulations';
-import { useSettings } from '../utils/SettingsContext';
+import { Challenge } from './Challenge.js';
+import Compass from './Compass.js';
+import Modal from './Modal.js';
+import SkipCountdown from './SkipCountdown.js';
+import Congratulations from './Congratulations.js';
+import { useSettings } from '../utils/SettingsContext.js';
 import {
   getChallenges,
-  getPathName,
+  getGameName,
   initializeChallengeState,
   updateChallengeState,
   shouldDisplaySubmitButton,
@@ -22,21 +22,21 @@ import {
   checkLocationReached
 } from '../services/challengeService.ts';
 import { handleError } from '../utils/utils.js';
-import { useLocationWatcher } from '../hooks/locationWatcher';
-import TextToSpeech from './TextToSpeech';
-import { getGamesFromLocalStorage } from '../utils/localStorageUtils';
-import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils';
-import { playAudio } from '../utils/audioFeedback';
+import { useLocationWatcher } from '../hooks/locationWatcher.js';
+import TextToSpeech from './TextToSpeech.js';
+import { getGamesFromLocalStorage } from '../utils/localStorageUtils.js';
+import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils.js';
+import { playAudio } from '../utils/audioFeedback.js';
 
-function PathPage() {
+function GamePage() {
   const [autoPlayTrigger, setAutoPlayTrigger] = useState(0);
   const { settings } = useSettings();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
   const [modalKey, setModalKey] = useState(0);
   const [currentHint, setCurrentHint] = useState(0);
-  const { pathId, challengeIndex: urlChallengeIndex } = useParams();
-  const [pathName, setPathName] = useState('');
+  const { gameId, challengeIndex: urlChallengeIndex } = useParams();
+  const [gameName, setGameName] = useState('');
   const [challenges, setChallenges] = useState([]);
   const [challengeIndex, setChallengeIndex] = useState(parseInt(urlChallengeIndex, 10) || 0);
   const [challengeState, setChallengeState] = useState(initializeChallengeState());
@@ -54,29 +54,29 @@ function PathPage() {
   const currentChallenge = challenges[challengeIndex];
 
   useEffect(() => {
-    const loadPath = () => {
-      const numericPathId = parseInt(pathId, 10);
-      let fetchedChallenges = getChallenges(numericPathId);
-      let pathName = getPathName(numericPathId);
+    const loadGame = () => {
+      const numericGameId = parseInt(gameId, 10);
+      let fetchedChallenges = getChallenges(numericGameId);
+      let gameName = getGameName(numericGameId);
       if (!fetchedChallenges.length) {
-        const customPaths = getGamesFromLocalStorage();
-        const customPath = customPaths.find(path => path.id === numericPathId);
-        if (customPath) {
-          fetchedChallenges = customPath.challenges;
-          pathName = customPath.name;
+        const customGames = getGamesFromLocalStorage();
+        const customGame = customGames.find(game => game.id === numericGameId);
+        if (customGame) {
+          fetchedChallenges = customGame.challenges;
+          gameName = customGame.name;
         }
       }
 
       setChallenges(fetchedChallenges);
-      setPathName(pathName);
+      setGameName(gameName);
     };
 
-    loadPath();
+    loadGame();
     setChallengeIndex(parseInt(urlChallengeIndex, 10) || 0);
 
     // Save progress when component mounts
-    saveHuntProgress(pathId, urlChallengeIndex);
-  }, [pathId, urlChallengeIndex]);
+    saveHuntProgress(gameId, urlChallengeIndex);
+  }, [gameId, urlChallengeIndex]);
 
 
 
@@ -181,8 +181,8 @@ function PathPage() {
 
       const nextIndex = challengeIndex + 1;
       if (nextIndex < challenges.length) {
-        navigate(`/path/${pathId}/challenge/${nextIndex}`);
-        saveHuntProgress(pathId, nextIndex);
+        navigate(`/game/${gameId}/challenge/${nextIndex}`);
+        saveHuntProgress(gameId, nextIndex);
 
         setTimeout(() => {
           setContentVisible(true);
@@ -203,12 +203,12 @@ function PathPage() {
         navigate('/congratulations');
       }
     }, 300);
-  }, [challengeIndex, challenges.length, navigate, pathId]);
+  }, [challengeIndex, challenges.length, navigate, gameId]);
 
-  // Reset completedChallenges when changing paths
+  // Reset completedChallenges when changing games
   useEffect(() => {
     setCompletedChallenges(new Set());
-  }, [pathId]);
+  }, [gameId]);
 
   const showHintModal = () => {
     if (currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0) {
@@ -251,7 +251,7 @@ function PathPage() {
       const nextIndex = challengeIndex + 1;
       if (nextIndex < challenges.length) {
         setChallengeIndex(nextIndex);
-        saveHuntProgress(pathId, nextIndex);
+        saveHuntProgress(gameId, nextIndex);
         setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
       } else {
         // Navigate to Congratulations page
@@ -338,8 +338,8 @@ function PathPage() {
       </div>
 
       <div className="spirit-guide"></div>
-        <div className={`path-page ${contentVisible ? 'content-visible' : ''}`}>
-          <main className="path-content content flex-top">
+        <div className={`game-page ${contentVisible ? 'content-visible' : ''}`}>
+          <main className="game-content content flex-top">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
             {currentChallenge && (
           <>
@@ -374,4 +374,4 @@ function PathPage() {
   );
 }
 
-export default PathPage;
+export default GamePage;
