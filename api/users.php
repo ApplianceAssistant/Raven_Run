@@ -163,12 +163,15 @@ try {
 
             $allowedFields = ['username', 'email', 'phone', 'first_name', 'last_name', 'profile_picture_url'];
             $nullableFields = ['phone', 'first_name', 'last_name'];
-
+            error_log("userData: " . print_r($userData, true));
+            
             foreach ($allowedFields as $field) {
-                if (isset($userData[$field])) {
-                    $value = $userData[$field];
+                // For nullable fields, we want to process them even if they're empty
+                if (isset($userData[$field]) || in_array($field, $nullableFields)) {
+                    $value = $userData[$field] ?? '';
+                    
                     // Convert empty strings and 'null' to NULL for optional fields
-                    if (in_array($field, $nullableFields) && (empty($value) || $value === 'null')) {
+                    if (in_array($field, $nullableFields) && (empty($value) || $value === 'null' || $value === '')) {
                         $updateFields[] = "$field = NULL";
                     } else {
                         $updateFields[] = "$field = ?";
@@ -177,8 +180,11 @@ try {
                     }
                 }
             }
-
+            
+            error_log("Update fields: " . implode(', ', $updateFields));
             if (empty($updateFields)) {
+                echo json_encode(['error' => 'No fields to update']);
+                error_log("No fields to update");
                 throw new Exception('No fields to update', 400);
             }
 

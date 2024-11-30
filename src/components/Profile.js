@@ -83,10 +83,20 @@ function Profile() {
 
   const handleInputChange = (field, value) => {
     if (field === 'phone') {
-      // Only allow digits and format
+      console.log("value: ", value);
+      // Allow empty value for clearing the field
+      if (!value || value.trim() === '') {
+        setProfileData(prev => ({ ...prev, [field]: '' }));
+        console.log("profileData: ", profileData[field]);
+        return;
+      }
+      // Only allow digits and format for non-empty values
+      
       const digitsOnly = value.replace(/\D/g, '');
+      console.warn("digitsOnly: ", digitsOnly);
       if (digitsOnly.length <= 10) { // Prevent more than 10 digits
         const formattedPhone = formatPhoneNumber(digitsOnly);
+        console.log("formattedPhone: ", formattedPhone);
         setProfileData(prev => ({ ...prev, [field]: formattedPhone }));
       }
     } else {
@@ -145,7 +155,7 @@ function Profile() {
       const formData = new FormData();
       formData.append('action', 'update');
       formData.append('id', user.id);
-
+      console.log("profileData: ", profileData);
       // Append all profile data
       Object.keys(profileData).forEach(key => {
         if (key !== 'profile_picture_url') {
@@ -155,6 +165,7 @@ function Profile() {
           } else if (['first_name', 'last_name', 'phone'].includes(key)) {
             value = (!value || value === 'null') ? '' : value;
           }
+          console.warn("appending: ", key, value);
           formData.append(key, value);
         }
       });
@@ -187,6 +198,7 @@ function Profile() {
         if (xhr.status === 200) {
           try {
             const result = JSON.parse(xhr.responseText);
+            console.warn("result: ", result);
             if (result.success) {
               showSuccess('Profile updated successfully');
               login(result.user);
@@ -208,6 +220,7 @@ function Profile() {
         console.error('XHR error:', xhr.statusText);
         showError('Network error occurred');
       };
+      console.warn("formData: ", formData);
 
       xhr.send(formData);
     } catch (error) {
@@ -296,7 +309,7 @@ function Profile() {
                       <input
                         type={field === 'email' ? 'email' : 'text'}
                         id={field}
-                        value={field === 'phone' ? formatPhoneNumber(profileData[field]) : profileData[field]}
+                        value={profileData[field]}
                         onChange={(e) => handleInputChange(field, e.target.value)}
                         disabled={field === 'email'}
                       />

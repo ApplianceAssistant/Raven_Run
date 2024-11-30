@@ -30,10 +30,8 @@ if (php_sapi_name() !== 'cli') {
 // Load environment variables manually
 function loadEnv() {
     $dotenv = __DIR__ . '/../.env';
-    error_log("Loading environment from: " . $dotenv);
     
     if (file_exists($dotenv)) {
-        error_log(".env file exists");
         $lines = file($dotenv, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $env_vars = [];
         
@@ -55,12 +53,10 @@ function loadEnv() {
                 return isset($env_vars[$matches[1]]) ? $env_vars[$matches[1]] : $matches[0];
             }, $value);
             
-            error_log("Setting env var: {$key} = {$value}");
             $_ENV[$key] = $value;
             $_SERVER[$key] = $value;
         }
         
-        error_log("Environment variables loaded: " . print_r($_ENV, true));
     } else {
         error_log(".env file not found at: " . $dotenv);
     }
@@ -105,8 +101,6 @@ function getDbConnection() {
             $password = $_ENV['DB_PASSWORD'] ?? 'uQMXWPP6ys';
             $database = $_ENV['DB_NAME'] ?? 'crow_tours';
             $port = $_ENV['DB_PORT'] ?? 3306;
-
-            error_log("DB Connection Attempt - Host: $host, User: $user, Database: $database, Port: $port");
             
             // Test if we can connect without selecting a database first
             $test_conn = @new mysqli($host, $user, $password, null, $port);
@@ -123,7 +117,6 @@ function getDbConnection() {
             }
 
             $GLOBALS['db_connection'] = $test_conn;
-            error_log("Database connection and selection successful");
         } catch (Exception $e) {
             error_log("Database connection error: " . $e->getMessage());
             return null;
