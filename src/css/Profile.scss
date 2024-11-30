@@ -42,7 +42,7 @@
         position: absolute;
         bottom: 5px;
         right: 5px;
-        background: var(--primary-color);
+        background: none;
         border: none;
         border-radius: 50%;
         width: 35px;
@@ -51,7 +51,7 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        color: white;
+        color: var(--text-color);
         transition: background-color 0.3s;
         box-shadow: none;
 
@@ -86,12 +86,6 @@
 
       svg {
         font-size: 1.2rem;
-      }
-
-      &.active {
-        color: var(--primary-color);
-        border-bottom: 3px solid var(--primary-color);
-        margin-bottom: -2px;
       }
     }
   }

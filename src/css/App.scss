@@ -54,6 +54,15 @@ button {
   &:hover:not(:disabled) {
     filter: brightness(1.2);
   }
+  //if disabled
+  &:disabled {
+    background-color: var(--button-disabled-bg);
+    color: var(--button-disabled-text);
+    cursor: not-allowed;
+  }
+  &:active:not(:disabled) {
+    transform: translateY(2px);
+  }
 }
 
 a {
@@ -129,6 +138,10 @@ label {
   margin-bottom: 0px;
   font-family: var(--font-family-heading);
 }
+
+.field-guide {
+  margin-bottom: 5px;
+  font-size: 0.9rem;}
 
 h1,
 h2,
@@ -475,23 +488,12 @@ canvas {
   margin-top: 10px;
 }
 
-.error-message,
-.success-message {
-  text-align: center;
-  opacity: 1;
-  transition: opacity 0.3s ease;
-  font-size: 1rem;
+.notice-message {
+  color: var(--button-bg-caution);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
 }
-
-.error-message {
-  color: #c40000;
-}
-
-.success-message {
-  color: #02a543;
-}
-
-
 
 //lobby styles
 .path-list {

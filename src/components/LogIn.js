@@ -94,7 +94,7 @@ function LogIn() {
                             title: `Welcome, ${userData.username}!`,
                             message: ` What would you like to do next?`,
                             options: [
-                                { label: 'Settings', route: '/settings' },
+                                { label: 'Profile', route: '/profile' },
                                 { label: 'Find a Game', route: '/lobby' },
                                 { label: 'Create', route: '/create' }
                             ],

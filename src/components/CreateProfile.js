@@ -6,44 +6,17 @@ import Modal from './Modal';
 import { useMessage } from '../utils/MessageProvider';
 
 function CreateProfile() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isUsernameUnique, setIsUsernameUnique] = useState(true);
-  const [isEmailUnique, setIsEmailUnique] = useState(true);
-  const [isPasswordValid, setIsPasswordValid] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
-  const [token, setToken] = useState('');
+  const [formState, setFormState] = useState({
+    username: { value: '', isValid: false, isUnique: false },
+    email: { value: '', isValid: false, isUnique: false },
+    password: { value: '', isValid: false }
+  });
 
-  // Add a custom hook for form state management
-  const useFormState = (initialState) => {
-    const [formState, setFormState] = useState(initialState);
-    const [errors, setErrors] = useState({});
-
-    const updateField = (field, value) => {
-      setFormState(prev => ({ ...prev, [field]: value }));
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    };
-
-    return [formState, updateField, errors, setErrors];
-  };
-
-  const { login } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const { showError, showSuccess } = useMessage();
-
-  // Add loading states for individual operations
   const [loadingStates, setLoadingStates] = useState({
     usernameCheck: false,
     emailCheck: false,
     submission: false
   });
-
-  const setLoading = (operation, isLoading) => {
-    setLoadingStates(prev => ({ ...prev, [operation]: isLoading }));
-  };
 
   const [serverStatus, setServerStatus] = useState({
     isConnected: false,
@@ -51,11 +24,28 @@ function CreateProfile() {
     message: ''
   });
 
-  useEffect(() => {
-    checkServerConnectivity().then((status) => {
-      setServerStatus(status);
-    });
-  }, []);
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
+  const [token, setToken] = useState('');
+
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const { showError, showSuccess } = useMessage();
+
+  const validateUsername = (username) => {
+    const regex = /^[a-zA-Z0-9_]{3,20}$/;
+    return regex.test(username);
+  };
+
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\w\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]{8,}$/;
+    return regex.test(password);
+  };
 
   const checkUnique = async (field, value) => {
     try {
@@ -76,130 +66,103 @@ function CreateProfile() {
     };
   };
 
-  // Add rate limiting to API checks
-  const rateLimitedCheck = (checkFn) => {
-    let lastCall = 0;
-    const minInterval = 500; // ms
+  const debouncedCheckUnique = debounce(async (field, value) => {
+    if (!value) return;
+    
+    // Only check uniqueness if the field is valid
+    const isValid = field === 'username' ? validateUsername(value) : validateEmail(value);
+    if (!isValid) return;
 
-    return async (...args) => {
-      const now = Date.now();
-      if (now - lastCall < minInterval) {
-        return;
-      }
-      lastCall = now;
-      return checkFn(...args);
-    };
-  };
-
-  const debouncedUsernameCheck = rateLimitedCheck(async (value) => {
-    if (!validateUsername(value)) {
-      setIsUsernameUnique(false);
-      showError('Invalid username format');
-      return;
-    }
-    setLoading('usernameCheck', true);
+    setLoadingStates(prev => ({ ...prev, [field + 'Check']: true }));
     try {
-      const isUnique = await checkUnique('username', value);
-      setIsUsernameUnique(isUnique);
-      if (!isUnique) {
-        showError(`${value} is already taken, please choose a different username.`);
-      }
+      const isUnique = await checkUnique(field, value);
+      setFormState(prev => ({
+        ...prev,
+        [field]: { ...prev[field], isUnique }
+      }));
+    } catch (error) {
+      console.error(`${field} check failed:`, error);
     } finally {
-      setLoading('usernameCheck', false);
+      setLoadingStates(prev => ({ ...prev, [field + 'Check']: false }));
     }
-  }, 300);
+  }, 500);
 
-  const debouncedEmailCheck = debounce(async (value) => {
-    if (value) {
-      setLoading('emailCheck', true);
-      try {
-        const isUnique = await checkUnique('email', value);
-        setIsEmailUnique(isUnique);
-        if (!isUnique) {
-          showError('This email is already associated with an existing profile.');
+  const handleInputChange = (field, value) => {
+    let isValid = false;
+    
+    switch (field) {
+      case 'username':
+        isValid = validateUsername(value);
+        if (isValid) {
+          debouncedCheckUnique('username', value);
         }
-      } finally {
-        setLoading('emailCheck', false);
-      }
+        break;
+      case 'email':
+        isValid = validateEmail(value);
+        if (isValid) {
+          debouncedCheckUnique('email', value);
+        }
+        break;
+      case 'password':
+        isValid = validatePassword(value);
+        break;
+      default:
+        break;
     }
-  }, 300);
 
-  const validatePassword = (value) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\w\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]{8,}$/;
-    return regex.test(value);
+    setFormState(prev => ({
+      ...prev,
+      [field]: { ...prev[field], value, isValid }
+    }));
   };
 
-  useEffect(() => {
-    debouncedUsernameCheck(username);
-  }, [username]);
-
-  useEffect(() => {
-    debouncedEmailCheck(email);
-  }, [email]);
-
-  useEffect(() => {
-    setIsPasswordValid(validatePassword(password));
-  }, [password]);
-
-  const validateEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
-  const validateUsername = (username) => {
-    const regex = /^[a-zA-Z0-9_]{3,20}$/;
-    return regex.test(username);
-  };
-
-  // Update form validation
   const isFormValid = () => {
+    const { username, email, password } = formState;
     return (
-      username &&
-      validateUsername(username) &&
-      email &&
-      validateEmail(email) &&
-      isPasswordValid &&
-      isUsernameUnique &&
-      isEmailUnique
+      username.isValid && username.isUnique &&
+      email.isValid && email.isUnique &&
+      password.isValid
     );
   };
 
-  const handleSuccess = (data) => {
-    // Store user data in localStorage
-    const userData = {
-      id: data.id,
-      username: data.username,
-      token: data.token
-    };
-    localStorage.setItem('user', JSON.stringify(userData));
+  const getFormError = () => {
+    const { username, email, password } = formState;
     
-    showSuccess(data.message);
-    setToken(data.token);
-    setModalContent({
-      title: 'Welcome!',
-      message: `Welcome, ${data.username}! What would you like to do next?`,
-      options: [
-        { label: 'Settings', route: '/settings' },
-        { label: 'Find a Game', route: '/lobby' },
-        { label: 'Create', route: '/create' }
-      ]
-    });
-    setShowModal(true);
-    login(userData); // Pass the complete userData object to login context
+    if (!username.value || !email.value || !password.value) {
+      return 'Please fill in all fields';
+    }
+    if (!username.isValid) {
+      return 'Username must be 3-20 characters long and can only contain letters, numbers, and underscores';
+    }
+    if (!username.isUnique) {
+      return 'This username is already taken';
+    }
+    if (!email.isValid) {
+      return 'Please enter a valid email address';
+    }
+    if (!email.isUnique) {
+      return 'This email is already registered';
+    }
+    if (!password.isValid) {
+      return 'Password must be at least 8 characters long and contain uppercase, lowercase, and numbers';
+    }
+    return null;
   };
 
-  const handleError = (error) => {
-    showError(error.message || 'An error occurred. Please try again.');
-  };
-
-  const handleSubmit = async (action) => {
-    console.log("API_URL: ", API_URL, "action", action);
-    try {
-      setLoading('submission', true);
-      if (!isFormValid()) {
-        throw new Error('Please fill all fields correctly');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!isFormValid()) {
+      const error = getFormError();
+      if (error) {
+        showError(error);
       }
+      return;
+    }
 
+    try {
+      setLoadingStates(prev => ({ ...prev, submission: true }));
+      console.log("formState: ", formState);
       const response = await fetch(`${API_URL}/users.php`, {
         method: 'POST',
         headers: {
@@ -208,12 +171,13 @@ function CreateProfile() {
         },
         credentials: 'include',
         body: JSON.stringify({
-          action,
-          username: username,
-          password: password,
-          email: email
+          action: 'create',
+          username: formState.username.value,
+          email: formState.email.value,
+          password: formState.password.value
         })
       });
+      console.warn("response: ", response);
 
       if (!response.ok) {
         const error = await response.json();
@@ -225,66 +189,108 @@ function CreateProfile() {
     } catch (error) {
       handleError(error);
     } finally {
-      setIsLoading(false);
+      setLoadingStates(prev => ({ ...prev, submission: false }));
     }
   };
+
+  const handleSuccess = (data) => {
+    console.log("Success data: ", data);
+    
+    // Extract user data from the response
+    const user = data.user;
+    if (!user) {
+      if(data.error) {
+        showError(data.error);
+        return;
+      }
+      console.error("No user data in response");
+      showError("Failed to create profile: Missing user data");
+      return;
+    }
+
+    const userData = {
+      id: user.id,
+      username: user.username,
+      token: data.token || '' // Token might be at root level or in user object
+    };
+    
+    console.log("Processed userData: ", userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+    
+    const savedUser = localStorage.getItem('user');
+    console.log("Saved user data: ", savedUser);
+    
+    showSuccess('Profile created successfully!');
+    setToken(userData.token);
+    setModalContent({
+      title: 'Welcome!',
+      message: `Welcome, ${userData.username}! What would you like to do next?`,
+      options: [
+        { label: 'Profile', route: '/profile' },
+        { label: 'Find a Game', route: '/lobby' },
+        { label: 'Create', route: '/create' }
+      ]
+    });
+    setShowModal(true);
+    login(userData);
+  };
+
+  const handleError = (error) => {
+    const message = error?.message || 'An unexpected error occurred';
+    showError(message);
+  };
+
+  useEffect(() => {
+    checkServerConnectivity().then((status) => {
+      setServerStatus(status);
+    });
+  }, []);
 
   return (
     <div className="content-wrapper">
       <div className="bodyContent center">
         <h1>Welcome, Brave Adventurer</h1>
-        {isLoading && <div className="loader">Loading...</div>}
-        <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
+        {loadingStates.submission && <div className="loader">Loading...</div>}
+        <form className="accountForm" onSubmit={handleSubmit}>
           <div className="account-field">
             <label htmlFor="username">Username:</label>
-            <div className="input-wrapper">
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                onBlur={(e) => debouncedUsernameCheck(e.target.value)}
-                required
-              />
-              {loadingStates.usernameCheck && <span className="loading-spinner">⌛</span>}
-            </div>
-            {!isUsernameUnique && <p className="error-message">Username is already taken</p>}
+            <input
+              type="text"
+              id="username"
+              value={formState.username.value}
+              onChange={(e) => handleInputChange('username', e.target.value)}
+              required
+            />
+            <div className="field-guide">Username must be 3-20 characters long and can only contain letters, numbers, and underscores</div>
           </div>
+
           <div className="account-field">
             <label htmlFor="email">Email:</label>
-            <div className="input-wrapper">
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={(e) => debouncedEmailCheck(e.target.value)}
-                required
-              />
-              {loadingStates.emailCheck && <span className="loading-spinner">⌛</span>}
-            </div>
-            {!isEmailUnique && <p className="error-message">Email is already in use</p>}
+            <input
+              type="email"
+              id="email"
+              value={formState.email.value}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              required
+            />
           </div>
+
           <div className="account-field">
             <label htmlFor="password">Password:</label>
             <input
               type="password"
               id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formState.password.value}
+              onChange={(e) => handleInputChange('password', e.target.value)}
               required
             />
-            {!isPasswordValid && password && (
-              <p className="error-message">
-                Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number.
-              </p>
-            )}
+            <div className="field-guide">Password must be at least 8 characters long and contain uppercase, lowercase, and numbers</div>
           </div>
+
           <div className="button-container">
             <button
               type="submit"
-              onClick={() => handleSubmit('create')}
-              disabled={!isFormValid() || loadingStates.submission}
+              disabled={!isFormValid()}
               className={loadingStates.submission ? 'loading' : ''}
             >
               {loadingStates.submission ? 'Creating...' : 'Create Profile'}

@@ -91,24 +91,28 @@ try {
     {
         global $conn;
         try {
-            // Validate required fields
-            if (!isset($userData['username']) || !isset($userData['email']) || !isset($userData['password'])) {
-                throw new Exception('Missing required fields', 400);
+            // Check if username already exists
+            if (!checkUnique('username', $userData['username'])['isUnique']) {
+                echo json_encode(['error' => 'Username already exists']);
+                throw new Exception('Username already exists', 409);
             }
 
             // Validate email format
             if (!filter_var($userData['email'], FILTER_VALIDATE_EMAIL)) {
+                echo json_encode(['error' => 'Invalid email format']);
                 throw new Exception('Invalid email format', 400);
             }
 
             // Check if email already exists
             if (!checkUnique('email', $userData['email'])['isUnique']) {
+                echo json_encode(['error' => 'Email already exists']);
                 throw new Exception('Email already exists', 409);
             }
 
-            // Check if username already exists
-            if (!checkUnique('username', $userData['username'])['isUnique']) {
-                throw new Exception('Username already exists', 409);
+            // Validate required fields
+            if (!isset($userData['username']) || !isset($userData['email']) || !isset($userData['password'])) {
+                echo json_encode(['error' => 'Missing required fields']);
+                throw new Exception('Missing required fields', 400);
             }
 
             // Hash password
