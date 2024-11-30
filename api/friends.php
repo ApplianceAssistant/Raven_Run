@@ -1,41 +1,40 @@
 <?php
 
-require_once(__DIR__ . '/../server/db_connection.php');
-require_once(__DIR__ . '/errorHandler.php');
-require_once(__DIR__ . '/auth.php');
-require_once(__DIR__ . '/../server/encryption.php');
+require_once (__DIR__ . '/../server/db_connection.php');
+require_once (__DIR__ . '/../server/encryption.php');
+require_once (__DIR__ . '/errorHandler.php');
+require_once (__DIR__ . '/auth.php');
 
-/*$user = authenticateUser();
-if (!$user) {
-    http_response_code(401);
-    echo json_encode(["error" => "Unauthorized"]);
-    exit;
-}*/
-$conn = getDbConnection();
+// Set content type to JSON
+header('Content-Type: application/json');
 
 function searchUsers($query) {
-    global $conn;
+    $conn = getDbConnection();
     $query = "%$query%";
     $stmt = $conn->prepare("SELECT id, username FROM users WHERE username LIKE ? LIMIT 20");
     $stmt->bind_param("s", $query);
     $stmt->execute();
     $result = $stmt->get_result();
-    return $result->fetch_all(MYSQLI_ASSOC);
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+    releaseDbConnection();
+    return $data;
 }
 
 function getFriends($userId) {
-    global $conn;
+    $conn = getDbConnection();
     $stmt = $conn->prepare("SELECT u.id, u.username, profile_picture_url FROM users u 
                             JOIN friend_relationships fr ON u.id = fr.friend_id 
                             WHERE fr.user_id = ?");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    return $result->fetch_all(MYSQLI_ASSOC);
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+    releaseDbConnection();
+    return $data;
 }
 
 function getFriendRequests($userId) {
-    global $conn;
+    $conn = getDbConnection();
     $stmt = $conn->prepare("SELECT fr.id, u.id as sender_id, u.username as sender_username 
                             FROM friend_requests fr 
                             JOIN users u ON fr.sender_id = u.id 
@@ -43,7 +42,9 @@ function getFriendRequests($userId) {
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    return $result->fetch_all(MYSQLI_ASSOC);
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+    releaseDbConnection();
+    return $data;
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -92,12 +93,15 @@ if ($method === 'GET') {
             $receiver_id = $data['receiver_id'] ?? null;
             
             if ($sender_id && $receiver_id) {
+                $conn = getDbConnection();
                 $stmt = $conn->prepare("INSERT INTO friend_requests (sender_id, receiver_id) VALUES (?, ?)");
                 $stmt->bind_param("ii", $sender_id, $receiver_id);
                 
                 if ($stmt->execute()) {
+                    releaseDbConnection();
                     echo json_encode(['success' => true]);
                 } else {
+                    releaseDbConnection();
                     echo json_encode(['error' => 'Failed to send friend request']);
                 }
             } else {
@@ -109,6 +113,7 @@ if ($method === 'GET') {
             $request_id = $data['request_id'] ?? null;
             
             if ($request_id) {
+                $conn = getDbConnection();
                 $conn->begin_transaction();
                 try {
                     $stmt = $conn->prepare("SELECT sender_id, receiver_id FROM friend_requests WHERE id = ? AND status = 'pending'");
@@ -127,12 +132,15 @@ if ($method === 'GET') {
                         $stmt->execute();
 
                         $conn->commit();
+                        releaseDbConnection();
                         echo json_encode(['success' => true]);
                     } else {
+                        releaseDbConnection();
                         echo json_encode(['error' => 'Invalid friend request']);
                     }
                 } catch (Exception $e) {
                     $conn->rollback();
+                    releaseDbConnection();
                     echo json_encode(['error' => 'Failed to accept friend request']);
                 }
             } else {
@@ -144,12 +152,15 @@ if ($method === 'GET') {
             $request_id = $data['request_id'] ?? null;
             
             if ($request_id) {
+                $conn = getDbConnection();
                 $stmt = $conn->prepare("UPDATE friend_requests SET status = 'rejected' WHERE id = ?");
                 $stmt->bind_param("i", $request_id);
                 
                 if ($stmt->execute()) {
+                    releaseDbConnection();
                     echo json_encode(['success' => true]);
                 } else {
+                    releaseDbConnection();
                     echo json_encode(['error' => 'Failed to ignore friend request']);
                 }
             } else {
@@ -162,12 +173,15 @@ if ($method === 'GET') {
             $friend_id = $data['friend_id'] ?? null;
             
             if ($user_id && $friend_id) {
+                $conn = getDbConnection();
                 $stmt = $conn->prepare("DELETE FROM friend_relationships WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)");
                 $stmt->bind_param("iiii", $user_id, $friend_id, $friend_id, $user_id);
                 
                 if ($stmt->execute()) {
+                    releaseDbConnection();
                     echo json_encode(['success' => true]);
                 } else {
+                    releaseDbConnection();
                     echo json_encode(['error' => 'Failed to remove friend']);
                 }
             } else {
@@ -182,4 +196,4 @@ if ($method === 'GET') {
     }
 }
 
-$conn->close();
+releaseDbConnection();

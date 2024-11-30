@@ -24,7 +24,7 @@ function Friends() {
 
     const fetchFriends = async () => {
         try {
-            const response = await fetch(`${API_URL}/friends.php?action=get_friends&user_id=${user.id}`);
+            const response = await fetch(`${API_URL}/api/friends.php?action=get_friends&user_id=${user.id}`);
             if (!response.ok) throw new Error('Failed to fetch friends');
             const data = await response.json();
             setFriends(data.friends);
@@ -35,8 +35,11 @@ function Friends() {
 
     const fetchFriendRequests = async () => {
         try {
-            const response = await fetch(`${API_URL}/friends.php?action=get_friend_requests&user_id=${user.id}`);
-            if (!response.ok) throw new Error('Failed to fetch friend requests');
+            const response = await fetch(`${API_URL}/api/friends.php?action=get_friend_requests&user_id=${user.id}`);
+            if (!response.ok) {
+                error_logger('Failed to fetch friend requests');
+                throw new Error('Failed to fetch friend requests');
+            }
             const data = await response.json();
             setFriendRequests(data.friend_requests);
         } catch (error) {
@@ -46,9 +49,13 @@ function Friends() {
 
     const handleSearch = async () => {
         try {
-            const response = await fetch(`${API_URL}/friends.php?action=search_users&query=${searchQuery}`);
-            if (!response.ok) throw new Error('Failed to search users');
+            const response = await fetch(`${API_URL}/api/friends.php?action=search_users&query=${searchQuery}`);
+            if (!response.ok) {
+                error_logger('Failed to search users');
+                throw new Error('Failed to search users');
+            }
             const data = await response.json();
+            console.warn("data: ", data);
             setSearchResults(data.users);
         } catch (error) {
             showError('Failed to search users');
@@ -57,7 +64,7 @@ function Friends() {
 
     const sendFriendRequest = async (friendId) => {
         try {
-            const response = await fetch(`${API_URL}/friends.php`, {
+            const response = await fetch(`${API_URL}/api/friends.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -66,7 +73,10 @@ function Friends() {
                     receiver_id: friendId
                 })
             });
-            if (!response.ok) throw new Error('Failed to send friend request');
+            if (!response.ok) {
+                error_logger('Failed to send friend request');
+                throw new Error('Failed to send friend request');
+            }
             showSuccess('Friend request sent successfully');
         } catch (error) {
             showError('Failed to send friend request');
@@ -75,7 +85,7 @@ function Friends() {
 
     const acceptFriendRequest = async (requestId) => {
         try {
-            const response = await fetch(`${API_URL}/friends.php`, {
+            const response = await fetch(`${API_URL}/api/friends.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -83,7 +93,10 @@ function Friends() {
                     request_id: requestId
                 })
             });
-            if (!response.ok) throw new Error('Failed to accept friend request');
+            if (!response.ok) {
+                error_logger('Failed to accept friend request');
+                throw new Error('Failed to accept friend request');
+            }
             fetchFriends();
             fetchFriendRequests();
             showSuccess('Friend request accepted');
@@ -94,7 +107,7 @@ function Friends() {
 
     const ignoreFriendRequest = async (requestId) => {
         try {
-            const response = await fetch(`${API_URL}/friends.php`, {
+            const response = await fetch(`${API_URL}/api/friends.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -102,7 +115,10 @@ function Friends() {
                     request_id: requestId
                 })
             });
-            if (!response.ok) throw new Error('Failed to ignore friend request');
+            if (!response.ok) {
+                error_logger('Failed to ignore friend request');
+                throw new Error('Failed to ignore friend request');
+            }
             fetchFriendRequests();
             showSuccess('Friend request ignored');
         } catch (error) {
@@ -112,7 +128,7 @@ function Friends() {
 
     const removeFriend = async (friendId) => {
         try {
-            const response = await fetch(`${API_URL}/friends.php`, {
+            const response = await fetch(`${API_URL}/api/friends.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -121,7 +137,10 @@ function Friends() {
                     friend_id: friendId
                 })
             });
-            if (!response.ok) throw new Error('Failed to remove friend');
+            if (!response.ok) {
+                error_logger('Failed to remove friend');
+                throw new Error('Failed to remove friend');
+            }
             fetchFriends();
             showSuccess('Friend removed successfully');
         } catch (error) {
@@ -131,17 +150,18 @@ function Friends() {
 
     return (
         <div className="content">
+
+            <div className="friends-search">
+                <button onClick={handleSearch} className="search-button">Search</button>
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search users"
+                    className="search-input"
+                />
+            </div>
             <ScrollableContent maxHeight="60vh">
-                <div className="friends-search">
-                    <button onClick={handleSearch} className="search-button">Search</button>
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search users"
-                        className="search-input"
-                    />
-                </div>
                 <div className="search-results">
                     {searchResults.map(user => (
                         <div key={user.id} className="user-item">
@@ -172,7 +192,7 @@ function Friends() {
                                 <div className="profile-image-container small">
                                     {friend.profile_picture_url ? (
                                         <div className="profile-image">
-                                            <img src={friend.profile_picture_url} alt="Profile" />
+                                            <img src={`${API_URL}/${friend.profile_picture_url}`} alt="Profile" />
                                         </div>
                                     ) : (
                                         <div className="profile-image-placeholder">

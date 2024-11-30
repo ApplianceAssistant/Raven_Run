@@ -55,7 +55,7 @@ function Profile() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`${API_URL}/users.php?action=get&id=${user.id}`);
+      const response = await fetch(`${API_URL}/api/users.php?action=get&id=${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       const userData = await response.json();
 
@@ -184,7 +184,7 @@ function Profile() {
       }
 
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', `${API_URL}/users.php`, true);
+      xhr.open('POST', `${API_URL}/api/users.php`, true);
 
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
@@ -259,8 +259,9 @@ function Profile() {
         </button>
       </div>
 
-      <ScrollableContent maxHeight="calc(100vh - 250px)">
+      
         <div className="tab-content">
+        <ScrollableContent maxHeight="calc(100vh - 250px)">
           {activeTab === 'profile' && (
             <>
               <div className="profile-header">
@@ -321,8 +322,9 @@ function Profile() {
           )}
           {activeTab === 'settings' && <Settings />}
           {activeTab === 'friends' && <Friends />}
+          </ScrollableContent>
         </div>
-      </ScrollableContent>
+      
     </div>
   );
 }

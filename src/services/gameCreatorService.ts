@@ -31,7 +31,7 @@ export const generateUniquePathId = async (length: number = 12): Promise<string>
     generatedPathId = Array.from({ length }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
 
     try {
-      const response = await fetch(`${API_URL}/paths.php?action=check_path_id&path_id=${generatedPathId}`);
+      const response = await fetch(`${API_URL}/api/paths.php?action=check_path_id&path_id=${generatedPathId}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -79,7 +79,7 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
       };
       console.log('Sending payload:', payload);
 
-      const response = await fetch(`${API_URL}/paths.php`, {
+      const response = await fetch(`${API_URL}/api/paths.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export const deleteGame = async (gameId: number): Promise<void> => {
 
   if (isServerReachable) {
     try {
-      const response = await fetch(`${API_URL}/paths.php`, {
+      const response = await fetch(`${API_URL}/api/paths.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -147,7 +147,7 @@ export const getGames = async (): Promise<GameTypes.Game[]> => {
 
   if (isServerReachable) {
     try {
-      const response = await authFetch(`${API_URL}/paths.php?action=get_games`);
+      const response = await authFetch(`${API_URL}/api/paths.php?action=get_games`);
       const responseText = await response.text();
       console.log('Full response text:', responseText);
 

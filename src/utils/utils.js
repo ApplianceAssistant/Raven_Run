@@ -15,11 +15,11 @@ const getApiUrl = () => {
   
   switch (env) {
     case 'production':
-      return `${process.env.REACT_APP_PRODUCTION_URL}/api`;
+      return `${process.env.REACT_APP_PRODUCTION_URL}`;
     case 'staging':
-      return `${process.env.REACT_APP_STAGING_URL}/api`;
+      return `${process.env.REACT_APP_STAGING_URL}`;
     default:
-      return `${process.env.REACT_APP_DEVELOPMENT_URL}/api`;
+      return `${process.env.REACT_APP_DEVELOPMENT_URL}`;
   }
 };
 
@@ -179,9 +179,9 @@ export const authFetch = async (url, options = {}) => {
 // Function to check server connectivity and measure response time
 export const checkServerConnectivity = async () => {
   try {
-    console.warn('Checking server connectivity... from: ', `${API_URL}/db-test.php`);
+    console.warn('Checking server connectivity... from: ', `${API_URL}/api/db-test.php`);
     const start = Date.now();
-    const response = await axios.get(`${API_URL}/db-test.php`);
+    const response = await axios.get(`${API_URL}/api/db-test.php`);
     console.log("Response data:", response.data);
     if (response.data && response.data.status === 'success') {
       return {

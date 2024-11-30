@@ -51,8 +51,8 @@ function LogIn() {
         }
 
         try {
-            console.log("Making request to:", `${API_URL}/login.php`);
-            const response = await authFetch(`${API_URL}/login.php`, {
+            console.log("Making request to:", `${API_URL}/api/login.php`);
+            const response = await authFetch(`${API_URL}/api/login.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
