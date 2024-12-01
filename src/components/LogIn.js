@@ -80,11 +80,12 @@ function LogIn() {
                 const handleSuccess = (data) => {
                     // Store user data in localStorage
                     const userData = {
-                      id: data.user.id,
-                      username: data.user.username,
-                      token: data.user.token
+                        id: data.user.id,
+                        username: data.user.username,
+                        email: data.user.email,
+                        token: data.token
                     };
-                    console.log("userData: ", userData);
+                    console.log("Storing user data:", userData);
                     localStorage.setItem('user', JSON.stringify(userData));
                     login(userData); // Pass the complete userData object to login context
                     showSuccess(data.message || 'Login successful!');

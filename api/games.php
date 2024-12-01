@@ -8,9 +8,21 @@ require_once (__DIR__ . '/auth.php');
 // Set content type to JSON
 header('Content-Type: application/json');
 
-// Ensure the request is coming from an authenticated user
 try {
+    // Ensure the request is coming from an authenticated user
+    $user = authenticateUser();
+    error_log("User: " . print_r($user, true));
+    if (!$user) {
+        http_response_code(401);
+        handleError(401, 'Unauthorized access', __FILE__, __LINE__);
+        exit;
+    }
+
     $conn = getDbConnection();
+    if (!$conn) {
+        throw new Exception("Failed to connect to database");
+    }
+    
     // Handle different API endpoints
     $method = $_SERVER['REQUEST_METHOD'];
     $action = $_GET['action'] ?? '';
@@ -26,6 +38,7 @@ try {
                 $count = $result->fetch_assoc()['count'];
                 echo json_encode(["isUnique" => $count == 0]);
             } elseif ($action === 'get_games') {
+                
                 // Get all games for the authenticated user
                 $stmt = $conn->prepare("SELECT game_id, name, description, challenge_data, is_public FROM games WHERE user_id = ?");
                 $stmt->bind_param("i", $user['id']);
@@ -69,15 +82,7 @@ try {
                 $stmt->execute();
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
-                    // Game exists, check if it belongs to the current user
-                    $game = $result->fetch_assoc();
-                    if ($game['user_id'] != $user['id']) {
-                        http_response_code(403);
-                        echo json_encode(["error" => "You don't have permission to update this game"]);
-                        exit;
-                    }
-                    
-                    // Update existing game
+                    // Game exists, update it
                     $stmt = $conn->prepare("UPDATE games SET name = ?, description = ?, is_public = ?, challenge_data = ? WHERE game_id = ?");
                     $stmt->bind_param("ssiss", $name, $description, $isPublic, $challengeData, $gameId);
                 } else {
@@ -146,10 +151,8 @@ try {
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(["error" => "Internal Server Error", "details" => [
-        "code" => $e->getCode(),
-        "message" => $e->getMessage(),
-        "file" => $e->getFile(),
-        "line" => $e->getLine()
-    ]]);
+    handleError($e->getCode(), $e->getMessage(), __FILE__, __LINE__);
+} finally {
+    // Release the connection but don't close it
+    releaseDbConnection();
 }

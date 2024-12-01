@@ -25,27 +25,33 @@ const GameCreator = () => {
 
   useEffect(() => {
     const loadGames = async () => {
-      const savedGames = await getGames();
-      setGames(savedGames);
-      setIsLoading(false);
+      try {
+        const savedGames = await getGames();
+        setGames(savedGames);
+      } catch (error) {
+        console.error('Error loading games:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     loadGames();
-  }, []);
+  }, []); // Only run once on mount
 
   useEffect(() => {
-    if (selectedGame && !isLoading) {
-      setNewGameData({
-        name: selectedGame.name,
-        description: selectedGame.description,
-        public: selectedGame.public ?? false,
-        gameId: selectedGame.gameId || generateUniqueGameId()
-      });
-      setIsPublic(selectedGame.public ?? false);
-    }
-  }, [selectedGame, isLoading]);
-
-  useEffect(() => {
-  }, [isPublic, newGameData.public]);
+    const updateGameData = async () => {
+      if (selectedGame && !isLoading) {
+        const gameId = selectedGame.gameId || await generateUniqueGameId();
+        setNewGameData({
+          name: selectedGame.name,
+          description: selectedGame.description,
+          public: selectedGame.public ?? false,
+          gameId
+        });
+        setIsPublic(selectedGame.public ?? false);
+      }
+    };
+    updateGameData();
+  }, [selectedGame, isLoading]); // Only run when selectedGame or isLoading changes
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -66,6 +72,7 @@ const GameCreator = () => {
     setShowGameForm(true);
   };
 
+  //look here
   const handleGameFormSubmit = () => {
     if (isValidGame(newGameData)) {
       const newGame = {

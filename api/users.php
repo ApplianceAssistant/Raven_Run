@@ -14,6 +14,21 @@ if (!$conn) {
     exit(0);
 }
 
+// Authenticate user for protected routes
+$method = $_SERVER['REQUEST_METHOD'];
+$action = $_GET['action'] ?? '';
+
+// Skip authentication for create user and check unique
+if (!($method === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create') && 
+    !($method === 'GET' && $action === 'check_unique')) {
+    $user = authenticateUser();
+    if (!$user) {
+        http_response_code(401);
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
+        exit;
+    }
+}
+
 // Function to get the base URL for the API
 function getBaseUrl()
 {

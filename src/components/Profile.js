@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../App';
-import { API_URL, formatPhoneNumber, compressPhoneNumber, isValidPhoneNumber } from '../utils/utils';
+import { API_URL, formatPhoneNumber, compressPhoneNumber, isValidPhoneNumber, authFetch } from '../utils/utils';
 import ScrollableContent from './ScrollableContent';
 import '../css/Profile.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -55,7 +55,7 @@ function Profile() {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/users.php?action=get&id=${user.id}`);
+      const response = await authFetch(`${API_URL}/api/users.php?action=get&id=${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       const userData = await response.json();
 
