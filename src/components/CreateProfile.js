@@ -30,7 +30,7 @@ function CreateProfile() {
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { showError, showSuccess } = useMessage();
+  const { showError, showSuccess, showWarning, clearMessage } = useMessage();
 
   const validateUsername = (username) => {
     const regex = /^[a-zA-Z0-9_]{3,20}$/;
@@ -80,6 +80,13 @@ function CreateProfile() {
         ...prev,
         [field]: { ...prev[field], isUnique }
       }));
+      
+      // Show warning if the field is not unique
+      if (!isUnique) {
+        showWarning(`This ${field} is already in use`);
+      } else {
+        clearMessage();
+      }
     } catch (error) {
       console.error(`${field} check failed:`, error);
     } finally {
@@ -89,6 +96,9 @@ function CreateProfile() {
 
   const handleInputChange = (field, value) => {
     let isValid = false;
+    
+    // Clear any existing messages when user starts typing
+    clearMessage();
     
     switch (field) {
       case 'username':
@@ -114,6 +124,34 @@ function CreateProfile() {
       ...prev,
       [field]: { ...prev[field], value, isValid }
     }));
+  };
+
+  const handleBlur = (field) => {
+    const fieldState = formState[field];
+    
+    // Don't show messages if the field is empty
+    if (!fieldState.value) return;
+    
+    // Show validation error if the field is invalid
+    if (!fieldState.isValid) {
+      switch (field) {
+        case 'username':
+          showError('Username must be 3-20 characters long and can only contain letters, numbers, and underscores');
+          break;
+        case 'email':
+          showError('Please enter a valid email address');
+          break;
+        case 'password':
+          showError('Password must be at least 8 characters long and contain uppercase, lowercase, and numbers');
+          break;
+      }
+      return;
+    }
+    
+    // Show warning if the field is not unique
+    if (!fieldState.isUnique && (field === 'username' || field === 'email')) {
+      showWarning(`This ${field} is already in use`);
+    }
   };
 
   const isFormValid = () => {
@@ -259,6 +297,7 @@ function CreateProfile() {
               id="username"
               value={formState.username.value}
               onChange={(e) => handleInputChange('username', e.target.value)}
+              onBlur={() => handleBlur('username')}
               required
             />
             <div className="field-guide">Username must be 3-20 characters long and can only contain letters, numbers, and underscores</div>
@@ -271,6 +310,7 @@ function CreateProfile() {
               id="email"
               value={formState.email.value}
               onChange={(e) => handleInputChange('email', e.target.value)}
+              onBlur={() => handleBlur('email')}
               required
             />
           </div>
@@ -282,6 +322,7 @@ function CreateProfile() {
               id="password"
               value={formState.password.value}
               onChange={(e) => handleInputChange('password', e.target.value)}
+              onBlur={() => handleBlur('password')}
               required
             />
             <div className="field-guide">Password must be at least 8 characters long and contain uppercase, lowercase, and numbers</div>

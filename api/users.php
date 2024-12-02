@@ -19,8 +19,28 @@ $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
 
 // Skip authentication for create user and check unique
-if (!($method === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create') && 
-    !($method === 'GET' && $action === 'check_unique')) {
+$skipAuth = false;
+
+// Check if it's a uniqueness check
+if ($method === 'GET' && $action === 'check_unique') {
+    $skipAuth = true;
+}
+
+// Check if it's a user creation request
+if ($method === 'POST') {
+    if (isset($_POST['action']) && $_POST['action'] === 'create') {
+        // Handle form data
+        $skipAuth = true;
+    } else {
+        // Handle JSON data
+        $jsonData = json_decode(file_get_contents('php://input'), true);
+        if (isset($jsonData['action']) && $jsonData['action'] === 'create') {
+            $skipAuth = true;
+        }
+    }
+}
+
+if (!$skipAuth) {
     $user = authenticateUser();
     if (!$user) {
         http_response_code(401);

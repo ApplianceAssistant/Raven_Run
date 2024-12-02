@@ -55,7 +55,7 @@ function Profile() {
 
   const fetchUserData = async () => {
     try {
-      const response = await authFetch(`${API_URL}/api/users.php?action=get&id=${user.id}`);
+      const response = await authFetch(`${API_URL}/api/users.php?action=get`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       const userData = await response.json();
 

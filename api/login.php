@@ -4,12 +4,6 @@ require_once(__DIR__ . '/../server/encryption.php');
 require_once(__DIR__ . '/errorHandler.php');
 require_once(__DIR__ . '/auth.php');
 
-// Debug logging
-error_log("Login.php - Environment variables:");
-error_log("APP_ENV: " . ($_ENV['APP_ENV'] ?? 'not set'));
-error_log("SALT: " . (isset($_ENV['SALT']) ? 'is set' : 'not set'));
-error_log("All ENV vars: " . print_r($_ENV, true));
-
 // Set content type to JSON
 header('Content-Type: application/json');
 
