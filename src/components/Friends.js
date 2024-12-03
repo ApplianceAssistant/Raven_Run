@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../App';
 import { API_URL, authFetch } from '../utils/utils';
 import ScrollableContent from './ScrollableContent';
+import Modal from './Modal';
 import '../css/Friends.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faPlusCircle, faBan } from '@fortawesome/free-solid-svg-icons';
@@ -14,7 +15,16 @@ function Friends() {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchTimeout, setSearchTimeout] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [friendToRemove, setFriendToRemove] = useState(null);
+    const [dontAskAgain, setDontAskAgain] = useState(false);
     const { showError, showSuccess } = useMessage();
+
+    useEffect(() => {
+        // Load suppress dialogue settings from localStorage
+        const suppressDialogues = JSON.parse(localStorage.getItem('suppressDialogues') || '{}');
+        setDontAskAgain(!!suppressDialogues.removeFriend);
+    }, []);
 
     useEffect(() => {
         if (user) {
@@ -163,6 +173,34 @@ function Friends() {
         }
     };
 
+    const handleRemoveFriend = (friend) => {
+        const suppressDialogues = JSON.parse(localStorage.getItem('suppressDialogues') || '{}');
+        if (suppressDialogues.removeFriend) {
+            removeFriend(friend.id);
+        } else {
+            setFriendToRemove(friend);
+            setIsModalOpen(true);
+        }
+    };
+
+    const handleConfirmRemove = () => {
+        if (dontAskAgain) {
+            const suppressDialogues = JSON.parse(localStorage.getItem('suppressDialogues') || '{}');
+            suppressDialogues.removeFriend = true;
+            localStorage.setItem('suppressDialogues', JSON.stringify(suppressDialogues));
+        }
+        if (friendToRemove) {
+            removeFriend(friendToRemove.id);
+        }
+        setIsModalOpen(false);
+        setFriendToRemove(null);
+    };
+
+    const handleCancelRemove = () => {
+        setIsModalOpen(false);
+        setFriendToRemove(null);
+    };
+
     const removeFriend = async (friendId) => {
         try {
             const response = await authFetch(`${API_URL}/api/friends.php`, {
@@ -187,6 +225,37 @@ function Friends() {
 
     return (
         <div className="content">
+            <Modal
+                isOpen={isModalOpen}
+                onClose={handleCancelRemove}
+                title="Remove Friend"
+                content={
+                    <div>
+                        <p>Are you sure you want to remove {friendToRemove?.username} from your friends?</p>
+                        <div className="checkbox-container bottom">
+                            <input
+                                type="checkbox"
+                                id="dontAskAgain"
+                                checked={dontAskAgain}
+                                onChange={(e) => setDontAskAgain(e.target.checked)}
+                            />
+                            <label htmlFor="dontAskAgain">Don't ask for confirmation again</label>
+                        </div>
+                    </div>
+                }
+                buttons={[
+                    {
+                        label: 'Cancel',
+                        onClick: handleCancelRemove,
+                        className: 'btn-secondary'
+                    },
+                    {
+                        label: 'Remove',
+                        onClick: handleConfirmRemove,
+                        className: 'btn-remove'
+                    }
+                ]}
+            />
             <div className="friends-search">
                 <input
                     type="text"
@@ -231,20 +300,20 @@ function Friends() {
                     {friendRequests.length > 0 ? (
                         friendRequests.map(request => (
                             <div key={request.id} className="request-item">
-                                    <div className="profile-image-container small">
-                                        {request.sender_profile_picture_url ? (
-                                            <div className="profile-image">
-                                                <img src={`${API_URL}/${request.sender_profile_picture_url}`} alt="Profile" />
-                                            </div>
-                                        ) : (
-                                            <div className="profile-image-placeholder">
-                                                <FontAwesomeIcon icon={faUser} size="1x" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    {request.sender_username}
+                                <div className="profile-image-container small">
+                                    {request.sender_profile_picture_url ? (
+                                        <div className="profile-image">
+                                            <img src={`${API_URL}/${request.sender_profile_picture_url}`} alt="Profile" />
+                                        </div>
+                                    ) : (
+                                        <div className="profile-image-placeholder">
+                                            <FontAwesomeIcon icon={faUser} size="1x" />
+                                        </div>
+                                    )}
+                                </div>
+                                {request.sender_username}
 
-                                
+
                                 <div className="button-group">
                                     <button
                                         className="btn-add"
@@ -289,7 +358,7 @@ function Friends() {
                                 </div>
                                 <button
                                     className="btn-remove"
-                                    onClick={() => removeFriend(friend.id)}
+                                    onClick={() => handleRemoveFriend(friend)}
                                     title="Remove Friend"
                                 >
                                     <FontAwesomeIcon icon={faBan} />

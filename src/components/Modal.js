@@ -62,7 +62,7 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeec
         <div className="modal-header">
           <h2>{title}</h2>
         </div>
-        <ScrollableContent maxHeight="60vh">
+        <ScrollableContent maxHeight="55vh">
           <div className={`modal-body ${getContentColor()}`}>
             {content}
           </div>

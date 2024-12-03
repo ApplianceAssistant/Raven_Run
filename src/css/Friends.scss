@@ -56,3 +56,26 @@
     align-items: center;
   }
 }
+
+.checkbox-container {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  input[type="checkbox"] {
+    margin: 0;
+    width: auto;
+  }
+
+  label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+  }
+  
+}
+
+.bottom {
+  position: fixed;
+  bottom: 5px;
+}
