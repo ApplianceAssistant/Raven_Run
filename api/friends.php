@@ -43,7 +43,7 @@ function getFriends($userId) {
 
 function getFriendRequests($userId) {
     $conn = getDbConnection();
-    $stmt = $conn->prepare("SELECT fr.id, u.id as sender_id, u.username as sender_username 
+    $stmt = $conn->prepare("SELECT fr.id, u.id as sender_id, u.username as sender_username, u.profile_picture_url as sender_profile_picture_url
                             FROM friend_requests fr 
                             JOIN users u ON fr.sender_id = u.id 
                             WHERE fr.receiver_id = ? AND fr.status = 'pending'");

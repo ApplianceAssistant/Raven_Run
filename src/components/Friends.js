@@ -231,7 +231,20 @@ function Friends() {
                     {friendRequests.length > 0 ? (
                         friendRequests.map(request => (
                             <div key={request.id} className="request-item">
-                                {request.sender_username}
+                                    <div className="profile-image-container small">
+                                        {request.sender_profile_picture_url ? (
+                                            <div className="profile-image">
+                                                <img src={`${API_URL}/${request.sender_profile_picture_url}`} alt="Profile" />
+                                            </div>
+                                        ) : (
+                                            <div className="profile-image-placeholder">
+                                                <FontAwesomeIcon icon={faUser} size="1x" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    {request.sender_username}
+
+                                
                                 <div className="button-group">
                                     <button
                                         className="btn-add"
