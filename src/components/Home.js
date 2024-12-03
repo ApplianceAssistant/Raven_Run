@@ -20,12 +20,10 @@ function Home() {
   }
 
   return (
-    <div className="home">
-      <div className="content">
-        <div className="button-container">
-          <button onClick={handleCreateIndex} className="join-button">Create</button>
-          <button onClick={handlePlayIndex} className="enter-button">Play</button>
-        </div>
+    <div className="centered">
+      <div className="button-container">
+        <button onClick={handleCreateIndex} className="join-button">Create</button>
+        <button onClick={handlePlayIndex} className="enter-button">Play</button>
       </div>
     </div>
   );

@@ -11,7 +11,6 @@ header('Content-Type: application/json');
 try {
     // Ensure the request is coming from an authenticated user
     $user = authenticateUser();
-    error_log("User: " . print_r($user, true));
     if (!$user) {
         http_response_code(401);
         handleError(401, 'Unauthorized access', __FILE__, __LINE__);

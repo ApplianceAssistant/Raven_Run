@@ -146,61 +146,66 @@ export const handleError = (error, context) => {
 };
 
 export const authFetch = async (url, options = {}) => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-    };
+  const user = JSON.parse(localStorage.getItem('user'));
+  
+  // Create a new headers object
+  const headers = new Headers({
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+  });
 
-    // Add authorization header if user has a token
-    if (user?.token) {
-        headers['Authorization'] = `Bearer ${user.token}`;
-        console.debug('Using token for request:', url);
-    } else {
-        console.debug('No token available for request:', url);
-    }
+  // Add authorization header if user has a token
+  if (user?.token) {
+      headers.set('Authorization', `Bearer ${user.token}`);
+      console.debug('Using token for request:', url);
+  } else {
+      console.debug('No token available for request:', url);
+  }
 
-    try {
-        const response = await fetch(url, {
-            ...options,
-            headers,
-            credentials: 'include', // Always include credentials
-        });
+  try {
+      const response = await fetch(url, {
+          ...options,
+          headers,
+          credentials: 'include', // Always include credentials
+      });
 
-        // Check for and handle token refresh
-        const newToken = response.headers.get('X-New-Token');
-        if (newToken && user) {
-            console.debug('Received new token from server');
-            const updatedUser = { ...user, token: newToken };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-        }
+      // Debug headers being sent
+      console.debug('Request headers:', Object.fromEntries(headers.entries()));
 
-        // Handle different response statuses
-        if (response.status === 401) {
-            console.error('Unauthorized access detected');
-            // Only clear user data if we're not already on the login page
-            if (!window.location.pathname.includes('/login')) {
-                console.debug('Clearing user data and redirecting to login');
-                localStorage.removeItem('user');
-                window.location.href = '/login';
-            }
-            throw new Error('Unauthorized access');
-        }
+      // Check for and handle token refresh
+      const newToken = response.headers.get('X-New-Token');
+      if (newToken && user) {
+          console.debug('Received new token from server');
+          const updatedUser = { ...user, token: newToken };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
 
-        if (!response.ok) {
-            console.error(`HTTP error! status: ${response.status}`);
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
-        }
+      // Handle different response statuses
+      if (response.status === 401) {
+          console.error('Unauthorized access detected');
+          // Only clear user data if we're not already on the login page
+          if (!window.location.pathname.includes('/login')) {
+              console.debug('Clearing user data and redirecting to login');
+              localStorage.removeItem('user');
+              window.location.href = '/login';
+          }
+          throw new Error('Unauthorized access');
+      }
 
-        return response;
-    } catch (error) {
-        console.error('Fetch error:', error.message);
-        // Add request details to the error
-        error.requestUrl = url;
-        error.requestOptions = { ...options, headers };
-        throw error;
-    }
+      if (!response.ok) {
+          console.error(`HTTP error! status: ${response.status}`);
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      return response;
+  } catch (error) {
+      console.error('Fetch error:', error.message);
+      // Add request details to the error
+      error.requestUrl = url;
+      error.requestOptions = { ...options, headers: Object.fromEntries(headers.entries()) };
+      throw error;
+  }
 };
 
 // Function to check server connectivity and measure response time

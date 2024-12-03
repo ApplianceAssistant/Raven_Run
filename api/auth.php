@@ -7,28 +7,32 @@ if (!function_exists('getAuthorizationHeader')) {
     {
         $headers = null;
         
-        // Try different ways to get the Authorization header
-        if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
-            $headers = trim($_SERVER['HTTP_AUTHORIZATION']);
-        } elseif (isset($_SERVER['Authorization'])) {
-            $headers = trim($_SERVER['Authorization']);
-        } elseif (function_exists('apache_request_headers')) {
-            $requestHeaders = apache_request_headers();
-            if (isset($requestHeaders['Authorization'])) {
-                $headers = trim($requestHeaders['Authorization']);
-            } elseif (isset($requestHeaders['authorization'])) {
-                $headers = trim($requestHeaders['authorization']);
+        // Get all headers
+        $allHeaders = getallheaders();
+        
+        // Case-insensitive search for Authorization header
+        foreach ($allHeaders as $name => $value) {
+            if (strtolower($name) === 'authorization') {
+                $headers = $value;
+                break;
             }
         }
-
-        // If still no headers, check for redirected auth header
-        if (!$headers && isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-            $headers = trim($_SERVER['REDIRECT_HTTP_AUTHORIZATION']);
+        
+        // Fallbacks if still not found
+        if (!$headers) {
+            if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+                $headers = trim($_SERVER['HTTP_AUTHORIZATION']);
+            } elseif (isset($_SERVER['Authorization'])) {
+                $headers = trim($_SERVER['Authorization']);
+            } elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+                $headers = trim($_SERVER['REDIRECT_HTTP_AUTHORIZATION']);
+            }
         }
-
+        
         return $headers;
     }
 }
+
 
 if (!function_exists('getBearerToken')) {
     function getBearerToken()
@@ -82,46 +86,32 @@ if (!function_exists('authenticateUser')) {
             }
             
             $result = $stmt->get_result();
+            if (!$result) {
+                error_log('Failed to get result from token verification query');
+                return null;
+            }
 
             if ($row = $result->fetch_assoc()) {
+                error_log('Found token in database for user: ' . $row['username']);
                 $expirationTime = strtotime($row['expiration']);
-                $currentTime = time();
-
-                // If token is expired
-                if ($expirationTime < $currentTime) {
-                    error_log("Token expired at " . date('Y-m-d H:i:s', $expirationTime));
-                    invalidateAuthToken($token);
+                
+                if ($expirationTime < time()) {
+                    error_log('Token expired at: ' . date('Y-m-d H:i:s', $expirationTime));
                     return null;
                 }
-
-                // Refresh token if it's about to expire in the next 5 minutes
-                if ($expirationTime - $currentTime < 300) {
-                    $newToken = refreshAuthToken($token);
-                    if ($newToken) {
-                        header('X-New-Token: ' . $newToken);
-                        error_log('Token refreshed for user ' . $row['username']);
-                    } else {
-                        error_log('Failed to refresh token for user ' . $row['username']);
-                    }
-                }
-
-                // Return user data
+                
                 return [
                     'id' => $row['id'],
                     'username' => $row['username'],
                     'email' => $row['email']
                 ];
             } else {
-                error_log('No valid token found in database for token: ' . substr($token, 0, 10) . '...');
+                error_log('No matching token found in database');
                 return null;
             }
         } catch (Exception $e) {
             error_log('Authentication error: ' . $e->getMessage());
             return null;
-        } finally {
-            if (isset($stmt)) {
-                $stmt->close();
-            }
         }
     }
 }

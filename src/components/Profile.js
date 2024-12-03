@@ -44,7 +44,7 @@ function Profile() {
     if (user) {
       fetchUserData();
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     const hasDataChanges = Object.keys(profileData).some(key => {
@@ -55,17 +55,9 @@ function Profile() {
 
   const fetchUserData = async () => {
     try {
-      const response = await authFetch(`${API_URL}/api/users.php?action=get`);
+      const response = await authFetch(`${API_URL}/api/users.php?action=get&id=${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       const userData = await response.json();
-
-      // Clean up the data - convert 'null' strings and null values to empty strings
-      const cleanedData = Object.fromEntries(
-        Object.entries(userData).map(([key, value]) => [
-          key,
-          value === null || value === 'null' ? '' : value
-        ])
-      );
 
       // Format phone number before setting state
       const formattedData = {
@@ -91,7 +83,7 @@ function Profile() {
         return;
       }
       // Only allow digits and format for non-empty values
-      
+
       const digitsOnly = value.replace(/\D/g, '');
       console.warn("digitsOnly: ", digitsOnly);
       if (digitsOnly.length <= 10) { // Prevent more than 10 digits
@@ -152,11 +144,13 @@ function Profile() {
     setUploadProgress(0);
 
     try {
-      const formData = new FormData();
-      formData.append('action', 'update');
-      formData.append('id', user.id);
-      console.log("profileData: ", profileData);
-      // Append all profile data
+      // Prepare the data object
+      const data = {
+        action: 'update',
+        id: user.id
+      };
+
+      // Add all profile data except profile picture
       Object.keys(profileData).forEach(key => {
         if (key !== 'profile_picture_url') {
           let value = profileData[key];
@@ -165,8 +159,8 @@ function Profile() {
           } else if (['first_name', 'last_name', 'phone'].includes(key)) {
             value = (!value || value === 'null') ? '' : value;
           }
-          console.warn("appending: ", key, value);
-          formData.append(key, value);
+          value = value ?? '';
+          data[key] = value;
         }
       });
 
@@ -175,7 +169,15 @@ function Profile() {
         try {
           const response = await fetch(imagePreview);
           const blob = await response.blob();
-          formData.append('profile_picture', blob, 'profile.jpg');
+          // Convert blob to base64
+          const reader = new FileReader();
+          const base64Data = await new Promise((resolve) => {
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+
+          // Add the base64 image data to the request
+          data.profile_picture = base64Data;
         } catch (error) {
           console.error('Error converting image:', error);
           showError('Failed to process image');
@@ -183,49 +185,34 @@ function Profile() {
         }
       }
 
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', `${API_URL}/api/users.php`, true);
+      // Debug data being sent
+      console.log('Sending data:', data);
 
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const percentComplete = (event.loaded / event.total) * 100;
-          setUploadProgress(percentComplete);
-          if (percentComplete === 100) setUploadProgress(0);
-        }
-      };
+      const response = await authFetch(`${API_URL}/api/users.php`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
 
-      xhr.onload = function () {
-        if (xhr.status === 200) {
-          try {
-            const result = JSON.parse(xhr.responseText);
-            console.warn("result: ", result);
-            if (result.success) {
-              showSuccess('Profile updated successfully');
-              login(result.user);
-              setOriginalData(result.user);
-              setImagePreview(result.user.profile_picture_url);
-            } else {
-              showError(result.message || 'Failed to update profile.');
-            }
-          } catch (error) {
-            console.error('Error parsing response:', error, 'Response:', xhr.responseText);
-            showError('Failed to process server response');
-          }
-        } else {
-          showError(`Failed to update profile (${xhr.status})`);
-        }
-      };
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      xhr.onerror = function () {
-        console.error('XHR error:', xhr.statusText);
-        showError('Network error occurred');
-      };
-      console.warn("formData: ", formData);
+      const result = await response.json();
 
-      xhr.send(formData);
+      if (result.success) {
+        showSuccess('Profile updated successfully');
+        // Update the local state directly instead of triggering a re-fetch
+        const updatedUser = { ...user, ...result.user };
+        login(updatedUser);
+        setOriginalData(data);
+        setProfileData(data);
+        setImagePreview(result.user.profile_picture_url);
+      } else {
+        showError(result.message || 'Failed to update profile.');
+      }
     } catch (error) {
       console.error('Error in handleSubmit:', error);
-      showError(error.message);
+      showError(error.message || 'Failed to update profile');
     } finally {
       setUploadProgress(0);
     }
@@ -259,8 +246,8 @@ function Profile() {
         </button>
       </div>
 
-      
-        <div className="tab-content">
+
+      <div className="tab-content">
         <ScrollableContent maxHeight="calc(100vh - 250px)">
           {activeTab === 'profile' && (
             <>
@@ -322,9 +309,9 @@ function Profile() {
           )}
           {activeTab === 'settings' && <Settings />}
           {activeTab === 'friends' && <Friends />}
-          </ScrollableContent>
-        </div>
-      
+        </ScrollableContent>
+      </div>
+
     </div>
   );
 }

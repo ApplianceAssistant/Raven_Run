@@ -102,20 +102,21 @@ try {
         }
     }
 
-    function getUserById($id) {
+    function getUserById($id)
+    {
         global $conn;
         try {
-            $stmt = $conn->prepare("SELECT id, username, email, phone, first_name, last_name, profile_picture_url FROM users WHERE id = ?");
-            $stmt->bind_param("i", $id);
+            $stmt = $conn->prepare('SELECT id, username, email, phone, first_name, last_name, profile_picture_url FROM users WHERE id = ?');
+            $stmt->bind_param('i', $id);
             $stmt->execute();
             $result = $stmt->get_result();
             $user = $result->fetch_assoc();
-            
+
             if ($user && $user['profile_picture_url']) {
                 // Convert relative game to full URL
                 $user['profile_picture_url'] = getBaseUrl() . $user['profile_picture_url'];
             }
-            
+
             return $user;
         } catch (Exception $e) {
             throw $e;
@@ -198,13 +199,12 @@ try {
 
             $allowedFields = ['username', 'email', 'phone', 'first_name', 'last_name', 'profile_picture_url'];
             $nullableFields = ['phone', 'first_name', 'last_name'];
-            error_log("userData: " . print_r($userData, true));
-            
+
             foreach ($allowedFields as $field) {
                 // For nullable fields, we want to process them even if they're empty
                 if (isset($userData[$field]) || in_array($field, $nullableFields)) {
                     $value = $userData[$field] ?? '';
-                    
+
                     // Convert empty strings and 'null' to NULL for optional fields
                     if (in_array($field, $nullableFields) && (empty($value) || $value === 'null' || $value === '')) {
                         $updateFields[] = "$field = NULL";
@@ -215,11 +215,10 @@ try {
                     }
                 }
             }
-            
-            error_log("Update fields: " . implode(', ', $updateFields));
+
             if (empty($updateFields)) {
                 echo json_encode(['error' => 'No fields to update']);
-                error_log("No fields to update");
+                error_log('No fields to update');
                 throw new Exception('No fields to update', 400);
             }
 
@@ -278,32 +277,33 @@ try {
 
         case 'POST':
             $data = [];
-            if ($_SERVER['CONTENT_TYPE'] && strpos($_SERVER['CONTENT_TYPE'], 'multipart/form-data') !== false) {
-                // Handle form data
-                $data = $_POST;
 
-                // Handle file upload if present
-                if (isset($_FILES['profile_picture'])) {
-                    $uploadDir = __DIR__ . '/../uploads/profiles/';
-                    if (!file_exists($uploadDir)) {
-                        mkdir($uploadDir, 0777, true);
-                    }
+            // Get JSON data
+            $rawInput = file_get_contents('php://input');
+            $data = json_decode($rawInput, true) ?? [];
 
-                    $fileName = uniqid() . '_' . basename($_FILES['profile_picture']['name']);
-                    $targetGame = $uploadDir . $fileName;
-
-                    if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetGame)) {
-                        // Store the relative game in the database
-                        $data['profile_picture_url'] = '/uploads/profiles/' . $fileName;
-                    }
+            // Handle base64 image
+            if (!empty($data['profile_picture'])) {
+                $uploadDir = __DIR__ . '/../uploads/profiles/';
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
                 }
-            } else {
-                // Handle JSON data
-                $data = json_decode(file_get_contents('php://input'), true);
+
+                $fileName = uniqid() . '_profile.jpg';
+                $targetPath = $uploadDir . $fileName;
+
+                // Extract and save base64 image
+                $base64Data = preg_replace('#^data:image/\w+;base64,#i', '', $data['profile_picture']);
+                $imageData = base64_decode($base64Data);
+
+                if (file_put_contents($targetPath, $imageData)) {
+                    $data['profile_picture_url'] = '/uploads/profiles/' . $fileName;
+                }
+                unset($data['profile_picture']);
             }
 
-            if (!$data) {
-                handleError(400, 'Invalid request data');
+            if (empty($data)) {
+                handleError(400, 'No valid request data found');
                 exit(0);
             }
 

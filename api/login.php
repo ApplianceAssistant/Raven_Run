@@ -21,11 +21,8 @@ if (!$conn) {
 
 try {
     // Get POST data
-    $rawInput = file_get_contents('php://input');
-    error_log("Raw input: " . $rawInput);
-    
+    $rawInput = file_get_contents('php://input');    
     $data = json_decode($rawInput, true);
-    error_log("Decoded data: " . print_r($data, true));
     
     if (!$data) {
         $response = [
@@ -61,8 +58,6 @@ try {
 
             $email = $data['email'];
             $password = $data['password'];
-
-            error_log("Attempting login for email: " . $email);
             
             // Get user by email
             $stmt = $conn->prepare("SELECT id, username, email, password FROM users WHERE email = ?");
@@ -91,9 +86,7 @@ try {
 
             $result = $stmt->get_result();
             $user = $result->fetch_assoc();
-            
-            error_log("User found: " . ($user ? "yes" : "no"));
-            
+                        
             if (!$user || !verifyPassword($password, $user['password'])) {
                 $response = [
                     'status' => 'error',
@@ -116,7 +109,6 @@ try {
                 'token' => $token
             ];
             
-            error_log("Sending response: " . print_r($response, true));
             echo json_encode($response);
             break;
 

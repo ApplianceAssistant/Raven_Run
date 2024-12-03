@@ -32,9 +32,7 @@ function getAllowedOrigins() {
             'cors_origin' => $_ENV['CORS_ORIGIN'] ?? 'not set'
         ]
     ];
-    
-    error_log("CORS Debug Info: " . print_r($debug, true));
-    
+        
     if ($originsString) {
         $origins = explode(',', $originsString);
         $origins = array_map('trim', $origins);
