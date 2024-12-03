@@ -1,42 +1,50 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-const ScrollableContent = ({ children, maxHeight, bottomPadding = '50px' }) => {
+const ScrollableContent = ({ children, maxHeight, bottomPadding = '50px', dependencies = [] }) => {
   const contentRef = useRef(null);
   const [scrollState, setScrollState] = useState('none');
+
+  const checkScrollState = () => {
+    const content = contentRef.current;
+    if (content) {
+      const { scrollTop, scrollHeight, clientHeight } = content;
+      
+      if (scrollHeight <= clientHeight) {
+        setScrollState('none');
+      } else if (scrollTop === 0) {
+        setScrollState('down');
+      } else if (scrollTop + clientHeight >= scrollHeight) {
+        setScrollState('up');
+      } else {
+        setScrollState('both');
+      }
+    }
+  };
 
   useEffect(() => {
     const content = contentRef.current;
 
-    const handleScrollEvent = () => {
-      if (content) {
-        const { scrollTop, scrollHeight, clientHeight } = content;
-        
-        if (scrollHeight <= clientHeight) {
-          setScrollState('none');
-        } else if (scrollTop === 0) {
-          setScrollState('down');
-        } else if (scrollTop + clientHeight >= scrollHeight) {
-          setScrollState('up');
-        } else {
-          setScrollState('both');
-        }
-      }
-    };
-
     if (content) {
-      content.addEventListener('scroll', handleScrollEvent);
+      content.addEventListener('scroll', checkScrollState);
       // Initial check
-      handleScrollEvent();
+      checkScrollState();
       // Re-check after a short delay to account for dynamic content
-      setTimeout(handleScrollEvent, 100);
+      setTimeout(checkScrollState, 100);
     }
 
     return () => {
       if (content) {
-        content.removeEventListener('scroll', handleScrollEvent);
+        content.removeEventListener('scroll', checkScrollState);
       }
     };
   }, []);
+
+  // Add new useEffect to recheck scroll state when dependencies change
+  useEffect(() => {
+    checkScrollState();
+    // Re-check after a short delay to account for dynamic content
+    setTimeout(checkScrollState, 100);
+  }, dependencies);
 
   return (
     <div className="scrollable-content">

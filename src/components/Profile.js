@@ -248,9 +248,9 @@ function Profile() {
 
 
       <div className="tab-content">
-        <ScrollableContent maxHeight="calc(100vh - 250px)">
+        
           {activeTab === 'profile' && (
-            <>
+            <ScrollableContent dependencies={[activeTab]} maxHeight="calc(100vh - 250px)">
               <div className="profile-header">
                 <div className="profile-picture-container">
                   <div className="profile-picture">
@@ -305,11 +305,18 @@ function Profile() {
                   );
                 })}
               </form>
-            </>
+              </ScrollableContent>
           )}
-          {activeTab === 'settings' && <Settings />}
-          {activeTab === 'friends' && <Friends />}
-        </ScrollableContent>
+          {activeTab === 'settings' && (
+            <ScrollableContent dependencies={[activeTab]}>
+              <Settings />
+            </ScrollableContent>
+          )}
+          {activeTab === 'friends' && (
+            <ScrollableContent dependencies={[activeTab]}>
+              <Friends />
+            </ScrollableContent>
+          )}
       </div>
 
     </div>
