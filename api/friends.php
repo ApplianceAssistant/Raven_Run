@@ -18,7 +18,7 @@ if (!$user) {
 
 function searchUsers($query) {
     $conn = getDbConnection();
-    $query = "%$query%";
+    $query = "$query";
     $stmt = $conn->prepare("SELECT id, username FROM users WHERE username LIKE ? LIMIT 20");
     $stmt->bind_param("s", $query);
     $stmt->execute();
@@ -103,6 +103,21 @@ if ($method === 'GET') {
             }
             
             $conn = getDbConnection();
+            
+            // First check if request already exists
+            $checkStmt = $conn->prepare("SELECT id FROM friend_requests WHERE sender_id = ? AND receiver_id = ?");
+            $checkStmt->bind_param("ii", $user['id'], $data['receiver_id']);
+            $checkStmt->execute();
+            $result = $checkStmt->get_result();
+            
+            if ($result->num_rows > 0) {
+                http_response_code(200);
+                echo json_encode(['status' => 'success', 'message' => 'Friend request already sent']);
+                releaseDbConnection();
+                break;
+            }
+            
+            // If no existing request, proceed with insert
             $stmt = $conn->prepare("INSERT INTO friend_requests (sender_id, receiver_id) VALUES (?, ?)");
             $stmt->bind_param("ii", $user['id'], $data['receiver_id']);
             

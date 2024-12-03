@@ -12,6 +12,7 @@
 .friends-list {
   margin-bottom: 20px;
   min-width: 270px;
+
   h3 {
     margin-bottom: 10px;
     text-align: center;
@@ -26,12 +27,32 @@
     padding: 5px;
     margin-bottom: 5px;
     border-radius: 4px;
-    
+
+    .friend-info {
+      flex-grow: 1;
+      margin-left: 10px;
+      align-items: center;
+    }
+  }
+
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    margin-bottom: 10px;
+    font-weight: bold;
   }
 
   .placeholder-text {
     font-style: italic;
     text-align: center;
     padding: 10px;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
   }
 }

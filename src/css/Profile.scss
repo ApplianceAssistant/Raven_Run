@@ -99,20 +99,6 @@
 
       .form-group {
         margin-bottom: 10px;
-
-        input {
-          width: 100%;
-          padding: 10px;
-          border: 1px solid var(--border-color);
-          border-radius: 5px;
-          background: var(--input-background);
-          color: var(--text-color);
-
-          &:disabled {
-            background: var(--disabled-background);
-            cursor: not-allowed;
-          }
-        }
       }
 
       .button-group {

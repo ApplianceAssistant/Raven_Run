@@ -4,7 +4,7 @@ import { API_URL, authFetch } from '../utils/utils';
 import ScrollableContent from './ScrollableContent';
 import '../css/Friends.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faPlusCircle, faBan } from '@fortawesome/free-solid-svg-icons';
 import { useMessage } from '../utils/MessageProvider';
 
 function Friends() {
@@ -13,6 +13,7 @@ function Friends() {
     const [friendRequests, setFriendRequests] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const [searchTimeout, setSearchTimeout] = useState(null);
     const { showError, showSuccess } = useMessage();
 
     useEffect(() => {
@@ -47,18 +48,48 @@ function Friends() {
         }
     };
 
-    const handleSearch = async () => {
+    const handleSearch = async (searchValue) => {
+        if (!searchValue.trim()) {
+            setSearchResults([]);
+            return;
+        }
+
         try {
-            const response = await authFetch(`${API_URL}/api/friends.php?action=search_users&query=${searchQuery}`);
+            const response = await authFetch(`${API_URL}/api/friends.php?action=search_users&query=${searchValue}`);
             if (!response.ok) {
-                error_logger('Failed to search users');
                 throw new Error('Failed to search users');
             }
             const data = await response.json();
-            console.warn("data: ", data);
             setSearchResults(data.users);
         } catch (error) {
             showError('Failed to search users');
+        }
+    };
+
+    const handleSearchInput = (e) => {
+        const value = e.target.value;
+        setSearchQuery(value);
+
+        // Clear any existing timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        // Set a new timeout to search after 500ms of no typing
+        const timeoutId = setTimeout(() => {
+            handleSearch(value);
+        }, 500);
+
+        setSearchTimeout(timeoutId);
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            handleSearch(searchQuery);
         }
     };
 
@@ -73,10 +104,16 @@ function Friends() {
                     receiver_id: friendId
                 })
             });
+
+            const data = await response.json();
             if (!response.ok) {
-                error_logger('Failed to send friend request');
-                throw new Error('Failed to send friend request');
+                throw new Error(data.message || 'Failed to send friend request');
             }
+            if (data.message === 'Friend request already sent') {
+                showSuccess('Friend request already sent');
+                return;
+            }
+
             showSuccess('Friend request sent successfully');
         } catch (error) {
             showError('Failed to send friend request');
@@ -150,25 +187,44 @@ function Friends() {
 
     return (
         <div className="content">
-
             <div className="friends-search">
-                <button onClick={handleSearch} className="search-button">Search</button>
                 <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={handleSearchInput}
+                    onKeyPress={handleKeyPress}
                     placeholder="Search users"
                     className="search-input"
                 />
             </div>
             <ScrollableContent maxHeight="60vh">
                 <div className="search-results">
-                    {searchResults.map(user => (
-                        <div key={user.id} className="user-item">
-                            {user.username}
-                            <button onClick={() => sendFriendRequest(user.id)}>Add Friend</button>
-                        </div>
-                    ))}
+                    {searchQuery && (
+                        <>
+                            {searchResults.length > 0 ? (
+                                <>
+                                    <div className="list-header">
+                                        <h3>Player</h3>
+                                        <h3>Add Friend</h3>
+                                    </div>
+                                    {searchResults.map(user => (
+                                        <div key={user.id} className="user-item">
+                                            {user.username}
+                                            <button
+                                                className="btn-add"
+                                                onClick={() => sendFriendRequest(user.id)}
+                                                title="Add Friend"
+                                            >
+                                                <FontAwesomeIcon icon={faPlusCircle} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </>
+                            ) : (
+                                <p className="placeholder-text">No matches found</p>
+                            )}
+                        </>
+                    )}
                 </div>
                 <div className="friend-requests">
                     <h3>Friend Requests</h3>
@@ -176,7 +232,22 @@ function Friends() {
                         friendRequests.map(request => (
                             <div key={request.id} className="request-item">
                                 {request.sender_username}
-                                <button onClick={() => acceptFriendRequest(request.id)}>Accept</button>
+                                <div className="button-group">
+                                    <button
+                                        className="btn-add"
+                                        onClick={() => acceptFriendRequest(request.id)}
+                                        title="Accept Request"
+                                    >
+                                        <FontAwesomeIcon icon={faPlusCircle} />
+                                    </button>
+                                    <button
+                                        className="btn-remove"
+                                        onClick={() => ignoreFriendRequest(request.id)}
+                                        title="Ignore Request"
+                                    >
+                                        <FontAwesomeIcon icon={faBan} />
+                                    </button>
+                                </div>
                             </div>
                         ))
                     ) : (
@@ -188,30 +259,32 @@ function Friends() {
                     {friends.length > 0 ? (
                         friends.map(friend => (
                             <div key={friend.id} className="friend-item">
-                                {friend.username}
-                                <div className="profile-image-container small">
-                                    {friend.profile_picture_url ? (
-                                        <div className="profile-image">
-                                            <img src={`${API_URL}/${friend.profile_picture_url}`} alt="Profile" />
-                                        </div>
-                                    ) : (
-                                        <div className="profile-image-placeholder">
-                                            <FontAwesomeIcon icon={faUser} size="1x" />
-                                        </div>
-                                    )}
+                                <div className="friend-info">
+                                    <div className="profile-image-container small">
+                                        {friend.profile_picture_url ? (
+                                            <div className="profile-image">
+                                                <img src={`${API_URL}/${friend.profile_picture_url}`} alt="Profile" />
+                                            </div>
+                                        ) : (
+                                            <div className="profile-image-placeholder">
+                                                <FontAwesomeIcon icon={faUser} size="1x" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    {friend.username}
+
                                 </div>
                                 <button
-                                    type="button"
+                                    className="btn-remove"
                                     onClick={() => removeFriend(friend.id)}
-                                    className="remove-button"
-                                    aria-label="Remove feedback"
+                                    title="Remove Friend"
                                 >
-                                    <span className="remove-icon">×</span>
+                                    <FontAwesomeIcon icon={faBan} />
                                 </button>
                             </div>
                         ))
                     ) : (
-                        <p className="placeholder-text">No connections yet</p>
+                        <p className="placeholder-text">No friends yet</p>
                     )}
                 </div>
             </ScrollableContent>
