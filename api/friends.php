@@ -58,11 +58,35 @@ function getFriendRequests($userId)
     return $data;
 }
 
+function getSentRequests($userId)
+{
+    $conn = getDbConnection();
+    $stmt = $conn->prepare("SELECT fr.id, u.id as receiver_id, u.username as receiver_username 
+                           FROM friend_requests fr 
+                           JOIN users u ON fr.receiver_id = u.id 
+                           WHERE fr.sender_id = ? AND fr.status = 'pending'");
+    $stmt->bind_param('i', $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+    releaseDbConnection();
+    return $data;
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
 
 if ($method === 'GET') {
     switch ($action) {
+        case 'get_sent_requests':
+            if (!isset($_GET['user_id'])) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'User ID is required']);
+                break;
+            }
+            $sentRequests = getSentRequests($user['id']);
+            echo json_encode(['status' => 'success', 'sent_requests' => $sentRequests]);
+            break;
         case 'get_friends':
             $friends = getFriends($user['id']);
             echo json_encode(['status' => 'success', 'friends' => $friends]);

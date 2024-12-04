@@ -79,3 +79,12 @@
   position: fixed;
   bottom: 5px;
 }
+
+.pending-request {
+  padding: 6px 12px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  color: #666;
+  font-size: 0.9rem;
+  cursor: default;
+}

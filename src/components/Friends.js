@@ -19,6 +19,7 @@ function Friends() {
     const [friendToRemove, setFriendToRemove] = useState(null);
     const [dontAskAgain, setDontAskAgain] = useState(false);
     const { showError, showSuccess } = useMessage();
+    const [pendingRequests, setPendingRequests] = useState(new Set());
 
     useEffect(() => {
         // Load suppress dialogue settings from localStorage
@@ -30,8 +31,21 @@ function Friends() {
         if (user) {
             fetchFriends();
             fetchFriendRequests();
+            fetchSentRequests();
         }
     }, [user]);
+
+    const fetchSentRequests = async () => {
+        try {
+            const response = await authFetch(`${API_URL}/api/friends.php?action=get_sent_requests&user_id=${user.id}`);
+            if (!response.ok) throw new Error('Failed to fetch sent requests');
+            const data = await response.json();
+            console.warn("fetchSentRequests data: ", data);
+            setPendingRequests(new Set(data.sent_requests.map(req => req.receiver_id)));
+        } catch (error) {
+            showError('Failed to load sent requests');
+        }
+    };
 
     const fetchFriends = async () => {
         try {
@@ -119,6 +133,10 @@ function Friends() {
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to send friend request');
             }
+
+            // Update pending requests state
+            setPendingRequests(prev => new Set([...prev, friendId]));
+
             if (data.message === 'Friend request already sent') {
                 showSuccess('Friend request already sent');
                 return;
@@ -285,13 +303,17 @@ function Friends() {
                                     {searchResults.map(user => (
                                         <div key={user.id} className="user-item">
                                             {user.username}
-                                            <button
-                                                className="btn-add"
-                                                onClick={() => sendFriendRequest(user.id)}
-                                                title="Add Friend"
-                                            >
-                                                <FontAwesomeIcon icon={faPlusCircle} />
-                                            </button>
+                                            {pendingRequests.has(user.id) ? (
+                                                <span className="pending-request">Request Pending</span>
+                                            ) : (
+                                                <button
+                                                    className="btn-add"
+                                                    onClick={() => sendFriendRequest(user.id)}
+                                                    title="Add Friend"
+                                                >
+                                                    <FontAwesomeIcon icon={faPlusCircle} />
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
                                 </>
@@ -360,15 +382,16 @@ function Friends() {
                                         )}
                                     </div>
                                     {friend.username}
-
                                 </div>
-                                <button
-                                    className="btn-remove"
-                                    onClick={() => handleRemoveFriend(friend)}
-                                    title="Remove Friend"
-                                >
-                                    <FontAwesomeIcon icon={faBan} />
-                                </button>
+                                {friend.id !== 1 && (
+                                    <button
+                                        className="btn-remove"
+                                        onClick={() => handleRemoveFriend(friend)}
+                                        title="Remove Friend"
+                                    >
+                                        <FontAwesomeIcon icon={faBan} />
+                                    </button>
+                                )}
                             </div>
                         ))
                     ) : (
