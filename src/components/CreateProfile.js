@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { checkServerConnectivity, API_URL } from '../utils/utils.js';
 import { useMessage } from '../utils/MessageProvider';
+import NavigationOptions from './NavigationOptions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faGamepad, faPlus } from '@fortawesome/free-solid-svg-icons';
 import '../css/Login.scss';
@@ -274,23 +275,10 @@ function CreateProfile() {
 
   if (isProfileCreated) {
     return (
-      <div className="welcome-container">
-        <h1 className="welcome-title">Welcome, {JSON.parse(localStorage.getItem('user')).username}!</h1>
-        <p className="welcome-subtitle">What would you like to do next?</p>
-        <div className="navigation-options">
-          {navigationOptions.map((option, index) => (
-            <div 
-              key={index}
-              className="navigation-card"
-              onClick={() => navigate(option.route)}
-            >
-              <FontAwesomeIcon icon={option.icon} className="nav-icon" />
-              <h3>{option.label}</h3>
-              <p>{option.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <NavigationOptions 
+        title={`Welcome, ${JSON.parse(localStorage.getItem('user')).username}!`}
+        subtitle="What would you like to do next?"
+      />
     );
   }
 

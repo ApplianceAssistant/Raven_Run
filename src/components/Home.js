@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import Welcome from './Welcome';
+import NavigationOptions from './NavigationOptions';
 
 function Home() {
   const navigate = useNavigate();
@@ -20,14 +21,10 @@ function Home() {
   }
 
   return (
-      <>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="button-container">
-            <button onClick={handleCreateIndex} className="join-button">Create</button>
-            <button onClick={handlePlayIndex} className="enter-button">Play</button>
-          </div>
-        </div>
-    </>
+    <NavigationOptions 
+      title="Welcome to Crow Tours"
+      subtitle="Choose your next adventure"
+    />
   );
 }
 
