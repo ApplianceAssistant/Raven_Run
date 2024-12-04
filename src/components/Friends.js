@@ -40,7 +40,6 @@ function Friends() {
             const response = await authFetch(`${API_URL}/api/friends.php?action=get_sent_requests&user_id=${user.id}`);
             if (!response.ok) throw new Error('Failed to fetch sent requests');
             const data = await response.json();
-            console.warn("fetchSentRequests data: ", data);
             setPendingRequests(new Set(data.sent_requests.map(req => req.receiver_id)));
         } catch (error) {
             showError('Failed to load sent requests');

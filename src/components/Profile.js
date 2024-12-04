@@ -75,20 +75,16 @@ function Profile() {
 
   const handleInputChange = (field, value) => {
     if (field === 'phone') {
-      console.log("value: ", value);
       // Allow empty value for clearing the field
       if (!value || value.trim() === '') {
         setProfileData(prev => ({ ...prev, [field]: '' }));
-        console.log("profileData: ", profileData[field]);
         return;
       }
       // Only allow digits and format for non-empty values
 
       const digitsOnly = value.replace(/\D/g, '');
-      console.warn("digitsOnly: ", digitsOnly);
       if (digitsOnly.length <= 10) { // Prevent more than 10 digits
         const formattedPhone = formatPhoneNumber(digitsOnly);
-        console.log("formattedPhone: ", formattedPhone);
         setProfileData(prev => ({ ...prev, [field]: formattedPhone }));
       }
     } else {
@@ -184,9 +180,6 @@ function Profile() {
           return;
         }
       }
-
-      // Debug data being sent
-      console.log('Sending data:', data);
 
       const response = await authFetch(`${API_URL}/api/users.php`, {
         method: 'POST',

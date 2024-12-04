@@ -157,9 +157,6 @@ export const authFetch = async (url, options = {}) => {
   // Add authorization header if user has a token
   if (user?.token) {
       headers.set('Authorization', `Bearer ${user.token}`);
-      console.debug('Using token for request:', url);
-  } else {
-      console.debug('No token available for request:', url);
   }
 
   try {
@@ -169,13 +166,9 @@ export const authFetch = async (url, options = {}) => {
           credentials: 'include', // Always include credentials
       });
 
-      // Debug headers being sent
-      console.debug('Request headers:', Object.fromEntries(headers.entries()));
-
       // Check for and handle token refresh
       const newToken = response.headers.get('X-New-Token');
       if (newToken && user) {
-          console.debug('Received new token from server');
           const updatedUser = { ...user, token: newToken };
           localStorage.setItem('user', JSON.stringify(updatedUser));
       }
@@ -185,7 +178,6 @@ export const authFetch = async (url, options = {}) => {
           console.error('Unauthorized access detected');
           // Only clear user data if we're not already on the login page
           if (!window.location.pathname.includes('/login')) {
-              console.debug('Clearing user data and redirecting to login');
               localStorage.removeItem('user');
               window.location.href = '/login';
           }
@@ -211,10 +203,8 @@ export const authFetch = async (url, options = {}) => {
 // Function to check server connectivity and measure response time
 export const checkServerConnectivity = async () => {
   try {
-    console.warn('Checking server connectivity... from: ', `${API_URL}/api/db-test.php`);
     const start = Date.now();
     const response = await axios.get(`${API_URL}/api/db-test.php`);
-    console.log("Response data:", response.data);
     if (response.data && response.data.status === 'success') {
       return {
         isConnected: true,

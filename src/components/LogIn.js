@@ -51,7 +51,6 @@ function LogIn() {
         }
 
         try {
-            console.log("Making request to:", `${API_URL}/api/login.php`);
             const response = await authFetch(`${API_URL}/api/login.php`, {
                 method: 'POST',
                 headers: {
@@ -66,8 +65,6 @@ function LogIn() {
             });
 
             const data = await response.json();
-            console.log("Response status:", response.status);
-            console.warn("Response data:", data);
 
             if (!response.ok) {
                 if (response.status === 429) {
@@ -85,7 +82,6 @@ function LogIn() {
                         email: data.user.email,
                         token: data.token
                     };
-                    console.log("Storing user data:", userData);
                     localStorage.setItem('user', JSON.stringify(userData));
                     login(userData); // Pass the complete userData object to login context
                     showSuccess(data.message || 'Login successful!');

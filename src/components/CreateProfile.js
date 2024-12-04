@@ -200,7 +200,6 @@ function CreateProfile() {
 
     try {
       setLoadingStates(prev => ({ ...prev, submission: true }));
-      console.log("formState: ", formState);
       const response = await fetch(`${API_URL}/api/users.php`, {
         method: 'POST',
         headers: {
@@ -215,7 +214,6 @@ function CreateProfile() {
           password: formState.password.value
         })
       });
-      console.warn("response: ", response);
 
       if (!response.ok) {
         const error = await response.json();
@@ -232,7 +230,6 @@ function CreateProfile() {
   };
 
   const handleSuccess = (data) => {
-    console.log("Success data: ", data);
     
     // Extract user data from the response
     const user = data.user;
@@ -252,11 +249,9 @@ function CreateProfile() {
       token: user.token || '' // Token might be at root level or in user object
     };
     
-    console.log("Processed userData: ", userData);
     localStorage.setItem('user', JSON.stringify(userData));
     
     const savedUser = localStorage.getItem('user');
-    console.log("Saved user data: ", savedUser);
     
     showSuccess('Profile created successfully!');
     setToken(userData.token);

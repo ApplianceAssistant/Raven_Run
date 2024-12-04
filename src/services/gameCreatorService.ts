@@ -32,7 +32,6 @@ export const generateUniqueGameId = async (length: number = 12): Promise<string>
 
     try {
       const response = await authFetch(`${API_URL}/api/games.php?action=check_game_id&game_id=${generatedGameId}`);
-      console.log("response: ", response);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -78,7 +77,6 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
           challenges: JSON.stringify(gameWithPublic.challenges)
         }
       };
-      console.log('Sending payload:', payload);
 
       const response = await authFetch(`${API_URL}/api/games.php`, {
         method: 'POST',
@@ -89,12 +87,10 @@ export const saveGame = async (game: GameTypes.Game): Promise<void> => {
       });
 
       const responseText = await response.text();
-      console.log('Full response text:', responseText);
 
       let data;
       try {
         data = JSON.parse(responseText);
-        console.log('Parsed response data:', data);
       } catch (error) {
         console.error('Error parsing JSON:', error);
         throw new Error('Invalid response from server');
