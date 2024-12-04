@@ -2,8 +2,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { checkServerConnectivity, API_URL } from '../utils/utils.js';
-import Modal from './Modal';
 import { useMessage } from '../utils/MessageProvider';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faGamepad, faPlus } from '@fortawesome/free-solid-svg-icons';
+import '../css/Login.scss';
 
 function CreateProfile() {
   const [formState, setFormState] = useState({
@@ -24,9 +26,14 @@ function CreateProfile() {
     message: ''
   });
 
-  const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
+  const [isProfileCreated, setIsProfileCreated] = useState(false);
   const [token, setToken] = useState('');
+
+  const navigationOptions = [
+    { label: 'Profile', route: '/profile', icon: faUser, description: 'View and edit your profile' },
+    { label: 'Find a Game', route: '/lobby', icon: faGamepad, description: 'Join an existing game' },
+    { label: 'Create', route: '/create', icon: faPlus, description: 'Create a new game' }
+  ];
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -230,8 +237,6 @@ function CreateProfile() {
   };
 
   const handleSuccess = (data) => {
-    
-    // Extract user data from the response
     const user = data.user;
     if (!user) {
       if(data.error) {
@@ -246,26 +251,14 @@ function CreateProfile() {
     const userData = {
       id: user.id,
       username: user.username,
-      token: user.token || '' // Token might be at root level or in user object
+      token: user.token || ''
     };
     
     localStorage.setItem('user', JSON.stringify(userData));
-    
-    const savedUser = localStorage.getItem('user');
-    
     showSuccess('Profile created successfully!');
     setToken(userData.token);
-    setModalContent({
-      title: 'Welcome!',
-      message: `Welcome, ${userData.username}! What would you like to do next?`,
-      options: [
-        { label: 'Profile', route: '/profile' },
-        { label: 'Find a Game', route: '/lobby' },
-        { label: 'Create', route: '/create' }
-      ]
-    });
-    setShowModal(true);
     login(userData);
+    setIsProfileCreated(true);
   };
 
   const handleError = (error) => {
@@ -278,6 +271,28 @@ function CreateProfile() {
       setServerStatus(status);
     });
   }, []);
+
+  if (isProfileCreated) {
+    return (
+      <div className="welcome-container">
+        <h1 className="welcome-title">Welcome, {JSON.parse(localStorage.getItem('user')).username}!</h1>
+        <p className="welcome-subtitle">What would you like to do next?</p>
+        <div className="navigation-options">
+          {navigationOptions.map((option, index) => (
+            <div 
+              key={index}
+              className="navigation-card"
+              onClick={() => navigate(option.route)}
+            >
+              <FontAwesomeIcon icon={option.icon} className="nav-icon" />
+              <h3>{option.label}</h3>
+              <p>{option.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="content-wrapper">
@@ -334,26 +349,6 @@ function CreateProfile() {
           </div>
         </form>
       </div>
-      <Modal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        title={modalContent.title}
-        content={modalContent.message}
-        buttons={modalContent.options ? modalContent.options.map(option => ({
-          label: option.label,
-          onClick: () => {
-            setShowModal(false);
-            navigate(option.route);
-          },
-          className: 'submit-button'
-        })) : [
-          {
-            label: 'OK',
-            onClick: () => setShowModal(false),
-            className: 'submit-button'
-          }
-        ]}
-      />
     </div>
   );
 }

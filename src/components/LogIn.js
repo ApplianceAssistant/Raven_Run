@@ -2,16 +2,17 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { checkServerConnectivity, API_URL, authFetch } from '../utils/utils.js';
-import Modal from './Modal';
 import { useMessage } from '../utils/MessageProvider';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faGamepad, faPlus } from '@fortawesome/free-solid-svg-icons';
+import '../css/Login.scss';
 
 function LogIn() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalContent, setModalContent] = useState({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
-
+    const [isLoggedInSuccessfully, setIsLoggedInSuccessfully] = useState(false);
+    
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
     const { showError, showSuccess } = useMessage();
@@ -22,6 +23,12 @@ function LogIn() {
         message: ''
     });
 
+    const navigationOptions = [
+        { label: 'Profile', route: '/profile', icon: faUser, description: 'View and edit your profile' },
+        { label: 'Find a Game', route: '/lobby', icon: faGamepad, description: 'Join an existing game' },
+        { label: 'Create', route: '/create', icon: faPlus, description: 'Create a new game' }
+    ];
+
     useEffect(() => {
         checkServerConnectivity().then((status) => {
             setServerStatus(status);
@@ -31,7 +38,6 @@ function LogIn() {
     const handleSubmit = async (action) => {
         setIsLoading(true);
 
-        // Basic input validation
         if (!email || !email.includes('@')) {
             showError('Please enter a valid email address');
             setIsLoading(false);
@@ -74,34 +80,16 @@ function LogIn() {
             }
 
             if (data.status === 'success') {
-                const handleSuccess = (data) => {
-                    // Store user data in localStorage
-                    const userData = {
-                        id: data.user.id,
-                        username: data.user.username,
-                        email: data.user.email,
-                        token: data.token
-                    };
-                    localStorage.setItem('user', JSON.stringify(userData));
-                    login(userData); // Pass the complete userData object to login context
-                    showSuccess(data.message || 'Login successful!');
-                    setTimeout(() => {
-                        setIsModalOpen(true);
-                        setModalContent({
-                            title: `Welcome, ${userData.username}!`,
-                            message: ` What would you like to do next?`,
-                            options: [
-                                { label: 'Profile', route: '/profile' },
-                                { label: 'Find a Game', route: '/lobby' },
-                                { label: 'Create', route: '/create' }
-                            ],
-                            type: 'success',
-                            showTextToSpeech: true,
-                            speak: `Welcome, ${userData.username}! What would you like to do next?`
-                        });
-                    }, 1000);
+                const userData = {
+                    id: data.user.id,
+                    username: data.user.username,
+                    email: data.user.email,
+                    token: data.token
                 };
-                handleSuccess(data);
+                localStorage.setItem('user', JSON.stringify(userData));
+                login(userData);
+                showSuccess(data.message || 'Login successful!');
+                setIsLoggedInSuccessfully(true);
             }
         } catch (error) {
             showError(error.message || 'An error occurred during login');
@@ -109,6 +97,28 @@ function LogIn() {
             setIsLoading(false);
         }
     };
+
+    if (isLoggedInSuccessfully) {
+        return (
+            <div className="welcome-container">
+                <h1 className="welcome-title">Welcome, {JSON.parse(localStorage.getItem('user')).username}!</h1>
+                <p className="welcome-subtitle">What would you like to do next?</p>
+                <div className="navigation-options">
+                    {navigationOptions.map((option, index) => (
+                        <div 
+                            key={index}
+                            className="navigation-card"
+                            onClick={() => navigate(option.route)}
+                        >
+                            <FontAwesomeIcon icon={option.icon} className="nav-icon" />
+                            <h3>{option.label}</h3>
+                            <p>{option.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="content-wrapper">
@@ -147,26 +157,6 @@ function LogIn() {
                     </div>
                 </form>
             </div>
-            <Modal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title={modalContent.title}
-                content={modalContent.message}
-                buttons={modalContent.options ? modalContent.options.map(option => ({
-                    label: option.label,
-                    onClick: () => {
-                        setIsModalOpen(false);
-                        navigate(option.route);
-                    },
-                    className: 'submit-button'
-                })) : [
-                    {
-                        label: 'OK',
-                        onClick: () => setIsModalOpen(false),
-                        className: 'submit-button'
-                    }
-                ]}
-            />
         </div>
     );
 }

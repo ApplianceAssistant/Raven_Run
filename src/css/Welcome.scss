@@ -1,4 +1,4 @@
-.welcome-container {
+.home-welcome-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
@@ -171,7 +171,7 @@
 }
 
 @media (max-width: 768px) {
-    .welcome-container {
+    .home-welcome-container {
         padding: 1rem;
 
         .hero {

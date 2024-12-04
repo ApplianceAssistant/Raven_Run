@@ -10,7 +10,7 @@ function Welcome() {
 
     return (
         <ScrollableContent maxHeight="85vh">
-            <div className="welcome-container">
+            <div className="home-welcome-container">
                 <section className="hero">
                     <h1>Welcome to CrowTours</h1>
                     <p className="tagline">Create, Share, and Play Amazing Scavenger Hunts</p>

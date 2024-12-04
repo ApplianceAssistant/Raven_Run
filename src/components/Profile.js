@@ -290,7 +290,7 @@ function Profile() {
                       <input
                         type={field === 'email' ? 'email' : 'text'}
                         id={field}
-                        value={profileData[field]}
+                        value={profileData[field] || ''}
                         onChange={(e) => handleInputChange(field, e.target.value)}
                         disabled={field === 'email'}
                       />
