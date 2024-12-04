@@ -191,15 +191,23 @@ function Profile() {
       }
 
       const result = await response.json();
+      console.warn('Result:', result);
 
       if (result.success) {
         showSuccess('Profile updated successfully');
         // Update the local state directly instead of triggering a re-fetch
         const updatedUser = { ...user, ...result.user };
+        const formattedData = {
+          ...result.user,
+          phone: result.user.phone ? formatPhoneNumber(result.user.phone) : ''
+        };
+  
         login(updatedUser);
-        setOriginalData(data);
-        setProfileData(data);
+        setOriginalData(formattedData);
+        setProfileData(formattedData);
         setImagePreview(result.user.profile_picture_url);
+        setHasChanges(false);
+        
       } else {
         showError(result.message || 'Failed to update profile.');
       }
@@ -214,6 +222,7 @@ function Profile() {
   const handleCancel = () => {
     setProfileData(originalData);
     setImagePreview(originalData.profile_picture_url);
+    setHasChanges(false);
   };
 
   return (

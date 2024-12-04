@@ -11,13 +11,6 @@ function MessageDisplay() {
     return () => console.log('MessageDisplay unmounting');
   }, []);
 
-  // Separate effect for message changes
-  useEffect(() => {
-    if (message) {
-      console.log('Message received:', message);
-    }
-  }, [message]);
-
   const messageClass = message ? `message-container ${message.type}` : 'message-container hidden';
   
   return (
