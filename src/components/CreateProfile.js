@@ -249,7 +249,7 @@ function CreateProfile() {
     const userData = {
       id: user.id,
       username: user.username,
-      token: data.token || '' // Token might be at root level or in user object
+      token: user.token || '' // Token might be at root level or in user object
     };
     
     console.log("Processed userData: ", userData);

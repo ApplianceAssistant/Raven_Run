@@ -174,6 +174,12 @@ function Friends() {
     };
 
     const handleRemoveFriend = (friend) => {
+        // Prevent removal of user ID 1
+        if (friend.id === 1) {
+            showError('This friend cannot be removed');
+            return;
+        }
+
         const suppressDialogues = JSON.parse(localStorage.getItem('suppressDialogues') || '{}');
         if (suppressDialogues.removeFriend) {
             removeFriend(friend.id);

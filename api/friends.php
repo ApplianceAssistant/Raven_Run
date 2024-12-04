@@ -16,11 +16,12 @@ if (!$user) {
     exit;
 }
 
-function searchUsers($query) {
+function searchUsers($query)
+{
     $conn = getDbConnection();
     $query = "$query";
-    $stmt = $conn->prepare("SELECT id, username FROM users WHERE username LIKE ? LIMIT 20");
-    $stmt->bind_param("s", $query);
+    $stmt = $conn->prepare('SELECT id, username FROM users WHERE username LIKE ? LIMIT 20');
+    $stmt->bind_param('s', $query);
     $stmt->execute();
     $result = $stmt->get_result();
     $data = $result->fetch_all(MYSQLI_ASSOC);
@@ -28,12 +29,13 @@ function searchUsers($query) {
     return $data;
 }
 
-function getFriends($userId) {
+function getFriends($userId)
+{
     $conn = getDbConnection();
-    $stmt = $conn->prepare("SELECT u.id, u.username, profile_picture_url FROM users u 
+    $stmt = $conn->prepare('SELECT u.id, u.username, profile_picture_url FROM users u 
                             JOIN friend_relationships fr ON u.id = fr.friend_id 
-                            WHERE fr.user_id = ?");
-    $stmt->bind_param("i", $userId);
+                            WHERE fr.user_id = ?');
+    $stmt->bind_param('i', $userId);
     $stmt->execute();
     $result = $stmt->get_result();
     $data = $result->fetch_all(MYSQLI_ASSOC);
@@ -41,13 +43,14 @@ function getFriends($userId) {
     return $data;
 }
 
-function getFriendRequests($userId) {
+function getFriendRequests($userId)
+{
     $conn = getDbConnection();
     $stmt = $conn->prepare("SELECT fr.id, u.id as sender_id, u.username as sender_username, u.profile_picture_url as sender_profile_picture_url
                             FROM friend_requests fr 
                             JOIN users u ON fr.sender_id = u.id 
                             WHERE fr.receiver_id = ? AND fr.status = 'pending'");
-    $stmt->bind_param("i", $userId);
+    $stmt->bind_param('i', $userId);
     $stmt->execute();
     $result = $stmt->get_result();
     $data = $result->fetch_all(MYSQLI_ASSOC);
@@ -79,7 +82,7 @@ if ($method === 'GET') {
             }
             $users = searchUsers($query);
             // Filter out the current user from search results
-            $users = array_filter($users, function($u) use ($user) {
+            $users = array_filter($users, function ($u) use ($user) {
                 return $u['id'] != $user['id'];
             });
             echo json_encode(['status' => 'success', 'users' => array_values($users)]);
@@ -101,26 +104,26 @@ if ($method === 'GET') {
                 echo json_encode(['status' => 'error', 'message' => 'Receiver ID is required']);
                 break;
             }
-            
+
             $conn = getDbConnection();
-            
+
             // First check if request already exists
-            $checkStmt = $conn->prepare("SELECT id FROM friend_requests WHERE sender_id = ? AND receiver_id = ?");
-            $checkStmt->bind_param("ii", $user['id'], $data['receiver_id']);
+            $checkStmt = $conn->prepare('SELECT id FROM friend_requests WHERE sender_id = ? AND receiver_id = ?');
+            $checkStmt->bind_param('ii', $user['id'], $data['receiver_id']);
             $checkStmt->execute();
             $result = $checkStmt->get_result();
-            
+
             if ($result->num_rows > 0) {
                 http_response_code(200);
                 echo json_encode(['status' => 'success', 'message' => 'Friend request already sent']);
                 releaseDbConnection();
                 break;
             }
-            
+
             // If no existing request, proceed with insert
-            $stmt = $conn->prepare("INSERT INTO friend_requests (sender_id, receiver_id) VALUES (?, ?)");
-            $stmt->bind_param("ii", $user['id'], $data['receiver_id']);
-            
+            $stmt = $conn->prepare('INSERT INTO friend_requests (sender_id, receiver_id) VALUES (?, ?)');
+            $stmt->bind_param('ii', $user['id'], $data['receiver_id']);
+
             if ($stmt->execute()) {
                 echo json_encode(['status' => 'success', 'message' => 'Friend request sent']);
             } else {
@@ -137,32 +140,32 @@ if ($method === 'GET') {
                 echo json_encode(['status' => 'error', 'message' => 'Request ID is required']);
                 break;
             }
-            
+
             $conn = getDbConnection();
             // First verify this request was sent to the current user
-            $stmt = $conn->prepare("SELECT sender_id FROM friend_requests WHERE id = ? AND receiver_id = ?");
-            $stmt->bind_param("ii", $data['request_id'], $user['id']);
+            $stmt = $conn->prepare('SELECT sender_id FROM friend_requests WHERE id = ? AND receiver_id = ?');
+            $stmt->bind_param('ii', $data['request_id'], $user['id']);
             $stmt->execute();
             $result = $stmt->get_result();
-            
+
             if ($result->num_rows === 0) {
                 http_response_code(403);
                 echo json_encode(['status' => 'error', 'message' => 'Unauthorized to accept this request']);
                 break;
             }
-            
+
             $sender = $result->fetch_assoc();
-            
+
             // Now add the friendship
-            $stmt = $conn->prepare("INSERT INTO friend_relationships (user_id, friend_id) VALUES (?, ?), (?, ?)");
-            $stmt->bind_param("iiii", $user['id'], $sender['sender_id'], $sender['sender_id'], $user['id']);
-            
+            $stmt = $conn->prepare('INSERT INTO friend_relationships (user_id, friend_id) VALUES (?, ?), (?, ?)');
+            $stmt->bind_param('iiii', $user['id'], $sender['sender_id'], $sender['sender_id'], $user['id']);
+
             if ($stmt->execute()) {
                 // Delete the request
-                $stmt = $conn->prepare("DELETE FROM friend_requests WHERE id = ?");
-                $stmt->bind_param("i", $data['request_id']);
+                $stmt = $conn->prepare('DELETE FROM friend_requests WHERE id = ?');
+                $stmt->bind_param('i', $data['request_id']);
                 $stmt->execute();
-                
+
                 echo json_encode(['status' => 'success', 'message' => 'Friend request accepted']);
             } else {
                 http_response_code(500);
@@ -177,11 +180,11 @@ if ($method === 'GET') {
                 echo json_encode(['status' => 'error', 'message' => 'Request ID is required']);
                 break;
             }
-            
+
             $conn = getDbConnection();
-            $stmt = $conn->prepare("DELETE FROM friend_requests WHERE id = ? AND receiver_id = ?");
-            $stmt->bind_param("ii", $data['request_id'], $user['id']);
-            
+            $stmt = $conn->prepare('DELETE FROM friend_requests WHERE id = ? AND receiver_id = ?');
+            $stmt->bind_param('ii', $data['request_id'], $user['id']);
+
             if ($stmt->execute()) {
                 echo json_encode(['status' => 'success', 'message' => 'Friend request ignored']);
             } else {
@@ -197,11 +200,17 @@ if ($method === 'GET') {
                 echo json_encode(['status' => 'error', 'message' => 'Friend ID is required']);
                 break;
             }
-            
-            $conn = getDbConnection();
-            $stmt = $conn->prepare("DELETE FROM friend_relationships WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)");
-            $stmt->bind_param("iiii", $user['id'], $data['friend_id'], $data['friend_id'], $user['id']);
-            
+
+            // Prevent removal of user ID 1 (permanent friend)
+            if ($data['friend_id'] == 1) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'Cannot remove this friend']);
+                break;
+            }
+
+            $stmt = $conn->prepare('DELETE FROM friend_relationships WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)');
+            $stmt->bind_param('iiii', $user['id'], $data['friend_id'], $data['friend_id'], $user['id']);
+
             if ($stmt->execute()) {
                 echo json_encode(['status' => 'success', 'message' => 'Friend removed']);
             } else {

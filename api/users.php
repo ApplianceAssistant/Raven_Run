@@ -154,21 +154,46 @@ try {
             // Hash password
             $hashedPassword = hashPassword($userData['password']);
 
+            $conn->begin_transaction();
+
             // Insert new user
             $stmt = $conn->prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
             $stmt->bind_param('sss', $userData['username'], $userData['email'], $hashedPassword);
 
-            if (!$stmt->execute()) {
-                throw new Exception('Failed to create user: ' . $stmt->error, 500);
+            $stmt->execute();
+            $newUserId = $conn->insert_id;
+
+            // Automatically add user ID 1 as a friend
+            $stmt = $conn->prepare('INSERT INTO friend_relationships (user_id, friend_id) VALUES (?, 1)');
+            $stmt->bind_param('i', $newUserId);
+            $stmt->execute();
+
+            // Also add the reverse relationship
+            $stmt = $conn->prepare('INSERT INTO friend_relationships (user_id, friend_id) VALUES (1, ?)');
+            $stmt->bind_param('i', $newUserId);
+            $stmt->execute();
+
+            $conn->commit();
+
+            // Generate auth token
+            $token = generateAuthToken($newUserId);
+            if (!$token) {
+                $conn->rollback();
+                throw new Exception('Failed to generate auth token', 500);
             }
 
-            $userId = $stmt->insert_id;
+            $conn->commit();
+            
             return [
-                'id' => $userId,
+                'id' => $newUserId,
                 'username' => $userData['username'],
-                'email' => $userData['email']
+                'email' => $userData['email'],
+                'token' => $token
             ];
         } catch (Exception $e) {
+            if ($conn->connect_error === null) {
+                $conn->rollback();
+            }
             throw $e;
         }
     }
