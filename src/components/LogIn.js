@@ -121,8 +121,8 @@ function LogIn() {
     }
 
     return (
-        <div className="content-wrapper">
-            <div className="bodyContent center">
+        <>
+            <div className="bodyContent">
                 <h1>Welcome Back, Adventurer</h1>
                 {isLoading && <div className="loader">Loading...</div>}
                 <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
@@ -157,7 +157,7 @@ function LogIn() {
                     </div>
                 </form>
             </div>
-        </div>
+        </>
     );
 }
 

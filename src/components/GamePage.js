@@ -326,7 +326,7 @@ function GamePage() {
   };
 
   return (
-    <div className="content-wrapper">
+    <>
       <div className={`distance-notice ${contentVisible && distanceNoticeVisible ? 'visible' : ''}`}>
         {distanceNoticeVisible && (
           <>
@@ -370,7 +370,7 @@ function GamePage() {
       {showCongratulations && (
         <Congratulations onClose={handleCloseCongratulations} />
       )}
-    </div>
+    </>
   );
 }
 

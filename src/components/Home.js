@@ -20,12 +20,14 @@ function Home() {
   }
 
   return (
-    <div className="centered">
-      <div className="button-container">
-        <button onClick={handleCreateIndex} className="join-button">Create</button>
-        <button onClick={handlePlayIndex} className="enter-button">Play</button>
-      </div>
-    </div>
+      <>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="button-container">
+            <button onClick={handleCreateIndex} className="join-button">Create</button>
+            <button onClick={handlePlayIndex} className="enter-button">Play</button>
+          </div>
+        </div>
+    </>
   );
 }
 

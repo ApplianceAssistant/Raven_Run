@@ -49,7 +49,7 @@ const ThemeContainer = ({ children, theme }) => {
       {shouldShowThemeElement && <div className={`theme-element ${className}`} />}
       {isCanvasTheme && <canvas ref={canvasRef} className="theme-canvas" />}
       <BackgroundController theme={theme} />
-      <div className="content">{children}</div>
+      <div className="content centered">{children}</div>
     </div>
   );
 };

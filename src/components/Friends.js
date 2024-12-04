@@ -247,7 +247,7 @@ function Friends() {
     };
 
     return (
-        <div className="content">
+        <>
             <Modal
                 isOpen={isModalOpen}
                 onClose={handleCancelRemove}
@@ -399,7 +399,7 @@ function Friends() {
                     )}
                 </div>
             </ScrollableContent>
-        </div>
+        </>
     );
 }
 

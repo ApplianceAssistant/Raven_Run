@@ -5,7 +5,7 @@ import { handleScroll } from '../utils/utils';
 function About() {
   return (
 
-    <div className="content">
+    <>
       <h1 className="contentHeader">Like to play games?</h1>
       <ScrollableContent maxHeight="60vh">
         <h3>Crow Tours is currently in alpha testing.</h3>
@@ -27,7 +27,7 @@ function About() {
           They are known to be misleading and often speak half-truths or outright lies.</p>
         <p>All the more reason to trust the friends by your side to solve each puzzle and discover the truth!</p>
       </ScrollableContent>
-    </div>
+    </>
   );
 }
 

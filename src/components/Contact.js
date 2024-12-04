@@ -3,7 +3,7 @@ import ScrollableContent from './ScrollableContent';
 
 function Contact() {
   return (
-    <div className="content">
+    <>
       <h1 className="contentHeader">Have a Question?</h1>
       <ScrollableContent maxHeight="60vh">
         <p>Hello! We're excited to have you join our community of urban explorers and puzzle enthusiasts.</p>
@@ -21,7 +21,7 @@ function Contact() {
         </p>
         <p>Your input is invaluable as we continue to improve and expand Crow Tours. Thank you for being part of our journey!</p>
       </ScrollableContent>
-    </div>
+    </>
   );
 }
 

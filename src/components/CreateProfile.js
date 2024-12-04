@@ -295,8 +295,8 @@ function CreateProfile() {
   }
 
   return (
-    <div className="content-wrapper">
-      <div className="bodyContent center">
+    <>
+      <div className="bodyContent">
         <h1>Welcome, Brave Adventurer</h1>
         {loadingStates.submission && <div className="loader">Loading...</div>}
         <form className="accountForm" onSubmit={handleSubmit}>
@@ -349,7 +349,7 @@ function CreateProfile() {
           </div>
         </form>
       </div>
-    </div>
+    </>
   );
 }
 

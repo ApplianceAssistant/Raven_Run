@@ -350,8 +350,7 @@ const GameCreator = () => {
   };
 
   return (
-    <div className="content-wrapper">
-      <div className="content center">
+    <>
       {isLoading ? (
         <div>Loading...</div>
       ) : (
@@ -380,8 +379,7 @@ const GameCreator = () => {
           />
         </ >
       )}
-      </div>
-    </div>
+    </>
   );
 };
 

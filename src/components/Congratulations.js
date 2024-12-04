@@ -15,7 +15,7 @@ const Congratulations = ({ onClose }) => {
     };
 
     return (
-        <div className="content-wrapper">
+        <>
             <div className={`congratulations-container ${visible ? 'visible' : ''}`}>
                 <div className="icon-container">
                     <div className="floating-icon">
@@ -71,7 +71,7 @@ const Congratulations = ({ onClose }) => {
                 </div>
             </div>
 
-        </div>
+        </>
     );
 };
 
