@@ -281,6 +281,7 @@ function Friends() {
                 ]}
             />
             <div className="friends-search">
+                <label htmlFor="search-input">Search users</label>
                 <input
                     type="text"
                     value={searchQuery}
