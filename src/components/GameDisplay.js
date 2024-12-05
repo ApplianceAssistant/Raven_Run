@@ -2,17 +2,20 @@ import React from 'react';
 import '../css/GameDisplay.scss';
 
 const GameDisplay = ({ game, onCreateNewChallenge, onEditChallenge }) => {
+  // Create a safe reference to challenges, defaulting to empty array if not valid
+  const challenges = Array.isArray(game?.challenges) ? game.challenges : [];
+  
   return (
     <div className="game-display">
-      <h2>{game.name || 'Untitled Game'}</h2>
-      <p>{game.description || 'No description provided.'}</p>
+      <h2>{game?.name || 'Untitled Game'}</h2>
+      <p>{game?.description || 'No description provided.'}</p>
       
       <h3>Challenges:</h3>
-      {game.challenges.length === 0 ? (
+      {challenges.length === 0 ? (
         <p>No challenges created yet.</p>
       ) : (
         <ul className="challenge-list">
-          {game.challenges.map((challenge, index) => (
+          {challenges.map((challenge, index) => (
             <li 
               key={challenge.id} 
               className="challenge-item"
