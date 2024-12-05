@@ -132,6 +132,20 @@ function AppContent() {
                 </ThemeContainer>
               </GameCreationProvider>
             } />
+            <Route path="/create/edit/:gameId" element={
+              <GameCreationProvider>
+                <ThemeContainer theme={theme}>
+                  <Create />
+                </ThemeContainer>
+              </GameCreationProvider>
+            } />
+            <Route path="/create/edit/:gameId/challenges" element={
+              <GameCreationProvider>
+                <ThemeContainer theme={theme}>
+                  <Create />
+                </ThemeContainer>
+              </GameCreationProvider>
+            } />
           </Routes>
         </div>
       </div>

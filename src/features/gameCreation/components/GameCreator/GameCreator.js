@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useGameCreation } from '../../context/GameCreationContext';
 import GameList from '../GameList/GameList';
 import GameForm from '../GameForm/GameForm';
-import ChallengeCreator from '../../../../components/ChallengeCreator';
-import GameDisplay from '../../../../components/GameDisplay';
+import ChallengeManager from '../ChallengeManager/ChallengeManager';
 import Modal from '../../../../components/Modal';
 import { generateUniqueGameId, saveGame, deleteGame, getGames } from '../../services/gameCreatorService';
 import '../../../../css/GameCreator.scss';
 
 const GameCreator = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { gameId } = useParams();
   const { state, dispatch } = useGameCreation();
   const { games = [], selectedGame = null, isLoading = false, error = null } = state || {};
   
@@ -17,13 +20,13 @@ const GameCreator = () => {
     name: '', 
     description: '', 
     public: false, 
-    gameId: '' 
+    gameId: '', 
+    challenges: [] 
   });
-  const [showChallengeCreator, setShowChallengeCreator] = useState(false);
-  const [currentChallenge, setCurrentChallenge] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [gameToDelete, setGameToDelete] = useState(null);
+
+  const isChallengesRoute = location.pathname.includes('/challenges');
 
   useEffect(() => {
     const loadGames = async () => {
@@ -38,14 +41,25 @@ const GameCreator = () => {
     loadGames();
   }, [dispatch]);
 
+  useEffect(() => {
+    if (gameId) {
+      const game = games.find(g => g.gameId === gameId);
+      if (game) {
+        dispatch({ type: 'SELECT_GAME', payload: game });
+        setNewGameData({
+          ...game,
+          name: game.name || '',
+          description: game.description || '',
+          public: game.public ?? false,
+          gameId: game.gameId,
+          challenges: game.challenges || []
+        });
+      }
+    }
+  }, [gameId, games, dispatch]);
+
   const handleGameSelect = (game) => {
-    dispatch({ type: 'SELECT_GAME', payload: game });
-    setNewGameData({
-      name: game.name,
-      description: game.description,
-      public: game.public ?? false,
-      gameId: game.gameId
-    });
+    navigate(`/create/edit/${game.gameId}`);
   };
 
   const handleCreateNewGame = async () => {
@@ -54,10 +68,10 @@ const GameCreator = () => {
       name: '', 
       description: '', 
       public: false, 
-      gameId 
+      gameId, 
+      challenges: [] 
     });
     setShowGameForm(true);
-    setIsEditing(false);
   };
 
   const handleSaveGame = async (gameData) => {
@@ -75,7 +89,7 @@ const GameCreator = () => {
       
       dispatch({ type: 'SET_GAMES', payload: updatedGames });
       setShowGameForm(false);
-      handleGameSelect(savedGame);
+      navigate(`/create/edit/${savedGame.gameId}`);
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
     }
@@ -95,6 +109,7 @@ const GameCreator = () => {
       });
       if (selectedGame?.gameId === gameToDelete.gameId) {
         dispatch({ type: 'SELECT_GAME', payload: null });
+        navigate('/create');
       }
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
@@ -114,44 +129,42 @@ const GameCreator = () => {
 
   return (
     <div className="game-creator">
-      <div className="game-creator-header">
-        <h1>Game Creator</h1>
-        <button onClick={handleCreateNewGame}>Create New Game</button>
-      </div>
+      {!gameId ? (
+        <>
+          <div className="game-creator-header">
+            <h1>Game Creator</h1>
+            <button onClick={handleCreateNewGame}>Create New Game</button>
+          </div>
 
-      {showGameForm && (
-        <GameForm
-          gameData={newGameData}
+          {showGameForm ? (
+            <GameForm
+              gameData={newGameData}
+              onSave={handleSaveGame}
+              onCancel={() => setShowGameForm(false)}
+              isEditing={false}
+            />
+          ) : (
+            <GameList
+              onGameSelect={handleGameSelect}
+              onDeleteGame={handleDeleteGame}
+            />
+          )}
+        </>
+      ) : isChallengesRoute ? (
+        <ChallengeManager
+          game={selectedGame || newGameData}
           onSave={handleSaveGame}
-          onCancel={() => setShowGameForm(false)}
-          isEditing={isEditing}
         />
-      )}
-
-      {!showGameForm && (
-        <GameList
-          onGameSelect={handleGameSelect}
-          onDeleteGame={handleDeleteGame}
-        />
-      )}
-
-      {selectedGame && !showGameForm && (
-        <div className="selected-game-container">
-          <GameDisplay game={selectedGame} />
-          <button onClick={() => setShowChallengeCreator(true)}>
-            Add Challenge
-          </button>
-        </div>
-      )}
-
-      {showChallengeCreator && (
-        <ChallengeCreator
-          game={selectedGame}
-          challenge={currentChallenge}
-          onClose={() => {
-            setShowChallengeCreator(false);
-            setCurrentChallenge(null);
+      ) : (
+        <GameForm
+          gameData={selectedGame || {
+            ...newGameData,
+            gameId: gameId,
+            challenges: selectedGame?.challenges || []
           }}
+          onSave={handleSaveGame}
+          onCancel={() => navigate('/create')}
+          isEditing={true}
         />
       )}
 
