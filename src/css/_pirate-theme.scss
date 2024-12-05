@@ -5,7 +5,13 @@
 .pirate-theme {
   --font-family: 'Merriweather', serif;
   --font-family-heading: 'Pirata One', serif;
+  
+  // Light mode colors
   --page-bg: #faeccf;
+  --page-bg-rgb: 250, 236, 207;  // RGB values for #faeccf
+  --secondary-page-bg: #e6d4b3;  // Slightly darker complementary background
+  --secondary-page-bg-rgb: 230, 212, 179;
+  
   --text-color: #4a2f1f;
   --button-bg: #6e360d;
   --button-bg-hint: #dfb601;
@@ -26,6 +32,10 @@
   // Dark mode colors
   &.dark-mode {
     --page-bg: #3a2e26;
+    --page-bg-rgb: 58, 46, 38;  // RGB values for #3a2e26
+    --secondary-page-bg: #2a221c;  // Darker complementary background
+    --secondary-page-bg-rgb: 42, 34, 28;
+    
     --text-color: #f5dbbe;
     --button-bg: #603311;
     --button-bg-hint: #dfb601;
@@ -43,7 +53,6 @@
     --border-color: #f0d7c6;
     --shadow: rgba(243, 243, 243, 0.5);
   }
-
 }
 
 .burning-ember {

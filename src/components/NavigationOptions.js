@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ScrollableContent from './ScrollableContent';
-import { faUser, faGamepad, faPlus, faSearch, faTrophy, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faGamepad, faPlus, faSearch, faTrophy, faUsers, faDiceD20 } from '@fortawesome/free-solid-svg-icons';
 import '../css/NavigationOptions.scss';
 
 const defaultOptions = [
@@ -25,7 +25,7 @@ const defaultOptions = [
         id: 'create',
         label: 'Create',
         route: '/create',
-        icon: faPlus,
+        icon: faDiceD20,
         description: 'Create a new game'
     },
     {
