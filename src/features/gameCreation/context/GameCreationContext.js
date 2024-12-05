@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useState } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
+import { gameCreationReducer } from './gameCreationReducer';
 
 const GameCreationContext = createContext();
 
@@ -12,13 +13,14 @@ const initialState = {
 export const GameCreationProvider = ({ children }) => {
   const [state, dispatch] = useReducer(gameCreationReducer, initialState);
   
-  const value = {
-    ...state,
-    dispatch,
+  // Provide both state and dispatch in the value
+  const contextValue = {
+    state,
+    dispatch
   };
   
   return (
-    <GameCreationContext.Provider value={value}>
+    <GameCreationContext.Provider value={contextValue}>
       {children}
     </GameCreationContext.Provider>
   );
@@ -26,7 +28,7 @@ export const GameCreationProvider = ({ children }) => {
 
 export const useGameCreation = () => {
   const context = useContext(GameCreationContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useGameCreation must be used within a GameCreationProvider');
   }
   return context;

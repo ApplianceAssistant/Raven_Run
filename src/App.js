@@ -10,7 +10,8 @@ import Profile from './components/Profile.js';
 import Lobby from './components/Lobby';
 import GamePage from './components/GamePage';
 import Settings from './components/Settings';
-import Create from './components/GameCreator';
+import { GameCreationProvider } from './features/gameCreation/context/GameCreationContext';
+import Create from './features/gameCreation/components/GameCreator/GameCreator';
 import Header from './components/Header';
 import LogIn from './components/LogIn';
 import Friends from './components/Friends.js';
@@ -117,16 +118,20 @@ function AppContent() {
             <Route path="/congratulations" element={<ThemeContainer theme={theme}><Congratulations /></ThemeContainer>} />
             <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
             <Route path="/settings" element={<ThemeContainer theme={theme}><Settings /></ThemeContainer>} />
-            <Route path="/create" element={<ThemeContainer theme={theme}><Create /></ThemeContainer>} />
             <Route path="/friends" element={<ThemeContainer theme={theme}><Friends /></ThemeContainer>} />
             {authContextValue.isAuthenticated && (
               <>
-                <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
-                <Route path="/settings" element={<ThemeContainer theme={theme}><Settings /></ThemeContainer>} />
-                <Route path="/create" element={<ThemeContainer theme={theme}><Create /></ThemeContainer>} />
-                <Route path="/friends" element={<ThemeContainer theme={theme}><Friends /></ThemeContainer>} />
+                <Route path="/hunt-description" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
+                <Route path="/thankyou" element={<ThemeContainer theme={theme}><ThankYou /></ThemeContainer>} />
               </>
             )}
+            <Route path="/create" element={
+              <GameCreationProvider>
+                <ThemeContainer theme={theme}>
+                  <Create />
+                </ThemeContainer>
+              </GameCreationProvider>
+            } />
           </Routes>
         </div>
       </div>
