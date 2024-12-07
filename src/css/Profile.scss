@@ -96,34 +96,6 @@
       .form-group {
         margin-bottom: 10px;
       }
-
-      .button-group {
-        display: flex;
-        gap: 10px;
-        justify-content: flex-end;
-        margin-top: 20px;
-
-        button {
-
-          &.save-button {
-            background-color: var(--button-bg-save);
-            color: white;
-
-            &:hover {
-              background-color: var(--button-hover-bg);
-            }
-          }
-
-          &.cancel-button {
-            background-color: var(--button-bg-caution);
-            color: white;
-
-            &:hover {
-              background-color: var(--button-hover-bg);
-            }
-          }
-        }
-      }
     }
   }
 }

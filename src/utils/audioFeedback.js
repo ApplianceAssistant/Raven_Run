@@ -6,10 +6,10 @@ const audioFiles = {
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-const loadAudioBuffer = (url) => {
-    return fetch(url)
-        .then(response => response.arrayBuffer())
-        .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer));
+const loadAudioBuffer = async (url) => {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    return await audioContext.decodeAudioData(arrayBuffer);
 };
 
 const audioInstances = {};

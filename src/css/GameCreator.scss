@@ -2,8 +2,6 @@
 @import 'variables';
 
 .game-creator {
-
-
   .field-container {
     display: flex;
     flex-direction: column;
@@ -161,9 +159,24 @@
 
     &:hover {
       transform: translateY(-2px);
+
+      &::after {
+        content: 'Manage Game Challenges';
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--modal-bg);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 4px var(--shadow);
+        z-index: 1;
+      }
     }
 
     .challenge-content {
+      height: 100%;
       display: flex;
       align-items: center;
       gap: 1rem;
@@ -200,23 +213,6 @@
       gap: 1rem;
       margin-bottom: 2rem;
 
-      .back-button {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 5px;
-        background: var(--button-bg);
-        color: var(--button-text);
-        cursor: pointer;
-        transition: background-color 0.2s;
-
-        &:hover {
-          background: var(--button-hover-bg);
-        }
-      }
-
       h2 {
         margin: 0;
       }
@@ -247,9 +243,24 @@
         padding: 1.5rem;
         box-shadow: 0 2px 8px var(--shadow);
         transition: transform 0.2s;
+        position: relative;
 
         &:hover {
           transform: translateY(-2px);
+
+          &::after {
+            content: 'Edit Challenge';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--modal-bg);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px var(--shadow);
+            z-index: 1;
+          }
         }
 
         h3 {
@@ -263,7 +274,7 @@
       border: none;
       border-radius: 5px;
       background: var(--accent-color);
-      color: var(--button-text);
+      color: var(--button-text-color);
       font-weight: bold;
       cursor: pointer;
       transition: background-color 0.2s;
@@ -272,6 +283,27 @@
         background: var(--accent-hover);
       }
     }
+  }
+}
+
+.game-form {
+  position: relative;
+
+  .form-header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+
+    h2 {
+      margin: 0;
+    }
+  }
+
+  .form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
   }
 }
 

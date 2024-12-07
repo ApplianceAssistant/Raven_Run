@@ -1129,3 +1129,72 @@ body.menu-open {
   pointer-events: none; // Ensures it doesn’t interfere with other elements
   z-index: -11; // Adjust as needed
 }
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: space-evenly;
+  margin-top: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+
+  &.visible {
+    opacity: 1;
+  }
+
+  button {
+    &.save-button {
+      background-color: var(--button-bg-save);
+      color: white;
+
+      &:hover {
+        background-color: var(--button-hover-bg);
+      }
+    }
+
+    &.cancel-button {
+      background-color: var(--button-bg-caution);
+      color: white;
+
+      &:hover {
+        background-color: var(--button-hover-bg);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      &:hover {
+        background-color: inherit;
+      }
+    }
+  }
+}
+
+.back-button {
+  position: fixed;
+  top: 80px; 
+  left: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background-color: var(--button-bg);
+  color: var(--button-text-color);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  z-index: 10;
+
+  &:hover {
+    background-color: var(--button-hover-bg);
+    transform: scale(1.05);
+  }
+
+  svg {
+    font-size: 16px;
+  }
+}
