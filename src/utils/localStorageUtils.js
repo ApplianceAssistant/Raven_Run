@@ -1,7 +1,7 @@
 // src/utils/localStorageUtils.js
 /**
- * @typedef {import('../services/gameCreatorService').GameTypes.Game} Game
- * @typedef {import('../services/gameCreatorService').GameTypes.Challenge} Challenge
+ * @typedef {import('../features/gameCreation/types/gameTypes').Game} Game
+ * @typedef {import('../features/gameCreation/types/gameTypes').Challenge} Challenge
  */
 
 const GAME_STORAGE_KEY = 'Custom_Games';
@@ -32,15 +32,28 @@ export const decryptData = (encryptedData) => {
  */
 export const saveGameToLocalStorage = (game) => {
   const games = getGamesFromLocalStorage();
-  const updatedGames = games.map(g => g.game_id === game.game_id ? { ...g, ...game, public: game.public } : g);
-  if (!updatedGames.some(g => g.game_id === game.game_id)) {
-    updatedGames.push({ ...game, public: game.public ?? false });
+  let gameIndex = games.findIndex(g => g.game_id === game.game_id);
+  
+  if (gameIndex !== -1) {
+    // Update existing game
+    games[gameIndex] = {
+      ...games[gameIndex],
+      ...game,
+      public: game.public ?? false,
+      isSynced: game.isSynced ?? false
+    };
+  } else {
+    // Add new game
+    games.push({
+      ...game,
+      public: game.public ?? false,
+      isSynced: game.isSynced ?? false
+    });
   }
-  const encryptedGames = encryptData(updatedGames);
-  localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
 
-  // Save unencrypted version for debugging
-  localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(updatedGames));
+  const encryptedGames = encryptData(games);
+  localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
+  localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(games));
 };
 
 /**
@@ -51,11 +64,21 @@ export const getGamesFromLocalStorage = () => {
   if (encryptedGames === null) {
     return [];
   }
-  const games = decryptData(encryptedGames);
-  return games.map(game => ({
-    ...game,
-    public: typeof game.public === 'boolean' ? game.public : false
-  }));
+  try {
+    const games = decryptData(encryptedGames);
+    if (!Array.isArray(games)) {
+      console.error('Invalid games data format');
+      return [];
+    }
+    return games.map((game, index) => ({
+      ...game,
+      public: game.public ?? false,
+      isSynced: game.isSynced ?? false
+    }));
+  } catch (error) {
+    console.error('Error decrypting games:', error);
+    return [];
+  }
 };
 
 export const getDebugGamesFromLocalStorage = () => {

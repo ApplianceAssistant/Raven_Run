@@ -227,11 +227,15 @@ function CreateProfile() {
         const error = await response.json();
         throw new Error(error.message || 'Server error');
       }
-
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Unable to process server response. Please try again.');
+      }
       handleSuccess(data);
     } catch (error) {
-      handleError(error);
+      handleError(error.message || 'An unexpected error occurred. Please try again later.');
     } finally {
       setLoadingStates(prev => ({ ...prev, submission: false }));
     }

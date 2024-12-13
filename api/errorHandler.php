@@ -2,13 +2,16 @@
 
 require_once(__DIR__ . '/../server/db_connection.php');
 
-function handleError($errno = 500, $errstr = 'Unknown error', $errfile = 'Unknown file', $errline = 0)
+function handleError($errno, $errstr, $errfile, $errline)
 {
     $error = [
-        'code' => $errno,
-        'message' => $errstr,
-        'file' => $errfile,
-        'line' => $errline
+        'code' => $errno ?? 0,
+        'message' => $errstr ?? 'unknown',
+        'file' => $errfile ?? 'unknown',
+        'line' => $errline ?? 0,
+        'timestamp' => date('Y-m-d H:i:s'),
+        'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
+        'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown'
     ];
     
     error_log(json_encode($error));
@@ -26,10 +29,14 @@ set_error_handler('handleError');
 
 function handleException($e) {
     $error = [
-        'code' => $e->getCode(),
-        'message' => $e->getMessage(),
-        'file' => $e->getFile(),
-        'line' => $e->getLine()
+        'type' => get_class($e) ?? 'unknown',
+        'message' => $e->getMessage() ?? 'unknown',
+        'file' => $e->getFile() ?? 'unknown',
+        'line' => $e->getLine() ?? 0,
+        'trace' => $e->getTraceAsString() ?? '',
+        'timestamp' => date('Y-m-d H:i:s'),
+        'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
+        'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown'
     ];
     
     error_log(json_encode($error));

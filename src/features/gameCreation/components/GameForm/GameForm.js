@@ -16,14 +16,36 @@ const GameForm = ({
 }) => {
   const navigate = useNavigate();
   const { showError, showSuccess } = useMessage();
-  const [formData, setFormData] = useState(gameData);
-  const [originalData, setOriginalData] = useState(gameData);
+  const [formData, setFormData] = useState({
+    ...gameData,
+    name: gameData.name || '',
+    description: gameData.description || '',
+    public: gameData.public || false,
+    game_id: gameData.game_id || '',
+    challenges: gameData.challenges || []
+  });
+  const [originalData, setOriginalData] = useState({
+    ...gameData,
+    name: gameData.name || '',
+    description: gameData.description || '',
+    public: gameData.public || false,
+    game_id: gameData.game_id || '',
+    challenges: gameData.challenges || []
+  });
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
-    setFormData(gameData);
-    setOriginalData(gameData);
+    console.log('GameForm received gameData:', gameData);
+    setFormData({
+      ...gameData,
+      name: gameData.name || '',
+      description: gameData.description || '',
+      public: gameData.public || false,
+      game_id: gameData.game_id || '',
+      challenges: gameData.challenges || []
+    });
+    console.log('GameForm updated formData with game_id:', gameData.game_id);
   }, [gameData]);
 
   useEffect(() => {
@@ -55,16 +77,18 @@ const GameForm = ({
   };
 
   const handleChallengesClick = () => {
-    if (formData?.gameId) {
-      navigate(`/create/edit/${formData.gameId}/challenges`);
-    } else if (gameData?.gameId) {
-      navigate(`/create/edit/${gameData.gameId}/challenges`);
+    if (formData?.game_id) {
+      navigate(`/create/edit/${formData.game_id}/challenges`);
+    } else if (gameData?.game_id) {
+      navigate(`/create/edit/${gameData.game_id}/challenges`);
     }
   };
 
-  const handleSave = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log('GameForm submitting with formData:', formData);
     try {
-      onSave({
+      await onSave({
         ...formData,
         challenges: formData.challenges || []
       });
@@ -134,10 +158,10 @@ const GameForm = ({
               />
             </div>
 
-            {formData.gameId && (
+            {formData.game_id && (
               <div className="field-container">
                 <label>Game ID:</label>
-                <span className="game-id-display">{formData.gameId}</span>
+                <span className="game-id-display">{formData.game_id}</span>
               </div>
             )}
           </div>
@@ -154,7 +178,7 @@ const GameForm = ({
 
         <div className={`button-group ${hasChanges ? 'visible' : ''}`}>
           <button
-            onClick={handleSave}
+            onClick={handleSubmit}
             disabled={!allRequiredFieldsFilled}
             className={`save-button ${!allRequiredFieldsFilled ? 'disabled' : ''}`}
           >

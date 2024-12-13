@@ -282,7 +282,7 @@ function Profile() {
 
               <form className="profile-form" onSubmit={handleSubmit}>
                 {hasChanges && (
-                  <div className="button-group">
+                  <div className={`button-group ${hasChanges ? 'visible' : ''}`}>
                     <button type="submit" className="save-button">
                       Save Changes
                     </button>

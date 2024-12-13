@@ -11,7 +11,7 @@ import '../../../../css/GameCreator.scss';
 const GameCreator = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { gameId } = useParams();
+  const { game_id } = useParams();
   const { state, dispatch } = useGameCreation();
   const { games = [], selectedGame = null, isLoading = false, error = null } = state || {};
   
@@ -20,7 +20,7 @@ const GameCreator = () => {
     name: '', 
     description: '', 
     public: false, 
-    gameId: '', 
+    game_id: '', 
     challenges: [] 
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -42,8 +42,8 @@ const GameCreator = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (gameId) {
-      const game = games.find(g => g.gameId === gameId);
+    if (game_id) {
+      const game = games.find(g => g.game_id === game_id);
       if (game) {
         dispatch({ type: 'SELECT_GAME', payload: game });
         setNewGameData({
@@ -51,45 +51,55 @@ const GameCreator = () => {
           name: game.name || '',
           description: game.description || '',
           public: game.public ?? false,
-          gameId: game.gameId,
+          game_id: game.game_id,
           challenges: game.challenges || []
         });
       }
     }
-  }, [gameId, games, dispatch]);
+  }, [game_id, games, dispatch]);
 
   const handleGameSelect = (game) => {
-    navigate(`/create/edit/${game.gameId}`);
+    navigate(`/create/edit/${game.game_id}`);
   };
 
   const handleCreateNewGame = async () => {
-    const gameId = await generateUniqueGameId();
-    setNewGameData({ 
+    console.log('Starting handleCreateNewGame');
+    const game_id = await generateUniqueGameId();
+    console.log('Received game_id from generateUniqueGameId:', game_id, 'Length:', game_id.length);
+    
+    const newGame = { 
       name: '', 
       description: '', 
       public: false, 
-      gameId, 
+      game_id, 
       challenges: [] 
-    });
-    setShowGameForm(true);
+    };
+    console.log('Created newGame object:', newGame);
+    
+    setNewGameData(newGame);
+    console.log('Set newGameData:', newGame);
+    
+    navigate('/create/new');
   };
 
   const handleSaveGame = async (gameData) => {
+    console.log('Starting handleSaveGame with gameData:', gameData);
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const savedGame = await saveGame(gameData);
+      console.log('Game saved, returned data:', savedGame);
       
       const updatedGames = games.map(g => 
-        g.gameId === savedGame.gameId ? savedGame : g
+        g.game_id === savedGame.game_id ? savedGame : g
       );
       
-      if (!games.find(g => g.gameId === savedGame.gameId)) {
+      if (!games.find(g => g.game_id === savedGame.game_id)) {
         updatedGames.push(savedGame);
       }
       
       dispatch({ type: 'SET_GAMES', payload: updatedGames });
       setShowGameForm(false);
-      navigate(`/create/edit/${savedGame.gameId}`);
+      navigate(`/create/edit/${savedGame.game_id}`);
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
     }
@@ -102,12 +112,12 @@ const GameCreator = () => {
 
   const confirmDeleteGame = async () => {
     try {
-      await deleteGame(gameToDelete.gameId);
+      await deleteGame(gameToDelete.game_id);
       dispatch({
         type: 'SET_GAMES',
-        payload: games.filter(g => g.gameId !== gameToDelete.gameId)
+        payload: games.filter(g => g.game_id !== gameToDelete.game_id)
       });
-      if (selectedGame?.gameId === gameToDelete.gameId) {
+      if (selectedGame?.game_id === gameToDelete.game_id) {
         dispatch({ type: 'SELECT_GAME', payload: null });
         navigate('/create');
       }
@@ -129,37 +139,39 @@ const GameCreator = () => {
 
   return (
     <div className="game-creator">
-      {!gameId ? (
+      {!game_id && !location.pathname.includes('/new') ? (
         <>
           <div className="game-creator-header">
             <h1>Game Creator</h1>
             <button onClick={handleCreateNewGame}>Create New Game</button>
           </div>
 
-          {showGameForm ? (
-            <GameForm
-              gameData={newGameData}
-              onSave={handleSaveGame}
-              onCancel={() => setShowGameForm(false)}
-              isEditing={false}
-            />
-          ) : (
-            <GameList
-              onGameSelect={handleGameSelect}
-              onDeleteGame={handleDeleteGame}
-            />
-          )}
+          <GameList
+            games={games}
+            onGameSelect={handleGameSelect}
+            onDeleteGame={handleDeleteGame}
+          />
         </>
       ) : isChallengesRoute ? (
         <ChallengeManager
           game={selectedGame || newGameData}
           onSave={handleSaveGame}
         />
+      ) : location.pathname === '/create/new' ? (
+        <GameForm
+          gameData={newGameData}
+          onSave={handleSaveGame}
+          onCancel={() => {
+            setShowGameForm(false);
+            navigate('/create');
+          }}
+          isEditing={false}
+        />
       ) : (
         <GameForm
           gameData={selectedGame || {
             ...newGameData,
-            gameId: gameId,
+            game_id: game_id,
             challenges: selectedGame?.challenges || []
           }}
           onSave={handleSaveGame}
