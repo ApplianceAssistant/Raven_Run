@@ -32,7 +32,7 @@ export const decryptData = (encryptedData) => {
  */
 export const saveGameToLocalStorage = (game) => {
   const games = getGamesFromLocalStorage();
-  let gameIndex = games.findIndex(g => g.game_id === game.game_id);
+  let gameIndex = games.findIndex(g => g.gameId === game.gameId);
   
   if (gameIndex !== -1) {
     // Update existing game
@@ -101,7 +101,7 @@ export const getDebugGamesFromLocalStorage = () => {
 export const updateChallengeInLocalStorage = (gameId, updatedChallenge) => {
   const games = getGamesFromLocalStorage();
   const updatedGames = games.map(game => {
-    if (game.game_id === gameId) {
+    if (game.gameId === gameId) {
       const updatedChallenges = game.challenges.map(challenge => 
         challenge.id === updatedChallenge.id ? updatedChallenge : challenge
       );
@@ -121,7 +121,7 @@ export const updateChallengeInLocalStorage = (gameId, updatedChallenge) => {
  */
 export const deleteGameFromLocalStorage = (gameId) => {
   const games = getGamesFromLocalStorage();
-  const updatedGames = games.filter(game => game.game_id !== gameId);
+  const updatedGames = games.filter(game => game.gameId !== gameId);
   const encryptedGames = encryptData(updatedGames);
   localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
 

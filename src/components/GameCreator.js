@@ -93,6 +93,7 @@ const GameCreator = () => {
   };
 
   const handleSelectGame = (game) => {
+    console.warn("game selected: ", game);
     setIsPublic(game.public);
     setSelectedGame(game);
     setNewGameData(prevData => ({

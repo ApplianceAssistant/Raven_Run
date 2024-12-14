@@ -4,6 +4,7 @@ import { useGameCreation } from '../../context/GameCreationContext';
 import GameList from '../GameList/GameList';
 import GameForm from '../GameForm/GameForm';
 import ChallengeManager from '../ChallengeManager/ChallengeManager';
+import ChallengeCreator from '../ChallengeCreator/ChallengeCreator';
 import Modal from '../../../../components/Modal';
 import { generateUniqueGameId, saveGame, deleteGame, getGames } from '../../services/gameCreatorService';
 import '../../../../css/GameCreator.scss';
@@ -11,7 +12,7 @@ import '../../../../css/GameCreator.scss';
 const GameCreator = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { game_id } = useParams();
+  const { gameId } = useParams();
   const { state, dispatch } = useGameCreation();
   const { games = [], selectedGame = null, isLoading = false, error = null } = state || {};
   
@@ -20,13 +21,14 @@ const GameCreator = () => {
     name: '', 
     description: '', 
     public: false, 
-    game_id: '', 
+    gameId: '', 
     challenges: [] 
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [gameToDelete, setGameToDelete] = useState(null);
 
   const isChallengesRoute = location.pathname.includes('/challenges');
+  const isChallengeCreatorRoute = location.pathname.includes('/create/challenge/');
 
   useEffect(() => {
     const loadGames = async () => {
@@ -42,36 +44,39 @@ const GameCreator = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (game_id) {
-      const game = games.find(g => g.game_id === game_id);
+    if (gameId && games.length > 0) {
+      const game = games.find(g => g.gameId === gameId);
       if (game) {
+        console.log('Setting selected game:', game);
         dispatch({ type: 'SELECT_GAME', payload: game });
         setNewGameData({
-          ...game,
           name: game.name || '',
           description: game.description || '',
           public: game.public ?? false,
-          game_id: game.game_id,
+          gameId: game.gameId,
           challenges: game.challenges || []
         });
+      } else {
+        console.warn('Game not found for ID:', gameId);
+        navigate('/create');
       }
     }
-  }, [game_id, games, dispatch]);
+  }, [gameId, games, dispatch, navigate]);
 
   const handleGameSelect = (game) => {
-    navigate(`/create/edit/${game.game_id}`);
+    navigate(`/create/edit/${game.gameId}`);
   };
 
   const handleCreateNewGame = async () => {
     console.log('Starting handleCreateNewGame');
-    const game_id = await generateUniqueGameId();
-    console.log('Received game_id from generateUniqueGameId:', game_id, 'Length:', game_id.length);
+    const gameId = await generateUniqueGameId();
+    console.log('Received gameId from generateUniqueGameId:', gameId, 'Length:', gameId.length);
     
     const newGame = { 
       name: '', 
       description: '', 
       public: false, 
-      game_id, 
+      gameId, 
       challenges: [] 
     };
     console.log('Created newGame object:', newGame);
@@ -90,16 +95,16 @@ const GameCreator = () => {
       console.log('Game saved, returned data:', savedGame);
       
       const updatedGames = games.map(g => 
-        g.game_id === savedGame.game_id ? savedGame : g
+        g.gameId === savedGame.gameId ? savedGame : g
       );
       
-      if (!games.find(g => g.game_id === savedGame.game_id)) {
+      if (!games.find(g => g.gameId === savedGame.gameId)) {
         updatedGames.push(savedGame);
       }
       
       dispatch({ type: 'SET_GAMES', payload: updatedGames });
       setShowGameForm(false);
-      navigate(`/create/edit/${savedGame.game_id}`);
+      navigate(`/create/edit/${savedGame.gameId}`);
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
     }
@@ -112,12 +117,12 @@ const GameCreator = () => {
 
   const confirmDeleteGame = async () => {
     try {
-      await deleteGame(gameToDelete.game_id);
+      await deleteGame(gameToDelete.gameId);
       dispatch({
         type: 'SET_GAMES',
-        payload: games.filter(g => g.game_id !== gameToDelete.game_id)
+        payload: games.filter(g => g.gameId !== gameToDelete.gameId)
       });
-      if (selectedGame?.game_id === gameToDelete.game_id) {
+      if (selectedGame?.gameId === gameToDelete.gameId) {
         dispatch({ type: 'SELECT_GAME', payload: null });
         navigate('/create');
       }
@@ -139,7 +144,7 @@ const GameCreator = () => {
 
   return (
     <div className="game-creator">
-      {!game_id && !location.pathname.includes('/new') ? (
+      {!gameId && !location.pathname.includes('/new') ? (
         <>
           <div className="game-creator-header">
             <h1>Game Creator</h1>
@@ -152,6 +157,8 @@ const GameCreator = () => {
             onDeleteGame={handleDeleteGame}
           />
         </>
+      ) : isChallengeCreatorRoute && selectedGame ? (
+        <ChallengeCreator />
       ) : isChallengesRoute ? (
         <ChallengeManager
           game={selectedGame || newGameData}
@@ -171,7 +178,7 @@ const GameCreator = () => {
         <GameForm
           gameData={selectedGame || {
             ...newGameData,
-            game_id: game_id,
+            gameId: gameId,
             challenges: selectedGame?.challenges || []
           }}
           onSave={handleSaveGame}
@@ -179,18 +186,24 @@ const GameCreator = () => {
           isEditing={true}
         />
       )}
-
       <Modal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        title="Confirm Delete"
-      >
-        <p>Are you sure you want to delete this game?</p>
-        <div className="modal-buttons">
-          <button onClick={confirmDeleteGame}>Yes, Delete</button>
-          <button onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
-        </div>
-      </Modal>
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            title="Confirm Delete"
+            content={`Are you sure you want to delete this game and all of its challenges?`}
+            buttons={[
+              {
+                label: 'Yes, Delete',
+                onClick: confirmDeleteGame,
+                className: 'danger'
+              },
+              {
+                label: 'Cancel',
+                onClick: () => setIsDeleteModalOpen(false),
+                className: 'secondary'
+              }
+            ]}
+          />
     </div>
   );
 };

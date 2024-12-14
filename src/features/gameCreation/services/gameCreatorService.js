@@ -19,15 +19,15 @@ export const generateUniqueGameId = async () => {
   console.log('=== Starting generateUniqueGameId ===');
   const length = 12;
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let game_id = '';
+  let gameId = '';
 
   // Generate initial ID
   const tempArray = new Array(length);
   for (let i = 0; i < length; i++) {
     tempArray[i] = characters.charAt(Math.floor(Math.random() * characters.length));
   }
-  game_id = tempArray.join('');
-  console.log('1. Initial game_id generation:', game_id, 'Length:', game_id.length);
+  gameId = tempArray.join('');
+  console.log('1. Initial gameId generation:', gameId, 'Length:', gameId.length);
 
   // Check uniqueness
   let isUnique = false;
@@ -36,8 +36,8 @@ export const generateUniqueGameId = async () => {
     console.log('2. Server connectivity:', isConnected);
 
     if (isConnected) {
-      console.log('3. Checking with server for:', game_id);
-      const response = await authFetch(`${API_URL}/api/games.php?action=check_game_id&game_id=${game_id}`);
+      console.log('3. Checking with server for:', gameId);
+      const response = await authFetch(`${API_URL}/api/games.php?action=check_gameId&gameId=${gameId}`);
       if (response.ok) {
         const data = await response.json();
         isUnique = data.isUnique;
@@ -47,33 +47,33 @@ export const generateUniqueGameId = async () => {
       }
     } else {
       console.log('3. Offline - checking local storage');
-      isUnique = !getGamesFromLocalStorage().some(game => game.game_id === game_id);
+      isUnique = !getGamesFromLocalStorage().some(game => game.gameId === gameId);
       console.log('4. Local storage check - isUnique:', isUnique);
     }
   } catch (error) {
     console.error('Error during uniqueness check:', error);
     // Fallback to local storage check
-    isUnique = !getGamesFromLocalStorage().some(game => game.game_id === game_id);
+    isUnique = !getGamesFromLocalStorage().some(game => game.gameId === gameId);
     console.log('4. Fallback local storage check - isUnique:', isUnique);
   }
 
   // If not unique or wrong length, generate new ID
-  while (!isUnique || game_id.length !== length) {
-    console.log('5. Generating new ID - current not valid. Length:', game_id.length, 'isUnique:', isUnique);
+  while (!isUnique || gameId.length !== length) {
+    console.log('5. Generating new ID - current not valid. Length:', gameId.length, 'isUnique:', isUnique);
     
     // Generate new ID
     for (let i = 0; i < length; i++) {
       tempArray[i] = characters.charAt(Math.floor(Math.random() * characters.length));
     }
-    game_id = tempArray.join('');
-    console.log('6. New game_id generated:', game_id, 'Length:', game_id.length);
+    gameId = tempArray.join('');
+    console.log('6. New gameId generated:', gameId, 'Length:', gameId.length);
     
     // Check uniqueness again
-    isUnique = !getGamesFromLocalStorage().some(game => game.game_id === game_id);
+    isUnique = !getGamesFromLocalStorage().some(game => game.gameId === gameId);
   }
 
-  console.log('=== Final game_id:', game_id, 'Length:', game_id.length, '===');
-  return game_id;
+  console.log('=== Final gameId:', gameId, 'Length:', gameId.length, '===');
+  return gameId;
 };
 
 export const isValidGame = (game) => {

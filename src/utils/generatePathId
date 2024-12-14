@@ -1,7 +1,7 @@
 import random
 import string
 
-def generate_unique_game_id(length=12):
+def generate_unique_gameId(length=12):
     """
     Generate a random string of characters and numbers to serve as a unique game ID.
     
@@ -17,9 +17,9 @@ def generate_unique_game_id(length=12):
     return unique_id
 
 # Example usage
-game_id = generate_unique_game_id()
-print(f"Generated game ID: {game_id}")
+gameId = generate_unique_gameId()
+print(f"Generated game ID: {gameId}")
 
 # You can also specify a custom length
-custom_length_id = generate_unique_game_id(length=16)
+custom_length_id = generate_unique_gameId(length=16)
 print(f"Custom length game ID: {custom_length_id}")

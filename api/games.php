@@ -28,9 +28,9 @@ try {
 
     switch ($method) {
         case 'GET':
-            if ($action === 'check_game_id') {
-                $gameId = $_GET['game_id'] ?? '';
-                $stmt = $conn->prepare("SELECT COUNT(*) as count FROM games WHERE game_id = ?");
+            if ($action === 'check_gameId') {
+                $gameId = $_GET['gameId'] ?? '';
+                $stmt = $conn->prepare("SELECT COUNT(*) as count FROM games WHERE gameId = ?");
                 $stmt->bind_param("s", $gameId);
                 $stmt->execute();
                 $result = $stmt->get_result();
@@ -39,15 +39,15 @@ try {
             } elseif ($action === 'get_games') {
                 
                 // Get all games for the authenticated user
-                $stmt = $conn->prepare("SELECT game_id, name, description, challenge_data, is_public FROM games WHERE user_id = ?");
+                $stmt = $conn->prepare("SELECT gameId, name, description, challenge_data, is_public FROM games WHERE user_id = ?");
                 $stmt->bind_param("i", $user['id']);
                 $stmt->execute();
                 $result = $stmt->get_result();
                 $games = $result->fetch_all(MYSQLI_ASSOC);
                 echo json_encode($games);
-            } elseif ($action === 'get' && isset($_GET['game_id'])) {
-                $gameId = $_GET['game_id'];
-                $stmt = $conn->prepare("SELECT game_id, name, description, challenge_data, is_public FROM games WHERE game_id = ? AND (user_id = ? OR is_public = 1)");
+            } elseif ($action === 'get' && isset($_GET['gameId'])) {
+                $gameId = $_GET['gameId'];
+                $stmt = $conn->prepare("SELECT gameId, name, description, challenge_data, is_public FROM games WHERE gameId = ? AND (user_id = ? OR is_public = 1)");
                 $stmt->bind_param("si", $gameId, $user['id']);
                 $stmt->execute();
                 $result = $stmt->get_result();
@@ -69,30 +69,30 @@ try {
 
             if ($action === 'save_game') {
                 $game = $data['game'];
-                $gameId = $game['game_id'];
+                $gameId = $game['gameId'];
                 $name = $game['name'];
                 $description = $game['description'];
                 $isPublic = $game['is_public'] ? 1 : 0;
                 $challengeData = json_encode($game['challenges']);
 
                 // Check if the game already exists
-                $stmt = $conn->prepare("SELECT user_id FROM games WHERE game_id = ?");
+                $stmt = $conn->prepare("SELECT user_id FROM games WHERE gameId = ?");
                 $stmt->bind_param("s", $gameId);
                 $stmt->execute();
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
                     // Game exists, update it
-                    $stmt = $conn->prepare("UPDATE games SET name = ?, description = ?, is_public = ?, challenge_data = ? WHERE game_id = ?");
+                    $stmt = $conn->prepare("UPDATE games SET name = ?, description = ?, is_public = ?, challenge_data = ? WHERE gameId = ?");
                     $stmt->bind_param("ssiss", $name, $description, $isPublic, $challengeData, $gameId);
                 } else {
                     // Insert new game
-                    $stmt = $conn->prepare("INSERT INTO games (game_id, user_id, name, description, is_public, challenge_data) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt = $conn->prepare("INSERT INTO games (gameId, user_id, name, description, is_public, challenge_data) VALUES (?, ?, ?, ?, ?, ?)");
                     $stmt->bind_param("sisssi", $gameId, $user['id'], $name, $description, $isPublic, $challengeData);
                 }
 
                 if ($stmt->execute()) {
                     echo json_encode([
-                        "game_id" => $gameId,
+                        "gameId" => $gameId,
                         "message" => "Game saved successfully"
                     ]);
                 } else {
@@ -100,7 +100,7 @@ try {
                     echo json_encode(["error" => "Failed to save game"]);
                 }
             } elseif ($action === 'delete_game') {
-                $gameId = $data['game_id'] ?? '';
+                $gameId = $data['gameId'] ?? '';
                 if (empty($gameId)) {
                     http_response_code(400);
                     echo json_encode(["error" => "Game ID is required"]);
@@ -108,7 +108,7 @@ try {
                 }
 
                 // Check if the game belongs to the current user
-                $stmt = $conn->prepare("SELECT user_id FROM games WHERE game_id = ?");
+                $stmt = $conn->prepare("SELECT user_id FROM games WHERE gameId = ?");
                 $stmt->bind_param("s", $gameId);
                 $stmt->execute();
                 $result = $stmt->get_result();
@@ -127,7 +127,7 @@ try {
                 }
 
                 // Delete the game
-                $stmt = $conn->prepare("DELETE FROM games WHERE game_id = ?");
+                $stmt = $conn->prepare("DELETE FROM games WHERE gameId = ?");
                 $stmt->bind_param("s", $gameId);
                 
                 if ($stmt->execute()) {

@@ -12,6 +12,10 @@ const ChallengeManager = ({ game, onSave }) => {
     navigate(`/create/edit/${game.gameId}`);
   };
 
+  const handleAddChallenge = () => {
+    navigate(`/create/challenge/${game.gameId}`);
+  };
+
   return (
     <>
       <button className="back-button" onClick={handleBack} title="Back to Game">
@@ -37,7 +41,7 @@ const ChallengeManager = ({ game, onSave }) => {
           )}
         </div>
 
-        <button className="add-challenge-button">
+        <button className="add-challenge-button" onClick={handleAddChallenge}>
           Add New Challenge
         </button>
       </div>

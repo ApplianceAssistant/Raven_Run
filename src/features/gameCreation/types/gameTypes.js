@@ -1,7 +1,7 @@
 /**
  * @typedef {Object} Game
  * @property {number} [id] - Server-generated auto-increment ID
- * @property {string} game_id - Unique 12-char identifier
+ * @property {string} gameId - Unique 12-char identifier
  * @property {string} name - Game name
  * @property {string} description - Game description
  * @property {Challenge[]} challenges - Array of challenges

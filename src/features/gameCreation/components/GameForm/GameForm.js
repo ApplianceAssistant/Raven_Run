@@ -21,7 +21,7 @@ const GameForm = ({
     name: gameData.name || '',
     description: gameData.description || '',
     public: gameData.public || false,
-    game_id: gameData.game_id || '',
+    gameId: gameData.gameId || '',
     challenges: gameData.challenges || []
   });
   const [originalData, setOriginalData] = useState({
@@ -29,7 +29,7 @@ const GameForm = ({
     name: gameData.name || '',
     description: gameData.description || '',
     public: gameData.public || false,
-    game_id: gameData.game_id || '',
+    gameId: gameData.gameId || '',
     challenges: gameData.challenges || []
   });
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
@@ -42,10 +42,10 @@ const GameForm = ({
       name: gameData.name || '',
       description: gameData.description || '',
       public: gameData.public || false,
-      game_id: gameData.game_id || '',
+      gameId: gameData.gameId || '',
       challenges: gameData.challenges || []
     });
-    console.log('GameForm updated formData with game_id:', gameData.game_id);
+    console.log('GameForm updated formData with gameId:', gameData.gameId);
   }, [gameData]);
 
   useEffect(() => {
@@ -77,10 +77,10 @@ const GameForm = ({
   };
 
   const handleChallengesClick = () => {
-    if (formData?.game_id) {
-      navigate(`/create/edit/${formData.game_id}/challenges`);
-    } else if (gameData?.game_id) {
-      navigate(`/create/edit/${gameData.game_id}/challenges`);
+    if (formData?.gameId) {
+      navigate(`/create/edit/${formData.gameId}/challenges`);
+    } else if (gameData?.gameId) {
+      navigate(`/create/edit/${gameData.gameId}/challenges`);
     }
   };
 
@@ -158,10 +158,10 @@ const GameForm = ({
               />
             </div>
 
-            {formData.game_id && (
+            {formData.gameId && (
               <div className="field-container">
                 <label>Game ID:</label>
-                <span className="game-id-display">{formData.game_id}</span>
+                <span className="game-id-display">{formData.gameId}</span>
               </div>
             )}
           </div>
