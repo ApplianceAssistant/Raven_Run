@@ -4,7 +4,7 @@ import { Challenge } from '../types/challengeTypes';
 
 type FieldConfig = {
   required: boolean;
-  type: 'text' | 'textarea' | 'number' | 'boolean' | 'array' | 'location';
+  type: 'text' | 'textarea' | 'number' | 'boolean' | 'array' | 'location' | 'feedback';
   label: string;
 };
 
@@ -29,30 +29,30 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
   multipleChoice: {
     title: { required: true, type: 'text', label: 'Title' },
     question: { required: true, type: 'text', label: 'Question' },
-    options: { required: true, type: 'array', label: 'Options' },
+    options: { required: true, type: 'array', label: 'Answer Options' },
     correctAnswer: { required: true, type: 'text', label: 'Correct Answer' },
     hints: { required: false, type: 'array', label: 'Hints' },
-    feedbackTexts: { required: false, type: 'textarea', label: 'Feedback' },
+    feedbackTexts: { required: false, type: 'feedback', label: 'Challenge Feedback' },
   },
   trueFalse: {
     title: { required: true, type: 'text', label: 'Title' },
     question: { required: true, type: 'text', label: 'Question' },
     correctAnswer: { required: true, type: 'boolean', label: 'Correct Answer' },
     hints: { required: false, type: 'array', label: 'Hints' },
-    feedbackTexts: { required: false, type: 'textarea', label: 'Feedback' },
+    feedbackTexts: { required: false, type: 'feedback', label: 'Challenge Feedback' },
   },
   textInput: {
     title: { required: true, type: 'text', label: 'Title' },
     question: { required: true, type: 'text', label: 'Question' },
     correctAnswer: { required: true, type: 'text', label: 'Correct Answer' },
     hints: { required: false, type: 'array', label: 'Hints' },
-    feedbackTexts: { required: false, type: 'textarea', label: 'Feedback' },
+    feedbackTexts: { required: false, type: 'feedback', label: 'Challenge Feedback' },
   },
   travel: {
     title: { required: true, type: 'text', label: 'Title' },
     description: { required: true, type: 'textarea', label: 'Description' },
     targetLocation: { required: true, type: 'location', label: 'Target Location' },
-    radius: { required: true, type: 'number', label: 'completion Radius' },
+    radius: { required: true, type: 'number', label: 'Completion Radius' },
     completionFeedback: { required: true, type: 'textarea', label: 'Completion Feedback' },
     hints: { required: false, type: 'array', label: 'Hints' },
   },
