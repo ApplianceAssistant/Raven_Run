@@ -87,22 +87,41 @@ const GameCreator = () => {
     navigate('/create/new');
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const newGame = {
+        name: newGameData.name,
+        description: newGameData.description,
+        public: newGameData.public,
+        challenges: [],
+        isSynced: false
+      };
+      
+      const savedGame = await saveGame(newGame);
+      
+      dispatch({ type: 'SET_GAMES', payload: [...games, savedGame] });
+      setShowGameForm(false);
+      navigate(`/create/edit/${savedGame.gameId}`);
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error.message });
+    }
+  };
+
   const handleSaveGame = async (gameData) => {
     console.log('Starting handleSaveGame with gameData:', gameData);
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      const savedGame = await saveGame(gameData);
-      console.log('Game saved, returned data:', savedGame);
+      const newGame = {
+        ...gameData,
+        public: gameData.public ?? false,
+        challenges: gameData.challenges ?? [],
+        isSynced: false
+      };
       
-      const updatedGames = games.map(g => 
-        g.gameId === savedGame.gameId ? savedGame : g
-      );
+      const savedGame = await saveGame(newGame);
       
-      if (!games.find(g => g.gameId === savedGame.gameId)) {
-        updatedGames.push(savedGame);
-      }
-      
-      dispatch({ type: 'SET_GAMES', payload: updatedGames });
+      dispatch({ type: 'SET_GAMES', payload: [...games, savedGame] });
       setShowGameForm(false);
       navigate(`/create/edit/${savedGame.gameId}`);
     } catch (error) {
@@ -172,7 +191,6 @@ const GameCreator = () => {
             setShowGameForm(false);
             navigate('/create');
           }}
-          isEditing={false}
         />
       ) : (
         <GameForm

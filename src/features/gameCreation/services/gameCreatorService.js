@@ -89,9 +89,47 @@ export const saveGame = async (gameData) => {
   if (!gameData.gameId) {
     gameData.gameId = await generateUniqueGameId();
   }
-  
-  await saveGameToLocalStorage(gameData);
-  return gameData;
+
+  try {
+    // First save to local storage
+    await saveGameToLocalStorage(gameData);
+
+    // Try to sync with server if online
+    const isConnected = (await checkServerConnectivity()).isConnected;
+    if (isConnected) {
+      const response = await authFetch(`${API_URL}/api/games.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'save_game',
+          game: gameData
+        })
+      });
+
+      if (response.ok) {
+        // Update isSynced flag in local storage
+        gameData.isSynced = true;
+        await saveGameToLocalStorage(gameData);
+      } else {
+        gameData.isSynced = false;
+        await saveGameToLocalStorage(gameData);
+        console.warn('Failed to sync game with server');
+      }
+    } else {
+      gameData.isSynced = false;
+      await saveGameToLocalStorage(gameData);
+    }
+    
+    return gameData;
+  } catch (error) {
+    console.error('Error saving game:', error);
+    // Ensure local storage save even if server sync fails
+    gameData.isSynced = false;
+    await saveGameToLocalStorage(gameData);
+    return gameData;
+  }
 };
 
 export const getGames = async () => {

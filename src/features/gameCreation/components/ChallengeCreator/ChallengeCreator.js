@@ -8,6 +8,8 @@ import { feetToMeters, metersToFeet, getSmallDistanceUnit } from '../../../../ut
 import { useMessage } from '../../../../utils/MessageProvider';
 import '../../../../css/GameCreator.scss';
 import ToggleSwitch from '../../../../components/ToggleSwitch';
+import { getGamesFromLocalStorage } from '../../../../utils/localStorageUtils';
+import { saveGame } from '../../../gameCreation/services/gameCreatorService';
 
 const ChallengeCreator = () => {
   const navigate = useNavigate();
@@ -181,48 +183,65 @@ const ChallengeCreator = () => {
     }));
   };
 
-  const checkRequiredFields = () => {
-    if (!challenge.type) {
-      showError("Challenge type is required");
-      return false;
-    }
-
-    const typeConfig = challengeTypeConfig[challenge.type];
-    const missingFields = [];
-
-    Object.entries(typeConfig).forEach(([fieldName, fieldConfig]) => {
-      if (fieldConfig.required) {
-        const value = challenge[fieldName];
-        if (Array.isArray(value)) {
-          if (value.length === 0 || value.some(item => item.trim() === '')) {
-            missingFields.push(fieldConfig.label || fieldName);
-          }
-        } else if (value === '' || value === undefined || value === null) {
-          missingFields.push(fieldConfig.label || fieldName);
-        }
-      }
-    });
-
-    if (missingFields.length > 0) {
-      showError(`Please fill in all required fields: ${missingFields.join(', ')}`);
-      return false;
-    }
-
-    return true;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!checkRequiredFields()) {
+    
+    // Get required fields for the current challenge type
+    const typeConfig = challengeTypeConfig[challenge.type];
+    const requiredFields = Object.entries(typeConfig)
+      .filter(([_, config]) => config.required)
+      .map(([field]) => field);
+
+    // Check if all required fields are filled
+    const missingFields = requiredFields.filter(field => !challenge[field]);
+    
+    if (missingFields.length > 0) {
+      showError(`Please fill in all required fields: ${missingFields.join(', ')}`);
       return;
     }
-    
+
     try {
-      // TODO: Implement challenge creation logic
-      showSuccess("Challenge created successfully!");
-      navigate(`/create/challenges/${gameId}`);
+      const games = getGamesFromLocalStorage();
+      console.log("games", games);
+      const game = games.find(g => g.gameId === gameId);
+      
+      if (!game) {
+        showError('Game not found');
+        return;
+      }
+
+      const newChallenge = {
+        id: Math.floor(Math.random() * 10000), // Simpler ID that's still unique enough for a game's challenges
+        type: challenge.type,
+        ...Object.keys(typeConfig).reduce((acc, field) => {
+          if (field === 'order') {
+            // Set order value for new challenge
+            acc[field] = game.challenges ? game.challenges.length + 1 : 1;
+          } else if (challenge[field] !== undefined) {
+            acc[field] = challenge[field];
+          }
+          return acc;
+        }, {})
+      };
+
+      // Ensure ID is unique within this game
+      while (game.challenges && game.challenges.some(c => c.id === newChallenge.id)) {
+        newChallenge.id = Math.floor(Math.random() * 10000);
+      }
+
+      // Add the new challenge to the game's challenges array
+      if (!game.challenges) {
+        game.challenges = [];
+      }
+      game.challenges.push(newChallenge);
+
+      // Save the updated game
+      await saveGame(game);
+      showSuccess('Challenge created successfully');
+      navigate(`/create/edit/${gameId}/challenges`);
     } catch (error) {
-      showError("Failed to create challenge. Please try again.");
+      console.error('Error creating challenge:', error);
+      showError('Failed to create challenge');
     }
   };
 
@@ -552,12 +571,12 @@ const ChallengeCreator = () => {
 
     return Object.entries(challengeTypeConfig[challenge.type]).map(([fieldName, fieldConfig]) => {
       if (fieldName === 'type') return null;
+      const radiusLabel = fieldName === 'radius' ? `Radius ${isMetric ? '(in meters)' : '(in feet)'} *` : fieldConfig.label || fieldName;
       return (
         <div key={fieldName} className="form-group">
           <div className="field-header">
             <label htmlFor={fieldName}>
-              {fieldConfig.label || fieldName}
-              {fieldName === 'radius' && ` (in ${isMetric ? 'meters' : 'feet'})`}
+              {radiusLabel}
               {fieldConfig.required && <span className="required">*</span>}
             </label>
             {fieldName === 'hints' && (
