@@ -20,32 +20,17 @@ const ChallengeCreator = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [originalChallenge, setOriginalChallenge] = useState(null);
-  
+
   const [isMetric, setIsMetric] = useState(() => {
     const savedUnitSystem = localStorage.getItem('unitSystem');
     return savedUnitSystem ? JSON.parse(savedUnitSystem) : false;
   });
-  
-  // Initialize challenge state with default values
+
+  // Initialize challenge state with minimal values for new challenges
   const [challenge, setChallenge] = useState({
     id: '',
-    type: 'story',
-    title: '',
-    description: '',
-    repeatable: false,
-    order: null,
-    feedbackTexts: {
-      correct: '',
-      incorrect: ['']
-    },
-    hints: [],
-    options: [],
-    answers: [''],
-    coordinates: {
-      latitude: '',
-      longitude: ''
-    },
-    radius: ''
+    type: '',  // Empty type initially
+    order: null
   });
 
   const [showHints, setShowHints] = useState(false);
@@ -56,7 +41,7 @@ const ChallengeCreator = () => {
     console.log('Games from storage:', games);
     const game = games.find(g => g.gameId === gameId);
     console.log('Found game:', game, 'looking for gameId:', gameId);
-    
+
     if (challengeId && game) {
       console.log('Loading challenge:', challengeId, typeof challengeId);
       // Convert challengeId to number since IDs in the data are numbers
@@ -64,7 +49,7 @@ const ChallengeCreator = () => {
       console.log('Numeric challenge ID:', numericChallengeId);
       const existingChallenge = game.challenges.find(c => c.id === numericChallengeId);
       console.log('Found existing challenge:', existingChallenge);
-      
+
       if (existingChallenge) {
         // Create merged challenge with all required fields
         const mergedChallenge = {
@@ -84,7 +69,7 @@ const ChallengeCreator = () => {
           coordinates: existingChallenge.coordinates || { latitude: '', longitude: '' },
           radius: existingChallenge.radius || ''
         };
-        
+
         console.log('Setting merged challenge:', mergedChallenge);
         setChallenge(mergedChallenge);
         setOriginalChallenge(mergedChallenge);
@@ -92,8 +77,8 @@ const ChallengeCreator = () => {
       }
     } else if (game) {
       // Set next available order for new challenges
-      const maxOrder = game.challenges?.length > 0 
-        ? Math.max(...game.challenges.map(c => c.order || 0), 0) 
+      const maxOrder = game.challenges?.length > 0
+        ? Math.max(...game.challenges.map(c => c.order || 0), 0)
         : 0;
       setChallenge(prev => ({
         ...prev,
@@ -148,6 +133,65 @@ const ChallengeCreator = () => {
     let updatedValue = value;
     if (name === 'radius') {
       updatedValue = value === '' ? '' : isMetric ? parseFloat(value) : feetToMeters(parseFloat(value));
+    }
+
+    if (name === 'type') {
+      // When changing challenge type, initialize the new type's fields
+      const baseFields = {
+        title: challenge.title || '',
+        description: challenge.description || '',
+        repeatable: challenge.repeatable || false,
+        order: challenge.order || null,
+        id: challenge.id || '',
+        type: value,
+        hints: []
+      };
+
+      let typeSpecificFields = {};
+      switch (value) {
+        case 'travel':
+          typeSpecificFields = {
+            targetLocation: { latitude: '', longitude: '' },
+            radius: '',
+            completionFeedback: '',
+            description: challenge.description || ''
+          };
+          break;
+        case 'story':
+          typeSpecificFields = {
+            description: challenge.description || '',
+            feedbackTexts: { correct: '', incorrect: [''] }
+          };
+          break;
+        case 'multipleChoice':
+          typeSpecificFields = {
+            question: '',
+            options: [''],
+            correctAnswer: '',
+            feedbackTexts: { correct: '', incorrect: [''] }
+          };
+          break;
+        case 'trueFalse':
+          typeSpecificFields = {
+            question: '',
+            correctAnswer: false,
+            feedbackTexts: { correct: '', incorrect: [''] }
+          };
+          break;
+        case 'textInput':
+          typeSpecificFields = {
+            question: '',
+            correctAnswer: '',
+            feedbackTexts: { correct: '', incorrect: [''] }
+          };
+          break;
+      }
+
+      setChallenge({
+        ...baseFields,
+        ...typeSpecificFields
+      });
+      return;
     }
 
     if (name.includes('.')) {
@@ -283,11 +327,11 @@ const ChallengeCreator = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       const games = getGamesFromLocalStorage();
       const game = games.find(g => g.gameId === gameId);
-      
+
       if (!game) {
         showError('Game not found');
         return;
@@ -315,11 +359,11 @@ const ChallengeCreator = () => {
 
       // Save to local storage
       await saveGame(updatedGame);
-      
+
       // Update context
       dispatch({ type: 'SET_GAMES', payload: games.map(g => g.gameId === gameId ? updatedGame : g) });
       dispatch({ type: 'SELECT_GAME', payload: updatedGame });
-      
+
       showSuccess('Challenge saved successfully!');
       navigate(`/create/edit/${gameId}/challenges`);
     } catch (error) {
@@ -328,12 +372,18 @@ const ChallengeCreator = () => {
   };
 
   const renderField = (fieldName, fieldConfig) => {
-    const value = challenge[fieldName];
+    // Get the value for this field
+    const value = fieldName === 'targetLocation' ? challenge.targetLocation
+      : fieldName === 'coordinates' ? challenge.targetLocation
+        : challenge[fieldName];
 
     // Don't render hints field unless showHints is true
     if (fieldName === 'hints' && !showHints) {
       return null;
     }
+
+    // Skip if value is explicitly undefined (not just null or empty)
+    if (value === undefined) return null;
 
     switch (fieldConfig.type) {
       case 'text':
@@ -691,10 +741,11 @@ const ChallengeCreator = () => {
 
   return (
     <form onSubmit={handleSubmit} className="challenge-creator">
+      <button type="button" className="back-button" onClick={handleBack} title="Back">
+        <FontAwesomeIcon icon={faArrowLeft} />
+      </button>
       <div className="challenge-creator-header">
-        <button type="button" className="back-button" onClick={handleBack} title="Back">
-          <FontAwesomeIcon icon={faArrowLeft} />
-        </button>
+
         <h2>{isEditing ? 'Edit Challenge' : 'Create New Challenge'}</h2>
       </div>
 
@@ -708,6 +759,7 @@ const ChallengeCreator = () => {
           onChange={handleInputChange}
           required
         >
+          <option value="">Select a type</option>
           {Object.keys(challengeTypeConfig).map(type => (
             <option key={type} value={type}>
               {challengeTypeConfig[type].label || type}
@@ -716,20 +768,22 @@ const ChallengeCreator = () => {
         </select>
       </div>
 
-      {/* Dynamic Fields */}
-      {renderFields()}
+      <ScrollableContent maxHeight="70vh">
+        {/* Dynamic Fields - Only show if type is selected */}
+        {challenge.type && renderFields()}
 
-      {/* Save/Cancel Buttons - Show if editing with changes, or if creating new */}
-      {(hasChanges || !isEditing) && (
-        <div className="button-container">
-          <button type="submit" className="save-button">
-            {isEditing ? 'Save Changes' : 'Create Challenge'}
-          </button>
-          <button type="button" className="cancel-button" onClick={handleCancel}>
-            Cancel
-          </button>
-        </div>
-      )}
+        {/* Save/Cancel Buttons - Show if editing with changes, or if creating new */}
+        {(hasChanges || !isEditing) && (
+          <div className="button-container">
+            <button type="submit" className="save-button">
+              {isEditing ? 'Save Changes' : 'Create Challenge'}
+            </button>
+            <button type="button" className="cancel-button" onClick={handleCancel}>
+              Cancel
+            </button>
+          </div>
+        )}
+      </ScrollableContent>
     </form>
   );
 };

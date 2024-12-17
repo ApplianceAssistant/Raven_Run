@@ -754,6 +754,37 @@ canvas {
     justify-content: space-between;
     width: 100%;
   }
+  &.visible {
+    opacity: 1;
+  }
+
+  button {
+    &.save-button {
+      background-color: var(--button-bg-save);
+      color: white;
+
+      &:hover {
+        background-color: var(--button-hover-bg);
+      }
+    }
+
+    &.cancel-button {
+      background-color: var(--button-bg-caution);
+      color: white;
+
+      &:hover {
+        background-color: var(--button-hover-bg);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      &:hover {
+        background-color: inherit;
+      }
+    }
+  }
 }
 
 .button-container-bottom {
@@ -1170,7 +1201,7 @@ body.menu-open {
 
 .back-button {
   position: fixed;
-  top: 80px; 
+  top: 20px; 
   left: 20px;
   display: flex;
   align-items: center;

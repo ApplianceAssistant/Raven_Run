@@ -263,11 +263,6 @@
     margin: 0 auto;
     padding: 20px;
 
-    h2 {
-      margin-bottom: 24px;
-      color: #333;
-    }
-
     .challenge-form {
       display: flex;
       flex-direction: column;
@@ -351,10 +346,6 @@
       align-items: center;
       gap: 1rem;
       margin-bottom: 2rem;
-
-      h2 {
-        margin: 0;
-      }
     }
 
     .challenges-list {
@@ -470,10 +461,6 @@
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
-
-    h2 {
-      margin: 0;
-    }
   }
 
   .form-content {
