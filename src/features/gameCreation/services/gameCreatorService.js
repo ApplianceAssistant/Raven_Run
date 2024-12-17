@@ -133,7 +133,44 @@ export const saveGame = async (gameData) => {
 };
 
 export const getGames = async () => {
-  return await getGamesFromLocalStorage();
+  let games = getGamesFromLocalStorage() || [];
+  
+  try {
+    // Check if we're online
+    const isConnected = (await checkServerConnectivity()).isConnected;
+    if (isConnected) {
+      // Fetch games from server
+      const response = await authFetch(`${API_URL}/api/games.php?action=get_games`);
+      if (response.ok) {
+        const serverGames = await response.json();
+        
+        // Merge server games with local games, preferring server versions
+        const mergedGames = [...games];
+        serverGames.forEach(serverGame => {
+          const localIndex = mergedGames.findIndex(g => g.gameId === serverGame.gameId);
+          if (localIndex >= 0) {
+            // Update existing game if server version is newer
+            if (!mergedGames[localIndex].lastModified || 
+                serverGame.lastModified > mergedGames[localIndex].lastModified) {
+              mergedGames[localIndex] = serverGame;
+            }
+          } else {
+            // Add new game from server
+            mergedGames.push(serverGame);
+          }
+        });
+        
+        // Update local storage with merged games
+        games = mergedGames;
+        saveGameToLocalStorage(games);
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching games from server:', error);
+    // Continue with local games if server fetch fails
+  }
+  
+  return games;
 };
 
 export const deleteGame = async (gameId) => {

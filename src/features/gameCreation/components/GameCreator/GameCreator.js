@@ -64,6 +64,8 @@ const GameCreator = () => {
   }, [gameId, games, dispatch, navigate]);
 
   const handleGameSelect = (game) => {
+    console.log('Selecting game:', game);
+    dispatch({ type: 'SELECT_GAME', payload: game });
     navigate(`/create/edit/${game.gameId}`);
   };
 
@@ -188,7 +190,7 @@ const GameCreator = () => {
 
           <GameList
             games={games}
-            onGameSelect={handleEditGame}
+            onGameSelect={handleGameSelect}
             onDeleteGame={handleDeleteGame}
             onChallenges={handleChallenges}
           />

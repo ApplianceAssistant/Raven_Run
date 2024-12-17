@@ -30,6 +30,8 @@
       box-shadow: 0 2px 8px var(--shadow);
       position: relative;
       border: none;
+      width: 100%;
+      max-width: 400px;
       cursor: pointer;
 
       .game-content {
@@ -410,15 +412,6 @@
         .challenge-preview {
           color: #666;
           font-size: 0.9em;
-          
-          p {
-            margin: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-          }
         }
       }
     }
