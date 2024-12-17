@@ -2,11 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { useGameCreation } from '../../context/GameCreationContext';
 import '../../../../css/GameCreator.scss';
 
-const ChallengeManager = ({ game, onSave }) => {
+const ChallengeManager = () => {
   const navigate = useNavigate();
-  const challenges = Array.isArray(game?.challenges) ? game.challenges : [];
+  const { state } = useGameCreation();
+  const game = state.selectedGame;
+  const challenges = Array.isArray(game?.challenges) ? [...game.challenges].sort((a, b) => (a.order || 0) - (b.order || 0)) : [];
 
   const handleBack = () => {
     navigate(`/create/edit/${game.gameId}`);
@@ -14,6 +17,10 @@ const ChallengeManager = ({ game, onSave }) => {
 
   const handleAddChallenge = () => {
     navigate(`/create/challenge/${game.gameId}`);
+  };
+
+  const handleEditChallenge = (challenge) => {
+    navigate(`/create/challenge/${game.gameId}/${challenge.id}`);
   };
 
   return (
@@ -29,9 +36,17 @@ const ChallengeManager = ({ game, onSave }) => {
         <div className="challenges-list">
           {challenges.length > 0 ? (
             challenges.map((challenge, index) => (
-              <div key={index} className="challenge-item">
-                <h3>Challenge {index + 1}</h3>
-                {/* Challenge details will go here */}
+              <div key={challenge.id} className="challenge-item" onClick={() => handleEditChallenge(challenge)}>
+                <div className="challenge-header">
+                  <span className="challenge-type">{challenge.type}</span>
+                  <span className="challenge-order">#{challenge.order || index + 1}</span>
+                </div>
+                <h3>{challenge.title}</h3>
+                <div className="challenge-preview">
+                  {challenge.description && (
+                    <p className="challenge-description">{challenge.description.substring(0, 100)}...</p>
+                  )}
+                </div>
               </div>
             ))
           ) : (

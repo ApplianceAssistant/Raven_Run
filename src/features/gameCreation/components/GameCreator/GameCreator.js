@@ -129,6 +129,22 @@ const GameCreator = () => {
     }
   };
 
+  const handleEditGame = (gameId) => {
+    const game = games.find(g => g.gameId === gameId);
+    if (game) {
+      dispatch({ type: 'SELECT_GAME', payload: game });
+      navigate(`/create/edit/${gameId}`);
+    }
+  };
+
+  const handleChallenges = (gameId) => {
+    const game = games.find(g => g.gameId === gameId);
+    if (game) {
+      dispatch({ type: 'SELECT_GAME', payload: game });
+      navigate(`/create/edit/${gameId}/challenges`);
+    }
+  };
+
   const handleDeleteGame = (game) => {
     setGameToDelete(game);
     setIsDeleteModalOpen(true);
@@ -172,17 +188,15 @@ const GameCreator = () => {
 
           <GameList
             games={games}
-            onGameSelect={handleGameSelect}
+            onGameSelect={handleEditGame}
             onDeleteGame={handleDeleteGame}
+            onChallenges={handleChallenges}
           />
         </>
-      ) : isChallengeCreatorRoute && selectedGame ? (
+      ) : isChallengeCreatorRoute ? (
         <ChallengeCreator />
       ) : isChallengesRoute ? (
-        <ChallengeManager
-          game={selectedGame || newGameData}
-          onSave={handleSaveGame}
-        />
+        <ChallengeManager />
       ) : location.pathname === '/create/new' ? (
         <GameForm
           gameData={newGameData}

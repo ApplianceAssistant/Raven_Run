@@ -10,37 +10,135 @@ import '../../../../css/GameCreator.scss';
 import ToggleSwitch from '../../../../components/ToggleSwitch';
 import { getGamesFromLocalStorage } from '../../../../utils/localStorageUtils';
 import { saveGame } from '../../../gameCreation/services/gameCreatorService';
+import { useGameCreation } from '../../context/GameCreationContext';
 
 const ChallengeCreator = () => {
   const navigate = useNavigate();
-  const { gameId } = useParams();
+  const { gameId, challengeId } = useParams();
   const { showError, showSuccess, showWarning, clearMessage } = useMessage();
+  const { dispatch } = useGameCreation();
+  const [isEditing, setIsEditing] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [originalChallenge, setOriginalChallenge] = useState(null);
+  
   const [isMetric, setIsMetric] = useState(() => {
     const savedUnitSystem = localStorage.getItem('unitSystem');
     return savedUnitSystem ? JSON.parse(savedUnitSystem) : false;
   });
   
+  // Initialize challenge state with default values
   const [challenge, setChallenge] = useState({
-    id: Date.now().toString(),
+    id: '',
+    type: 'story',
     title: '',
     description: '',
-    points: 0,
-    type: '',
-    question: '',
-    hints: [''],
-    feedbackTexts: { correct: '', incorrect: [''] },
-    options: [''],
-    correctAnswer: '',
     repeatable: false,
-    targetLocation: { latitude: 0, longitude: 0 },
-    radius: 0,
-    completionFeedback: '',
+    order: null,
+    feedbackTexts: {
+      correct: '',
+      incorrect: ['']
+    },
+    hints: [],
+    options: [],
+    answers: [''],
+    coordinates: {
+      latitude: '',
+      longitude: ''
+    },
+    radius: ''
   });
 
   const [showHints, setShowHints] = useState(false);
 
+  // Load existing challenge if editing
+  useEffect(() => {
+    const games = getGamesFromLocalStorage();
+    console.log('Games from storage:', games);
+    const game = games.find(g => g.gameId === gameId);
+    console.log('Found game:', game, 'looking for gameId:', gameId);
+    
+    if (challengeId && game) {
+      console.log('Loading challenge:', challengeId, typeof challengeId);
+      // Convert challengeId to number since IDs in the data are numbers
+      const numericChallengeId = parseInt(challengeId, 10);
+      console.log('Numeric challenge ID:', numericChallengeId);
+      const existingChallenge = game.challenges.find(c => c.id === numericChallengeId);
+      console.log('Found existing challenge:', existingChallenge);
+      
+      if (existingChallenge) {
+        // Create merged challenge with all required fields
+        const mergedChallenge = {
+          id: existingChallenge.id,
+          type: existingChallenge.type || 'story',
+          title: existingChallenge.title || '',
+          description: existingChallenge.description || '',
+          repeatable: existingChallenge.repeatable || false,
+          order: existingChallenge.order || 0,
+          feedbackTexts: {
+            correct: existingChallenge.feedbackTexts?.correct || '',
+            incorrect: existingChallenge.feedbackTexts?.incorrect || ['']
+          },
+          hints: existingChallenge.hints || [],
+          options: existingChallenge.options || [],
+          answers: existingChallenge.answers || [''],
+          coordinates: existingChallenge.coordinates || { latitude: '', longitude: '' },
+          radius: existingChallenge.radius || ''
+        };
+        
+        console.log('Setting merged challenge:', mergedChallenge);
+        setChallenge(mergedChallenge);
+        setOriginalChallenge(mergedChallenge);
+        setIsEditing(true);
+      }
+    } else if (game) {
+      // Set next available order for new challenges
+      const maxOrder = game.challenges?.length > 0 
+        ? Math.max(...game.challenges.map(c => c.order || 0), 0) 
+        : 0;
+      setChallenge(prev => ({
+        ...prev,
+        order: maxOrder + 1
+      }));
+    }
+  }, [gameId, challengeId]);
+
+  // Track changes
+  useEffect(() => {
+    if (isEditing && originalChallenge) {
+      const changed = JSON.stringify(challenge) !== JSON.stringify(originalChallenge);
+      console.log('Change detection:', {
+        isEditing,
+        challenge,
+        originalChallenge,
+        changed
+      });
+      setHasChanges(changed);
+    }
+  }, [challenge, originalChallenge, isEditing]);
+
   const handleBack = () => {
-    navigate(`/create/challenges/${gameId}`);
+    if (hasChanges) {
+      if (window.confirm('You have unsaved changes. Are you sure you want to go back?')) {
+        navigate(`/create/edit/${gameId}/challenges`);
+      }
+    } else {
+      navigate(`/create/edit/${gameId}/challenges`);
+    }
+  };
+
+  const handleCancel = () => {
+    if (hasChanges) {
+      if (window.confirm('Are you sure you want to cancel? All changes will be lost.')) {
+        if (isEditing) {
+          setChallenge(originalChallenge);
+          setHasChanges(false);
+        } else {
+          navigate(`/create/edit/${gameId}/challenges`);
+        }
+      }
+    } else {
+      navigate(`/create/edit/${gameId}/challenges`);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -186,23 +284,8 @@ const ChallengeCreator = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Get required fields for the current challenge type
-    const typeConfig = challengeTypeConfig[challenge.type];
-    const requiredFields = Object.entries(typeConfig)
-      .filter(([_, config]) => config.required)
-      .map(([field]) => field);
-
-    // Check if all required fields are filled
-    const missingFields = requiredFields.filter(field => !challenge[field]);
-    
-    if (missingFields.length > 0) {
-      showError(`Please fill in all required fields: ${missingFields.join(', ')}`);
-      return;
-    }
-
     try {
       const games = getGamesFromLocalStorage();
-      console.log("games", games);
       const game = games.find(g => g.gameId === gameId);
       
       if (!game) {
@@ -210,38 +293,37 @@ const ChallengeCreator = () => {
         return;
       }
 
-      const newChallenge = {
-        id: Math.floor(Math.random() * 10000), // Simpler ID that's still unique enough for a game's challenges
-        type: challenge.type,
-        ...Object.keys(typeConfig).reduce((acc, field) => {
-          if (field === 'order') {
-            // Set order value for new challenge
-            acc[field] = game.challenges ? game.challenges.length + 1 : 1;
-          } else if (challenge[field] !== undefined) {
-            acc[field] = challenge[field];
-          }
-          return acc;
-        }, {})
-      };
+      let updatedGame = { ...game };
 
-      // Ensure ID is unique within this game
-      while (game.challenges && game.challenges.some(c => c.id === newChallenge.id)) {
-        newChallenge.id = Math.floor(Math.random() * 10000);
+      // If editing, update existing challenge
+      if (isEditing) {
+        const challengeIndex = game.challenges.findIndex(c => c.id === parseInt(challengeId, 10));
+        if (challengeIndex !== -1) {
+          updatedGame.challenges[challengeIndex] = {
+            ...challenge,
+            id: parseInt(challengeId, 10) // Keep original ID
+          };
+        }
+      } else {
+        // For new challenges
+        const newChallenge = {
+          ...challenge,
+          id: Date.now() // Only set new ID for new challenges
+        };
+        updatedGame.challenges = [...(updatedGame.challenges || []), newChallenge];
       }
 
-      // Add the new challenge to the game's challenges array
-      if (!game.challenges) {
-        game.challenges = [];
-      }
-      game.challenges.push(newChallenge);
-
-      // Save the updated game
-      await saveGame(game);
-      showSuccess('Challenge created successfully');
+      // Save to local storage
+      await saveGame(updatedGame);
+      
+      // Update context
+      dispatch({ type: 'SET_GAMES', payload: games.map(g => g.gameId === gameId ? updatedGame : g) });
+      dispatch({ type: 'SELECT_GAME', payload: updatedGame });
+      
+      showSuccess('Challenge saved successfully!');
       navigate(`/create/edit/${gameId}/challenges`);
     } catch (error) {
-      console.error('Error creating challenge:', error);
-      showError('Failed to create challenge');
+      showError('Failed to save challenge: ' + error.message);
     }
   };
 
@@ -608,44 +690,47 @@ const ChallengeCreator = () => {
   const hasHintsField = typeConfig.hints !== undefined;
 
   return (
-    <>
-      <button className="back-button" onClick={handleBack} title="Back to Challenges">
-        <FontAwesomeIcon icon={faArrowLeft} />
-      </button>
-      <ScrollableContent maxHeight="80vh">
-        <form onSubmit={handleSubmit} className="challenge-form">
-          <div className="form-group">
-            <label htmlFor="type">Challenge Type</label>
-            <select
-              id="type"
-              name="type"
-              value={challenge.type}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Choose Challenge Type</option>
-              {Object.entries(challengeTypeConfig).map(([type, config]) => (
-                <option key={type} value={type}>
-                  {config.label || type}
-                </option>
-              ))}
-            </select>
-          </div>
+    <form onSubmit={handleSubmit} className="challenge-creator">
+      <div className="challenge-creator-header">
+        <button type="button" className="back-button" onClick={handleBack} title="Back">
+          <FontAwesomeIcon icon={faArrowLeft} />
+        </button>
+        <h2>{isEditing ? 'Edit Challenge' : 'Create New Challenge'}</h2>
+      </div>
 
-          {challenge.type && (
-            <>
-              {renderFields()}
+      {/* Challenge Type Selection */}
+      <div className="form-group">
+        <label htmlFor="type">Challenge Type<span className="required">*</span></label>
+        <select
+          id="type"
+          name="type"
+          value={challenge.type}
+          onChange={handleInputChange}
+          required
+        >
+          {Object.keys(challengeTypeConfig).map(type => (
+            <option key={type} value={type}>
+              {challengeTypeConfig[type].label || type}
+            </option>
+          ))}
+        </select>
+      </div>
 
-              <div className="button-container">
-                <button type="submit" className="primary-button">
-                  Create Challenge
-                </button>
-              </div>
-            </>
-          )}
-        </form>
-      </ScrollableContent>
-    </>
+      {/* Dynamic Fields */}
+      {renderFields()}
+
+      {/* Save/Cancel Buttons - Show if editing with changes, or if creating new */}
+      {(hasChanges || !isEditing) && (
+        <div className="button-container">
+          <button type="submit" className="save-button">
+            {isEditing ? 'Save Changes' : 'Create Challenge'}
+          </button>
+          <button type="button" className="cancel-button" onClick={handleCancel}>
+            Cancel
+          </button>
+        </div>
+      )}
+    </form>
   );
 };
 
