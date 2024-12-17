@@ -53,6 +53,70 @@ Interface for managing game challenges:
 - Add new challenge functionality
 - Empty state handling
 
+## Challenge Management
+
+### ChallengeCreator
+Handles creation and editing of individual challenges:
+- Progressive UI that shows only type selection initially
+- Dynamic fields based on challenge type:
+  - Story: title, description, repeatable
+  - Travel: title, description, target location, radius
+  - Multiple Choice: title, question, options, correct answer
+  - True/False: title, question, correct answer
+  - Text Input: title, question, correct answer
+- Common features across types:
+  - Optional hints system
+  - Challenge feedback management
+  - Automatic order assignment for new challenges
+
+### Challenge Types
+Each challenge type has specific requirements and fields:
+1. Story Challenges
+   - Title and story text
+   - Optional repeatable flag
+   - Feedback for completion
+
+2. Travel Challenges
+   - Target location with latitude/longitude
+   - Completion radius
+   - Location selection UI
+   - Completion feedback
+
+3. Quiz Challenges (Multiple Choice, True/False, Text Input)
+   - Question field
+   - Answer options (varies by type)
+   - Correct answer validation
+   - Feedback for correct/incorrect answers
+
+### State Management
+- Uses GameCreationContext for centralized state
+- Maintains challenge order
+- Handles type-specific field initialization
+- Preserves state during editing
+
+### UI/UX Considerations
+- Back button consistently positioned at top-left
+- Save/Cancel buttons appear when changes are made
+- ScrollableContent wrapper for long forms
+- Clear visual hierarchy with proper spacing
+- Type-specific field validation
+
+### Best Practices
+1. Field Initialization
+   - Initialize only necessary fields for selected type
+   - Maintain common fields across type changes
+   - Clear irrelevant fields when changing types
+
+2. Data Validation
+   - Required field checking
+   - Type-specific validation rules
+   - Proper error messaging
+
+3. Navigation
+   - Consistent back button behavior
+   - Confirmation for unsaved changes
+   - Clear feedback on save/cancel actions
+
 ## State Management
 
 Using GameCreationContext for centralized state:
