@@ -177,9 +177,9 @@ export const authFetch = async (url, options = {}) => {
       if (response.status === 401) {
           console.error('Unauthorized access detected');
           // Only clear user data if we're not already on the login page
-          if (!window.location.pathname.includes('/login')) {
+          if (!window.location.pathname.includes('/log-in')) {
               localStorage.removeItem('user');
-              window.location.href = '/login';
+              window.location.href = '/log-in';
           }
           throw new Error('Unauthorized access');
       }
