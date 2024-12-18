@@ -20,6 +20,7 @@ interface MediaContent {
 // Base challenge type
 interface BaseChallenge {
   id: string;
+  order: number;
   type: string;
   title: string;
   description?: string;

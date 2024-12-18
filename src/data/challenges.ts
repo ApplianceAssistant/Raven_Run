@@ -2,6 +2,8 @@ import { Challenge } from '../types/challengeTypes';
 
 interface Game {
   id: number;
+  gameId: string;
+  user_id: number;
   name: string;
   description: string;
   dayOnly: boolean;
@@ -11,6 +13,8 @@ interface Game {
 export const games: Game[] = [
   {
     id: 0,
+    gameId: "5483BBLMEJ0",
+    user_id: 1,
     name: "Tracking Shadows in Shelby County",
     description: `Welcome to Crow Tours' hunt: Tracking Shadows in Shelby County.\n
       As night falls, strange occurrences have been reported across this once-quiet rural community.\n
@@ -24,6 +28,7 @@ export const games: Game[] = [
     challenges: [
       {
         id: '0',
+        order: 1,
         type: 'travel',
         title: 'Labyrinth of Knowledge',
         description: `With hushed halls, I stand,\n
@@ -57,6 +62,7 @@ export const games: Game[] = [
       },
       {
         id: '1',
+        order: 2,
         type: "travel",
         title: "Whispers of the Fallen",
         description: "The spectral crows guide you through the misty graveyard, their ethereal forms weaving between weathered tombstones. They circle and descend, their otherworldly caws drawing you to a stone that time has laid low, much like the soul it commemorates.",
@@ -75,7 +81,8 @@ export const games: Game[] = [
         repeatable: true
       },
       {
-        id: "2",
+        id: '2',
+        order: 3,
         type: "multipleChoice",
         title: "A Love That Shaped a Nation",
         description: "Standing before the fallen stone, a chill wind stirs the air. The crows perch silently, their obsidian eyes gleaming with otherworldly knowledge. In the fading light, you struggle to decipher the weathered epitaph.",
@@ -98,7 +105,8 @@ export const games: Game[] = [
         repeatable: true
       },
       {
-        id: "3",
+        id: '3',
+        order: 4,
         type: "travel",
         title: "Herbal Wards",
         description: `The crows guide you west through misty streets, their wings brushing against a fragrant breeze. As you follow, a rhyme materializes in your mind:
@@ -135,7 +143,8 @@ export const games: Game[] = [
         repeatable: true
       },
       {
-        id: "4",
+        id: '4',
+        order: 5,
         type: "multipleChoice",
         title: "Echoes of Stone and Time",
         description: `As the lavender's scent fades, the crows lead you to a weathered sign nearby.\n
@@ -161,6 +170,7 @@ export const games: Game[] = [
       },
       {
         id: '5',
+        order: 6,
         type: 'travel',
         title: "Sentinel of the Skies",
         description: `The crows lead you through the misty dawn, their wings brushing against the first light of day. As you follow, a new verse forms in your mind:\n
@@ -196,6 +206,7 @@ export const games: Game[] = [
       },
       {
         id: '6',
+        order: 7,
         type: 'textInput',
         title: "The Road to Liquid Heights",
         description: `Standing before the towering water reservoir, you're struck by its imposing presence against the Simpsonville sky. The crows circle overhead, their caws seeming to form words on the wind:\n
@@ -228,7 +239,8 @@ export const games: Game[] = [
         repeatable: true
       },
       {
-        id: "7",
+        id: '7',
+        order: 8,
         type: "travel",
         title: "The Haunted Stage",
         description: `The crows guide you through Shelby's misty streets, their wings casting eerie shadows. As you follow, a new rhyme pervades your thoughts:\n
@@ -258,7 +270,8 @@ export const games: Game[] = [
         repeatable: true
       },
       {
-        "id": "8",
+        "id": '8',
+        order: 9,
         "type": "textInput",
         "title": "A Spirit's Warning",
         "description": `Standing before the playhouse, a winter's chill grips your heart. A weathered poster flutters in an unseen breeze, its message unclear. As you approach, ghostly bells toll in your mind:\n
@@ -289,7 +302,8 @@ export const games: Game[] = [
         "repeatable": true
       },
       {
-        id: "9",
+        id: '9',
+        order: 10,
         type: "travel",
         title: "The Chainsaw Surgeon",
         description: `The crows guide you through Shelby's historic landscape, their wings brushing against the whispers of the past. A rhyme forms in your mind:\n
@@ -321,7 +335,8 @@ export const games: Game[] = [
         repeatable: true
       },
       {
-        id: "10",
+        id: '10',
+        order: 11,
         type: "textInput",
         title: "The Surgeon's Mark",
         description: `Standing before the impressive chainsaw carving, you're struck by its powerful presence.\n
@@ -353,7 +368,8 @@ export const games: Game[] = [
         repeatable: true
       },
       {
-        id: "11",
+        id: '11',
+        order: 12,
         type: "travel",
         title: "Guardian of Grain",
         description: `The murder of crows guides you through Shelbyville's streets, their dark forms stark against the moonlit sky. As you follow, an enigmatic verse forms in your mind:\n
@@ -386,7 +402,8 @@ export const games: Game[] = [
         repeatable: true
       },
       {
-        id: "12",
+        id: '12',
+        order: 13,
         type: "multipleChoice",
         title: "Voids of Vision",
         description: `Standing before the ethereal equine sculpture, you're struck by its surreal presence against the backdrop of the imposing silos. The open framework of steel outlines a horse's form, allowing glimpses of the sky and silos through its body. As you move around it, the interplay of solid and void creates an ever-changing silhouette. Your crow companions hop closer, peering curiously through the sculpture's empty spaces.\n
@@ -427,6 +444,7 @@ export const games: Game[] = [
       },
       {
         id: '13',
+        order: 14,
         type: 'travel',
         title: "Fortress of Forgotten Freedom",
         description: `As night deepens, your crow guides lead you through Shelbyville's shadowy streets. Their urgency grows as you approach your next destination. A haunting verse forms in your mind:\n
@@ -459,6 +477,7 @@ export const games: Game[] = [
       },
       {
         id: '14',
+        order: 15,
         type: 'multipleChoice',
         title: "Portals to the Past",
         description: `Standing before the imposing old jail, your gaze is drawn to its weathered façade. The crows perch on the green-capped towers, their eyes glinting with spectral knowledge. As you study the building's face on Washington Street, a whispered verse reaches your ears:\n
@@ -492,6 +511,7 @@ export const games: Game[] = [
       },
       {
         id: '15',
+        order: 16,
         type: 'travel',
         title: "Brew of Creativity",
         description: `As dawn breaks over Shelbyville, your crow guides lead you towards a hub of local culture and warmth. The aroma of freshly roasted coffee beans wafts through the air, carrying with it whispers of art and community. A rhythmic verse forms in your mind:\n
@@ -526,6 +546,7 @@ export const games: Game[] = [
       },
       {
         id: "16",
+        order: 17,
         type: "travel",
         title: "Chronicle of Shadows",
         description: `As dawn approaches, your corvid guides lead you through the lightening streets of Shelbyville.\n
@@ -561,7 +582,8 @@ export const games: Game[] = [
         repeatable: true
       },
       {
-        id: "17",
+        id: '17',
+        order: 18,
         type: "story",
         title: "Echoes of Shelby",
         storyText: `Standing before the Shelby County Life Magazine building, you feel the weight of your nocturnal journey pressing upon you.\n
@@ -589,6 +611,8 @@ export const games: Game[] = [
   },
   {
     id: 1,
+    gameId: 'B5483BBLMEJ2',
+    user_id: 1,
     name: "Tides of Mystery in North County",
     description: `As fog rolls inland, it carries whispers of forgotten tales and untold histories.\n
       Between the rhythmic sounds of breaking waves and mission bells, a murder of crows takes wing - your mysterious guides through time.\n
@@ -601,6 +625,7 @@ export const games: Game[] = [
     challenges: [
       {
         id: '0',
+        order: 1,
         type: 'travel',
         title: `Wave Walker`,
         description: `Stretched like a finger toward horizon's rim,\n
@@ -639,6 +664,7 @@ export const games: Game[] = [
       },
       {
         id: '1',
+        order: 2,
         type: 'travel',
         title: `Stage of Time`,
         description: `Where Coast and Mission's games align,\n
@@ -676,6 +702,7 @@ export const games: Game[] = [
       },
       {
         id: '2',
+        order: 3,
         type: 'travel',
         title: `The Valley King`,
         description: `White walls rise through morning haze,\n
@@ -719,6 +746,7 @@ export const games: Game[] = [
       },
       {
         id: '3',
+        order: 4,
         type: 'travel',
         title: `End of the Road`,
         description: `Down a simple earthen trail,\n
@@ -762,6 +790,7 @@ export const games: Game[] = [
       },
       {
         id: '4',
+        order: 5,
         type: 'travel',
         title: `The River's Guardian`,
         description: `The crows glide low through morning air,\n
@@ -802,6 +831,7 @@ export const games: Game[] = [
       },
       {
         id: '5',
+        order: 6,
         type: 'travel',
         title: `The Adobe's Secret`,
         description: `Where ancient oaks cast shadows deep,\n
@@ -842,6 +872,7 @@ export const games: Game[] = [
       },
       {
         id: '6',
+        order: 7,
         type: 'travel',
         title: `Stage of Stars`,
         description: `The crows lead on through evening's veil,\n
@@ -882,6 +913,7 @@ export const games: Game[] = [
       },
       {
         id: '7',
+        order: 8,
         type: 'travel',
         title: `Hilltop Haven`,
         description: `Where art and nature dance in sunlit space,\n
@@ -923,6 +955,7 @@ export const games: Game[] = [
       },
       {
         id: '8',
+        order: 9,
         type: 'travel',
         title: `Dewey's Vault`,
         description: `As twilight falls on Vista's streets,\n
@@ -970,6 +1003,7 @@ export const games: Game[] = [
       },
       {
         id: '9',
+        order: 10,
         type: 'travel',
         title: 'Vista of Yesterday',
         description: `Crows soar high o'er ancient ground,\n
@@ -1009,7 +1043,8 @@ export const games: Game[] = [
         repeatable: true
       },
       {
-        id: "10",
+        id: '10',
+        order: 11,
         type: "story",
         title: "",
         storyText: `Congratulations, intrepid explorer! You've completed a remarkable journey through North County's hidden histories and sacred spaces.\n
