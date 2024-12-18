@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import BackgroundController from '../utils/backgroundController';
-import themesConfig, { noThemeElementPages } from '../config/themesConfig';
+import themesConfig, { noThemeElementPages, pagesNotCentered } from '../config/themesConfig';
 import { animatePirateFlag, animateSeaSurface  } from '../effects/PirateElements';
 
 /**
@@ -13,7 +13,7 @@ const ThemeContainer = ({ children, theme }) => {
   const location = useLocation();
   const { className, isCanvasTheme, style } = themesConfig[theme] || {};
   const canvasRef = useRef(null);
-
+  console.warn("location: ", location);
   // Dynamically import the theme's SCSS file
   useEffect(() => {
     if (style) {
@@ -42,14 +42,16 @@ const ThemeContainer = ({ children, theme }) => {
     }, [isCanvasTheme, theme]);
 
   // Determine if we should show the theme element based on the current route
-  const shouldShowThemeElement = !noThemeElementPages.includes(location.gamename);
+  const shouldShowThemeElement = !noThemeElementPages.includes(location.pathname);
+
+  const pagesThatAreNotCentered = pagesNotCentered.includes(location.pathname);
 
   return (
     <div className="content-wrapper">
       {shouldShowThemeElement && <div className={`theme-element ${className}`} />}
       {isCanvasTheme && <canvas ref={canvasRef} className="theme-canvas" />}
       <BackgroundController theme={theme} />
-      <div className="content">{children}</div>
+      <div className={`content ${pagesThatAreNotCentered ? '' : 'centered'}`}>{children}</div>
     </div>
   );
 };

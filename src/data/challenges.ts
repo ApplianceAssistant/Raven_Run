@@ -4,6 +4,7 @@ interface Game {
   id: number;
   gameId: string;
   user_id: number;
+  is_public: boolean;
   name: string;
   description: string;
   dayOnly: boolean;
@@ -15,6 +16,7 @@ export const games: Game[] = [
     id: 0,
     gameId: "5483BBLMEJ0",
     user_id: 1,
+    is_public: true,
     name: "Tracking Shadows in Shelby County",
     description: `Welcome to Crow Tours' hunt: Tracking Shadows in Shelby County.\n
       As night falls, strange occurrences have been reported across this once-quiet rural community.\n
@@ -613,6 +615,7 @@ export const games: Game[] = [
     id: 1,
     gameId: 'B5483BBLMEJ2',
     user_id: 1,
+    is_public: true,
     name: "Tides of Mystery in North County",
     description: `As fog rolls inland, it carries whispers of forgotten tales and untold histories.\n
       Between the rhythmic sounds of breaking waves and mission bells, a murder of crows takes wing - your mysterious guides through time.\n

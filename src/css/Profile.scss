@@ -20,7 +20,7 @@
         height: 100%;
         border-radius: 50%;
         overflow: hidden;
-        border: 3px solid var(--primary-color);
+        border: 3px solid var(--border-color);
         background: var(--background-color);
         display: flex;
         align-items: center;
@@ -38,6 +38,7 @@
       }
 
       .edit-picture-button {
+        color: var(--border-color);
         position: absolute;
         bottom: 5px;
         right: 5px;
