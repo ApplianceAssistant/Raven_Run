@@ -113,10 +113,28 @@ try {
             break;
 
         case 'logout':
-            $response = [
-                'status' => 'success',
-                'message' => 'Logged out successfully'
-            ];
+            // Get the current token from the Authorization header
+            $token = getBearerToken();
+            if ($token) {
+                // Invalidate the token
+                if (invalidateAuthToken($token)) {
+                    $response = [
+                        'status' => 'success',
+                        'message' => 'Logged out successfully'
+                    ];
+                } else {
+                    error_log('Failed to invalidate token during logout');
+                    $response = [
+                        'status' => 'warning',
+                        'message' => 'Logged out but failed to clear session token'
+                    ];
+                }
+            } else {
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Logged out successfully (no token found)'
+                ];
+            }
             echo json_encode($response);
             break;
 

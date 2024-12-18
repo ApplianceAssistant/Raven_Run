@@ -1,6 +1,6 @@
 <?php
 // Allow access from staging domain
-header('Access-Control-Allow-Origin: https://phpstack-1356899-4990868.cloudwaysapps.com');
+header('Access-Control-Allow-Origin: https://ravenruns.com');
 header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET');
 

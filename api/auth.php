@@ -92,11 +92,9 @@ if (!function_exists('authenticateUser')) {
             }
 
             if ($row = $result->fetch_assoc()) {
-                error_log('Found token in database for user: ' . $row['username']);
                 $expirationTime = strtotime($row['expiration']);
                 
                 if ($expirationTime < time()) {
-                    error_log('Token expired at: ' . date('Y-m-d H:i:s', $expirationTime));
                     return null;
                 }
                 
@@ -106,7 +104,6 @@ if (!function_exists('authenticateUser')) {
                     'email' => $row['email']
                 ];
             } else {
-                error_log('No matching token found in database');
                 return null;
             }
         } catch (Exception $e) {
@@ -121,9 +118,16 @@ if (!function_exists('refreshAuthToken')) {
     {
         try {
             $conn = getDbConnection();
-
+            if (!$conn) {
+                error_log('Failed to get database connection for token refresh');
+                return null;
+            }
             // Get user_id from old token
             $stmt = $conn->prepare('SELECT user_id FROM auth_tokens WHERE token = ?');
+            if (!$stmt) {
+                error_log('Failed to prepare refresh token statement: ' . $conn->error);
+                return null;
+            }
             $stmt->bind_param('s', $oldToken);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -133,13 +137,20 @@ if (!function_exists('refreshAuthToken')) {
 
                 // Generate new token
                 $newToken = generateAuthToken($userId);
+                if (!$newToken) {
+                    error_log('Failed to generate new token for user: ' . $userId);
+                    return null;
+                }
 
                 // Invalidate old token
-                invalidateAuthToken($oldToken);
+                if (!invalidateAuthToken($oldToken)) {
+                    error_log('Warning: Failed to invalidate old token: ' . $oldToken);
+                }
 
                 return $newToken;
             }
 
+            error_log('No user found for token: ' . $oldToken);
             return null;
         } catch (Exception $e) {
             error_log('Token refresh error: ' . $e->getMessage());
@@ -183,9 +194,31 @@ if (!function_exists('generateAuthToken')) {
 if (!function_exists('invalidateAuthToken')) {
     function invalidateAuthToken($token)
     {
-        $conn = getDbConnection();
-        $stmt = $conn->prepare('DELETE FROM auth_tokens WHERE token = ?');
-        $stmt->bind_param('s', $token);
-        return $stmt->execute();
+        try {
+            $conn = getDbConnection();
+            if (!$conn) {
+                error_log('Failed to get database connection for token invalidation');
+                return false;
+            }
+
+            $stmt = $conn->prepare('DELETE FROM auth_tokens WHERE token = ?');
+            if (!$stmt) {
+                error_log('Failed to prepare invalidate token statement: ' . $conn->error);
+                return false;
+            }
+
+            $stmt->bind_param('s', $token);
+            $result = $stmt->execute();
+            
+            if (!$result) {
+                error_log('Failed to execute invalidate token: ' . $stmt->error);
+                return false;
+            }
+
+            return true;
+        } catch (Exception $e) {
+            error_log('Error invalidating token: ' . $e->getMessage());
+            return false;
+        }
     }
 }
