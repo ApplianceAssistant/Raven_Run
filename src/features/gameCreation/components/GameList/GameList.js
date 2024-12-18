@@ -16,10 +16,11 @@ const GameList = ({ onGameSelect, onDeleteGame }) => {
 
   return (
     <div className="game-list">
-      <h2>Your Games</h2>
       {games.length === 0 ? (
-        <p>No games created yet. Create your first game!</p>
+        <p>No games yet. <br></br>Create your first game!</p>
       ) : (
+        <>
+        <h2>Your Games</h2>
         <ScrollableContent maxHeight="60vh" className="games-container">
             {games.map((game) => (
               <div
@@ -45,6 +46,7 @@ const GameList = ({ onGameSelect, onDeleteGame }) => {
               </div>
             ))}
           </ScrollableContent>
+          </>
       )}
     </div>
   );

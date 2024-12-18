@@ -12,7 +12,7 @@
 
     .hero {
         padding: 4rem 0;
-        background: linear-gradient(135deg, var(--page-bg) 0%, var(--button-hover-bg) 100%);
+        background: linear-gradient(135deg, var(--page-bg) 0%, var(--button-hover-bg) 90%);
         border-radius: 1rem;
         color: var(--text-color-inverse);
         margin: -2rem -2rem 4rem -2rem;
@@ -51,17 +51,6 @@
             &:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 4px 8px var(--shadow);
-            }
-
-            &.primary {
-                background-color: var(--accent-color);
-                color: var(--text-color-inverse);
-            }
-
-            &.secondary {
-                background-color: transparent;
-                border: 2px solid var(--text-color-inverse);
-                color: var(--text-color-inverse);
             }
         }
     }
