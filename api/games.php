@@ -75,6 +75,34 @@ try {
                 $isPublic = $game['is_public'] ? 1 : 0;
                 $challengeData = json_encode($game['challenges']);
 
+                // Create default POINT for locations if not provided
+                $startLocation = 'POINT(0 0)';
+                $endLocation = 'POINT(0 0)';
+
+                // If start_location is provided, create POINT from coordinates
+                if (isset($game['start_location']) && 
+                    isset($game['start_location']['coordinates']) && 
+                    is_array($game['start_location']['coordinates']) && 
+                    count($game['start_location']['coordinates']) === 2) {
+                    $startLocation = sprintf(
+                        'POINT(%f %f)', 
+                        $game['start_location']['coordinates'][0],
+                        $game['start_location']['coordinates'][1]
+                    );
+                }
+
+                // If end_location is provided, create POINT from coordinates
+                if (isset($game['end_location']) && 
+                    isset($game['end_location']['coordinates']) && 
+                    is_array($game['end_location']['coordinates']) && 
+                    count($game['end_location']['coordinates']) === 2) {
+                    $endLocation = sprintf(
+                        'POINT(%f %f)', 
+                        $game['end_location']['coordinates'][0],
+                        $game['end_location']['coordinates'][1]
+                    );
+                }
+
                 // Check if the game already exists
                 $stmt = $conn->prepare("SELECT user_id FROM games WHERE gameId = ?");
                 $stmt->bind_param("s", $gameId);
@@ -82,12 +110,25 @@ try {
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
                     // Game exists, update it
-                    $stmt = $conn->prepare("UPDATE games SET name = ?, description = ?, is_public = ?, challenge_data = ? WHERE gameId = ?");
-                    $stmt->bind_param("ssiss", $name, $description, $isPublic, $challengeData, $gameId);
+                    $stmt = $conn->prepare(
+                        "UPDATE games 
+                        SET name = ?, 
+                            description = ?, 
+                            is_public = ?, 
+                            challenge_data = ?,
+                            start_location = ST_GeomFromText(?),
+                            end_location = ST_GeomFromText(?)
+                        WHERE gameId = ?"
+                    );
+                    $stmt->bind_param("ssissss", $name, $description, $isPublic, $challengeData, $startLocation, $endLocation, $gameId);
                 } else {
                     // Insert new game
-                    $stmt = $conn->prepare("INSERT INTO games (gameId, user_id, name, description, is_public, challenge_data) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt->bind_param("sisssi", $gameId, $user['id'], $name, $description, $isPublic, $challengeData);
+                    $stmt = $conn->prepare(
+                        "INSERT INTO games 
+                        (gameId, user_id, name, description, is_public, challenge_data, start_location, end_location) 
+                        VALUES (?, ?, ?, ?, ?, ?, ST_GeomFromText(?), ST_GeomFromText(?))"
+                    );
+                    $stmt->bind_param("sisssiss", $gameId, $user['id'], $name, $description, $isPublic, $challengeData, $startLocation, $endLocation);
                 }
 
                 if ($stmt->execute()) {
