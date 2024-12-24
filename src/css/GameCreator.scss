@@ -145,12 +145,7 @@
         border: none;
         padding: 0.5rem;
         cursor: pointer;
-        color: #666;
         transition: color 0.2s;
-
-        &:hover {
-          color: #28a745;
-        }
       }
     }
 
@@ -172,7 +167,7 @@
     gap: 1rem;
     width: 100%;
     padding: 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
 
     .feedback-section {
@@ -188,14 +183,6 @@
 
         label {
           font-weight: 600;
-          color: #333;
-        }
-
-        .btn-add {
-          color: #4CAF50;
-          &:hover {
-            color: darken(#4CAF50, 10%);
-          }
         }
       }
 
@@ -208,20 +195,12 @@
           flex: 1;
           min-height: 60px;
           padding: 0.5rem;
-          border: 1px solid #ddd;
+          border: 1px solid var(--border-color);
           border-radius: 4px;
           resize: vertical;
 
           &:focus {
             outline: none;
-            border-color: #2196F3;
-          }
-        }
-
-        .btn-remove {
-          color: #f44336;
-          &:hover {
-            color: darken(#f44336, 10%);
           }
         }
       }
@@ -274,11 +253,6 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
-
-        label {
-          font-weight: 500;
-          color: #444;
-        }
       }
     }
   }
@@ -370,8 +344,7 @@
       }
 
       .challenge-item {
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 16px;
         margin-bottom: 16px;
@@ -391,26 +364,21 @@
         }
 
         .challenge-type {
-          background: #f0f0f0;
           padding: 4px 8px;
           border-radius: 4px;
           font-size: 0.9em;
-          color: #666;
           text-transform: capitalize;
         }
 
         .challenge-order {
-          color: #999;
           font-size: 0.9em;
         }
 
         h3 {
           margin: 8px 0;
-          color: #333;
         }
 
         .challenge-preview {
-          color: #666;
           font-size: 0.9em;
         }
       }
@@ -440,7 +408,6 @@
 
       .toggle-label {
         font-weight: 500;
-        color: #333;
         min-width: 40px;
       }
     }

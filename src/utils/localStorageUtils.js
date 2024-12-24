@@ -32,23 +32,24 @@ export const decryptData = (encryptedData) => {
  */
 export const saveGameToLocalStorage = (game) => {
   const games = getGamesFromLocalStorage();
-  let gameIndex = games.findIndex(g => g.gameId === game.gameId);
+  const gameIndex = games.findIndex(g => g.gameId === game.gameId);
+  
+  // Ensure game has the correct structure
+  const normalizedGame = {
+    gameId: game.gameId,
+    name: game.name || '',
+    description: game.description || '',
+    public: game.public ?? false,
+    isSynced: game.isSynced ?? false,
+    challenges: Array.isArray(game.challenges) ? game.challenges : []
+  };
   
   if (gameIndex !== -1) {
     // Update existing game
-    games[gameIndex] = {
-      ...games[gameIndex],
-      ...game,
-      public: game.public ?? false,
-      isSynced: game.isSynced ?? false
-    };
+    games[gameIndex] = normalizedGame;
   } else {
     // Add new game
-    games.push({
-      ...game,
-      public: game.public ?? false,
-      isSynced: game.isSynced ?? false
-    });
+    games.push(normalizedGame);
   }
 
   const encryptedGames = encryptData(games);

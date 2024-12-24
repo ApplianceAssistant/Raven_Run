@@ -11,11 +11,18 @@ export const analyzeChallenges = (challenges, isMetric) => {
     return {
       totalChallenges,
       maxDistance: null,
-      unit: null
+      unit: null,
+      startLocation: null,
+      endLocation: null
     };
   }
 
   let maxDistance = 0;
+  // Get first and last travel challenges by order
+  const orderedLocations = locationChallenges.sort((a, b) => a.order - b.order);
+  const startLocation = orderedLocations[0].targetLocation;
+  const endLocation = orderedLocations[orderedLocations.length - 1].targetLocation;
+
   for (let i = 0; i < locationChallenges.length; i++) {
     for (let j = i + 1; j < locationChallenges.length; j++) {
       const distance = calculateDistance(
@@ -35,6 +42,8 @@ export const analyzeChallenges = (challenges, isMetric) => {
   return {
     totalChallenges,
     maxDistance: distanceValue.toFixed(2),
-    unit
+    unit,
+    startLocation,
+    endLocation
   };
 };

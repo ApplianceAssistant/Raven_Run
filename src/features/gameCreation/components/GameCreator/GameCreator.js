@@ -114,16 +114,25 @@ const GameCreator = () => {
   const handleSaveGame = async (gameData) => {
     console.log('Starting handleSaveGame with gameData:', gameData);
     try {
+      // Find the existing game to preserve its challenges
+      const existingGame = games.find(g => g.gameId === gameData.gameId);
+      
       const newGame = {
         ...gameData,
         public: gameData.public ?? false,
-        challenges: gameData.challenges ?? [],
+        // Preserve existing challenges if this is an update
+        challenges: existingGame ? existingGame.challenges : (gameData.challenges ?? []),
         isSynced: false
       };
       
       const savedGame = await saveGame(newGame);
       
-      dispatch({ type: 'SET_GAMES', payload: [...games, savedGame] });
+      // Update games array, replacing the existing game if it exists
+      const updatedGames = existingGame 
+        ? games.map(g => g.gameId === savedGame.gameId ? savedGame : g)
+        : [...games, savedGame];
+        
+      dispatch({ type: 'SET_GAMES', payload: updatedGames });
       setShowGameForm(false);
       navigate(`/create/edit/${savedGame.gameId}`);
     } catch (error) {

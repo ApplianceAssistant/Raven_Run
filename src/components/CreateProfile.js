@@ -288,7 +288,7 @@ function CreateProfile() {
 
   return (
     <>
-      <div className="bodyContent">
+      <div className="bodyContent centered">
         <h1>Welcome, Brave Adventurer</h1>
         {loadingStates.submission && <div className="loader">Loading...</div>}
         <form className="accountForm" onSubmit={handleSubmit}>

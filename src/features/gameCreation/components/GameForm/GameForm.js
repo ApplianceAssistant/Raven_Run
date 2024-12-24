@@ -92,6 +92,11 @@ const GameForm = ({
         ...formData,
         challenges: formData.challenges || []
       });
+      // Update originalData to match the current formData after successful save
+      setOriginalData({
+        ...formData,
+        challenges: formData.challenges || []
+      });
       showSuccess(isEditing ? 'Game updated successfully!' : 'Game created successfully!');
     } catch (error) {
       showError(error.message || 'Failed to save game. Please try again.');

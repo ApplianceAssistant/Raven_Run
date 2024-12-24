@@ -109,7 +109,7 @@ function LogIn() {
 
     return (
         <>
-            <div className="bodyContent">
+            <div className="bodyContent centered">
                 <h1>Welcome Back, Adventurer</h1>
                 {isLoading && <div className="loader">Loading...</div>}
                 <form className="accountForm" onSubmit={(e) => e.preventDefault()}>

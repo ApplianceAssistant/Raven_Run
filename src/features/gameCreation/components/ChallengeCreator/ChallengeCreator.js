@@ -151,9 +151,9 @@ const ChallengeCreator = () => {
       switch (value) {
         case 'travel':
           typeSpecificFields = {
-            targetLocation: { latitude: '', longitude: '' },
-            radius: '',
-            completionFeedback: '',
+            targetLocation: challenge.targetLocation || { latitude: '', longitude: '' },
+            radius: challenge.radius || '',
+            completionFeedback: challenge.completionFeedback || '',
             description: challenge.description || ''
           };
           break;
@@ -373,9 +373,9 @@ const ChallengeCreator = () => {
 
   const renderField = (fieldName, fieldConfig) => {
     // Get the value for this field
-    const value = fieldName === 'targetLocation' ? challenge.targetLocation
-      : fieldName === 'coordinates' ? challenge.targetLocation
-        : challenge[fieldName];
+    const value = fieldName === 'targetLocation' || fieldName === 'coordinates' 
+      ? challenge.targetLocation 
+      : challenge[fieldName];
 
     // Don't render hints field unless showHints is true
     if (fieldName === 'hints' && !showHints) {
@@ -508,17 +508,20 @@ const ChallengeCreator = () => {
           />
         );
       case 'number':
+        const displayValue = fieldName === 'radius' 
+          ? (value === '' ? '' : (isMetric ? value : metersToFeet(value)))
+          : value;
         return (
           <input
             type="number"
             id={fieldName}
             name={fieldName}
-            value={fieldName === 'radius' ? (isMetric ? value : metersToFeet(value)) : value}
+            value={displayValue}
             onChange={handleInputChange}
             min="0"
             step={fieldName === 'radius' ? '1' : 'any'}
             onBlur={() => {
-              if (value === '' && fieldConfig.required) {
+              if (fieldConfig.required && (value === '' || value === null)) {
                 showWarning(`${fieldConfig.label || fieldName} is required`);
               }
             }}
@@ -533,6 +536,17 @@ const ChallengeCreator = () => {
                 checked={value ?? false}
                 onToggle={() => handleToggleChange(fieldName)}
                 label={value ? 'True' : 'False'}
+              />
+            </div>
+          );
+        }
+        if (fieldName === 'repeatable') {
+          return (
+            <div className="repeatable-toggle">
+              <ToggleSwitch
+                checked={value ?? false}
+                onToggle={() => handleToggleChange(fieldName)}
+                label={value ? 'Repeatable' : 'Not Repeatable'}
               />
             </div>
           );
@@ -740,7 +754,7 @@ const ChallengeCreator = () => {
   const hasHintsField = typeConfig.hints !== undefined;
 
   return (
-    <form onSubmit={handleSubmit} className="challenge-creator">
+    <form onSubmit={handleSubmit} className="challenge-creator challenge-form">
       <button type="button" className="back-button" onClick={handleBack} title="Back">
         <FontAwesomeIcon icon={faArrowLeft} />
       </button>

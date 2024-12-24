@@ -97,6 +97,50 @@ export const saveGame = async (gameData) => {
     // Try to sync with server if online
     const isConnected = (await checkServerConnectivity()).isConnected;
     if (isConnected) {
+      // Check if any travel challenges exist and validate their locations
+      if (gameData.challenges) {
+        const travelChallenges = gameData.challenges.filter(c => c.type === 'travel');
+        const invalidLocations = travelChallenges.filter(c => 
+          !c.targetLocation?.latitude || !c.targetLocation?.longitude
+        );
+        
+        if (invalidLocations.length > 0) {
+          throw new Error('One or more travel challenges have invalid location data');
+        }
+      }
+
+      // Get the first and last travel challenges for start/end locations
+      const travelChallenges = (gameData.challenges || []).filter(c => c.type === 'travel');
+      const firstLocation = travelChallenges[0]?.targetLocation;
+      const lastLocation = travelChallenges[travelChallenges.length - 1]?.targetLocation;
+
+      const apiGameData = {
+        ...gameData,
+        is_public: gameData.public,
+        // Use first travel challenge location as start location if available
+        start_location: firstLocation ? {
+          type: 'Point',
+          coordinates: [
+            parseFloat(firstLocation.longitude),
+            parseFloat(firstLocation.latitude)
+          ]
+        } : {
+          type: 'Point',
+          coordinates: [0, 0]
+        },
+        // Use last travel challenge location as end location if available
+        end_location: lastLocation ? {
+          type: 'Point',
+          coordinates: [
+            parseFloat(lastLocation.longitude),
+            parseFloat(lastLocation.latitude)
+          ]
+        } : {
+          type: 'Point',
+          coordinates: [0, 0]
+        }
+      };
+
       const response = await authFetch(`${API_URL}/api/games.php`, {
         method: 'POST',
         headers: {
@@ -104,7 +148,7 @@ export const saveGame = async (gameData) => {
         },
         body: JSON.stringify({
           action: 'save_game',
-          game: gameData
+          game: apiGameData
         })
       });
 
@@ -113,9 +157,10 @@ export const saveGame = async (gameData) => {
         gameData.isSynced = true;
         await saveGameToLocalStorage(gameData);
       } else {
+        const errorData = await response.json();
         gameData.isSynced = false;
         await saveGameToLocalStorage(gameData);
-        console.warn('Failed to sync game with server');
+        throw new Error(errorData.error || 'Failed to sync game with server');
       }
     } else {
       gameData.isSynced = false;
@@ -128,7 +173,7 @@ export const saveGame = async (gameData) => {
     // Ensure local storage save even if server sync fails
     gameData.isSynced = false;
     await saveGameToLocalStorage(gameData);
-    return gameData;
+    throw error; // Re-throw the error to be handled by the caller
   }
 };
 
