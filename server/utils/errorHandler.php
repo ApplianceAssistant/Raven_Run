@@ -1,6 +1,6 @@
 <?php
 
-require_once(__DIR__ . '/../server/db_connection.php');
+require_once __DIR__ . '/db_connection.php';
 
 function handleError($errno, $errstr, $errfile, $errline)
 {

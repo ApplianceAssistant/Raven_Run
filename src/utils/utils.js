@@ -26,7 +26,7 @@ const getApiUrl = () => {
 export const API_URL = getApiUrl();
 
 // Configure axios defaults
-axios.defaults.baseURL = API_URL;
+axios.defaults.baseURL = API_URL;  // Revert back to original configuration
 axios.defaults.withCredentials = true; // Enable CORS credentials
 
 // Get salt from environment variables
@@ -204,7 +204,7 @@ export const authFetch = async (url, options = {}) => {
 export const checkServerConnectivity = async () => {
   try {
     const start = Date.now();
-    const response = await axios.get(`${API_URL}/api/db-test.php`);
+    const response = await axios.get(`${API_URL}/server/tests/healthcheck.php`);
     if (response.data && response.data.status === 'success') {
       return {
         isConnected: true,

@@ -57,7 +57,7 @@ function CreateProfile() {
 
   const checkUnique = async (field, value) => {
     try {
-      const response = await fetch(`${API_URL}/api/users.php?action=check_unique&field=${field}&value=${value}`);
+      const response = await fetch(`${API_URL}/server/api/users/users.php?action=check_unique&field=${field}&value=${value}`);
       const data = await response.json();
       return data.isUnique;
     } catch (error) {
@@ -208,7 +208,7 @@ function CreateProfile() {
 
     try {
       setLoadingStates(prev => ({ ...prev, submission: true }));
-      const response = await fetch(`${API_URL}/api/users.php`, {
+      const response = await fetch(`${API_URL}/server/api/users/users.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

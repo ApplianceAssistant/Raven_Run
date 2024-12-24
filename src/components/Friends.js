@@ -37,7 +37,7 @@ function Friends() {
 
     const fetchSentRequests = async () => {
         try {
-            const response = await authFetch(`${API_URL}/api/friends.php?action=get_sent_requests&user_id=${user.id}`);
+            const response = await authFetch(`${API_URL}/server/api/users/friends.php?action=get_sent_requests&user_id=${user.id}`);
             if (!response.ok) throw new Error('Failed to fetch sent requests');
             const data = await response.json();
             setPendingRequests(new Set(data.sent_requests.map(req => req.receiver_id)));
@@ -48,7 +48,7 @@ function Friends() {
 
     const fetchFriends = async () => {
         try {
-            const response = await authFetch(`${API_URL}/api/friends.php?action=get_friends&user_id=${user.id}`);
+            const response = await authFetch(`${API_URL}/server/api/users/friends.php?action=get_friends&user_id=${user.id}`);
             if (!response.ok) throw new Error('Failed to fetch friends');
             const data = await response.json();
             setFriends(data.friends);
@@ -59,7 +59,7 @@ function Friends() {
 
     const fetchFriendRequests = async () => {
         try {
-            const response = await authFetch(`${API_URL}/api/friends.php?action=get_friend_requests&user_id=${user.id}`);
+            const response = await authFetch(`${API_URL}/server/api/users/friends.php?action=get_friend_requests&user_id=${user.id}`);
             if (!response.ok) {
                 error_logger('Failed to fetch friend requests');
                 throw new Error('Failed to fetch friend requests');
@@ -78,7 +78,7 @@ function Friends() {
         }
 
         try {
-            const response = await authFetch(`${API_URL}/api/friends.php?action=search_users&query=${searchValue}`);
+            const response = await authFetch(`${API_URL}/server/api/users/friends.php?action=search_users&query=${searchValue}`);
             if (!response.ok) {
                 throw new Error('Failed to search users');
             }
@@ -118,7 +118,7 @@ function Friends() {
 
     const sendFriendRequest = async (friendId) => {
         try {
-            const response = await authFetch(`${API_URL}/api/friends.php`, {
+            const response = await authFetch(`${API_URL}/server/api/users/friends.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -149,7 +149,7 @@ function Friends() {
 
     const acceptFriendRequest = async (requestId) => {
         try {
-            const response = await authFetch(`${API_URL}/api/friends.php`, {
+            const response = await authFetch(`${API_URL}/server/api/users/friends.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -171,7 +171,7 @@ function Friends() {
 
     const ignoreFriendRequest = async (requestId) => {
         try {
-            const response = await authFetch(`${API_URL}/api/friends.php`, {
+            const response = await authFetch(`${API_URL}/server/api/users/friends.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -226,7 +226,7 @@ function Friends() {
 
     const removeFriend = async (friendId) => {
         try {
-            const response = await authFetch(`${API_URL}/api/friends.php`, {
+            const response = await authFetch(`${API_URL}/server/api/users/friends.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -37,7 +37,7 @@ export const generateUniqueGameId = async () => {
 
     if (isConnected) {
       console.log('3. Checking with server for:', gameId);
-      const response = await authFetch(`${API_URL}/api/games.php?action=check_gameId&gameId=${gameId}`);
+      const response = await authFetch(`${API_URL}/server/api/games/games.php?action=check_gameId&gameId=${gameId}`);
       if (response.ok) {
         const data = await response.json();
         isUnique = data.isUnique;
@@ -141,7 +141,7 @@ export const saveGame = async (gameData) => {
         }
       };
 
-      const response = await authFetch(`${API_URL}/api/games.php`, {
+      const response = await authFetch(`${API_URL}/server/api/games/games.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -185,7 +185,7 @@ export const getGames = async () => {
     const isConnected = (await checkServerConnectivity()).isConnected;
     if (isConnected) {
       // Fetch games from server
-      const response = await authFetch(`${API_URL}/api/games.php?action=get_games`);
+      const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get_games`);
       if (response.ok) {
         const serverGames = await response.json();
         

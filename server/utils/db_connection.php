@@ -3,15 +3,15 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/logs/php_errors.log');
+ini_set('error_log', __DIR__ . '/../logs/php_errors.log');
 
 // Create logs directory if it doesn't exist
-if (!file_exists(__DIR__ . '/logs')) {
-    mkdir(__DIR__ . '/logs', 0777, true);
+if (!file_exists(__DIR__ . '/../logs')) {
+    mkdir(__DIR__ . '/../logs', 0777, true);
 }
 
 // Include CORS configuration
-require_once __DIR__ . '/config/cors.php';
+require_once __DIR__ . '/../config/cors.php';
 
 // Handle CORS before any output
 handleCors();
@@ -29,7 +29,7 @@ if (php_sapi_name() !== 'cli') {
 
 // Load environment variables manually
 function loadEnv() {
-    $dotenv = __DIR__ . '/../.env';
+    $dotenv = __DIR__ . '/../../.env';
     
     if (file_exists($dotenv)) {
         $lines = file($dotenv, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

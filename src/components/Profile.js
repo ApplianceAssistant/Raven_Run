@@ -55,7 +55,7 @@ function Profile() {
 
   const fetchUserData = async () => {
     try {
-      const response = await authFetch(`${API_URL}/api/users.php?action=get&id=${user.id}`);
+      const response = await authFetch(`${API_URL}/server/api/users/users.php?action=get&id=${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
       const userData = await response.json();
 
@@ -181,7 +181,7 @@ function Profile() {
         }
       }
 
-      const response = await authFetch(`${API_URL}/api/users.php`, {
+      const response = await authFetch(`${API_URL}/server/api/users/users.php`, {
         method: 'POST',
         body: JSON.stringify(data)
       });

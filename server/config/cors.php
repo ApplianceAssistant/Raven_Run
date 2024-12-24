@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../db_connection.php';
+require_once __DIR__ . '/../utils/db_connection.php';
 
 function getAllowedOrigins() {
     // Ensure environment variables are loaded

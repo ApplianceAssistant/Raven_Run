@@ -85,25 +85,25 @@ app.use((req, res, next) => {
 });
 
 // API routes
-app.use('/api/users', userRoutes);
-app.use('/api/db-test', dbTestRoute);
+app.use('/server/api/users', userRoutes);
+app.use('/server/api/games', gameRoutes);
+app.use('/server/api/db-test', dbTestRoute);
 
 // Serve static files
 app.use(express.static(game.join(__dirname, '..')));
 
-// Special handling for PHP endpoints
-app.all('/api/*.php', (req, res) => {
+// Special handling for PHP endpoints - support both old and new paths
+app.all(['/server/api/*.php'], (req, res) => {
   // Log the PHP request
   logger.info({
     method: req.method,
     url: req.url,
     headers: req.headers,
     body: req.body,
-    timestamp: new Date().toISOString()
   });
   
   // Instead of redirecting to production, serve the local PHP file
-  const phpFile = game.join(__dirname, '..', req.game);
+  const phpFile = game.join(__dirname, '..', req.url);
   logger.info(`Attempting to serve PHP file: ${phpFile}`);
   
   // Here we'll need to execute the PHP file

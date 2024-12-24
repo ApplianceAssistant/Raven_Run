@@ -1,6 +1,7 @@
 <?php
-require_once (__DIR__ . '/../server/db_connection.php');
-require_once (__DIR__ . '/errorHandler.php');
+require_once (__DIR__ . '/../../utils/db_connection.php');
+require_once (__DIR__ . '/../../utils/encryption.php');
+require_once (__DIR__ . '/../../utils/errorHandler.php');
 
 if (!function_exists('getAuthorizationHeader')) {
     function getAuthorizationHeader()
