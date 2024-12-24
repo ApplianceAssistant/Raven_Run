@@ -23,6 +23,7 @@ import ThemeContainer from './components/ThemeContainer.js';
 import { useTheme } from './utils/ThemeContext';
 import { MessageProvider } from './utils/MessageProvider';
 import MessageDisplay from './components/MessageDisplay';
+import Documentation from './components/Documentation';
 
 import './css/App.scss';
 
@@ -118,6 +119,7 @@ function AppContent() {
           <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
           <Route path="/settings" element={<ThemeContainer theme={theme}><Settings /></ThemeContainer>} />
           <Route path="/friends" element={<ThemeContainer theme={theme}><Friends /></ThemeContainer>} />
+          <Route path="/documentation" element={<ThemeContainer theme={theme}><Documentation /></ThemeContainer>} />
           {authContextValue.isAuthenticated && (
             <>
               <Route path="/hunt-description" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />

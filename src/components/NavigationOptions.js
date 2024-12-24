@@ -3,17 +3,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ScrollableContent from './ScrollableContent';
-import { faUser, faGamepad, faPlus, faSearch, faTrophy, faUsers, faDiceD20 } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faGamepad, faPlus, faSearch, faTrophy, faUsers, faDiceD20, faBook } from '@fortawesome/free-solid-svg-icons';
 import '../css/NavigationOptions.scss';
 
 const defaultOptions = [
-    {
-        id: 'profile',
-        label: 'Profile',
-        route: '/profile',
-        icon: faUser,
-        description: 'View and edit your profile'
-    },
     {
         id: 'findGame',
         label: 'Find a Game',
@@ -29,11 +22,25 @@ const defaultOptions = [
         description: 'Create a new game'
     },
     {
+        id: 'profile',
+        label: 'Profile',
+        route: '/profile',
+        icon: faUser,
+        description: 'View and edit your profile'
+    },
+    {
         id: 'friends',
         label: 'Friends',
         route: '/friends',
         icon: faUsers,
         description: 'Connect with other players'
+    },
+    {
+        id: 'documentation',
+        label: 'Documentation',
+        route: '/documentation',
+        icon: faBook,
+        description: 'View user guides and help'
     }
 ];
 
