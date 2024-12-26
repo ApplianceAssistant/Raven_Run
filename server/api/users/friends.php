@@ -16,9 +16,10 @@ if (!$user) {
     exit;
 }
 
+$conn = getDbConnection();
+
 function searchUsers($query)
 {
-    $conn = getDbConnection();
     $query = "$query";
     $stmt = $conn->prepare('SELECT id, username FROM users WHERE username LIKE ? LIMIT 20');
     $stmt->bind_param('s', $query);
