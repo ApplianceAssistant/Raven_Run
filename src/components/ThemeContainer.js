@@ -14,6 +14,12 @@ const ThemeContainer = ({ children, theme }) => {
   const { className, isCanvasTheme, style } = themesConfig[theme] || {};
   const canvasRef = useRef(null);
   console.warn("location: ", location);
+  // Cancel speech when route changes
+  useEffect(() => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  }, [location]);
   // Dynamically import the theme's SCSS file
   useEffect(() => {
     if (style) {

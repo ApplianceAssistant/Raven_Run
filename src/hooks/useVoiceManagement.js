@@ -8,6 +8,12 @@ export const useVoiceManagement = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
 
+  const cancelSpeech = useCallback(() => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  }, []);
+
   const loadVoices = useCallback(() => {
     const availableVoices = window.speechSynthesis.getVoices();
     if (availableVoices.length > 0) {
@@ -61,5 +67,5 @@ export const useVoiceManagement = () => {
     return selectedVoice || voices[0] || null;
   }, [voices, selectedVoiceURI]);
 
-  return { voices, selectedVoiceURI, isLoading, setVoice, getSelectedVoice };
+  return { voices, selectedVoiceURI, isLoading, setVoice, getSelectedVoice, cancelSpeech   };
 };

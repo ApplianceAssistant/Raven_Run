@@ -6,7 +6,7 @@ import { useSettings } from '../utils/SettingsContext';
 
 const TextToSpeech = ({ text, autoPlayTrigger }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const { getSelectedVoice } = useVoiceManagement();
+  const { getSelectedVoice, cancelSpeech } = useVoiceManagement();
   const { settings, updateSetting } = useSettings();
   const autoSpeakRef = useRef(settings.autoSpeak);
   const sentencesRef = useRef([]);
@@ -42,7 +42,7 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
 
     try {
       // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
+      cancelSpeech();
 
       if (currentSentenceIndexRef.current >= sentencesRef.current.length) {
         setIsSpeaking(false);

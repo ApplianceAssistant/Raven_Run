@@ -4,9 +4,11 @@ import ToggleSwitch from './ToggleSwitch';
 import VoiceSelector from './VoiceSelector';
 import { useSettings } from '../utils/SettingsContext';
 import { ThemeSwitcher } from '../utils/ThemeContext';
+import { useVoiceManagement } from '../hooks/useVoiceManagement';
 
 function Settings() {
   const { settings, updateSetting } = useSettings();
+  const { cancelSpeech } = useVoiceManagement();
 
   const handleUnitSystemToggle = () => {
     updateSetting('isMetric', !settings.isMetric);
@@ -25,13 +27,16 @@ function Settings() {
   };
 
   const testVoice = () => {
+    // Cancel any currently playing speech
+    cancelSpeech();
+    
     const utterance = new SpeechSynthesisUtterance("The quick brown fox jumps over the lazy dog");
     const voices = window.speechSynthesis.getVoices();
     const selectedVoice = voices.find(voice => voice.voiceURI === settings.selectedVoiceURI);
     if (selectedVoice) {
       utterance.voice = selectedVoice;
+      window.speechSynthesis.speak(utterance);
     }
-    window.speechSynthesis.speak(utterance);
   };
 
   return (
@@ -57,10 +62,9 @@ function Settings() {
 
           <div className="voice-settings">
             <VoiceSelector
-              selectedVoiceURI={settings.selectedVoiceURI}
               onVoiceChange={handleVoiceChange}
             />
-            <button onClick={testVoice} className="test-voice-button">
+            <button onClick={testVoice} className="test-voice-btn">
               Test Voice
             </button>
           </div>
