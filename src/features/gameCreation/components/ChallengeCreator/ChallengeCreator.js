@@ -35,6 +35,23 @@ const ChallengeCreator = () => {
 
   const [showHints, setShowHints] = useState(false);
 
+  const [showButtons, setShowButtons] = useState(false);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+
+  useEffect(() => {
+    if (hasChanges) {
+      setShowButtons(true);
+      setIsAnimatingOut(false);
+    } else if (showButtons) { // Only animate out if buttons were showing
+      setIsAnimatingOut(true);
+      const timer = setTimeout(() => {
+        setShowButtons(false);
+        setIsAnimatingOut(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [hasChanges]);
+
   // Load existing challenge if editing
   useEffect(() => {
     const games = getGamesFromLocalStorage();
@@ -69,7 +86,7 @@ const ChallengeCreator = () => {
           targetLocation: existingChallenge.targetLocation || { latitude: '', longitude: '' },
           radius: existingChallenge.radius || '',
           question: existingChallenge.question || '',
-          correctAnswer: existingChallenge.type === 'trueFalse' 
+          correctAnswer: existingChallenge.type === 'trueFalse'
             ? (existingChallenge.correctAnswer === undefined ? false : existingChallenge.correctAnswer)
             : (existingChallenge.correctAnswer || '')
         };
@@ -132,106 +149,22 @@ const ChallengeCreator = () => {
   };
 
   const handleInputChange = (e) => {
-    const { name, value, type: inputType, checked } = e.target;
-    clearMessage();
-
-    let updatedValue = value;
-    if (name === 'radius') {
-      updatedValue = value === '' ? '' : isMetric ? parseFloat(value) : feetToMeters(parseFloat(value));
-    } else if (inputType === 'checkbox') {
-      updatedValue = checked;
-    }
-
-    if (name === 'type') {
-      // When changing challenge type, initialize the new type's fields
-      const baseFields = {
-        title: challenge.title || '',
-        description: challenge.description || '',
-        repeatable: challenge.repeatable || false,
-        order: challenge.order || null,
-        id: challenge.id || '',
-        type: value,
-        hints: []
-      };
-
-      let typeSpecificFields = {};
-      switch (value) {
-        case 'travel':
-          typeSpecificFields = {
-            targetLocation: challenge.targetLocation || { latitude: '', longitude: '' },
-            radius: challenge.radius || '',
-            completionFeedback: challenge.completionFeedback || '',
-            description: challenge.description || ''
-          };
-          break;
-        case 'story':
-          typeSpecificFields = {
-            description: challenge.description || '',
-            feedbackTexts: { correct: '', incorrect: [''] }
-          };
-          break;
-        case 'multipleChoice':
-          typeSpecificFields = {
-            question: challenge.question || '',
-            options: challenge.options?.length > 0 ? challenge.options : [''],
-            correctAnswer: challenge.correctAnswer || '',
-            feedbackTexts: { 
-              correct: challenge.feedbackTexts?.correct || '',
-              incorrect: challenge.feedbackTexts?.incorrect || ['']
-            }
-          };
-          break;
-        case 'trueFalse':
-          typeSpecificFields = {
-            question: '',
-            correctAnswer: false,
-            feedbackTexts: { correct: '', incorrect: [''] }
-          };
-          break;
-        case 'textInput':
-          typeSpecificFields = {
-            question: '',
-            correctAnswer: '',
-            feedbackTexts: { correct: '', incorrect: [''] }
-          };
-          break;
-      }
-
-      setChallenge({
-        ...baseFields,
-        ...typeSpecificFields
-      });
-      return;
-    }
-
+    const { name, value } = e.target;
+    
+    // Handle nested fields (like feedbackTexts.correct)
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      if (parent === 'targetLocation') {
-        setChallenge(prev => ({
-          ...prev,
-          targetLocation: {
-            ...prev.targetLocation,
-            [child]: updatedValue
-          }
-        }));
-      } else {
-        setChallenge(prev => ({
-          ...prev,
-          [parent]: {
-            ...prev[parent],
-            [child]: updatedValue
-          }
-        }));
-      }
-    } else if (inputType === 'checkbox') {
       setChallenge(prev => ({
         ...prev,
-        [name]: checked
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
       }));
     } else {
       setChallenge(prev => ({
         ...prev,
-        [name]: updatedValue
+        [name]: value
       }));
     }
   };
@@ -400,8 +333,8 @@ const ChallengeCreator = () => {
 
   const renderField = (fieldName, fieldConfig) => {
     // Get the value for this field
-    const value = fieldName === 'targetLocation' 
-      ? challenge.targetLocation 
+    const value = fieldName === 'targetLocation'
+      ? challenge.targetLocation
       : challenge[fieldName];
 
     // For hints, show them if they exist, regardless of showHints state
@@ -431,7 +364,6 @@ const ChallengeCreator = () => {
           />
         );
       case 'textarea':
-        // Special handling for feedbackTexts field
         if (fieldName === 'feedbackTexts') {
           return (
             <div className="array-field">
@@ -443,67 +375,25 @@ const ChallengeCreator = () => {
                 <textarea
                   id="feedbackTexts.correct"
                   name="feedbackTexts.correct"
-                  value={value.correct || ''}
+                  value={value?.correct || ''}
                   onChange={handleInputChange}
                   onBlur={() => {
-                    if (!value.correct && fieldConfig.required) {
+                    if (!value?.correct && fieldConfig.required) {
                       showWarning('Correct answer feedback is required');
                     }
                   }}
                   required={fieldConfig.required}
-                  placeholder="Enter feedback for correct answers"
+                  placeholder="Enter feedback for correct answer"
                 />
-              </div>
-              <div className="feedback-section">
-                <div className="section-header">
-                  <label>
-                    Incorrect Answer Feedback
-                    {fieldConfig.required && <span className="required">*</span>}
-                  </label>
-                  <button
-                    type="button"
-                    className="btn-add"
-                    onClick={() => addIncorrectFeedback()}
-                    title="Add another incorrect feedback"
-                  >
-                    <FontAwesomeIcon icon={faPlusCircle} />
-                  </button>
-                </div>
-                {value.incorrect.map((feedback, index) => (
-                  <div key={index} className="array-item">
-                    <button
-                      type="button"
-                      className="btn-remove"
-                      onClick={() => removeIncorrectFeedback(index)}
-                      title="Remove feedback"
-                      disabled={value.incorrect.length === 1}
-                    >
-                      <FontAwesomeIcon icon={faBan} />
-                    </button>
-                    <textarea
-                      name={`feedbackTexts.incorrect.${index}`}
-                      value={feedback}
-                      onChange={(e) => handleFeedbackChange(e, 'incorrect', index)}
-                      onBlur={() => {
-                        if (!feedback.trim() && fieldConfig.required) {
-                          showWarning('Incorrect answer feedback cannot be empty');
-                        }
-                      }}
-                      required={fieldConfig.required}
-                      placeholder="Enter feedback for incorrect answers"
-                    />
-                  </div>
-                ))}
               </div>
             </div>
           );
         }
-        // Regular textarea for other fields
         return (
           <textarea
             id={fieldName}
             name={fieldName}
-            value={value}
+            value={value || ''}
             onChange={handleInputChange}
             onBlur={() => {
               if (!value && fieldConfig.required) {
@@ -511,10 +401,11 @@ const ChallengeCreator = () => {
               }
             }}
             required={fieldConfig.required}
+            placeholder={`Enter ${fieldConfig.label || fieldName}`}
           />
         );
       case 'number':
-        const displayValue = fieldName === 'radius' 
+        const displayValue = fieldName === 'radius'
           ? (value === '' ? '' : (isMetric ? value : metersToFeet(value)))
           : value;
         return (
@@ -700,12 +591,10 @@ const ChallengeCreator = () => {
     }
   };
 
-  const renderFields = () => {
-    if (!challenge.type) return null;
-
-    return Object.entries(challengeTypeConfig[challenge.type]).map(([fieldName, fieldConfig]) => {
+  const renderFields = (fields) => {
+    return fields.map(([fieldName, fieldConfig]) => {
       if (fieldName === 'type') return null;
-      
+
       // For feedback fields, render without the extra form-group wrapper
       if (fieldConfig.type === 'feedback') {
         return renderField(fieldName, fieldConfig);
@@ -762,40 +651,14 @@ const ChallengeCreator = () => {
 
   return (
     <form onSubmit={handleSubmit} className="challenge-creator challenge-form">
-      <button type="button" className="back-button" onClick={handleBack} title="Back">
+      <button type="button" className="back-button" onClick={handleBack}>
         <FontAwesomeIcon icon={faArrowLeft} />
       </button>
       <div className="challenge-creator-header">
-
         <h2>{isEditing ? 'Edit Challenge' : 'Create New Challenge'}</h2>
-      </div>
-
-      {/* Challenge Type Selection */}
-      <div className="form-group">
-        <label htmlFor="type">Challenge Type<span className="required">*</span></label>
-        <select
-          id="type"
-          name="type"
-          value={challenge.type}
-          onChange={handleInputChange}
-          required
-        >
-          <option value="">Select a type</option>
-          {Object.keys(challengeTypeConfig).map(type => (
-            <option key={type} value={type}>
-              {challengeTypeConfig[type].label || type}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <ScrollableContent maxHeight="60vh">
-        {/* Dynamic Fields - Only show if type is selected */}
-        {challenge.type && renderFields()}
-
-        {/* Save/Cancel Buttons - Show if editing with changes, or if creating new */}
-        {(hasChanges || !isEditing) && (
-          <div className="button-container">
+        {/* Save/Cancel Buttons */}
+        {showButtons && (
+          <div className={`button-container ${isAnimatingOut ? 'sliding-up' : ''}`}>
             <button type="submit" className="save-button">
               {isEditing ? 'Save Changes' : 'Create Challenge'}
             </button>
@@ -804,6 +667,47 @@ const ChallengeCreator = () => {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Challenge Type and Order */}
+      <div className="type-order-container">
+        <div className="challenge-type-selector">
+          <label htmlFor="type">Challenge Type:</label>
+          <select
+            id="type"
+            name="type"
+            value={challenge.type}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="">Select a type</option>
+            {Object.keys(challengeTypeConfig).map(type => (
+              <option key={type} value={type}>
+                {challengeTypeConfig[type].label || type}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="order-field">
+          <label htmlFor="order">Order:</label>
+          <input
+            type="number"
+            id="order"
+            name="order"
+            value={challenge.order}
+            onChange={handleInputChange}
+            min="1"
+            max="999"
+            required
+          />
+        </div>
+
+
+      </div>
+
+      <ScrollableContent maxHeight="60vh">
+        {/* Dynamic Fields - Only show if type is selected */}
+        {challenge.type && renderFields(Object.entries(challengeTypeConfig[challenge.type]).filter(([fieldName]) => fieldName !== 'order'))}
       </ScrollableContent>
     </form>
   );

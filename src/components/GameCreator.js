@@ -113,6 +113,7 @@ const GameCreator = () => {
       setGames(prevGames => prevGames.map(g => g.id === updatedGame.id ? updatedGame : g));
       saveGame(updatedGame);
       setIsEditingGame(false);
+      setHasChanges(false);
     } else {
       alert('Please enter a game title');
     }

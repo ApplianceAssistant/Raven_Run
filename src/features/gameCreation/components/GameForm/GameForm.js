@@ -17,35 +17,35 @@ const GameForm = ({
   const navigate = useNavigate();
   const { showError, showSuccess } = useMessage();
   const [formData, setFormData] = useState({
-    ...gameData,
-    name: gameData.name || '',
-    description: gameData.description || '',
-    public: gameData.public || false,
-    gameId: gameData.gameId || '',
-    challenges: gameData.challenges || []
+    name: '',
+    description: '',
+    public: false,
+    gameId: '',
+    challenges: []
   });
   const [originalData, setOriginalData] = useState({
-    ...gameData,
-    name: gameData.name || '',
-    description: gameData.description || '',
-    public: gameData.public || false,
-    gameId: gameData.gameId || '',
-    challenges: gameData.challenges || []
+    name: '',
+    description: '',
+    public: false,
+    gameId: '',
+    challenges: []
   });
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
+  // Initialize both formData and originalData when gameData changes
   useEffect(() => {
-    console.log('GameForm received gameData:', gameData);
-    setFormData({
+    const initialData = {
       ...gameData,
       name: gameData.name || '',
       description: gameData.description || '',
       public: gameData.public || false,
       gameId: gameData.gameId || '',
       challenges: gameData.challenges || []
-    });
-    console.log('GameForm updated formData with gameId:', gameData.gameId);
+    };
+    console.log('Initializing with gameData:', initialData);
+    setFormData(initialData);
+    setOriginalData(JSON.parse(JSON.stringify(initialData)));
   }, [gameData]);
 
   useEffect(() => {
@@ -55,8 +55,16 @@ const GameForm = ({
 
   useEffect(() => {
     const hasDataChanges = Object.keys(formData).some(key => {
-      return JSON.stringify(formData[key]) !== JSON.stringify(originalData[key]);
+      const isDifferent = JSON.stringify(formData[key]) !== JSON.stringify(originalData[key]);
+      if (isDifferent) {
+        console.log(`Change detected in ${key}:`, {
+          formData: formData[key],
+          originalData: originalData[key]
+        });
+      }
+      return isDifferent;
     });
+    console.log('Has changes:', hasDataChanges);
     setHasChanges(hasDataChanges);
   }, [formData, originalData]);
 
@@ -86,20 +94,31 @@ const GameForm = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('GameForm submitting with formData:', formData);
-    try {
-      await onSave({
-        ...formData,
-        challenges: formData.challenges || []
-      });
-      // Update originalData to match the current formData after successful save
-      setOriginalData({
-        ...formData,
-        challenges: formData.challenges || []
-      });
-      showSuccess(isEditing ? 'Game updated successfully!' : 'Game created successfully!');
-    } catch (error) {
-      showError(error.message || 'Failed to save game. Please try again.');
+    if (isValidGame(formData)) {
+      try {
+        const submittedData = {
+          ...formData,
+          challenges: formData.challenges || []
+        };
+        console.log('Before save:', {
+          submittedData,
+          originalData
+        });
+        await onSave(submittedData);
+        // Update originalData with a deep copy of the submitted data
+        const newOriginalData = JSON.parse(JSON.stringify(submittedData));
+        console.log('After save:', {
+          submittedData,
+          newOriginalData
+        });
+        setOriginalData(newOriginalData);
+        setHasChanges(false);
+        showSuccess(isEditing ? 'Game updated successfully!' : 'Game created successfully!');
+      } catch (error) {
+        showError(error.message || 'Failed to save game. Please try again.');
+      }
+    } else {
+      showError('Please fill in all required fields.');
     }
   };
 
