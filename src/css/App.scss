@@ -1108,14 +1108,6 @@ body.menu-open {
 }
 
 @media (max-width: $breakpoint-md) {
-  .header {
-    height: 65px;
-  }
-
-  .header .logo {
-    font-size: 2em;
-  }
-
   .content {
     max-width:500px;
   }

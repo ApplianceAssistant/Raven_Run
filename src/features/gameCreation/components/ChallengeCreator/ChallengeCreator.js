@@ -66,7 +66,7 @@ const ChallengeCreator = () => {
           hints: existingChallenge.hints || [],
           options: existingChallenge.options || [],
           answers: existingChallenge.answers || [''],
-          coordinates: existingChallenge.coordinates || { latitude: '', longitude: '' },
+          targetLocation: existingChallenge.targetLocation || { latitude: '', longitude: '' },
           radius: existingChallenge.radius || ''
         };
 
@@ -197,13 +197,23 @@ const ChallengeCreator = () => {
 
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      setChallenge(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: updatedValue
-        }
-      }));
+      if (parent === 'targetLocation') {
+        setChallenge(prev => ({
+          ...prev,
+          targetLocation: {
+            ...prev.targetLocation,
+            [child]: updatedValue
+          }
+        }));
+      } else {
+        setChallenge(prev => ({
+          ...prev,
+          [parent]: {
+            ...prev[parent],
+            [child]: updatedValue
+          }
+        }));
+      }
     } else if (inputType === 'checkbox') {
       setChallenge(prev => ({
         ...prev,
@@ -266,29 +276,16 @@ const ChallengeCreator = () => {
     });
   };
 
-  const handleArrayChange = (e, index, fieldName) => {
-    clearMessage();
-    const { value } = e.target;
-    setChallenge(prev => {
-      const newArray = [...prev[fieldName]];
-      newArray[index] = value;
-      return {
-        ...prev,
-        [fieldName]: newArray
-      };
-    });
-  };
-
   const addArrayItem = (fieldName) => {
     setChallenge(prev => ({
       ...prev,
-      [fieldName]: [...prev[fieldName], '']
+      [fieldName]: [...(prev[fieldName] || []), '']
     }));
   };
 
   const removeArrayItem = (index, fieldName) => {
     const fieldConfig = challengeTypeConfig[challenge.type][fieldName];
-    if (fieldConfig.required && challenge[fieldName].length === 1) {
+    if (fieldConfig.required && (!challenge[fieldName] || challenge[fieldName].length <= 1)) {
       showWarning(`At least one ${fieldConfig.label || fieldName} is required`);
       return;
     }
@@ -296,6 +293,19 @@ const ChallengeCreator = () => {
       ...prev,
       [fieldName]: prev[fieldName].filter((_, i) => i !== index)
     }));
+  };
+
+  const handleArrayChange = (e, index, fieldName) => {
+    clearMessage();
+    const { value } = e.target;
+    setChallenge(prev => {
+      const newArray = [...(prev[fieldName] || [])];
+      newArray[index] = value;
+      return {
+        ...prev,
+        [fieldName]: newArray
+      };
+    });
   };
 
   const handleUseMyLocation = () => {
@@ -374,12 +384,12 @@ const ChallengeCreator = () => {
 
   const renderField = (fieldName, fieldConfig) => {
     // Get the value for this field
-    const value = fieldName === 'targetLocation' || fieldName === 'coordinates' 
+    const value = fieldName === 'targetLocation' 
       ? challenge.targetLocation 
       : challenge[fieldName];
 
-    // Don't render hints field unless showHints is true
-    if (fieldName === 'hints' && !showHints) {
+    // For hints, show them if they exist, regardless of showHints state
+    if (fieldName === 'hints' && !showHints && (!value || value.length === 0)) {
       return null;
     }
 
@@ -583,6 +593,7 @@ const ChallengeCreator = () => {
                     }
                   }}
                   required={fieldConfig.required}
+                  placeholder={`Enter ${fieldConfig.label || fieldName}`}
                 />
               </div>
             ))}
@@ -598,7 +609,7 @@ const ChallengeCreator = () => {
                   type="number"
                   id={`${fieldName}.latitude`}
                   name={`${fieldName}.latitude`}
-                  value={value.latitude}
+                  value={value?.latitude || ''}
                   onChange={handleInputChange}
                   step="any"
                   required={fieldConfig.required}
@@ -610,7 +621,7 @@ const ChallengeCreator = () => {
                   type="number"
                   id={`${fieldName}.longitude`}
                   name={`${fieldName}.longitude`}
-                  value={value.longitude}
+                  value={value?.longitude || ''}
                   onChange={handleInputChange}
                   step="any"
                   required={fieldConfig.required}
@@ -732,11 +743,13 @@ const ChallengeCreator = () => {
                 className="btn-add"
                 onClick={() => {
                   setShowHints(true);
-                  if (challenge.hints.length === 0) {
+                  if (!challenge.hints || challenge.hints.length === 0) {
                     setChallenge(prev => ({
                       ...prev,
                       hints: ['']
                     }));
+                  } else {
+                    addArrayItem('hints');
                   }
                 }}
                 title={`Add ${fieldConfig.label || fieldName}`}
