@@ -67,7 +67,11 @@ const ChallengeCreator = () => {
           options: existingChallenge.options || [],
           answers: existingChallenge.answers || [''],
           targetLocation: existingChallenge.targetLocation || { latitude: '', longitude: '' },
-          radius: existingChallenge.radius || ''
+          radius: existingChallenge.radius || '',
+          question: existingChallenge.question || '',
+          correctAnswer: existingChallenge.type === 'trueFalse' 
+            ? (existingChallenge.correctAnswer === undefined ? false : existingChallenge.correctAnswer)
+            : (existingChallenge.correctAnswer || '')
         };
 
         console.log('Setting merged challenge:', mergedChallenge);
@@ -134,6 +138,8 @@ const ChallengeCreator = () => {
     let updatedValue = value;
     if (name === 'radius') {
       updatedValue = value === '' ? '' : isMetric ? parseFloat(value) : feetToMeters(parseFloat(value));
+    } else if (inputType === 'checkbox') {
+      updatedValue = checked;
     }
 
     if (name === 'type') {
@@ -166,10 +172,13 @@ const ChallengeCreator = () => {
           break;
         case 'multipleChoice':
           typeSpecificFields = {
-            question: '',
-            options: [''],
-            correctAnswer: '',
-            feedbackTexts: { correct: '', incorrect: [''] }
+            question: challenge.question || '',
+            options: challenge.options?.length > 0 ? challenge.options : [''],
+            correctAnswer: challenge.correctAnswer || '',
+            feedbackTexts: { 
+              correct: challenge.feedbackTexts?.correct || '',
+              incorrect: challenge.feedbackTexts?.incorrect || ['']
+            }
           };
           break;
         case 'trueFalse':
@@ -227,8 +236,36 @@ const ChallengeCreator = () => {
     }
   };
 
+  const addIncorrectFeedback = () => {
+    setChallenge(prev => ({
+      ...prev,
+      feedbackTexts: {
+        ...prev.feedbackTexts,
+        incorrect: [...(prev.feedbackTexts?.incorrect || []), '']
+      }
+    }));
+  };
+
+  const removeIncorrectFeedback = (index) => {
+    setChallenge(prev => {
+      // Don't remove if it's the last incorrect feedback
+      if (prev.feedbackTexts?.incorrect?.length <= 1) {
+        return prev;
+      }
+      return {
+        ...prev,
+        feedbackTexts: {
+          ...prev.feedbackTexts,
+          incorrect: prev.feedbackTexts.incorrect.filter((_, i) => i !== index)
+        }
+      };
+    });
+  };
+
   const handleFeedbackChange = (e, type, index) => {
-    const value = e.target.value;
+    clearMessage();
+    const { value } = e.target;
+
     setChallenge(prev => {
       if (type === 'correct') {
         return {
@@ -249,30 +286,6 @@ const ChallengeCreator = () => {
           }
         };
       }
-    });
-  };
-
-  const addIncorrectFeedback = () => {
-    setChallenge(prev => ({
-      ...prev,
-      feedbackTexts: {
-        ...prev.feedbackTexts,
-        incorrect: [...prev.feedbackTexts.incorrect, '']
-      }
-    }));
-  };
-
-  const removeIncorrectFeedback = (index) => {
-    setChallenge(prev => {
-      const newIncorrect = [...prev.feedbackTexts.incorrect];
-      newIncorrect.splice(index, 1);
-      return {
-        ...prev,
-        feedbackTexts: {
-          ...prev.feedbackTexts,
-          incorrect: newIncorrect
-        }
-      };
     });
   };
 
@@ -330,9 +343,12 @@ const ChallengeCreator = () => {
   };
 
   const handleToggleChange = (fieldName) => {
+    clearMessage();
     setChallenge(prev => ({
       ...prev,
-      [fieldName]: !prev[fieldName]
+      [fieldName]: fieldName === 'correctAnswer' && prev.type === 'trueFalse'
+        ? !prev[fieldName]  // For true/false challenges, toggle between true/false
+        : !prev[fieldName]  // For other toggles, just invert the value
     }));
   };
 
@@ -418,82 +434,61 @@ const ChallengeCreator = () => {
         // Special handling for feedbackTexts field
         if (fieldName === 'feedbackTexts') {
           return (
-            <div className="feedback-field">
-              <div className="feedback-section">
-                <div className="field-header">
-                  <label>Correct Answer Feedback</label>
-                  <button
-                    type="button"
-                    className="btn-add"
-                    onClick={() => {
-                      if (!value.correct) {
-                        setChallenge(prev => ({
-                          ...prev,
-                          feedbackTexts: {
-                            ...prev.feedbackTexts,
-                            correct: ''
-                          }
-                        }));
-                      }
-                    }}
-                    title="Add correct feedback"
-                  >
-                    <FontAwesomeIcon icon={faPlusCircle} />
-                  </button>
-                </div>
-                {value.correct !== undefined && (
-                  <div className="feedback-item">
-                    <button
-                      type="button"
-                      className="btn-remove"
-                      onClick={() => {
-                        setChallenge(prev => ({
-                          ...prev,
-                          feedbackTexts: {
-                            ...prev.feedbackTexts,
-                            correct: undefined
-                          }
-                        }));
-                      }}
-                      title="Remove correct feedback"
-                    >
-                      <FontAwesomeIcon icon={faBan} />
-                    </button>
-                    <textarea
-                      value={value.correct || ''}
-                      onChange={(e) => handleFeedbackChange(e, 'correct')}
-                      required={fieldConfig.required}
-                      placeholder="Enter feedback for correct answers"
-                    />
-                  </div>
-                )}
+            <div className="array-field">
+              <div className="array-item">
+                <label>
+                  Correct Answer Feedback
+                  {fieldConfig.required && <span className="required">*</span>}
+                </label>
+                <textarea
+                  id="feedbackTexts.correct"
+                  name="feedbackTexts.correct"
+                  value={value.correct || ''}
+                  onChange={handleInputChange}
+                  onBlur={() => {
+                    if (!value.correct && fieldConfig.required) {
+                      showWarning('Correct answer feedback is required');
+                    }
+                  }}
+                  required={fieldConfig.required}
+                  placeholder="Enter feedback for correct answers"
+                />
               </div>
-
               <div className="feedback-section">
-                <div className="field-header">
-                  <label>Incorrect Answer Feedback</label>
+                <div className="section-header">
+                  <label>
+                    Incorrect Answer Feedback
+                    {fieldConfig.required && <span className="required">*</span>}
+                  </label>
                   <button
                     type="button"
                     className="btn-add"
-                    onClick={addIncorrectFeedback}
-                    title="Add incorrect feedback"
+                    onClick={() => addIncorrectFeedback()}
+                    title="Add another incorrect feedback"
                   >
                     <FontAwesomeIcon icon={faPlusCircle} />
                   </button>
                 </div>
                 {value.incorrect.map((feedback, index) => (
-                  <div key={index} className="feedback-item">
+                  <div key={index} className="array-item">
                     <button
                       type="button"
                       className="btn-remove"
                       onClick={() => removeIncorrectFeedback(index)}
-                      title="Remove incorrect feedback"
+                      title="Remove feedback"
+                      disabled={value.incorrect.length === 1}
                     >
                       <FontAwesomeIcon icon={faBan} />
                     </button>
                     <textarea
+                      name={`feedbackTexts.incorrect.${index}`}
                       value={feedback}
                       onChange={(e) => handleFeedbackChange(e, 'incorrect', index)}
+                      onBlur={() => {
+                        if (!feedback.trim() && fieldConfig.required) {
+                          showWarning('Incorrect answer feedback cannot be empty');
+                        }
+                      }}
                       required={fieldConfig.required}
                       placeholder="Enter feedback for incorrect answers"
                     />
@@ -597,6 +592,7 @@ const ChallengeCreator = () => {
                 />
               </div>
             ))}
+
           </div>
         );
       case 'location':
@@ -635,87 +631,67 @@ const ChallengeCreator = () => {
         );
       case 'feedback':
         return (
-          <div className="feedback-field">
-            <div className="feedback-section">
-              <div className="field-header">
-                <label>Correct Answer Feedback</label>
-                <button
-                  type="button"
-                  className="btn-add"
-                  onClick={() => {
-                    if (!value.correct) {
-                      setChallenge(prev => ({
-                        ...prev,
-                        feedbackTexts: {
-                          ...prev.feedbackTexts,
-                          correct: ''
-                        }
-                      }));
-                    }
-                  }}
-                  title="Add correct feedback"
-                >
-                  <FontAwesomeIcon icon={faPlusCircle} />
-                </button>
-              </div>
-              {value.correct !== undefined && (
-                <div className="feedback-item">
-                  <button
-                    type="button"
-                    className="btn-remove"
-                    onClick={() => {
-                      setChallenge(prev => ({
-                        ...prev,
-                        feedbackTexts: {
-                          ...prev.feedbackTexts,
-                          correct: undefined
-                        }
-                      }));
-                    }}
-                    title="Remove correct feedback"
-                  >
-                    <FontAwesomeIcon icon={faBan} />
-                  </button>
+          <div className="form-group">
+            <label>{fieldConfig.label}{fieldConfig.required && <span className="required">*</span>}</label>
+            <div className="array-field">
+              <div className="feedback-section">
+                <div className="section-header">
+                  <label>Correct Answer Feedback{fieldConfig.required && <span className="required">*</span>}</label>
+                </div>
+                <div className="array-item">
                   <textarea
+                    id="feedbackTexts.correct"
+                    name="feedbackTexts.correct"
                     value={value.correct || ''}
-                    onChange={(e) => handleFeedbackChange(e, 'correct')}
+                    onChange={handleInputChange}
+                    onBlur={() => {
+                      if (!value.correct && fieldConfig.required) {
+                        showWarning('Correct answer feedback is required');
+                      }
+                    }}
                     required={fieldConfig.required}
                     placeholder="Enter feedback for correct answers"
                   />
                 </div>
-              )}
-            </div>
-
-            <div className="feedback-section">
-              <div className="field-header">
-                <label>Incorrect Answer Feedback</label>
-                <button
-                  type="button"
-                  className="btn-add"
-                  onClick={addIncorrectFeedback}
-                  title="Add incorrect feedback"
-                >
-                  <FontAwesomeIcon icon={faPlusCircle} />
-                </button>
               </div>
-              {value.incorrect.map((feedback, index) => (
-                <div key={index} className="feedback-item">
+              <div className="feedback-section">
+                <div className="section-header">
+                  <label>Incorrect Answer Feedback{fieldConfig.required && <span className="required">*</span>}</label>
                   <button
                     type="button"
-                    className="btn-remove"
-                    onClick={() => removeIncorrectFeedback(index)}
-                    title="Remove incorrect feedback"
+                    className="btn-add"
+                    onClick={() => addIncorrectFeedback()}
+                    title="Add another incorrect feedback"
                   >
-                    <FontAwesomeIcon icon={faBan} />
+                    <FontAwesomeIcon icon={faPlusCircle} />
                   </button>
-                  <textarea
-                    value={feedback}
-                    onChange={(e) => handleFeedbackChange(e, 'incorrect', index)}
-                    required={fieldConfig.required}
-                    placeholder="Enter feedback for incorrect answers"
-                  />
                 </div>
-              ))}
+                {value.incorrect.map((feedback, index) => (
+                  <div key={index} className="array-item">
+                    <button
+                      type="button"
+                      className="btn-remove"
+                      onClick={() => removeIncorrectFeedback(index)}
+                      title="Remove feedback"
+                      disabled={value.incorrect.length === 1}
+                    >
+                      <FontAwesomeIcon icon={faBan} />
+                    </button>
+                    <textarea
+                      name={`feedbackTexts.incorrect.${index}`}
+                      value={feedback}
+                      onChange={(e) => handleFeedbackChange(e, 'incorrect', index)}
+                      onBlur={() => {
+                        if (!feedback.trim() && fieldConfig.required) {
+                          showWarning('Incorrect answer feedback cannot be empty');
+                        }
+                      }}
+                      required={fieldConfig.required}
+                      placeholder="Enter feedback for incorrect answers"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         );
@@ -729,6 +705,12 @@ const ChallengeCreator = () => {
 
     return Object.entries(challengeTypeConfig[challenge.type]).map(([fieldName, fieldConfig]) => {
       if (fieldName === 'type') return null;
+      
+      // For feedback fields, render without the extra form-group wrapper
+      if (fieldConfig.type === 'feedback') {
+        return renderField(fieldName, fieldConfig);
+      }
+
       const radiusLabel = fieldName === 'radius' ? `Radius ${isMetric ? '(in meters)' : '(in feet)'} *` : fieldConfig.label || fieldName;
       return (
         <div key={fieldName} className="form-group">
@@ -737,19 +719,30 @@ const ChallengeCreator = () => {
               {radiusLabel}
               {fieldConfig.required && <span className="required">*</span>}
             </label>
-            {fieldName === 'hints' && (
+            {(fieldName === 'hints' || fieldName === 'options') && (
               <button
                 type="button"
                 className="btn-add"
                 onClick={() => {
-                  setShowHints(true);
-                  if (!challenge.hints || challenge.hints.length === 0) {
-                    setChallenge(prev => ({
-                      ...prev,
-                      hints: ['']
-                    }));
-                  } else {
-                    addArrayItem('hints');
+                  if (fieldName === 'hints') {
+                    setShowHints(true);
+                    if (!challenge.hints || challenge.hints.length === 0) {
+                      setChallenge(prev => ({
+                        ...prev,
+                        hints: ['']
+                      }));
+                    } else {
+                      addArrayItem('hints');
+                    }
+                  } else if (fieldName === 'options') {
+                    if (!challenge.options || challenge.options.length === 0) {
+                      setChallenge(prev => ({
+                        ...prev,
+                        options: ['']
+                      }));
+                    } else {
+                      addArrayItem('options');
+                    }
                   }
                 }}
                 title={`Add ${fieldConfig.label || fieldName}`}
@@ -796,7 +789,7 @@ const ChallengeCreator = () => {
         </select>
       </div>
 
-      <ScrollableContent maxHeight="70vh">
+      <ScrollableContent maxHeight="60vh">
         {/* Dynamic Fields - Only show if type is selected */}
         {challenge.type && renderFields()}
 

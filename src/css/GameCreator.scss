@@ -2,6 +2,9 @@
 @import 'variables';
 
 .game-creator {
+  height: calc(100vh - var(--header-height));
+  margin-top: var(--header-height);
+
   .field-container {
     display: flex;
     flex-direction: column;
@@ -155,8 +158,42 @@
       gap: 0.5rem;
       margin-bottom: 0.5rem;
 
-      input, textarea {
+      input,
+      textarea {
         flex: 1;
+      }
+    }
+
+    .feedback-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.5rem;
+
+      &:first-child {
+        margin-top: 0;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+
+        label {
+          flex: 1;
+        }
+      }
+
+      .array-item {
+        display: flex;
+        gap: 0.5rem;
+
+        textarea {
+          flex: 1;
+          min-height: 80px;
+          width: 100%;
+        }
       }
     }
   }
@@ -207,6 +244,59 @@
     }
   }
 
+  .feedback-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+
+    .feedback-field {
+      width: 100%;
+
+      .feedback-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .incorrect-feedback-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .incorrect-feedback-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+
+        textarea {
+          flex: 1;
+          min-height: 80px;
+        }
+
+        .btn-remove {
+          padding: 0.5rem;
+          background: none;
+          border: none;
+          color: var(--text-color);
+          cursor: pointer;
+          opacity: 0.7;
+          transition: opacity 0.2s;
+
+          &:hover {
+            opacity: 1;
+          }
+
+          &:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+  }
+
   .location-field {
     display: flex;
     flex-direction: column;
@@ -239,20 +329,64 @@
     }
   }
 
-  .challenge-creator {
+  .challenge-creator.challenge-form {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
 
-    .challenge-form {
+    .form-group {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 1rem;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
 
-      .form-group {
+      >label {
+        font-size: 1.5rem;
+        font-weight: 500;
+      }
+
+      .array-field {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 1rem;
+      }
+
+      .feedback-section {
+        border-top: 1px solid var(--border-color);
+        padding-top: 1rem;
+        margin-top: 1rem;
+
+        &:first-child {
+          border-top: none;
+          padding-top: 0;
+          margin-top: 0;
+        }
+
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.75rem;
+
+          label {
+            font-weight: 500;
+            color: var(--text-color);
+          }
+        }
+
+        .array-item {
+          display: flex;
+          gap: 0.5rem;
+          align-items: flex-start;
+
+          textarea {
+            flex: 1;
+            min-height: 80px;
+          }
+        }
       }
     }
   }
@@ -316,13 +450,14 @@
 
   .challenge-manager {
     padding: 2rem;
+    height: 100%;
 
     .challenge-manager-header {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 1rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
 
     .challenges-list {
@@ -355,6 +490,19 @@
         &:hover {
           transform: translateY(-2px);
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          &::after {
+            content: 'Update Challenge';
+            position: absolute;
+            top: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--modal-bg);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px var(--shadow);
+            z-index: 1;
+          }
         }
 
         .challenge-header {
@@ -392,6 +540,7 @@
       font-weight: bold;
       cursor: pointer;
       transition: background-color 0.2s;
+      margin-bottom: 1rem;
     }
   }
 

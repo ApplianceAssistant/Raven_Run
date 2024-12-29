@@ -981,7 +981,6 @@ canvas {
 
 //header styles
 /* Header.scss */
-@import 'variables';
 
 .header {
   position: fixed;
@@ -994,7 +993,7 @@ canvas {
   align-items: center;
   z-index: 1000;
   box-shadow: 0px 0px 15px var(--shadow);
-  height: 50px;
+  height: var(--header-height);
   color: var(--link-color);
 
   .logo {
@@ -1140,7 +1139,6 @@ body.menu-open {
 
 .theme-element {
   position: fixed;
-  top: 45px;
   width: 100vw;
   height: 100vh;
   pointer-events: none; // Ensures it doesn’t interfere with other elements

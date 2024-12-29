@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useGameCreation } from '../../context/GameCreationContext';
+import ScrollableContent from '../../../../components/ScrollableContent';
 import '../../../../css/GameCreator.scss';
 
 const ChallengeManager = () => {
@@ -32,7 +33,10 @@ const ChallengeManager = () => {
         <div className="challenge-manager-header">
           <h2>Challenges for {game?.name || 'Game'}</h2>
         </div>
-
+        <button className="add-challenge-button" onClick={handleAddChallenge}>
+          Add New Challenge
+        </button>
+        <ScrollableContent maxHeight="70vh">
         <div className="challenges-list">
           {challenges.length > 0 ? (
             challenges.map((challenge, index) => (
@@ -55,10 +59,7 @@ const ChallengeManager = () => {
             </div>
           )}
         </div>
-
-        <button className="add-challenge-button" onClick={handleAddChallenge}>
-          Add New Challenge
-        </button>
+        </ScrollableContent>
       </div>
     </>
   );
