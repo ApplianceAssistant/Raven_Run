@@ -30,7 +30,7 @@ const ChallengeCreator = () => {
   const [challenge, setChallenge] = useState({
     id: '',
     type: '',  // Empty type initially
-    order: null
+    order: 1   // Initialize order to 1 by default
   });
 
   const [showHints, setShowHints] = useState(false);
@@ -82,8 +82,9 @@ const ChallengeCreator = () => {
         : 0;
       setChallenge(prev => ({
         ...prev,
-        order: maxOrder + 1
+        order: maxOrder + 1  // Set order to next available number
       }));
+      console.log('Setting new challenge order to:', maxOrder + 1);
     }
   }, [gameId, challengeId]);
 

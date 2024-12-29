@@ -1,7 +1,8 @@
 import { 
   getGamesFromLocalStorage, 
   saveGameToLocalStorage, 
-  deleteGameFromLocalStorage 
+  deleteGameFromLocalStorage,
+  normalizeGame
 } from '../../../utils/localStorageUtils';
 import { 
   checkServerConnectivity, 
@@ -82,6 +83,7 @@ export const isValidGame = (game) => {
 };
 
 export const saveGame = async (gameData) => {
+  console.warn('saveGame called with gameData:', gameData);
   if (!isValidGame(gameData)) {
     throw new Error('Invalid game data');
   }
@@ -178,44 +180,53 @@ export const saveGame = async (gameData) => {
 };
 
 export const getGames = async () => {
+  console.warn("getGames called");
   let games = getGamesFromLocalStorage() || [];
   
   try {
-    // Check if we're online
     const isConnected = (await checkServerConnectivity()).isConnected;
     if (isConnected) {
-      // Fetch games from server
       const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get_games`);
       if (response.ok) {
         const serverGames = await response.json();
+        console.warn("getGames - serverGames:", serverGames);
         
-        // Merge server games with local games, preferring server versions
-        const mergedGames = [...games];
-        serverGames.forEach(serverGame => {
-          const localIndex = mergedGames.findIndex(g => g.gameId === serverGame.gameId);
-          if (localIndex >= 0) {
-            // Update existing game if server version is newer
-            if (!mergedGames[localIndex].lastModified || 
-                serverGame.lastModified > mergedGames[localIndex].lastModified) {
-              mergedGames[localIndex] = serverGame;
-            }
-          } else {
-            // Add new game from server
-            mergedGames.push(serverGame);
+        if (!Array.isArray(serverGames)) {
+          console.error('Invalid server games format');
+          return games;
+        }
+        
+        // Normalize server games and filter out any invalid ones
+        const normalizedServerGames = serverGames
+          .filter(game => game && typeof game === 'object' && (game.gameId || game.game_id))
+          .map(game => normalizeGame(game));
+        
+        // Keep unsynced local games
+        const unsynced = games.filter(localGame => {
+          return !localGame.isSynced && localGame.gameId;
+        });
+        
+        // Combine unsynced local games with server games
+        const mergedGames = [...normalizedServerGames];
+        unsynced.forEach(localGame => {
+          if (!mergedGames.some(g => g.gameId === localGame.gameId)) {
+            mergedGames.push(localGame);
           }
         });
         
+        console.log('mergedGames:', mergedGames);
         // Update local storage with merged games
-        games = mergedGames;
-        saveGameToLocalStorage(games);
+        if (mergedGames.length > 0) {
+          saveGameToLocalStorage(mergedGames);
+          games = mergedGames;
+        }
       }
     }
   } catch (error) {
     console.error('Error fetching games from server:', error);
-    // Continue with local games if server fetch fails
   }
   
-  return games;
+  return games.filter(game => game && game.gameId);
 };
 
 export const deleteGame = async (gameId) => {

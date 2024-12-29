@@ -111,21 +111,56 @@ const GameCreator = () => {
     }
   };
 
+  const validateGameData = (gameData) => {
+    const errors = [];
+    if (!gameData.gameId) errors.push('Game ID is required');
+    if (!gameData.name?.trim()) errors.push('Game name is required');
+    if (!gameData.description?.trim()) errors.push('Game description is required');
+    return errors;
+  };
+
   const handleSaveGame = async (gameData) => {
     console.log('Starting handleSaveGame with gameData:', gameData);
     try {
+      // Validate required fields
+      const validationErrors = validateGameData(gameData);
+      if (validationErrors.length > 0) {
+        throw new Error(`Invalid game data: ${validationErrors.join(', ')}`);
+      }
+
       // Find the existing game to preserve its challenges
       const existingGame = games.find(g => g.gameId === gameData.gameId);
       
+      // Ensure challenges array is valid
+      const existingChallenges = existingGame?.challenges || [];
+      const newChallenges = gameData.challenges || [];
+      const mergedChallenges = existingGame 
+        ? existingChallenges.map(challenge => ({
+            ...challenge,
+            // Preserve existing challenge data
+            ...(newChallenges.find(nc => nc.id === challenge.id) || {})
+          }))
+        : newChallenges;
+
       const newGame = {
-        ...gameData,
+        gameId: gameData.gameId,
+        name: gameData.name.trim(),
+        description: gameData.description.trim(),
         public: gameData.public ?? false,
-        // Preserve existing challenges if this is an update
-        challenges: existingGame ? existingGame.challenges : (gameData.challenges ?? []),
-        isSynced: false
+        challenges: mergedChallenges,
+        isSynced: false,
+        lastModified: new Date().toISOString()
       };
       
-      const savedGame = await saveGame(newGame);
+      // Attempt to save to server first
+      let savedGame;
+      try {
+        savedGame = await saveGame(newGame);
+        newGame.isSynced = true;
+      } catch (syncError) {
+        console.error('Failed to sync with server:', syncError);
+        savedGame = newGame; // Use local data as fallback
+      }
       
       // Update games array, replacing the existing game if it exists
       const updatedGames = existingGame 
@@ -136,6 +171,7 @@ const GameCreator = () => {
       setShowGameForm(false);
       navigate(`/create/edit/${savedGame.gameId}`);
     } catch (error) {
+      console.error('Error in handleSaveGame:', error);
       dispatch({ type: 'SET_ERROR', payload: error.message });
     }
   };

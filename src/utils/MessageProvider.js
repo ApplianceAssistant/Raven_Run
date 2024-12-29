@@ -61,10 +61,6 @@ export function MessageProvider({ children }) {
     showInfo: useCallback((text) => showMessage(text, MessageTypes.INFO), [showMessage])
   };
 
-  useEffect(() => {
-    console.log('Message state changed:', message);
-  }, [message]);
-
   return (
     <MessageContext.Provider value={contextValue}>
       {children}

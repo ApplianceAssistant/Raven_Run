@@ -13,7 +13,6 @@ const ThemeContainer = ({ children, theme }) => {
   const location = useLocation();
   const { className, isCanvasTheme, style } = themesConfig[theme] || {};
   const canvasRef = useRef(null);
-  console.warn("location: ", location);
   // Cancel speech when route changes
   useEffect(() => {
     if (window.speechSynthesis) {

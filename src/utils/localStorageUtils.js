@@ -4,94 +4,109 @@
  * @typedef {import('../features/gameCreation/types/gameTypes').Challenge} Challenge
  */
 
+import { encryptData, decryptData } from './encryption';
+
 const GAME_STORAGE_KEY = 'Custom_Games';
 const DEBUG_STORAGE_KEY = 'Debug_Custom_Games';
-const SECRET_KEY = 'your-secret-key';
-
-// Simple XOR encryption/decryption function
-const xorEncryptDecrypt = (text, key) => {
-  let result = '';
-  for (let i = 0; i < text.length; i++) {
-    result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-  }
-  return result;
-};
-
-export const encryptData = (data) => {
-  const jsonString = JSON.stringify(data);
-  return btoa(xorEncryptDecrypt(jsonString, SECRET_KEY));
-};
-
-export const decryptData = (encryptedData) => {
-  const decrypted = xorEncryptDecrypt(atob(encryptedData), SECRET_KEY);
-  return JSON.parse(decrypted);
-};
-
-/**
- * @param {Game} game
- */
-export const saveGameToLocalStorage = (game) => {
-  const games = getGamesFromLocalStorage();
-  const gameIndex = games.findIndex(g => g.gameId === game.gameId);
-  
-  // Ensure game has the correct structure
-  const normalizedGame = {
-    gameId: game.gameId,
-    name: game.name || '',
-    description: game.description || '',
-    public: game.public ?? false,
-    isSynced: game.isSynced ?? false,
-    challenges: Array.isArray(game.challenges) ? game.challenges : []
-  };
-  
-  if (gameIndex !== -1) {
-    // Update existing game
-    games[gameIndex] = normalizedGame;
-  } else {
-    // Add new game
-    games.push(normalizedGame);
-  }
-
-  const encryptedGames = encryptData(games);
-  localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
-  localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(games));
-};
 
 /**
  * @returns {Game[]}
  */
 export const getGamesFromLocalStorage = () => {
-  const encryptedGames = localStorage.getItem(GAME_STORAGE_KEY);
-  if (encryptedGames === null) {
-    return [];
-  }
   try {
-    const games = decryptData(encryptedGames);
-    if (!Array.isArray(games)) {
-      console.error('Invalid games data format');
+    // Try encrypted storage
+    const encryptedGames = localStorage.getItem(GAME_STORAGE_KEY);
+    if (!encryptedGames) {
+      console.warn("No games found in localStorage");
       return [];
     }
-    return games.map((game, index) => ({
-      ...game,
-      public: game.public ?? false,
-      isSynced: game.isSynced ?? false
-    }));
+
+    const games = decryptData(encryptedGames);
+    if (!games || !Array.isArray(games)) {
+      console.warn('Invalid games data format or decryption failed');
+      return [];
+    }
+
+    return games
+      .filter(game => game && typeof game === 'object' && (game.gameId || game.game_id))
+      .map(game => normalizeGame(game));
   } catch (error) {
-    console.error('Error decrypting games:', error);
+    console.error('Error getting games from localStorage:', error);
     return [];
   }
 };
 
-export const getDebugGamesFromLocalStorage = () => {
-  try {
-    const debugGames = localStorage.getItem(DEBUG_STORAGE_KEY);
-    if (debugGames === null) {
-      return [];
+/**
+ * Normalizes a game object to ensure consistent structure
+ * @param {Object} game - Game object from either server or local storage
+ * @returns {Game} - Normalized game object
+ */
+export const normalizeGame = (game) => {
+  if (!game) return null;
+
+  // Parse challenge_data if it exists (from server)
+  let challenges = [];
+  if (game.challenge_data) {
+    try {
+      challenges = JSON.parse(game.challenge_data);
+    } catch (e) {
+      console.error('Error parsing challenge_data:', e);
     }
-    return JSON.parse(debugGames);
+  } else if (Array.isArray(game.challenges)) {
+    challenges = game.challenges;
+  }
+
+  return {
+    gameId: game.gameId || game.game_id || '',
+    name: game.name || '',
+    description: game.description || '',
+    public: game.public ?? game.is_public ?? false,
+    isSynced: game.isSynced ?? true,
+    challenges: challenges,
+    lastModified: game.lastModified || game.last_modified || Date.now(),
+    lastAccessed: Date.now()
+  };
+};
+
+/**
+ * @param {Game|Game[]} gameData
+ */
+export const saveGameToLocalStorage = async (gameData) => {
+  try {
+    const games = getGamesFromLocalStorage();
+    const gamesArray = Array.isArray(gameData) ? gameData : [gameData];
+    
+    // Normalize and merge games
+    for (const game of gamesArray) {
+      const normalizedGame = normalizeGame(game);
+      if (!normalizedGame) continue;
+
+      const index = games.findIndex(g => g.gameId === normalizedGame.gameId);
+      if (index !== -1) {
+        games[index] = normalizedGame;
+      } else {
+        games.push(normalizedGame);
+      }
+    }
+
+    // Remove old games if we exceed storage limit
+    const MAX_STORED_GAMES = 20;
+    if (games.length > MAX_STORED_GAMES) {
+      games.sort((a, b) => b.lastAccessed - a.lastAccessed);
+      games.length = MAX_STORED_GAMES;
+    }
+
+    // Save to debug storage first (unencrypted)
+    localStorage.setItem(DEBUG_STORAGE_KEY, JSON.stringify(games));
+
+    // Then save encrypted version
+    const encryptedGames = await encryptData(games);
+    if (encryptedGames) {
+      localStorage.setItem(GAME_STORAGE_KEY, encryptedGames);
+      console.log('Games saved successfully:', games);
+    }
   } catch (error) {
-    console.error('Error getting debug games from localStorage:', error);
-    return [];
+    console.error('Error saving games to localStorage:', error);
   }
 };
 

@@ -12,8 +12,6 @@ const GameList = ({ onGameSelect, onDeleteGame }) => {
   if (isLoading) {
     return <div>Loading games...</div>;
   }
-  console.log("games", games);
-
   return (
     <div className="game-list">
       {games.length === 0 ? (
