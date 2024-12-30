@@ -1,0 +1,226 @@
+.search-bar {
+    form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 2px solid var(--border-color);
+        border-radius: 5px;
+        font-size: 1rem;
+        background: var(--input-bg);
+        color: var(--text-color);
+        min-width: 200px;
+
+        &:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+    }
+
+    button {
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    }
+
+    .filter-toggle-button {
+        background-color: var(--button-bg);
+    }
+}
+
+.search-panel {
+    position: fixed;
+    top: calc(var(--header-height) - 30px);
+    left: 0;
+    right: 0;
+    background: var(--modal-bg);
+    border-radius: 0 0 15px 15px;
+    box-shadow: 6px 4px 5px var(--shadow);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    transition: transform 0.3s ease-in-out;
+    transform: translateY(-100%);
+    z-index: 90;
+
+    &.expanded {
+        transform: translateY(0);
+    }
+
+    .search-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 20px 0; // Removed bottom padding
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            
+            .search-input {
+                flex: 1;
+                padding: 10px 15px;
+                border: 1px solid var(--border-color);
+                border-radius: 5px;
+                font-size: 1rem;
+                background: var(--input-bg);
+                color: var(--text-color);
+                min-width: 200px;
+
+                &:focus {
+                    outline: none;
+                    border-color: var(--accent-color);
+                }
+            }
+
+            .search-button {
+                border: none;
+                padding: 10px 15px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                
+                i {
+                    font-size: 1.2rem;
+                }
+
+                &:hover {
+                    transform: translateY(-2px);
+                }
+            }
+        }
+
+        .filter-content {
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-bottom: 20px; // Added explicit bottom padding
+
+            .filter-group {
+                display: grid;
+                gap: 20px;
+                
+                @media (min-width: 768px) {
+                    grid-template-columns: repeat(2, 1fr);
+                    align-items: start; // Align items to top
+                    
+                    > div {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        
+                        label {
+                            min-width: 80px; // Fixed width for labels
+                            margin: 0; // Remove margin when side by side
+                        }
+                        
+                        select, input {
+                            flex: 1;
+                        }
+                    }
+                }
+
+                label {
+                    display: block;
+                    margin-bottom: 8px;
+                    color: var(--text-color);
+                }
+
+                input, select {
+                    width: 100%;
+                    padding: 8px 12px;
+                    border: 1px solid var(--border-color);
+                    border-radius: 5px;
+                    background: var(--input-bg);
+                    color: var(--text-color);
+                    font-size: 1rem;
+
+                    &:focus {
+                        outline: none;
+                        border-color: var(--accent-color);
+                    }
+                }
+
+                .location-filter {
+                    display: grid;
+                    gap: 10px;
+                    grid-template-columns: 2fr 1fr;
+                }
+
+                .difficulty-filter {
+                    .toggle-group {
+                        display: flex;
+                        gap: 10px;
+                        flex: 1;
+
+                        button {
+                            flex: 1;
+                            padding: 8px;
+                            border: 1px solid var(--border-color);
+                            background: var(--input-bg);
+                            color: var(--text-color);
+                            border-radius: 5px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+
+                            &.active {
+                                background: var(--accent-color);
+                            }
+
+                            &:hover {
+                                transform: translateY(-2px);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .panel-tab {
+        position: absolute;
+        bottom: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--modal-bg);
+        padding: 8px 20px;
+        border-radius: 0 0 10px 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 6px 4px 15px var(--shadow);
+        border: 1px solid var(--border-color);
+        border-top: none;
+        transition: all 0.3s ease;
+
+        i {
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .tab-text {
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+    }
+}

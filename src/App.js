@@ -7,7 +7,7 @@ import About from './components/About';
 import Contact from './components/Contact';
 import CreateProfile from './components/CreateProfile';
 import Profile from './components/Profile.js';
-import Lobby from './components/Lobby';
+import GameLobby from './features/gameLobby/components/GameLobby/GameLobby';
 import GamePage from './components/GamePage';
 import Settings from './components/Settings';
 import { GameCreationProvider } from './features/gameCreation/context/GameCreationContext';
@@ -110,7 +110,7 @@ function AppContent() {
           <Route path="/about" element={<ThemeContainer theme={theme}><About /></ThemeContainer>} />
           <Route path="/contact" element={<ThemeContainer theme={theme}><Contact /></ThemeContainer>} />
           <Route path="/game/:gameId" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
-          <Route path="/lobby" element={<ThemeContainer theme={theme}><Lobby /></ThemeContainer>} />
+          <Route path="/lobby" element={<ThemeContainer theme={theme}><GameLobby /></ThemeContainer>} />
           <Route path="/create-profile" element={<ThemeContainer theme={theme}><CreateProfile /></ThemeContainer>} />
           <Route path="/log-in" element={<ThemeContainer theme={theme}><LogIn /></ThemeContainer>} />
           <Route path="/hunt-description/:gameId" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
