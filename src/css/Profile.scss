@@ -109,6 +109,9 @@
   }
 }
 
+.settings-container {
+  align-items: start;
+}
 // Media queries for responsiveness
 @media (max-width: 768px) {
   .profile-container {

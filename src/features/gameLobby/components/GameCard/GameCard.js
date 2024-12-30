@@ -1,50 +1,68 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './GameCard.scss';
 
-const GameCard = ({ game, onPlay }) => {
-    const { 
-        title, 
-        difficulty, 
-        distance, 
-        rating, 
-        ratingCount, 
-        duration, 
-        description, 
-        tags 
-    } = game;
+const GameCard = ({ 
+    id, 
+    title, 
+    difficulty, 
+    distance, 
+    rating, 
+    ratingCount, 
+    duration, 
+    description, 
+    tags,
+    totalChallenges
+}) => {
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        navigate(`/game/${id}`);
+    };
+
+    const formatDuration = (mins) => {
+        if (mins < 60) return `${mins} mins`;
+        const hours = Math.floor(mins / 60);
+        const remainingMins = mins % 60;
+        return remainingMins > 0 ? `${hours}h ${remainingMins}m` : `${hours}h`;
+    };
 
     return (
-        <div className="game-card">
+        <div className="game-card" onClick={handleClick}>
             <div className="game-image">
-                <span className={`difficulty-badge ${difficulty}`}>
-                    {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-                </span>
-                <span className="distance-badge">
-                    {distance} km
-                </span>
+                <div className={`difficulty-badge ${difficulty}`}>
+                    {difficulty}
+                </div>
+                <div className="distance-badge">
+                    <i className="fas fa-route"></i> {distance}
+                </div>
+                <div className="challenge-count">
+                    {totalChallenges}
+                </div>
             </div>
-            
             <div className="game-info">
                 <h3>{title}</h3>
-                <div className="game-stats">
-                    <span className="rating">
-                        ★ {rating.toFixed(1)} ({ratingCount})
-                    </span>
-                    <span className="duration">
-                        {duration} min
-                    </span>
+                <div className="rating">
+                    <span className="stars">{'★'.repeat(Math.round(rating))}</span>
+                    <span className="rating-count">({ratingCount})</span>
                 </div>
                 <p className="description">{description}</p>
-                <div className="game-tags">
-                    {tags.map((tag, index) => (
-                        <span key={index} className="tag">{tag}</span>
-                    ))}
+                <div className="meta-info">
+                    <span className="duration">
+                        <i className="far fa-clock"></i>
+                        {formatDuration(duration)}
+                    </span>
+                    <div className="tags">
+                        {tags.map((tag, index) => 
+                            typeof tag === 'string' ? (
+                                <span key={index} className="tag">{tag}</span>
+                            ) : (
+                                tag // For icon elements
+                            )
+                        )}
+                    </div>
                 </div>
             </div>
-
-            <button className="play-button" onClick={onPlay}>
-                Play Now
-            </button>
         </div>
     );
 };

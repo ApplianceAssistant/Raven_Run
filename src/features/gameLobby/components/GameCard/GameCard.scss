@@ -7,8 +7,7 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-4px);
     }
 
     .game-image {
@@ -22,28 +21,39 @@
         border-radius: 5px 5px 0 0;
         box-shadow: var(--shadow);
 
-        .difficulty-badge,
-        .distance-badge {
-            position: absolute;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-
         .difficulty-badge {
+            position: absolute;
             top: 10px;
             left: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: capitalize;
 
             &.easy { background: var(--success-color); }
             &.medium { background: var(--warning-color); }
-            &.hard { background: var(--danger-color); }
+            &.hard { background: var(--error-color); }
         }
 
         .distance-badge {
+            position: absolute;
             top: 10px;
             right: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--accent-color);
+            font-size: 0.8rem;
+
+            i {
+                margin-right: 4px;
+            }
+        }
+
+        .challenge-count {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-color);
+            text-shadow: 1px 1px 2px var(--shadow);
         }
     }
 
@@ -52,50 +62,64 @@
 
         h3 {
             margin: 0 0 10px;
-            color: var(--heading-color);
             font-size: 1.2rem;
+            color: var(--text-color);
         }
 
-        .game-stats {
-            display: flex;
-            justify-content: space-between;
+        .rating {
             margin-bottom: 10px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+            
+            .stars {
+                color: var(--warning-color);
+                margin-right: 5px;
+            }
 
-            .rating {
-                color: var(--star-color);
+            .rating-count {
+                color: var(--text-muted);
+                font-size: 0.9rem;
             }
         }
 
         .description {
-            font-size: 0.9rem;
             color: var(--text-color);
+            font-size: 0.9rem;
             margin-bottom: 15px;
             line-height: 1.4;
         }
 
-        .game-tags {
+        .meta-info {
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+            flex-direction: column;
+            gap: 10px;
 
-            .tag {
-                background: var(--tag-bg);
-                color: var(--tag-text);
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 0.8rem;
+            .duration {
+                color: var(--text-muted);
+                font-size: 0.9rem;
+
+                i {
+                    margin-right: 5px;
+                }
+            }
+
+            .tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+
+                .tag {
+                    background: var(--tag-bg);
+                    color: var(--text-color);
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                    display: inline-flex;
+                    align-items: center;
+                    
+                    i {
+                        margin-right: 4px;
+                    }
+                }
             }
         }
-    }
-
-    .play-button {
-        width: 100%;
-        padding: 12px;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        font-weight: bold;
     }
 }

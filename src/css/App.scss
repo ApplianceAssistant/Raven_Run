@@ -1004,6 +1004,7 @@ canvas {
   }
 
   .nav-menu {
+    background-color: var(--input-bg);
     @media (max-width: $breakpoint-mobile) {
       position: fixed;
       top: 0;
@@ -1012,7 +1013,6 @@ canvas {
       height: 100vh;
       transition: right 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
       overflow-y: auto;
-      background-color: var(--page-bg);
       @include smooth-transition;
 
       &.open {
