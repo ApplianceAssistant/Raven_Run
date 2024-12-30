@@ -151,6 +151,28 @@ const ChallengeCreator = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
+    if (name === 'type') {
+      // Initialize default values for the selected challenge type
+      const defaultValues = {
+        id: challenge.id,
+        type: value,
+        order: challenge.order,
+        title: '',
+        description: '',
+        question: '',
+        feedbackTexts: { correct: '', incorrect: [''] },
+        hints: [],
+        options: value === 'multipleChoice' ? [''] : [],
+        correctAnswer: value === 'trueFalse' ? false : '',
+        targetLocation: { latitude: '', longitude: '' },
+        radius: '',
+        completionFeedback: '',  // Added for travel challenges
+        repeatable: false        // Added for story challenges
+      };
+      setChallenge(defaultValues);
+      return;
+    }
+    
     // Handle nested fields (like feedbackTexts.correct)
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
