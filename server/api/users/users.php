@@ -10,7 +10,7 @@ header('Content-Type: application/json');
 // Get database connection
 $conn = getDbConnection();
 if (!$conn) {
-    handleError(500, 'Failed to connect to database');
+    handleError(500, 'Failed to connect to database' , __FILE__, __LINE__);
     exit(0);
 }
 
@@ -274,7 +274,7 @@ try {
                 switch ($_GET['action']) {
                     case 'check_unique':
                         if (!isset($_GET['field']) || !isset($_GET['value'])) {
-                            handleError(400, 'Field and value are required for uniqueness check');
+                            handleError(400, 'Field and value are required for uniqueness check', __FILE__, __LINE__);
                             exit(0);
                         }
                         $result = checkUnique($_GET['field'], $_GET['value']);
@@ -283,7 +283,7 @@ try {
 
                     case 'get':
                         if (!isset($_GET['id'])) {
-                            handleError(400, 'User ID is required');
+                            handleError(400, 'User ID is required', __FILE__, __LINE__);
                             exit(0);
                         }
                         $user = getUserById($_GET['id']);
@@ -291,7 +291,7 @@ try {
                         break;
 
                     default:
-                        handleError(400, 'Invalid action');
+                        handleError(400, 'Invalid action', __FILE__, __LINE__);
                         exit(0);
                 }
             } else {
@@ -328,7 +328,7 @@ try {
             }
 
             if (empty($data)) {
-                handleError(400, 'No valid request data found');
+                handleError(400, 'No valid request data found', __FILE__, __LINE__);
                 exit(0);
             }
 
@@ -342,12 +342,12 @@ try {
             break;
 
         default:
-            handleError(405, 'Method not allowed');
+            handleError(405, 'Method not allowed', __FILE__, __LINE__);
             exit(0);
     }
 } catch (Exception $e) {
     $code = $e->getCode() ?: 500;
-    handleError($code, $e->getMessage());
+    handleError($code, $e->getMessage(), __FILE__, __LINE__);
 } finally {
     releaseDbConnection();
 }

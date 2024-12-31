@@ -20,19 +20,21 @@ const initializeEncryptionKey = async () => {
   
   keyInitPromise = (async () => {
     try {
-      const response = await fetch(`${API_URL}/server/config/config.php`);
-      const config = await response.json();
-      if (config.encryptionKey) {
-        ENCRYPTION_KEY = config.encryptionKey;
-        console.log('Encryption key loaded from server');
+      const response = await fetch(`${API_URL}/server/api/auth/config.php`);
+      if (!response.ok) throw new Error('Failed to fetch encryption key');
+      
+      const data = await response.json();
+      if (data.encryptionKey) {
+        ENCRYPTION_KEY = data.encryptionKey;
+        keyInitialized = true;
       }
     } catch (error) {
-      console.warn('Using default encryption key:', error);
-    } finally {
+      console.error('Error initializing encryption key:', error);
+      // Continue with default key if fetch fails
       keyInitialized = true;
     }
   })();
-  
+
   return keyInitPromise;
 };
 
