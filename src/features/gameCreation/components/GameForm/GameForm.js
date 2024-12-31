@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import ToggleSwitch from '../../../../components/ToggleSwitch';
+import AutoExpandingTextArea from '../../../../components/AutoExpandingTextArea/AutoExpandingTextArea';
 import ChallengeCard from '../ChallengeCard/ChallengeCard';
+import ScrollableContent from '../../../../components/ScrollableContent';
 import { isValidGame } from '../../services/gameCreatorService';
 import { useMessage } from '../../../../utils/MessageProvider';
 import '../../../../css/GameCreator.scss';
@@ -32,6 +34,8 @@ const GameForm = ({
   });
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
+  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
 
   // Initialize both formData and originalData when gameData changes
   useEffect(() => {
@@ -43,7 +47,6 @@ const GameForm = ({
       gameId: gameData.gameId || '',
       challenges: gameData.challenges || []
     };
-    console.log('Initializing with gameData:', initialData);
     setFormData(initialData);
     setOriginalData(JSON.parse(JSON.stringify(initialData)));
   }, [gameData]);
@@ -56,17 +59,25 @@ const GameForm = ({
   useEffect(() => {
     const hasDataChanges = Object.keys(formData).some(key => {
       const isDifferent = JSON.stringify(formData[key]) !== JSON.stringify(originalData[key]);
-      if (isDifferent) {
-        console.log(`Change detected in ${key}:`, {
-          formData: formData[key],
-          originalData: originalData[key]
-        });
-      }
       return isDifferent;
     });
-    console.log('Has changes:', hasDataChanges);
     setHasChanges(hasDataChanges);
   }, [formData, originalData]);
+
+  // Handle button animation
+  useEffect(() => {
+    if (hasChanges) {
+      setShowButtons(true);
+      setIsAnimatingOut(false);
+    } else if (showButtons) {
+      setIsAnimatingOut(true);
+      const timer = setTimeout(() => {
+        setShowButtons(false);
+        setIsAnimatingOut(false);
+      }, 300); // Match the CSS transition duration
+      return () => clearTimeout(timer);
+    }
+  }, [hasChanges]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -100,17 +111,8 @@ const GameForm = ({
           ...formData,
           challenges: formData.challenges || []
         };
-        console.log('Before save:', {
-          submittedData,
-          originalData
-        });
         await onSave(submittedData);
-        // Update originalData with a deep copy of the submitted data
         const newOriginalData = JSON.parse(JSON.stringify(submittedData));
-        console.log('After save:', {
-          submittedData,
-          newOriginalData
-        });
         setOriginalData(newOriginalData);
         setHasChanges(false);
         showSuccess(isEditing ? 'Game updated successfully!' : 'Game created successfully!');
@@ -133,89 +135,89 @@ const GameForm = ({
   };
 
   return (
-    <>
+    <div className="creator-form">
       <button onClick={handleBack} className="back-button" title="Back to Games">
         <FontAwesomeIcon icon={faArrowLeft} />
       </button>
 
-      <div className="game-form">
-
-        <div className="form-header">
-          <h2>{isEditing ? 'Edit Game' : 'Create New Game'}</h2>
-        </div>
-
-        <div className="form-content">
-          <div className="main-form">
-            <div className="field-container">
-              <label htmlFor="name">Game Name:</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Enter game name"
-                required
-              />
-            </div>
-
-            <div className="field-container">
-              <label htmlFor="description">Description:</label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Enter game description"
-                required
-              />
-            </div>
-
-            <div className="field-container">
-              <label>Game Visibility:</label>
-              <ToggleSwitch
-                checked={formData.public}
-                onToggle={handlePublicToggle}
-                label={formData.public ? 'Public Game' : 'Private Game'}
-                name="public"
-                id="public-toggle"
-              />
-            </div>
-
-            {formData.gameId && (
-              <div className="field-container">
-                <label>Game ID:</label>
-                <span className="game-id-display">{formData.gameId}</span>
-              </div>
-            )}
-          </div>
-
-          {isEditing && (
-            <div className="side-options">
-              <ChallengeCard
-                challengeCount={formData.challenges?.length || 0}
-                onClick={handleChallengesClick}
-              />
-            </div>
-          )}
-        </div>
-
-        <div className={`button-group ${hasChanges ? 'visible' : ''}`}>
-          <button
-            onClick={handleSubmit}
-            disabled={!allRequiredFieldsFilled}
-            className={`save-button ${!allRequiredFieldsFilled ? 'disabled' : ''}`}
-          >
-            {isEditing ? 'Update Game' : 'Create Game'}
-          </button>
-          {hasChanges && (
-            <button onClick={onCancel} className="cancel-button">
-              Cancel
-            </button>
+      <div className="creator-header">
+        <h2>{isEditing ? 'Edit Game' : 'Create New Game'}</h2>
+        <div className={`button-group ${hasChanges ? 'visible' : ''} ${isAnimatingOut ? 'animating-out' : ''}`}>
+          {(showButtons || isAnimatingOut) && (
+            <>
+              <button
+                onClick={handleSubmit}
+                disabled={!allRequiredFieldsFilled}
+                className={`save-button ${!allRequiredFieldsFilled ? 'disabled' : ''}`}
+              >
+                {isEditing ? 'Update Game' : 'Create Game'}
+              </button>
+              <button onClick={onCancel} className="cancel-button">
+                Cancel
+              </button>
+            </>
           )}
         </div>
       </div>
-    </>
+
+      <ScrollableContent maxHeight="calc(100vh - 180px)" className="form-content">
+        <div className="main-form">
+          <div className="field-container">
+            <label htmlFor="name">Game Name:</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Enter game name"
+              required
+            />
+          </div>
+
+          <div className="field-container">
+            <label htmlFor="description">Description:</label>
+            <AutoExpandingTextArea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Enter game description"
+              required
+              maxHeight="50vh"
+              minHeight="60px"
+            />
+          </div>
+
+          <div className="field-container">
+            <label>Game Visibility:</label>
+            <ToggleSwitch
+              checked={formData.public}
+              onToggle={handlePublicToggle}
+              label={formData.public ? 'Public Game' : 'Private Game'}
+              name="public"
+              id="public-toggle"
+            />
+          </div>
+
+          {formData.gameId && (
+            <div className="field-container">
+              <label>Game ID:</label>
+              <span className="game-id-display">{formData.gameId}</span>
+            </div>
+          )}
+        </div>
+
+        {isEditing && (
+          <div className="side-options">
+            <ChallengeCard
+              challengeCount={formData.challenges?.length || 0}
+              onClick={handleChallengesClick}
+            />
+          </div>
+        )}
+      </ScrollableContent>
+    </div>
   );
 };
 

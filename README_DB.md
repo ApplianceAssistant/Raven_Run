@@ -27,6 +27,10 @@ database/
 
 ## Database Schema
 
+For the complete and most up-to-date database structure, please refer to `schema.sql` in the root directory. This file contains the full SQL schema including all tables, constraints, and indexes.
+
+Key tables include:
+
 ```sql
 -- Users table
 CREATE TABLE users (
@@ -44,16 +48,7 @@ CREATE TABLE games (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     is_public BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Challenges table
-CREATE TABLE challenges (
-    id VARCHAR(36) PRIMARY KEY,
-    game_id VARCHAR(36) REFERENCES games(id),
-    type VARCHAR(50) NOT NULL,
-    order_index INT NOT NULL,
-    content JSON NOT NULL,
+    challenge_data JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -82,12 +77,6 @@ CREATE TABLE game_progress (
 - `GET /api/games/:id` - Get game details
 - `PUT /api/games/:id` - Update game
 - `DELETE /api/games/:id` - Delete game
-
-### Challenges
-- `GET /api/games/:id/challenges` - List challenges
-- `POST /api/games/:id/challenges` - Create challenge
-- `PUT /api/games/:id/challenges/:challengeId` - Update challenge
-- `DELETE /api/games/:id/challenges/:challengeId` - Delete challenge
 
 ### Progress
 - `GET /api/progress/:gameId` - Get game progress
@@ -137,18 +126,14 @@ CREATE TABLE game_progress (
   },
   "games": {
     [gameId: string]: {
-      id: string,
-      title: string,
+      gameId: string,
+      name: string,
       description: string,
+      public: boolean,
+      isSynced: boolean,
       challenges: Challenge[],
-      lastSync: timestamp
-    }
-  },
-  "gameProgress": {
-    [gameId: string]: {
-      currentChallenge: number,
-      answers: Answer[],
-      lastSync: timestamp
+      lastModified: timestamp,
+      lastAccessed: timestamp
     }
   }
 }
@@ -157,30 +142,37 @@ CREATE TABLE game_progress (
 ### Sync Strategy
 
 1. **Initial Load**
-   - Check local storage for cached data
+   - Check local storage for cached game data
    - Compare last sync timestamp with server
    - Fetch updates if local data is stale
-   - Merge local and server data
+   - Parse and normalize challenge data from server
+   - Store normalized data in local storage
 
-2. **Real-time Updates**
+2. **Challenge Data Handling**
+   - Challenge data is stored as JSON in the database
+   - Server provides challenge array in normalized format
+   - Client normalizes data through utility functions
+   - Handles TypeScript/JavaScript syntax differences
+
+3. **Real-time Updates**
    - Save changes to local storage immediately
    - Queue server updates for background sync
    - Track sync status with timestamps
    - Handle offline scenarios gracefully
 
-3. **Conflict Resolution**
+4. **Conflict Resolution**
    - Use server-side timestamps as source of truth
    - Preserve local changes when possible
    - Implement retry mechanism for failed syncs
    - Log sync conflicts for debugging
 
-4. **Error Recovery**
+5. **Error Recovery**
    - Failed server syncs preserve local changes
    - Automatic retry mechanism for offline updates
    - Conflict resolution based on lastModified timestamp
    - Detailed error logging for debugging
 
-5. **Data Integrity**
+6. **Data Integrity**
    - Validation checks before save operations
    - Preservation of existing data during updates
    - Proper merging of local and server data

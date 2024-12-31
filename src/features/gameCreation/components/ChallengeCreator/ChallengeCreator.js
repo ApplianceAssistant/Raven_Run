@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faBan, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { challengeTypeConfig } from '../../../../config/challengeTypeConfig';
 import ScrollableContent from '../../../../components/ScrollableContent';
-import { feetToMeters, metersToFeet, getSmallDistanceUnit } from '../../../../utils/unitConversion';
+import { getSmallDistanceUnit } from '../../../../utils/unitConversion';
 import { useMessage } from '../../../../utils/MessageProvider';
 import '../../../../css/GameCreator.scss';
 import ToggleSwitch from '../../../../components/ToggleSwitch';
@@ -85,6 +85,7 @@ const ChallengeCreator = () => {
           answers: existingChallenge.answers || [''],
           targetLocation: existingChallenge.targetLocation || { latitude: '', longitude: '' },
           radius: existingChallenge.radius || '',
+          completionFeedback: existingChallenge.completionFeedback || '',  // Added for travel challenges
           question: existingChallenge.question || '',
           correctAnswer: existingChallenge.type === 'trueFalse'
             ? (existingChallenge.correctAnswer === undefined ? false : existingChallenge.correctAnswer)
@@ -102,6 +103,7 @@ const ChallengeCreator = () => {
         ? Math.max(...game.challenges.map(c => c.order || 0), 0)
         : 0;
       setChallenge(prev => ({
+
         ...prev,
         order: maxOrder + 1  // Set order to next available number
       }));
@@ -386,31 +388,7 @@ const ChallengeCreator = () => {
           />
         );
       case 'textarea':
-        if (fieldName === 'feedbackTexts') {
-          return (
-            <div className="array-field">
-              <div className="array-item">
-                <label>
-                  Correct Answer Feedback
-                  {fieldConfig.required && <span className="required">*</span>}
-                </label>
-                <textarea
-                  id="feedbackTexts.correct"
-                  name="feedbackTexts.correct"
-                  value={value?.correct || ''}
-                  onChange={handleInputChange}
-                  onBlur={() => {
-                    if (!value?.correct && fieldConfig.required) {
-                      showWarning('Correct answer feedback is required');
-                    }
-                  }}
-                  required={fieldConfig.required}
-                  placeholder="Enter feedback for correct answer"
-                />
-              </div>
-            </div>
-          );
-        }
+        // Regular textarea handling for all fields including completionFeedback
         return (
           <textarea
             id={fieldName}
@@ -428,7 +406,7 @@ const ChallengeCreator = () => {
         );
       case 'number':
         const displayValue = fieldName === 'radius'
-          ? (value === '' ? '' : (isMetric ? value : metersToFeet(value)))
+          ? (value === '' ? '' : Math.round(value))
           : value;
         return (
           <input
@@ -436,9 +414,19 @@ const ChallengeCreator = () => {
             id={fieldName}
             name={fieldName}
             value={displayValue}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              if (fieldName === 'radius') {
+                const newValue = e.target.value === '' ? '' : Math.round(parseFloat(e.target.value));
+                setChallenge(prev => ({
+                  ...prev,
+                  [fieldName]: newValue
+                }));
+              } else {
+                handleInputChange(e);
+              }
+            }}
             min="0"
-            step={fieldName === 'radius' ? '1' : 'any'}
+            step="1"
             onBlur={() => {
               if (fieldConfig.required && (value === '' || value === null)) {
                 showWarning(`${fieldConfig.label || fieldName} is required`);
@@ -543,71 +531,75 @@ const ChallengeCreator = () => {
           </div>
         );
       case 'feedback':
-        return (
-          <div className="form-group">
-            <label>{fieldConfig.label}{fieldConfig.required && <span className="required">*</span>}</label>
-            <div className="array-field">
-              <div className="feedback-section">
-                <div className="section-header">
-                  <label>Correct Answer Feedback{fieldConfig.required && <span className="required">*</span>}</label>
-                </div>
-                <div className="array-item">
-                  <textarea
-                    id="feedbackTexts.correct"
-                    name="feedbackTexts.correct"
-                    value={value.correct || ''}
-                    onChange={handleInputChange}
-                    onBlur={() => {
-                      if (!value.correct && fieldConfig.required) {
-                        showWarning('Correct answer feedback is required');
-                      }
-                    }}
-                    required={fieldConfig.required}
-                    placeholder="Enter feedback for correct answers"
-                  />
-                </div>
-              </div>
-              <div className="feedback-section">
-                <div className="section-header">
-                  <label>Incorrect Answer Feedback{fieldConfig.required && <span className="required">*</span>}</label>
-                  <button
-                    type="button"
-                    className="btn-add"
-                    onClick={() => addIncorrectFeedback()}
-                    title="Add another incorrect feedback"
-                  >
-                    <FontAwesomeIcon icon={faPlusCircle} />
-                  </button>
-                </div>
-                {value.incorrect.map((feedback, index) => (
-                  <div key={index} className="array-item">
-                    <button
-                      type="button"
-                      className="btn-remove"
-                      onClick={() => removeIncorrectFeedback(index)}
-                      title="Remove feedback"
-                      disabled={value.incorrect.length === 1}
-                    >
-                      <FontAwesomeIcon icon={faBan} />
-                    </button>
+        // Only render feedback fields for non-travel challenges
+        if (challenge.type !== 'travel') {
+          return (
+            <div className="form-group">
+              <label>{fieldConfig.label}{fieldConfig.required && <span className="required">*</span>}</label>
+              <div className="array-field">
+                <div className="feedback-section">
+                  <div className="section-header">
+                    <label>Correct Answer Feedback{fieldConfig.required && <span className="required">*</span>}</label>
+                  </div>
+                  <div className="array-item">
                     <textarea
-                      name={`feedbackTexts.incorrect.${index}`}
-                      value={feedback}
-                      onChange={(e) => handleFeedbackChange(e, 'incorrect', index)}
+                      id="feedbackTexts.correct"
+                      name="feedbackTexts.correct"
+                      value={value?.correct || ''}
+                      onChange={(e) => handleFeedbackChange(e, 'correct', 0)}
                       onBlur={() => {
-                        if (!feedback.trim() && fieldConfig.required) {
-                          showWarning('Incorrect answer feedback cannot be empty');
+                        if (!value?.correct && fieldConfig.required) {
+                          showWarning('Correct answer feedback is required');
                         }
                       }}
                       required={fieldConfig.required}
-                      placeholder="Enter feedback for incorrect answers"
+                      placeholder="Enter feedback for correct answers"
                     />
                   </div>
-                ))}
+                </div>
+                <div className="feedback-section">
+                  <div className="section-header">
+                    <label>Incorrect Answer Feedback{fieldConfig.required && <span className="required">*</span>}</label>
+                    <button
+                      type="button"
+                      className="btn-add"
+                      onClick={addIncorrectFeedback}
+                      title="Add another incorrect feedback"
+                    >
+                      <FontAwesomeIcon icon={faPlusCircle} />
+                    </button>
+                  </div>
+                  {value?.incorrect?.map((feedback, index) => (
+                    <div key={index} className="array-item">
+                      <button
+                        type="button"
+                        className="btn-remove"
+                        onClick={() => removeIncorrectFeedback(index)}
+                        title="Remove feedback"
+                        disabled={value.incorrect.length === 1}
+                      >
+                        <FontAwesomeIcon icon={faBan} />
+                      </button>
+                      <textarea
+                        name={`feedbackTexts.incorrect.${index}`}
+                        value={feedback}
+                        onChange={(e) => handleFeedbackChange(e, 'incorrect', index)}
+                        onBlur={() => {
+                          if (!feedback.trim() && fieldConfig.required) {
+                            showWarning('Incorrect answer feedback cannot be empty');
+                          }
+                        }}
+                        required={fieldConfig.required}
+                        placeholder="Enter feedback for incorrect answers"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        );
+          );
+        }
+        return null;
       default:
         return null;
     }
@@ -622,7 +614,7 @@ const ChallengeCreator = () => {
         return renderField(fieldName, fieldConfig);
       }
 
-      const radiusLabel = fieldName === 'radius' ? `Radius ${isMetric ? '(in meters)' : '(in feet)'} *` : fieldConfig.label || fieldName;
+      const radiusLabel = fieldName === 'radius' ? `Radius *` : fieldConfig.label || fieldName;
       return (
         <div key={fieldName} className="form-group">
           <div className="field-header">
@@ -672,11 +664,11 @@ const ChallengeCreator = () => {
   const hasHintsField = typeConfig.hints !== undefined;
 
   return (
-    <form onSubmit={handleSubmit} className="challenge-creator challenge-form">
+    <form onSubmit={handleSubmit} className="creator-form">
       <button type="button" className="back-button" onClick={handleBack}>
         <FontAwesomeIcon icon={faArrowLeft} />
       </button>
-      <div className="challenge-creator-header">
+      <div className="creator-header">
         <h2>{isEditing ? 'Edit Challenge' : 'Create New Challenge'}</h2>
         {/* Save/Cancel Buttons */}
         {showButtons && (

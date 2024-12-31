@@ -7,7 +7,8 @@ import {
 import { 
   checkServerConnectivity, 
   API_URL, 
-  authFetch 
+  authFetch,
+  calculateDistance 
 } from '../../../utils/utils';
 import { GameTypes } from '../types/gameTypes';
 
@@ -15,6 +16,70 @@ import { GameTypes } from '../types/gameTypes';
  * @typedef {import('../types/gameTypes').Game} Game
  * @typedef {import('../types/gameTypes').Challenge} Challenge
  */
+
+/**
+ * Calculate game location data from travel challenges
+ * @param {Challenge[]} challenges - Array of game challenges
+ * @returns {{
+ *   startLat: number|null,
+ *   startLong: number|null,
+ *   endLat: number|null,
+ *   endLong: number|null,
+ *   distance: number|null
+ * }} Location data for the game
+ */
+const calculateGameLocationData = (challenges) => {
+  // Filter travel challenges with valid locations
+  const locationChallenges = (challenges || []).filter(c => 
+    c.type === 'travel' && 
+    c.targetLocation?.latitude && 
+    c.targetLocation?.longitude
+  );
+
+  // Default values
+  const result = {
+    startLat: null,
+    startLong: null,
+    endLat: null,
+    endLong: null,
+    distance: null
+  };
+
+  if (locationChallenges.length > 0) {
+    // Sort challenges by order
+    locationChallenges.sort((a, b) => (a.order || 0) - (b.order || 0));
+    
+    // Get first and last locations
+    const firstLocation = locationChallenges[0].targetLocation;
+    const lastLocation = locationChallenges[locationChallenges.length - 1].targetLocation;
+    
+    // Set start and end coordinates
+    result.startLat = parseFloat(firstLocation.latitude);
+    result.startLong = parseFloat(firstLocation.longitude);
+    result.endLat = parseFloat(lastLocation.latitude);
+    result.endLong = parseFloat(lastLocation.longitude);
+    
+    // Calculate maximum distance between any two points
+    if (locationChallenges.length >= 2) {
+      let maxDistance = 0;
+      for (let i = 0; i < locationChallenges.length; i++) {
+        for (let j = i + 1; j < locationChallenges.length; j++) {
+          const distance = calculateDistance(
+            locationChallenges[i].targetLocation,
+            locationChallenges[j].targetLocation
+          );
+          maxDistance = Math.max(maxDistance, distance);
+        }
+      }
+      // Convert from meters to kilometers
+      result.distance = maxDistance / 1000;
+    } else {
+      result.distance = 0;
+    }
+  }
+
+  return result;
+};
 
 export const generateUniqueGameId = async () => {
   console.log('=== Starting generateUniqueGameId ===');
@@ -111,36 +176,17 @@ export const saveGame = async (gameData) => {
         }
       }
 
-      // Get the first and last travel challenges for start/end locations
-      const travelChallenges = (gameData.challenges || []).filter(c => c.type === 'travel');
-      const firstLocation = travelChallenges[0]?.targetLocation;
-      const lastLocation = travelChallenges[travelChallenges.length - 1]?.targetLocation;
+      // Calculate location data
+      const locationData = calculateGameLocationData(gameData.challenges);
 
       const apiGameData = {
         ...gameData,
         is_public: gameData.public,
-        // Use first travel challenge location as start location if available
-        start_location: firstLocation ? {
-          type: 'Point',
-          coordinates: [
-            parseFloat(firstLocation.longitude),
-            parseFloat(firstLocation.latitude)
-          ]
-        } : {
-          type: 'Point',
-          coordinates: [0, 0]
-        },
-        // Use last travel challenge location as end location if available
-        end_location: lastLocation ? {
-          type: 'Point',
-          coordinates: [
-            parseFloat(lastLocation.longitude),
-            parseFloat(lastLocation.latitude)
-          ]
-        } : {
-          type: 'Point',
-          coordinates: [0, 0]
-        }
+        start_latitude: locationData.startLat,
+        start_longitude: locationData.startLong,
+        end_latitude: locationData.endLat,
+        end_longitude: locationData.endLong,
+        distance: locationData.distance
       };
 
       const response = await authFetch(`${API_URL}/server/api/games/games.php`, {

@@ -3,15 +3,22 @@ require_once (__DIR__ . '/../../utils/db_connection.php');
 require_once (__DIR__ . '/../../utils/encryption.php');
 require_once (__DIR__ . '/../../utils/errorHandler.php');
 require_once (__DIR__ . '/../auth/auth.php');
+require_once (__DIR__ . '/../../utils/unitConversion.php');
 
 // Set content type to JSON
 header('Content-Type: application/json');
 
+// Get database connection
 try {
     $conn = getDbConnection();
     if (!$conn) {
         error_log("Database connection failed");
-        throw new Exception("Failed to connect to database");
+        http_response_code(500);
+        echo json_encode([
+            "error" => "Unable to connect to the service. Please try again later.",
+            "status" => "error"
+        ]);
+        exit;
     }
         
     // Handle different API endpoints
@@ -29,10 +36,18 @@ try {
         $user = authenticateUser();
         if (!$user) {
             http_response_code(401);
-            handleError(401, 'Unauthorized access', __FILE__, __LINE__);
+            echo json_encode([
+                "error" => "You must be logged in to perform this action.",
+                "status" => "error"
+            ]);
             exit;
         }
     }
+
+    // Get unit preference from request headers or query params
+    $isMetric = isset($_SERVER['HTTP_X_UNIT_SYSTEM']) ? 
+        $_SERVER['HTTP_X_UNIT_SYSTEM'] === 'metric' : 
+        (isset($_GET['unit_system']) ? $_GET['unit_system'] === 'metric' : true);
 
     switch ($method) {
         case 'GET':
@@ -52,7 +67,12 @@ try {
                         g.name as title,
                         g.description,
                         g.created_at,
-                        u.username as creator_name
+                        u.username as creator_name,
+                        g.start_latitude,
+                        g.start_longitude,
+                        g.end_latitude,
+                        g.end_longitude,
+                        g.distance
                     FROM games g
                     JOIN users u ON g.user_id = u.id
                     WHERE g.is_public = 1
@@ -112,15 +132,35 @@ try {
                 echo json_encode(['status' => 'success', 'data' => $games]);
             } elseif ($action === 'get_games') {
                 // Get all games for the authenticated user
-                $stmt = $conn->prepare("SELECT gameId, name, description, challenge_data, is_public FROM games WHERE user_id = ?");
+                $stmt = $conn->prepare("SELECT * FROM games WHERE user_id = ?");
                 $stmt->bind_param("i", $user['id']);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $games = $result->fetch_all(MYSQLI_ASSOC);
-                echo json_encode($games);
+                
+                if ($stmt->execute()) {
+                    $result = $stmt->get_result();
+                    $games = [];
+                    
+                    while ($row = $result->fetch_assoc()) {
+                        // Convert radius values in challenges to display units
+                        $challenges = json_decode($row['challenge_data'], true);
+                        foreach ($challenges as &$challenge) {
+                            if (isset($challenge['radius'])) {
+                                $challenge['radius'] = convertRadius($challenge['radius'], $isMetric, false);
+                            }
+                        }
+                        $row['challenge_data'] = json_encode($challenges);
+                        
+                        $games[] = $row;
+                    }
+                    
+                    echo json_encode($games);
+                } else {
+                    http_response_code(500);
+                    error_log("Failed to get games: " . $stmt->error);
+                    echo json_encode(["error" => "Unable to retrieve games"]);
+                }
             } elseif ($action === 'get' && isset($_GET['gameId'])) {
                 $gameId = $_GET['gameId'];
-                $stmt = $conn->prepare("SELECT gameId, name, description, challenge_data, is_public FROM games WHERE gameId = ? AND (user_id = ? OR is_public = 1)");
+                $stmt = $conn->prepare("SELECT gameId, name, description, challenge_data, is_public, start_latitude, start_longitude, end_latitude, end_longitude, distance FROM games WHERE gameId = ? AND (user_id = ? OR is_public = 1)");
                 $stmt->bind_param("si", $gameId, $user['id']);
                 $stmt->execute();
                 $result = $stmt->get_result();
@@ -149,33 +189,77 @@ try {
                 $isPublic = $game['is_public'] ? 1 : 0;
                 $challengeData = json_encode($game['challenges']);
 
-                // Create default POINT for locations if not provided
-                $startLocation = 'POINT(0 0)';
-                $endLocation = 'POINT(0 0)';
+                // Initialize location variables
+                $startLat = null;
+                $startLong = null;
+                $endLat = null;
+                $endLong = null;
+                $distance = null;
 
-                // If start_location is provided, create POINT from coordinates
-                if (isset($game['start_location']) && 
-                    isset($game['start_location']['coordinates']) && 
-                    is_array($game['start_location']['coordinates']) && 
-                    count($game['start_location']['coordinates']) === 2) {
-                    $startLocation = sprintf(
-                        'POINT(%f %f)', 
-                        $game['start_location']['coordinates'][0],
-                        $game['start_location']['coordinates'][1]
-                    );
+                // Get travel challenges and sort by order
+                $challenges = json_decode($challengeData, true);
+                $locationChallenges = array_filter($challenges, function($challenge) {
+                    return isset($challenge['targetLocation']);
+                });
+                
+                if (!empty($locationChallenges)) {
+                    usort($locationChallenges, function($a, $b) {
+                        return ($a['order'] ?? 0) - ($b['order'] ?? 0);
+                    });
+                    
+                    // Set start location from first travel challenge
+                    $firstChallenge = reset($locationChallenges);
+                    if (isset($firstChallenge['targetLocation'])) {
+                        $startLat = $firstChallenge['targetLocation']['latitude'];
+                        $startLong = $firstChallenge['targetLocation']['longitude'];
+                    }
+                    
+                    // Set end location from last travel challenge
+                    $lastChallenge = end($locationChallenges);
+                    if (isset($lastChallenge['targetLocation'])) {
+                        $endLat = $lastChallenge['targetLocation']['latitude'];
+                        $endLong = $lastChallenge['targetLocation']['longitude'];
+                    }
+                    
+                    // Calculate total distance in kilometers
+                    if (count($locationChallenges) >= 2) {
+                        $totalDistance = 0;
+                        $prevLocation = null;
+                        foreach ($locationChallenges as $challenge) {
+                            $currentLocation = $challenge['targetLocation'];
+                            if ($prevLocation) {
+                                // Cast coordinates to float and calculate using Haversine formula
+                                $lat1 = deg2rad((float)$prevLocation['latitude']);
+                                $lon1 = deg2rad((float)$prevLocation['longitude']);
+                                $lat2 = deg2rad((float)$currentLocation['latitude']);
+                                $lon2 = deg2rad((float)$currentLocation['longitude']);
+                                
+                                $dlat = $lat2 - $lat1;
+                                $dlon = $lon2 - $lon1;
+                                
+                                $a = sin($dlat/2) * sin($dlat/2) +
+                                     cos($lat1) * cos($lat2) *
+                                     sin($dlon/2) * sin($dlon/2);
+                                $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+                                
+                                // 6371 is Earth's radius in kilometers
+                                $totalDistance += 6371 * $c;
+                            }
+                            $prevLocation = $currentLocation;
+                        }
+                        $distance = $totalDistance;
+                    }
                 }
 
-                // If end_location is provided, create POINT from coordinates
-                if (isset($game['end_location']) && 
-                    isset($game['end_location']['coordinates']) && 
-                    is_array($game['end_location']['coordinates']) && 
-                    count($game['end_location']['coordinates']) === 2) {
-                    $endLocation = sprintf(
-                        'POINT(%f %f)', 
-                        $game['end_location']['coordinates'][0],
-                        $game['end_location']['coordinates'][1]
-                    );
+                // Get challenges and process them
+                $challenges = json_decode($challengeData, true);
+                foreach ($challenges as &$challenge) {
+                    if (isset($challenge['radius'])) {
+                        // Convert radius to meters for storage
+                        $challenge['radius'] = convertRadius($challenge['radius'], $isMetric, true);
+                    }
                 }
+                $challengeData = json_encode($challenges);
 
                 // Check if the game already exists
                 $stmt = $conn->prepare("SELECT user_id FROM games WHERE gameId = ?");
@@ -190,36 +274,71 @@ try {
                             description = ?, 
                             is_public = ?, 
                             challenge_data = ?,
-                            start_location = ST_GeomFromText(?),
-                            end_location = ST_GeomFromText(?)
+                            start_latitude = ?,
+                            start_longitude = ?,
+                            end_latitude = ?,
+                            end_longitude = ?,
+                            distance = ?
                         WHERE gameId = ?"
                     );
-                    $stmt->bind_param("ssissss", $name, $description, $isPublic, $challengeData, $startLocation, $endLocation, $gameId);
+                    $stmt->bind_param("ssissdddds", 
+                        $name, 
+                        $description, 
+                        $isPublic, 
+                        $challengeData, 
+                        $startLat,
+                        $startLong,
+                        $endLat,
+                        $endLong,
+                        $distance,
+                        $gameId
+                    );
                 } else {
                     // Insert new game
                     $stmt = $conn->prepare(
                         "INSERT INTO games 
-                        (gameId, user_id, name, description, is_public, challenge_data, start_location, end_location) 
-                        VALUES (?, ?, ?, ?, ?, ?, ST_GeomFromText(?), ST_GeomFromText(?))"
+                        (gameId, user_id, name, description, is_public, challenge_data, 
+                         start_latitude, start_longitude, end_latitude, end_longitude, distance) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     );
-                    $stmt->bind_param("sisssiss", $gameId, $user['id'], $name, $description, $isPublic, $challengeData, $startLocation, $endLocation);
+                    $stmt->bind_param("sisssisdddds", 
+                        $gameId, 
+                        $user['id'], 
+                        $name, 
+                        $description, 
+                        $isPublic, 
+                        $challengeData,
+                        $startLat,
+                        $startLong,
+                        $endLat,
+                        $endLong,
+                        $distance
+                    );
                 }
 
                 if ($stmt->execute()) {
                     echo json_encode([
                         "gameId" => $gameId,
-                        "message" => "Game saved successfully"
+                        "message" => "Game saved successfully",
+                        "status" => "success"
                     ]);
                 } else {
                     http_response_code(500);
                     error_log("Failed to save game: " . $stmt->error);
-                    echo json_encode(["error" => "Failed to save game"]);
+                    echo json_encode([
+                        "error" => "Unable to save your game at this time. Please try again later.",
+                        "status" => "error"
+                    ]);
                 }
             } elseif ($action === 'delete_game') {
                 $gameId = $data['gameId'] ?? '';
                 if (empty($gameId)) {
                     http_response_code(400);
-                    echo json_encode(["error" => "Game ID is required"]);
+                    error_log("Game ID is required for deletion");
+                    echo json_encode([
+                        "error" => "Unable to delete the game. Please try again.",
+                        "status" => "error"
+                    ]);
                     exit;
                 }
 
@@ -273,6 +392,12 @@ try {
     http_response_code(500);
     error_log("Exception caught: " . $e->getMessage());
     handleError($e->getCode(), $e->getMessage(), __FILE__, __LINE__);
+    
+    // Return a generic error message to the user
+    echo json_encode([
+        "error" => "An unexpected error occurred while processing your request. Please try again later.",
+        "status" => "error"
+    ]);
 } finally {
     // Release the connection but don't close it
     releaseDbConnection();
