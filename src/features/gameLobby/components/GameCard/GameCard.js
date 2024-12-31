@@ -46,6 +46,12 @@ const GameCard = ({
         return remainingMins > 0 ? `${hours}h ${remainingMins}m` : `${hours}h`;
     };
 
+    const truncateDescription = (text, maxLength = 100) => {
+        if (!text) return '';
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength).trim() + '...';
+    };
+
     return (
         <div className="game-card" onClick={handleClick}>
             <div className="game-image">
@@ -66,7 +72,7 @@ const GameCard = ({
                     <span className="stars">{'★'.repeat(Math.round(rating))}</span>
                     <span className="rating-count">({ratingCount})</span>
                 </div>
-                <p className="description">{description}</p>
+                <p className="description">{truncateDescription(description)}</p>
                 <div className="meta-info">
                     <span className="duration">
                         <i className="far fa-clock"></i>
