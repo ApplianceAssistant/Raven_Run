@@ -30,6 +30,7 @@
     "mysql2": "^3.11.4",
     "game": "^0.12.7",
     "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
     "react-image-crop": "^11.0.7",
     "react-router-dom": "^6.26.2",

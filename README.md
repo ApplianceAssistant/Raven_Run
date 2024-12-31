@@ -130,14 +130,17 @@ APP_ENV=development
 ### Game Objects
 - Required fields: gameId, name, description
 - Name and description must be non-empty strings
-- Challenges array must be properly structured
+- Challenge data stored as JSON in database
+- Challenge array normalized during sync
 - All updates preserve existing challenge data
+- Handles TypeScript/JavaScript syntax differences
 
 ### Synchronization States
 - isSynced flag indicates server sync status
 - lastModified timestamp for conflict resolution
+- lastAccessed timestamp for local storage management
 - Offline-first approach with local storage fallback
-- Automatic conflict resolution during updates
+- Challenge data normalized during sync operations
 
 ## Key Features
 

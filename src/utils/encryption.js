@@ -43,7 +43,9 @@ initializeEncryptionKey();
 
 const safeBase64Encode = (str) => {
   try {
-    return btoa(str);
+    // Convert string to UTF-8 before base64 encoding
+    const utf8Bytes = unescape(encodeURIComponent(str));
+    return btoa(utf8Bytes);
   } catch (e) {
     console.error('Error in base64 encoding:', e);
     return '';
@@ -52,17 +54,16 @@ const safeBase64Encode = (str) => {
 
 const safeBase64Decode = (str) => {
   try {
-    return atob(str);
+    // Convert back from UTF-8 after base64 decoding
+    const utf8Bytes = atob(str);
+    return decodeURIComponent(escape(utf8Bytes));
   } catch (e) {
     console.error('Error in base64 decoding:', e);
     return '';
   }
 };
 
-export const encryptData = async (data) => {
-  if (!keyInitialized) {
-    await initializeEncryptionKey();
-  }
+export const encryptData = (data) => {
   try {
     const jsonString = JSON.stringify(data);
     const encrypted = xorEncryptDecrypt(jsonString, ENCRYPTION_KEY);

@@ -44,7 +44,28 @@ export const getGamesFromLocalStorage = () => {
  */
 export const getDownloadedGame = (gameId) => {
   try {
-    const downloadedGames = JSON.parse(localStorage.getItem(DOWNLOADED_GAMES_KEY) || '{}');
+    const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
+    if (!storedData) return null;
+
+    let downloadedGames;
+    // Try to parse as JSON first (for legacy unencrypted data)
+    try {
+      downloadedGames = JSON.parse(storedData);
+    } catch {
+      // If JSON parse fails, try decryption
+      try {
+        downloadedGames = decryptData(storedData);
+      } catch (decryptError) {
+        console.error('Error decrypting downloaded games:', decryptError);
+        return null;
+      }
+    }
+
+    if (!downloadedGames || typeof downloadedGames !== 'object') {
+      console.warn('Invalid downloaded games data format');
+      return null;
+    }
+
     const game = downloadedGames[gameId];
     return game ? normalizeGame(game) : null;
   } catch (error) {
@@ -59,13 +80,42 @@ export const getDownloadedGame = (gameId) => {
  */
 export const saveDownloadedGame = (game) => {
   try {
-    const downloadedGames = JSON.parse(localStorage.getItem(DOWNLOADED_GAMES_KEY) || '{}');
-    downloadedGames[game.gameId] = {
-      ...normalizeGame(game),
-      downloaded_at: new Date().toISOString(),
-      last_played: new Date().toISOString()
+    const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
+    let downloadedGames = {};
+
+    if (storedData) {
+      // Try to parse as JSON first (for legacy unencrypted data)
+      try {
+        downloadedGames = JSON.parse(storedData);
+      } catch {
+        // If JSON parse fails, try decryption
+        try {
+          downloadedGames = decryptData(storedData) || {};
+        } catch (decryptError) {
+          console.error('Error decrypting existing games:', decryptError);
+          // Continue with empty object if both methods fail
+        }
+      }
+    }
+
+    const gameId = game.gameId || game.game_id;
+    if (!gameId) {
+      console.error('Game ID is required');
+      return false;
+    }
+
+    downloadedGames[gameId] = {
+      ...game,
+      lastPlayed: new Date().toISOString()
     };
-    localStorage.setItem(DOWNLOADED_GAMES_KEY, JSON.stringify(downloadedGames));
+
+    const encryptedData = encryptData(downloadedGames);
+    if (!encryptedData) {
+      console.error('Failed to encrypt game data');
+      return false;
+    }
+    
+    localStorage.setItem(DOWNLOADED_GAMES_KEY, encryptedData);
     return true;
   } catch (error) {
     console.error('Error saving downloaded game:', error);
@@ -79,13 +129,45 @@ export const saveDownloadedGame = (game) => {
  */
 export const updateGameLastPlayed = (gameId) => {
   try {
-    const downloadedGames = JSON.parse(localStorage.getItem(DOWNLOADED_GAMES_KEY) || '{}');
-    if (downloadedGames[gameId]) {
-      downloadedGames[gameId].last_played = new Date().toISOString();
-      localStorage.setItem(DOWNLOADED_GAMES_KEY, JSON.stringify(downloadedGames));
+    const encryptedGames = localStorage.getItem(DOWNLOADED_GAMES_KEY);
+    if (!encryptedGames) return false;
+
+    let downloadedGames;
+    // Try to parse as JSON first (for legacy unencrypted data)
+    try {
+      downloadedGames = JSON.parse(encryptedGames);
+    } catch {
+      // If JSON parse fails, try decryption
+      try {
+        downloadedGames = decryptData(encryptedGames);
+      } catch (decryptError) {
+        console.error('Error decrypting downloaded games:', decryptError);
+        return false;
+      }
     }
+
+    if (!downloadedGames || typeof downloadedGames !== 'object') {
+      console.warn('Invalid downloaded games data format');
+      return false;
+    }
+
+    if (downloadedGames[gameId]) {
+      downloadedGames[gameId].lastPlayed = new Date().toISOString();
+      try {
+        const encryptedData = encryptData(downloadedGames);
+        localStorage.setItem(DOWNLOADED_GAMES_KEY, encryptedData);
+        return true;
+      } catch (encryptError) {
+        console.error('Error encrypting games data:', encryptError);
+        // Fallback to unencrypted storage if encryption fails
+        localStorage.setItem(DOWNLOADED_GAMES_KEY, JSON.stringify(downloadedGames));
+        return true;
+      }
+    }
+    return false;
   } catch (error) {
     console.error('Error updating game last played:', error);
+    return false;
   }
 };
 
@@ -95,10 +177,39 @@ export const updateGameLastPlayed = (gameId) => {
  */
 export const removeDownloadedGame = (gameId) => {
   try {
-    const downloadedGames = JSON.parse(localStorage.getItem(DOWNLOADED_GAMES_KEY) || '{}');
+    const encryptedGames = localStorage.getItem(DOWNLOADED_GAMES_KEY);
+    if (!encryptedGames) return false;
+
+    let downloadedGames;
+    // Try to parse as JSON first (for legacy unencrypted data)
+    try {
+      downloadedGames = JSON.parse(encryptedGames);
+    } catch {
+      // If JSON parse fails, try decryption
+      try {
+        downloadedGames = decryptData(encryptedGames);
+      } catch (decryptError) {
+        console.error('Error decrypting downloaded games:', decryptError);
+        return false;
+      }
+    }
+
+    if (!downloadedGames || typeof downloadedGames !== 'object') {
+      console.warn('Invalid downloaded games data format');
+      return false;
+    }
+
     delete downloadedGames[gameId];
-    localStorage.setItem(DOWNLOADED_GAMES_KEY, JSON.stringify(downloadedGames));
-    return true;
+    try {
+      const encryptedData = encryptData(downloadedGames);
+      localStorage.setItem(DOWNLOADED_GAMES_KEY, encryptedData);
+      return true;
+    } catch (encryptError) {
+      console.error('Error encrypting games data:', encryptError);
+      // Fallback to unencrypted storage if encryption fails
+      localStorage.setItem(DOWNLOADED_GAMES_KEY, JSON.stringify(downloadedGames));
+      return true;
+    }
   } catch (error) {
     console.error('Error removing downloaded game:', error);
     return false;
@@ -111,7 +222,28 @@ export const removeDownloadedGame = (gameId) => {
  */
 export const getAllDownloadedGames = () => {
   try {
-    const downloadedGames = JSON.parse(localStorage.getItem(DOWNLOADED_GAMES_KEY) || '{}');
+    const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
+    if (!storedData) return [];
+
+    let downloadedGames;
+    // Try to parse as JSON first (for legacy unencrypted data)
+    try {
+      downloadedGames = JSON.parse(storedData);
+    } catch {
+      // If JSON parse fails, try decryption
+      try {
+        downloadedGames = decryptData(storedData);
+      } catch (decryptError) {
+        console.error('Error decrypting downloaded games:', decryptError);
+        return [];
+      }
+    }
+
+    if (!downloadedGames || typeof downloadedGames !== 'object') {
+      console.warn('Invalid downloaded games data format');
+      return [];
+    }
+
     return Object.values(downloadedGames).map(game => normalizeGame(game));
   } catch (error) {
     console.error('Error getting all downloaded games:', error);
@@ -130,7 +262,11 @@ export const normalizeGame = (game) => {
   let challenges = [];
   if (game.challenge_data) {
     try {
-      challenges = JSON.parse(game.challenge_data);
+      const parsedData = JSON.parse(game.challenge_data);
+      // If challenge_data contains the entire game object, extract just the challenges
+      challenges = Array.isArray(parsedData) ? parsedData :
+                  Array.isArray(parsedData.challenges) ? parsedData.challenges :
+                  [];
     } catch (e) {
       console.error('Error parsing challenge_data:', e);
     }
