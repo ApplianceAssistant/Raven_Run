@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { downloadGame } from '../../../gameplay/services/gameplayService';
 import { getDownloadedGame } from '../../../../utils/localStorageUtils';
+import { getLargeDistanceUnit, convertDistance } from '../../../../utils/unitConversion';
 import './GameCard.scss';
 
 const GameCard = ({ 
@@ -9,15 +10,20 @@ const GameCard = ({
     title, 
     difficulty, 
     distance, 
-    rating, 
+    avg_rating, 
     ratingCount, 
     duration, 
     description, 
     tags,
-    totalChallenges
+    challenges = [],
+    creatorName
 }) => {
     const navigate = useNavigate();
     const [isDownloaded, setIsDownloaded] = useState(false);
+    const [isMetric, setIsMetric] = useState(() => {
+        const savedUnitSystem = localStorage.getItem('unitSystem');
+        return savedUnitSystem ? JSON.parse(savedUnitSystem) : false;
+    });
 
     useEffect(() => {
         // Check if game is already downloaded
@@ -25,18 +31,8 @@ const GameCard = ({
         setIsDownloaded(!!downloadedGame);
     }, [id]);
 
-    const handleClick = async () => {
-        try {
-            // Download the game first
-            await downloadGame(id);
-            setIsDownloaded(true);
-            // Then navigate to the game page
-            navigate(`/game/${id}`);
-        } catch (error) {
-            console.error('Error downloading game:', error);
-            // Still navigate to game page, it will handle the error
-            navigate(`/game/${id}`);
-        }
+    const handleCardClick = async () => {
+        navigate(`/gamedescription/${id}`);
     };
 
     const formatDuration = (mins) => {
@@ -53,24 +49,29 @@ const GameCard = ({
     };
 
     return (
-        <div className="game-card" onClick={handleClick}>
+        <div className="game-card" onClick={handleCardClick}>
             <div className="game-image">
                 <div className={`difficulty-badge ${difficulty}`}>
                     {difficulty}
                 </div>
+                <div className="creator-name" title="Created by">
+                    Created by: {creatorName}
+                </div>
                 <div className="distance-badge">
-                    <i className="fas fa-route"></i> {distance}
+                    <i className="fas fa-route"></i>
+                    {distance ? `${Math.round(convertDistance(distance, true, isMetric))} ${getLargeDistanceUnit(isMetric)}` : '0 km'}
                 </div>
                 <div className="challenge-count">
-                    {totalChallenges}
+                    <i className="fas fa-flag-checkered"></i>
+                    {challenges.length}
                 </div>
                 {isDownloaded && <span className="downloaded" title="Available Offline">📱</span>}
             </div>
             <div className="game-info">
                 <h3>{title}</h3>
                 <div className="rating">
-                    <span className="stars">{'★'.repeat(Math.round(rating))}</span>
-                    <span className="rating-count">({ratingCount})</span>
+                    <span className="stars">{'★'.repeat(Math.round(avg_rating))}</span>
+                    {ratingCount > 0 && <span className="rating-count">({ratingCount})</span>}
                 </div>
                 <p className="description">{truncateDescription(description)}</p>
                 <div className="meta-info">

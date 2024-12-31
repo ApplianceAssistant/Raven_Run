@@ -113,7 +113,7 @@ function AppContent() {
           <Route path="/lobby" element={<ThemeContainer theme={theme}><GameLobby /></ThemeContainer>} />
           <Route path="/create-profile" element={<ThemeContainer theme={theme}><CreateProfile /></ThemeContainer>} />
           <Route path="/log-in" element={<ThemeContainer theme={theme}><LogIn /></ThemeContainer>} />
-          <Route path="/hunt-description/:gameId" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
+          <Route path="/gamedescription/:gameId" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
           <Route path="/game/:gameId/challenge/:challengeIndex" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
           <Route path="/congratulations" element={<ThemeContainer theme={theme}><Congratulations /></ThemeContainer>} />
           <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />

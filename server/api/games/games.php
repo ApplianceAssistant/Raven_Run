@@ -61,78 +61,100 @@ try {
                 echo json_encode(["isUnique" => $count == 0]);
             } elseif ($action === 'public_games') {
                 // Get all public games
-                $query = "
+                $stmt = $conn->prepare("
                     SELECT 
-                        g.gameId as id,
-                        g.name as title,
+                        g.gameId,
+                        g.name,
                         g.description,
+                        g.challenge_data,
+                        g.is_public,
                         g.created_at,
-                        u.username as creator_name,
+                        g.updated_at,
+                        g.user_id,
+                        g.difficulty_level,
+                        g.distance,
+                        g.estimated_time,
+                        g.tags,
+                        g.dayOnly,
+                        g.avg_rating,
+                        g.rating_count,
                         g.start_latitude,
                         g.start_longitude,
-                        g.end_latitude,
-                        g.end_longitude,
-                        g.distance
+                        u.username as creator_name
                     FROM games g
-                    JOIN users u ON g.user_id = u.id
+                    LEFT JOIN users u ON g.user_id = u.id
                     WHERE g.is_public = 1
-                    ORDER BY g.created_at DESC
-                ";
-                                
-                $result = $conn->query($query);
-                if (!$result) {
+                ");
+                
+                if ($stmt->execute()) {
+                    $result = $stmt->get_result();
+                    $games = [];
+                    
+                    while ($row = $result->fetch_assoc()) {
+                        // Convert radius values in challenges to display units
+                        $challenges = json_decode($row['challenge_data'], true);
+                        foreach ($challenges as &$challenge) {
+                            if (isset($challenge['radius'])) {
+                                $challenge['radius'] = convertRadius($challenge['radius'], $isMetric, false);
+                            }
+                        }
+                        
+                        // Format the game data
+                        $games[] = [
+                            'id' => $row['gameId'],
+                            'title' => $row['name'],
+                            'description' => $row['description'],
+                            'challenges' => $challenges,
+                            'isPublic' => (bool)$row['is_public'],
+                            'createdAt' => $row['created_at'],
+                            'updatedAt' => $row['updated_at'],
+                            'userId' => $row['user_id'],
+                            'difficulty' => $row['difficulty_level'],
+                            'distance' => (float)$row['distance'],
+                            'estimatedTime' => (int)$row['estimated_time'],
+                            'tags' => json_decode($row['tags'], true) ?? [],
+                            'dayOnly' => (bool)$row['dayOnly'],
+                            'avg_rating' => (float)$row['avg_rating'],
+                            'rating_count' => (int)$row['rating_count'],
+                            'startLocation' => [
+                                'latitude' => (float)$row['start_latitude'],
+                                'longitude' => (float)$row['start_longitude']
+                            ],
+                            'creator_name' => $row['creator_name']
+                        ];
+                    }
+                    
+                    echo json_encode(['status' => 'success', 'data' => $games]);
+                } else {
                     error_log("Query failed: " . $conn->error);
                     throw new Exception("Failed to fetch public games: " . $conn->error);
                 }
-                
-                $games = [];
-                
-                while ($game = $result->fetch_assoc()) {
-                    
-                    // Check if challenges table exists
-                    $tableCheckQuery = "SHOW TABLES LIKE 'challenges'";
-                    $tableExists = $conn->query($tableCheckQuery)->num_rows > 0;
-                    
-                    if ($tableExists) {
-                        $challengeQuery = "
-                            SELECT * FROM challenges 
-                            WHERE game_id = ? 
-                            ORDER BY order_index
-                        ";
-                        $stmt = $conn->prepare($challengeQuery);
-                        if (!$stmt) {
-                            error_log("Failed to prepare challenge query: " . $conn->error);
-                            throw new Exception("Failed to prepare challenge query: " . $conn->error);
-                        }
-                        
-                        $stmt->bind_param('s', $game['id']);
-                        if (!$stmt->execute()) {
-                            error_log("Failed to execute challenge query: " . $stmt->error);
-                            throw new Exception("Failed to execute challenge query: " . $stmt->error);
-                        }
-                        
-                        $challengeResult = $stmt->get_result();
-                        
-                        $challenges = [];
-                        while ($challenge = $challengeResult->fetch_assoc()) {
-                            $challenge['content'] = json_decode($challenge['content'], true);
-                            $challenges[] = $challenge;
-                        }
-                        
-                        $game['challenges'] = $challenges;
-                        $stmt->close();
-                    } else {
-                        // If challenges table doesn't exist, just set an empty array
-                        $game['challenges'] = [];
-                    }
-                    
-                    $games[] = $game;
-                }
-                
-                echo json_encode(['status' => 'success', 'data' => $games]);
             } elseif ($action === 'get_games') {
                 // Get all games for the authenticated user
-                $stmt = $conn->prepare("SELECT * FROM games WHERE user_id = ?");
+                $stmt = $conn->prepare("
+                    SELECT 
+                        gameId,
+                        name,
+                        description,
+                        challenge_data,
+                        is_public,
+                        created_at,
+                        updated_at,
+                        user_id,
+                        difficulty_level,
+                        distance,
+                        estimated_time,
+                        tags,
+                        dayOnly,
+                        avg_rating,
+                        rating_count,
+                        start_latitude,
+                        start_longitude,
+                        end_latitude,
+                        end_longitude
+                    FROM games 
+                    WHERE user_id = ?
+                ");
                 $stmt->bind_param("i", $user['id']);
                 
                 if ($stmt->execute()) {
@@ -147,9 +169,33 @@ try {
                                 $challenge['radius'] = convertRadius($challenge['radius'], $isMetric, false);
                             }
                         }
-                        $row['challenge_data'] = json_encode($challenges);
                         
-                        $games[] = $row;
+                        // Format the game data
+                        $games[] = [
+                            'id' => $row['gameId'],
+                            'title' => $row['name'],
+                            'description' => $row['description'],
+                            'challenges' => $challenges,
+                            'isPublic' => (bool)$row['is_public'],
+                            'createdAt' => $row['created_at'],
+                            'updatedAt' => $row['updated_at'],
+                            'userId' => $row['user_id'],
+                            'difficulty' => $row['difficulty_level'],
+                            'distance' => (float)$row['distance'],
+                            'estimatedTime' => (int)$row['estimated_time'],
+                            'tags' => json_decode($row['tags'], true) ?? [],
+                            'dayOnly' => (bool)$row['dayOnly'],
+                            'avg_rating' => (float)$row['avg_rating'],
+                            'rating_count' => (int)$row['rating_count'],
+                            'startLocation' => [
+                                'latitude' => (float)$row['start_latitude'],
+                                'longitude' => (float)$row['start_longitude']
+                            ],
+                            'endLocation' => [
+                                'latitude' => (float)$row['end_latitude'],
+                                'longitude' => (float)$row['end_longitude']
+                            ]
+                        ];
                     }
                     
                     echo json_encode($games);
