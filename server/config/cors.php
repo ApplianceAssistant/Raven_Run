@@ -10,29 +10,20 @@ function getAllowedOrigins() {
 
     $env = $_ENV['APP_ENV'] ?? 'development';
 
-    // In development, always allow localhost:5000
+    // In development, allow both localhost ports
     if ($env === 'development') {
-        return ['http://localhost:5000'];
+        return [
+            'http://localhost:5000',
+            'http://localhost:3000', // Also allow default React port
+            'http://127.0.0.1:5000',
+            'http://127.0.0.1:3000'
+        ];
     }
 
     // Get CORS origins from environment variables
     $originsEnvVar = strtoupper($env) . '_CORS_ORIGINS';
     $originsString = $_ENV[$originsEnvVar] ?? '*';
     
-    $debug = [
-        'environment' => $env,
-        'originsEnvVar' => $originsEnvVar,
-        'originsString' => $originsString ?: 'null',
-        'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
-        'php_version' => PHP_VERSION,
-        'sapi_name' => php_sapi_name(),
-        'env_check' => [
-            'app_env' => $_ENV['APP_ENV'] ?? 'not set',
-            'dev_cors' => $_ENV['DEVELOPMENT_CORS_ORIGINS'] ?? 'not set',
-            'cors_origin' => $_ENV['CORS_ORIGIN'] ?? 'not set'
-        ]
-    ];
-        
     if ($originsString) {
         $origins = explode(',', $originsString);
         $origins = array_map('trim', $origins);
@@ -49,7 +40,7 @@ function handleCors() {
     // If the origin is in our allowed list or we're allowing all origins
     if (in_array('*', $allowedOrigins) || in_array($origin, $allowedOrigins)) {
         header("Access-Control-Allow-Origin: $origin");
-        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
         header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
         header("Access-Control-Allow-Credentials: true");
         

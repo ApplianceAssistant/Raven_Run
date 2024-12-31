@@ -94,6 +94,36 @@ CREATE TABLE game_progress (
 - `POST /api/progress/:gameId` - Update progress
 - `DELETE /api/progress/:gameId` - Reset progress
 
+## API Development Guidelines
+
+### Server Communication Requirements
+1. All PHP API endpoints must:
+   - Include db_connection.php at the top (handles CORS and database)
+   - Include errorHandler.php for consistent error logging
+   - Set Content-Type header before any output
+   - Follow consistent error handling patterns
+   ```php
+   <?php
+   require_once __DIR__ . '/../../utils/db_connection.php';
+   require_once __DIR__ . '/../../utils/errorHandler.php';
+   
+   // Set content type before any output
+   header('Content-Type: application/json');
+   
+   // Get database connection
+   $conn = getDbConnection();
+   if (!$conn) {
+       handleError(500, 'Failed to connect to database', __FILE__, __LINE__);
+       exit(0);
+   }
+   ```
+
+2. Error Handling:
+   - Always use handleError() for consistent error logging
+   - Include file and line information for debugging
+   - Format: handleError(status_code, error_message, __FILE__, __LINE__)
+   - Exit after handling critical errors
+
 ## Data Synchronization
 
 ### Local Storage Structure

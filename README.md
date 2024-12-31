@@ -200,6 +200,24 @@ APP_ENV=development
 - Clear feedback for user actions
 - Progressive disclosure of features
 
+## Development Guidelines
+
+### Communication and Code Changes
+1. Before making any code changes:
+   - Outline the planned changes
+   - Wait for approval before proceeding
+   - Break down complex changes into smaller, manageable steps
+
+2. When proposing changes:
+   - Explain which files will be modified/created
+   - Describe the purpose of each change
+   - Only show code drafts when specifically requested
+
+3. After approval:
+   - Proceed with implementing the agreed-upon changes
+   - Follow the existing patterns and conventions
+   - Maintain consistent error handling and logging
+
 ## Common Issues and Solutions
 
 1. Location Updates
