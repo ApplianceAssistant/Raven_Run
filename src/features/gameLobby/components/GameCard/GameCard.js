@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { downloadGame } from '../../../gameplay/services/gameplayService';
+import { getDownloadedGame } from '../../../../utils/localStorageUtils';
 import './GameCard.scss';
 
 const GameCard = ({ 
@@ -15,9 +17,26 @@ const GameCard = ({
     totalChallenges
 }) => {
     const navigate = useNavigate();
+    const [isDownloaded, setIsDownloaded] = useState(false);
 
-    const handleClick = () => {
-        navigate(`/game/${id}`);
+    useEffect(() => {
+        // Check if game is already downloaded
+        const downloadedGame = getDownloadedGame(id);
+        setIsDownloaded(!!downloadedGame);
+    }, [id]);
+
+    const handleClick = async () => {
+        try {
+            // Download the game first
+            await downloadGame(id);
+            setIsDownloaded(true);
+            // Then navigate to the game page
+            navigate(`/game/${id}`);
+        } catch (error) {
+            console.error('Error downloading game:', error);
+            // Still navigate to game page, it will handle the error
+            navigate(`/game/${id}`);
+        }
     };
 
     const formatDuration = (mins) => {
@@ -39,6 +58,7 @@ const GameCard = ({
                 <div className="challenge-count">
                     {totalChallenges}
                 </div>
+                {isDownloaded && <span className="downloaded" title="Available Offline">📱</span>}
             </div>
             <div className="game-info">
                 <h3>{title}</h3>

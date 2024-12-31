@@ -24,9 +24,10 @@ import {
 import { handleError } from '../utils/utils.js';
 import { useLocationWatcher } from '../hooks/locationWatcher.js';
 import TextToSpeech from './TextToSpeech.js';
-import { getGamesFromLocalStorage } from '../utils/localStorageUtils.js';
+import { getDownloadedGame, saveDownloadedGame } from '../utils/localStorageUtils.js';
 import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils.js';
 import { playAudio } from '../utils/audioFeedback.js';
+import { loadGame } from '../features/gameplay/services/gameplayService.js';
 
 function GamePage() {
   const [autoPlayTrigger, setAutoPlayTrigger] = useState(0);
@@ -54,31 +55,31 @@ function GamePage() {
   const currentChallenge = challenges[challengeIndex];
 
   useEffect(() => {
-    const loadGame = () => {
-      const numericGameId = parseInt(gameId, 10);
-      let fetchedChallenges = getChallenges(numericGameId);
-      let gameName = getGameName(numericGameId);
-      if (!fetchedChallenges.length) {
-        const customGames = getGamesFromLocalStorage();
-        const customGame = customGames.find(game => game.id === numericGameId);
-        if (customGame) {
-          fetchedChallenges = customGame.challenges;
-          gameName = customGame.name;
+    const loadGameData = async () => {
+      try {
+        // Load game from downloaded games or download it
+        const game = await loadGame(gameId);
+        if (!game) {
+          console.error('Game not found:', gameId);
+          navigate('/lobby');
+          return;
         }
-      }
 
-      setChallenges(fetchedChallenges);
-      setGameName(gameName);
+        // Set game data
+        setChallenges(game.challenges || []);
+        setGameName(game.name || '');
+
+        // Save progress
+        saveHuntProgress(gameId, urlChallengeIndex);
+      } catch (error) {
+        console.error('Error loading game:', error);
+        navigate('/lobby');
+      }
     };
 
-    loadGame();
+    loadGameData();
     setChallengeIndex(parseInt(urlChallengeIndex, 10) || 0);
-
-    // Save progress when component mounts
-    saveHuntProgress(gameId, urlChallengeIndex);
-  }, [gameId, urlChallengeIndex]);
-
-
+  }, [gameId, urlChallengeIndex, navigate]);
 
   const updateDistanceAndCheckLocation = useCallback(() => {
     if (currentChallenge?.targetLocation && userLocation && !completedChallenges.has(challengeIndex)) {
@@ -343,6 +344,7 @@ function GamePage() {
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
             {currentChallenge && (
           <>
+
             <Challenge
               key={challengeIndex}
               challenge={currentChallenge}
@@ -351,6 +353,7 @@ function GamePage() {
               onContinue={handleContinueClick}
             />
           </>
+
         )}
             </div>
           </main>

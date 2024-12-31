@@ -32,7 +32,6 @@ try {
             handleError(401, 'Unauthorized access', __FILE__, __LINE__);
             exit;
         }
-        error_log("User authenticated successfully");
     }
 
     switch ($method) {

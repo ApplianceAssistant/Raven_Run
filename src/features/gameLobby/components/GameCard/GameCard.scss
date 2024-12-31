@@ -120,6 +120,17 @@
                     }
                 }
             }
+
+            .downloaded {
+                background-color: var(--success-bg);
+                color: var(--success-text);
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                padding: 0.25rem 0.5rem;
+                border-radius: 4px;
+                font-size: 1rem;
+            }
         }
     }
 }
