@@ -58,6 +58,7 @@ function LogIn() {
         }
 
         try {
+            console.log('Attempting login with email:', email);
             const response = await authFetch(`${API_URL}/server/api/auth/login.php`, {
                 method: 'POST',
                 headers: {
@@ -71,16 +72,22 @@ function LogIn() {
                 credentials: 'include' 
             });
 
+            console.log('Server response:', response);
             const data = await response.json();
+            console.log('Server response data:', { ...data, token: data.token ? '[REDACTED]' : undefined });
 
             if (!response.ok) {
                 if (response.status === 429) {
                     throw new Error('Too many login attempts. Please try again later.');
                 }
-                throw new Error(data.message || 'An error occurred');
+                const errorMessage = data.debug_info 
+                    ? `${data.message} (Debug: ${data.debug_info})`
+                    : data.message || 'An error occurred';
+                throw new Error(errorMessage);
             }
 
             if (data.status === 'success') {
+                console.log('Login successful, setting up user data...');
                 const userData = {
                     id: data.user.id,
                     username: data.user.username,
@@ -90,8 +97,12 @@ function LogIn() {
                 localStorage.setItem('user', JSON.stringify(userData));
                 login(userData);
                 setIsLoggedInSuccessfully(true);
+                showSuccess('Successfully logged in!');
+            } else {
+                throw new Error(data.message || 'Login failed');
             }
         } catch (error) {
+            console.error('Login error:', error);
             showError(error.message || 'An error occurred during login');
         } finally {
             setIsLoading(false);

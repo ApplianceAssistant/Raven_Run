@@ -92,7 +92,7 @@ try {
                     
                     while ($row = $result->fetch_assoc()) {
                         // Convert radius values in challenges to display units
-                        $challenges = json_decode($row['challenge_data'], true);
+                        $challenges = json_decode($row['challenge_data'], true) ;
                         foreach ($challenges as &$challenge) {
                             if (isset($challenge['radius'])) {
                                 $challenge['radius'] = convertRadius($challenge['radius'], $isMetric, false);

@@ -21,9 +21,17 @@ const HuntDescription = () => {
     const { settings } = useSettings();
 
     useEffect(() => {
-        const getGameData = () => {
+        const getGameData = async () => {
             try {
                 setLoading(true);
+                
+                // First try to download the game if not already downloaded
+                try {
+                    await downloadGame(gameId);
+                } catch (downloadError) {
+                    console.error('Error downloading game:', downloadError);
+                }
+
                 const gameData = getDownloadedGame(gameId);
 
                 if (!gameData) {
@@ -39,33 +47,27 @@ const HuntDescription = () => {
                 const transformedGame = {
                     ...gameData,
                     title: gameData.title || 'Untitled Adventure',
-                    description: gameData.description || 'No description available',
-                    difficulty: gameData.difficulty || 'medium',
-                    distance: gameData.distance || 0,
-                    rating: gameData.avg_rating || 0,
-                    ratingCount: gameData.rating_count || 0,
-                    duration: totalDuration,
-                    challengeCount: Array.isArray(challenges) ? challenges.length : 0,
-                    dayOnly: gameData.dayOnly || false,
-                    estimatedTime: gameData.estimatedTime || totalDuration,
-                    creator_name: gameData.creator_name || 'Anonymous'
+                    estimatedTime: totalDuration,
                 };
 
                 setGame(transformedGame);
-                const isMetric = getUserUnitPreference();
-                const analysis = analyzeChallenges(gameData.challenges, isMetric);
+                
+                // Analyze challenges
+                const analysis = analyzeChallenges(challenges);
                 setHuntAnalysis(analysis);
-                setAutoPlayTrigger(prev => prev + 1);
-                setError(null);
             } catch (error) {
-                setError('Failed to load game details');
-                console.error('Error loading game:', error);
+                console.error('Error getting game data:', error);
+                setError(error.message);
             } finally {
                 setLoading(false);
             }
         };
 
-        getGameData();
+        getGameData().catch(error => {
+            console.error('Error in getGameData:', error);
+            setError(error.message);
+            setLoading(false);
+        });
     }, [gameId]);
 
     const handleEnterHunt = () => {

@@ -275,13 +275,13 @@ export const normalizeGame = (game) => {
   }
 
   return {
-    gameId: game.gameId || game.game_id || '',
-    name: game.name || '',
+    gameId: game.gameId || game.game_id || game.id || '',
+    name: game.name || game.title || '',
     description: game.description || '',
     public: game.public ?? game.is_public ?? false,
     isSynced: game.isSynced ?? true,
     challenges: challenges,
-    lastModified: game.lastModified || game.last_modified || Date.now(),
+    lastModified: game.lastModified || game.last_modified || game.updated_at || Date.now(),
     lastAccessed: Date.now()
   };
 };

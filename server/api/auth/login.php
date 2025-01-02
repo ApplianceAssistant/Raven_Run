@@ -65,7 +65,8 @@ try {
                 error_log('Prepare failed: ' . $conn->error);
                 $response = [
                     'status' => 'error',
-                    'message' => 'Database error',
+                    'message' => 'Database error: Failed to prepare statement',
+                    'debug_info' => $conn->error,
                     'code' => 500
                 ];
                 echo json_encode($response);
@@ -77,7 +78,8 @@ try {
                 error_log('Execute failed: ' . $stmt->error);
                 $response = [
                     'status' => 'error',
-                    'message' => 'Database error',
+                    'message' => 'Database error: Failed to execute query',
+                    'debug_info' => $stmt->error,
                     'code' => 500
                 ];
                 echo json_encode($response);
@@ -87,10 +89,24 @@ try {
             $result = $stmt->get_result();
             $user = $result->fetch_assoc();
 
-            if (!$user || !verifyPassword($password, $user['password'])) {
+            if (!$user) {
+                error_log('Login failed: User not found for email: ' . $email);
                 $response = [
                     'status' => 'error',
                     'message' => 'Invalid email or password',
+                    'debug_info' => 'User not found',
+                    'code' => 401
+                ];
+                echo json_encode($response);
+                exit(0);
+            }
+
+            if (!verifyPassword($password, $user['password'])) {
+                error_log('Login failed: Invalid password for email: ' . $email);
+                $response = [
+                    'status' => 'error',
+                    'message' => 'Invalid email or password',
+                    'debug_info' => 'Password verification failed',
                     'code' => 401
                 ];
                 echo json_encode($response);

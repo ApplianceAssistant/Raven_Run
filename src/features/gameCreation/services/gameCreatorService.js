@@ -244,7 +244,7 @@ export const getGames = async () => {
         
         // Normalize server games and filter out any invalid ones
         const normalizedServerGames = serverGames
-          .filter(game => game && typeof game === 'object' && (game.gameId || game.game_id))
+          .filter(game => game && typeof game === 'object' && (game.gameId || game.game_id || game.id))
           .map(game => normalizeGame(game));
         
         // Keep unsynced local games
