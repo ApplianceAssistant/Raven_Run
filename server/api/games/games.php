@@ -130,6 +130,7 @@ try {
                     throw new Exception("Failed to fetch public games: " . $conn->error);
                 }
             } elseif ($action === 'get_games') {
+                error_log("Fetching games for user ID: " . $user['id']);
                 // Get all games for the authenticated user
                 $stmt = $conn->prepare("
                     SELECT 
@@ -155,15 +156,48 @@ try {
                     FROM games 
                     WHERE user_id = ?
                 ");
+                
+                if (!$stmt) {
+                    error_log("Failed to prepare statement: " . $conn->error);
+                    http_response_code(500);
+                    echo json_encode([
+                        "error" => "Database error",
+                        "message" => "Failed to prepare statement",
+                        "status" => "error"
+                    ]);
+                    exit;
+                }
+
                 $stmt->bind_param("i", $user['id']);
                 
-                if ($stmt->execute()) {
-                    $result = $stmt->get_result();
-                    $games = [];
-                    
-                    while ($row = $result->fetch_assoc()) {
+                if (!$stmt->execute()) {
+                    error_log("Failed to execute statement: " . $stmt->error);
+                    http_response_code(500);
+                    echo json_encode([
+                        "error" => "Database error",
+                        "message" => "Failed to execute query",
+                        "status" => "error"
+                    ]);
+                    exit;
+                }
+
+                $result = $stmt->get_result();
+                $games = [];
+                
+                error_log("Found " . $result->num_rows . " games");
+                
+                while ($row = $result->fetch_assoc()) {
+                    try {
                         // Convert radius values in challenges to display units
-                        $challenges = json_decode($row['challenge_data'], true);
+                        $challenge_data = $row['challenge_data'];
+                        error_log("Processing challenge data: " . substr($challenge_data, 0, 100) . "...");
+                        
+                        $challenges = json_decode($challenge_data, true);
+                        if (json_last_error() !== JSON_ERROR_NONE) {
+                            error_log("JSON decode error for game " . $row['gameId'] . ": " . json_last_error_msg());
+                            continue;
+                        }
+
                         foreach ($challenges as &$challenge) {
                             if (isset($challenge['radius'])) {
                                 $challenge['radius'] = convertRadius($challenge['radius'], $isMetric, false);
@@ -196,14 +230,14 @@ try {
                                 'longitude' => (float)$row['end_longitude']
                             ]
                         ];
+                    } catch (Exception $e) {
+                        error_log("Error processing game " . $row['gameId'] . ": " . $e->getMessage());
+                        continue;
                     }
-                    
-                    echo json_encode($games);
-                } else {
-                    http_response_code(500);
-                    error_log("Failed to get games: " . $stmt->error);
-                    echo json_encode(["error" => "Unable to retrieve games"]);
                 }
+                
+                error_log("Successfully processed " . count($games) . " games");
+                echo json_encode($games);
             } elseif ($action === 'get' && isset($_GET['gameId'])) {
                 $gameId = $_GET['gameId'];
                 $stmt = $conn->prepare("SELECT gameId, name, description, challenge_data, is_public, start_latitude, start_longitude, end_latitude, end_longitude, distance FROM games WHERE gameId = ? AND (user_id = ? OR is_public = 1)");
