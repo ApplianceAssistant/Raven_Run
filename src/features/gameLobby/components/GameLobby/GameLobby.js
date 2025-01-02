@@ -25,11 +25,33 @@ const GameLobby = () => {
     const loadGames = async (pageNum = 1) => {
         try {
             setLoading(true);
+            console.log('Fetching games for page:', pageNum);
+            
             const response = await authFetch(`${API_URL}/server/api/games/games.php?action=public_games&page=${pageNum}`);
+            console.log('Raw response status:', response.status);
+            console.log('Raw response headers:', Object.fromEntries(response.headers.entries()));
+            
             if (!response.ok) {
                 throw new Error('Failed to fetch games');
             }
-            const { status, data, message } = await response.json();
+
+            // Get the raw text first
+            const rawText = await response.text();
+            console.log('Raw response text:', rawText);
+            
+            // Try to parse it as JSON
+            let jsonData;
+            try {
+                jsonData = JSON.parse(rawText);
+                console.log('Parsed JSON data:', jsonData);
+            } catch (parseError) {
+                console.error('JSON parse error:', parseError);
+                console.error('Failed to parse text:', rawText);
+                throw new Error(`Failed to parse response as JSON: ${parseError.message}`);
+            }
+
+            const { status, data, message } = jsonData;
+            
             if (status === 'success') {
                 if (pageNum === 1) {
                     setGames(data);
