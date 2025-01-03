@@ -43,42 +43,9 @@ try {
     $method = $_SERVER['REQUEST_METHOD'];
     $action = $_GET['action'] ?? '';
 
-    // Diagnostic endpoint - before auth check
-    if ($method === 'GET' && $action === 'check_environment') {
-        if (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] === 'localhost:8000' || strpos($_SERVER['HTTP_HOST'], 'staging') !== false || strpos($_SERVER['HTTP_HOST'], 'ravenruns.com') !== false)) {
-            $info = [
-                'php_version' => PHP_VERSION,
-                'extensions' => get_loaded_extensions(),
-                'mb_internal_encoding' => mb_internal_encoding(),
-                'default_charset' => ini_get('default_charset'),
-                'json_version' => phpversion('json'),
-                'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
-                'headers_list' => headers_list(),
-                'mb_functions' => [
-                    'mb_convert_encoding' => function_exists('mb_convert_encoding'),
-                    'mb_detect_encoding' => function_exists('mb_detect_encoding')
-                ],
-                'json_functions' => [
-                    'json_encode' => function_exists('json_encode'),
-                    'json_last_error_msg' => function_exists('json_last_error_msg')
-                ],
-                'memory_limit' => ini_get('memory_limit'),
-                'max_execution_time' => ini_get('max_execution_time'),
-                'post_max_size' => ini_get('post_max_size'),
-                'upload_max_filesize' => ini_get('upload_max_filesize'),
-                'error_reporting' => error_reporting(),
-                'display_errors' => ini_get('display_errors'),
-                'log_errors' => ini_get('log_errors'),
-                'error_log' => ini_get('error_log')
-            ];
-            echo json_encode($info, JSON_PRETTY_PRINT);
-            exit;
-        }
-    }
-
     // Skip authentication for public endpoints
     $skipAuth = false;
-    if ($method === 'GET' && $action === 'public_games') {
+    if ($method === 'GET' && ($action === 'public_games' || $action === 'get')) {
         $skipAuth = true;
     }
 
@@ -102,15 +69,7 @@ try {
 
     switch ($method) {
         case 'GET':
-            if ($action === 'check_gameId') {
-                $gameId = $_GET['gameId'] ?? '';
-                $stmt = $conn->prepare("SELECT COUNT(*) as count FROM games WHERE gameId = ?");
-                $stmt->bind_param("s", $gameId);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $count = $result->fetch_assoc()['count'];
-                echo json_encode(["isUnique" => $count == 0]);
-            } elseif ($action === 'public_games') {
+            if ($action === 'public_games') {
                 error_log("Fetching public games");
                 // Get all public games
                 $stmt = $conn->prepare("
@@ -230,6 +189,87 @@ try {
                 }
 
                 echo $json_response;
+            } elseif ($action === 'get' && isset($_GET['gameId'])) {
+                $gameId = $_GET['gameId'];
+                error_log("Fetching game with ID: " . $gameId);
+                
+                // Modified query to get game data for public games without requiring user authentication
+                $stmt = $conn->prepare("
+                    SELECT 
+                        g.gameId,
+                        g.name,
+                        g.description,
+                        g.challenge_data,
+                        g.is_public,
+                        g.start_latitude,
+                        g.start_longitude,
+                        g.end_latitude,
+                        g.end_longitude,
+                        g.distance,
+                        g.difficulty_level,
+                        g.estimated_time,
+                        g.tags,
+                        g.dayOnly,
+                        u.username as creator_name
+                    FROM games g
+                    LEFT JOIN users u ON g.user_id = u.id
+                    WHERE g.gameId = ? AND g.is_public = 1
+                ");
+                
+                if (!$stmt) {
+                    error_log("Failed to prepare statement: " . $conn->error);
+                    http_response_code(500);
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Database error",
+                        "debug" => "Failed to prepare statement"
+                    ]);
+                    exit;
+                }
+
+                $stmt->bind_param("s", $gameId);
+                
+                if (!$stmt->execute()) {
+                    error_log("Failed to execute statement: " . $stmt->error);
+                    http_response_code(500);
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Database error",
+                        "debug" => "Failed to execute statement"
+                    ]);
+                    exit;
+                }
+
+                $result = $stmt->get_result();
+                if ($game = $result->fetch_assoc()) {
+                    error_log("Game found, processing data");
+                    // Format the game data consistently with public_games endpoint
+                    $formattedGame = [
+                        'id' => $game['gameId'],
+                        'title' => $game['name'],
+                        'description' => $game['description'],
+                        'challenges' => json_decode($game['challenge_data'], true),
+                        'isPublic' => (bool)$game['is_public'],
+                        'difficulty' => $game['difficulty_level'],
+                        'distance' => (float)$game['distance'],
+                        'estimatedTime' => (int)$game['estimated_time'],
+                        'tags' => $game['tags'] !== null ? json_decode($game['tags'], true) : [],
+                        'dayOnly' => (bool)$game['dayOnly'],
+                        'startLocation' => [
+                            'latitude' => (float)$game['start_latitude'],
+                            'longitude' => (float)$game['start_longitude']
+                        ],
+                        'creator_name' => $game['creator_name']
+                    ];
+                    echo json_encode($formattedGame);
+                } else {
+                    error_log("Game not found with ID: " . $gameId);
+                    http_response_code(404);
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Game not found or is not public"
+                    ]);
+                }
             } elseif ($action === 'get_games') {
                 error_log("Fetching games for user ID: " . $user['id']);
                 // Get all games for the authenticated user
@@ -339,18 +379,6 @@ try {
                 
                 error_log("Successfully processed " . count($games) . " games");
                 echo json_encode($games);
-            } elseif ($action === 'get' && isset($_GET['gameId'])) {
-                $gameId = $_GET['gameId'];
-                $stmt = $conn->prepare("SELECT gameId, name, description, challenge_data, is_public, start_latitude, start_longitude, end_latitude, end_longitude, distance FROM games WHERE gameId = ? AND (user_id = ? OR is_public = 1)");
-                $stmt->bind_param("si", $gameId, $user['id']);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                if ($game = $result->fetch_assoc()) {
-                    echo json_encode($game);
-                } else {
-                    http_response_code(404);
-                    echo json_encode(["error" => "Game not found or access denied"]);
-                }
             } else {
                 http_response_code(400);
                 echo json_encode(["error" => "Invalid action"]);
