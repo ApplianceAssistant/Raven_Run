@@ -5,6 +5,7 @@
     border: 1px solid var(--border-color);
     box-shadow: 2px 6px 0px var(--shadow);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
 
     &:hover {
         transform: translateY(-4px);
@@ -94,16 +95,59 @@
         }
 
         .rating {
-            margin-bottom: 10px;
-            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            width: 100%;
+
             .stars {
-                color: var(--warning-color);
-                margin-right: 5px;
+                display: inline-flex;
+                font-size: 1.1rem;
+                line-height: 1;
+                justify-content: center;
+                align-items: center;
+                
+                .star {
+                    position: relative;
+                    width: 1em;
+                    height: 1em;
+                    display: inline-flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin: 0;
+                    padding: 0;
+                    
+                    &.full::before {
+                        content: '★';
+                    }
+                    
+                    &.empty::before {
+                        content: '☆';
+                    }
+                    
+                    &.half {
+                        &::before {
+                            content: '★';
+                            position: absolute;
+                            left: 0;
+                            width: 50%;
+                            overflow: hidden;
+                        }
+                        &::after {
+                            content: '☆';
+                            position: absolute;
+                            left: 0;
+                        }
+                    }
+                }
             }
 
             .rating-count {
                 color: var(--text-muted);
                 font-size: 0.9rem;
+                margin-left: 0.25rem;
             }
         }
 

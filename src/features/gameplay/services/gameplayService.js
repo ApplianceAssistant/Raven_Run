@@ -30,12 +30,10 @@ export const downloadGame = async (gameId) => {
     
     // Log the raw response for debugging
     const rawText = await response.text();
-    console.log('Raw server response:', rawText);
     
     let game;
     try {
       game = JSON.parse(rawText);
-      console.log('Parsed game data:', game);
     } catch (e) {
       console.error('Error parsing game JSON:', e);
       throw new Error('Failed to parse game data from server');
@@ -99,19 +97,31 @@ export const downloadGame = async (gameId) => {
  */
 export const loadGame = async (gameId) => {
   try {
-    // First try to load from downloaded games
-    const downloadedGame = getDownloadedGame(gameId);
-    console.log('loadGame got from storage:', downloadedGame);
-    if (downloadedGame) {
-      updateGameLastPlayed(gameId);
-      return {
-        ...downloadedGame,  // Spread all properties to ensure we keep everything
-        lastAccessed: Date.now()
-      };
+    // Check if game exists locally first
+    const localGame = getDownloadedGame(gameId);
+    if (localGame) {
+      console.log('Found game in local storage:', gameId);
+      return localGame;
     }
 
-    // If not found locally, try to download it
-    return await downloadGame(gameId);
+    // If not in local storage, fetch from server but don't save
+    const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}`);
+    const rawText = await response.text();
+    
+    let game;
+    try {
+      game = JSON.parse(rawText);
+    } catch (e) {
+      console.error('Error parsing game JSON:', e);
+      throw new Error('Failed to parse game data from server');
+    }
+
+    if (!response.ok || game.status === 'error') {
+      throw new Error(game.message || 'Failed to fetch game data');
+    }
+
+    // Return the game data without saving to localStorage
+    return game.data || game;
   } catch (error) {
     console.error('Error loading game:', error);
     throw error;

@@ -148,18 +148,11 @@ const GameLobby = () => {
             description: cleanDescription || 'No description available',
             difficulty: game.difficulty || 'medium',
             distance: game.distance || 0,
-            rating: game.avg_rating || 0,
-            ratingCount: game.rating_count || 0,
+            avg_rating: parseFloat(game.avg_rating) || 0,
+            ratingCount: parseInt(game.rating_count) || 0,
             duration: totalDuration,
-            challenges: challenges,
-            challengeCount: Array.isArray(challenges) ? challenges.length : 0,
             tags: tags,
-            dayOnly: game.dayOnly || false,
-            createdAt: game.createdAt,
-            updatedAt: game.updatedAt,
-            userId: game.userId,
-            estimatedTime: game.estimatedTime,
-            startLocation: game.startLocation,
+            challenges: challenges,
             creatorName: game.creator_name || 'Anonymous'
         };
     });

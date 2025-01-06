@@ -9,6 +9,8 @@ import { useSettings } from '../utils/SettingsContext';
 import { loadGame, downloadGame } from '../features/gameplay/services/gameplayService';
 import { getDownloadedGame } from '../utils/localStorageUtils';
 
+import './HuntDescription.scss';
+
 const HuntDescription = () => {
     const { gameId } = useParams();
     const navigate = useNavigate();
@@ -28,7 +30,6 @@ const HuntDescription = () => {
                 
                 // Try to load the game (this will check local storage first)
                 const gameData = await loadGame(gameId);
-                console.log('HuntDescription loadGame returned:', gameData);
                 
                 if (!gameData) {
                     throw new Error('Game not found');
@@ -48,7 +49,6 @@ const HuntDescription = () => {
                     dayOnly: Boolean(gameData.dayOnly),
                     startLocation: gameData.startLocation || null
                 };
-                console.log('HuntDescription transformed game:', transformedGame);
 
                 setGame(transformedGame);
             } catch (error) {
@@ -68,22 +68,14 @@ const HuntDescription = () => {
 
     const handleAgree = async () => {
         try {
-            // Only download if not already in local storage
-            const existingGame = getDownloadedGame(gameId);
-            if (!existingGame) {
-                await downloadGame(gameId);
-            }
+            // Always download/update the game when starting
+            await downloadGame(gameId);
             setIsModalOpen(false);
             navigate(`/game/${gameId}/challenge/0`);
         } catch (error) {
             console.error('Error preparing game:', error);
-            // Show error to user but still allow navigation if game exists
-            if (getDownloadedGame(gameId)) {
-                setIsModalOpen(false);
-                navigate(`/game/${gameId}/challenge/0`);
-            } else {
-                setError('Failed to prepare game for offline play');
-            }
+            setError('Failed to prepare game for offline play. Please try again.');
+            setIsModalOpen(false);
         }
     };
 
@@ -115,35 +107,34 @@ const HuntDescription = () => {
     if (error || !game) {
         return <div>Game not found</div>;
     }
-    console.log("game:", game);
     return (
         <div className="hunt-description">
-                <div className="hunt-header">
-                    <h1>{game.title}</h1>
-                    <div className="meta-info">
-                        <span className="difficulty">Difficulty: {game.difficulty}</span>
-                        <span className="duration">Duration: {game.estimatedTime} minutes</span>
-                        <span className="distance">Distance: {convertDistance(game.distance, true, isMetric)} {getLargeDistanceUnit(isMetric)}</span>
-                    </div>
-                    <div className="creator">Created by: {game.creator_name || 'Anonymous'}</div>
+            <div className="hunt-header">
+                <h1>{game.title}</h1>
+                <div className="meta-info">
+                    <span className="difficulty">Difficulty: {game.difficulty}</span>
+                    <span className="duration">Duration: {game.estimatedTime} minutes</span>
+                    <span className="distance"><i className="fas fa-route"></i> Distance: {convertDistance(game.distance, true, isMetric)} {getLargeDistanceUnit(isMetric)}</span>
                 </div>
-                <ScrollableContent maxHeight="50vh">
+                <div className="creator">Created by: {game.creator_name || 'Anonymous'}</div>
+            </div>
+            <ScrollableContent maxHeight="50vh">
                 <div className="hunt-content">
                     <div className="description">
                         {cleanText(game.description, { asJsx: true })}
                     </div>
                 </div>
-                </ScrollableContent>
-                <div className="button-container">
-                    <TextToSpeech
-                        text={game.description}
-                        autoPlay={settings.autoPlayDescription}
-                        trigger={autoPlayTrigger}
-                    />
-                    <button className="primary" onClick={handleEnterHunt}>
-                        Start Hunt
-                    </button>
-                </div>
+            </ScrollableContent>
+            <div className="button-container">
+                <TextToSpeech
+                    text={game.description}
+                    autoPlay={settings.autoPlayDescription}
+                    trigger={autoPlayTrigger}
+                />
+                <button className="primary" onClick={handleEnterHunt}>
+                    Start Hunt
+                </button>
+            </div>
             
 
             <ModalAgreement

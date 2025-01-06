@@ -84,7 +84,6 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   }, [speakSentence]);
 
   useEffect(() => {
-    console.warn("settings.autoSpeak", settings.autoSpeak);
     if (settings.autoSpeak && autoPlayTrigger) {
       speak();
     }

@@ -43,7 +43,6 @@ export const getGamesFromLocalStorage = () => {
  */
 export const getDownloadedGame = (gameId) => {
   try {
-    console.log('getDownloadedGame called for:', gameId);
     const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
     if (!storedData) return null;
 
@@ -290,6 +289,10 @@ export const normalizeGame = (game) => {
     estimatedTime: parseInt(game.estimatedTime || game.estimated_time) || 60,
     creator_name: game.creator_name || game.creatorName || 'Anonymous',
     dayOnly: Boolean(game.dayOnly || game.day_only),
+    avg_rating: typeof game.avg_rating === 'number' ? game.avg_rating :
+               typeof game.avg_rating === 'string' ? parseFloat(game.avg_rating) : 0,
+    rating_count: typeof game.rating_count === 'number' ? game.rating_count :
+                 typeof game.rating_count === 'string' ? parseInt(game.rating_count) : 0,
     startLocation: game.startLocation || {
       latitude: parseFloat(game.start_latitude || game.startLat || 0),
       longitude: parseFloat(game.start_longitude || game.startLong || 0)

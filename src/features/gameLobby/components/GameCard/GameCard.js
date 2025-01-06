@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { downloadGame } from '../../../gameplay/services/gameplayService';
 import { getDownloadedGame } from '../../../../utils/localStorageUtils';
 import { getLargeDistanceUnit, convertDistance } from '../../../../utils/unitConversion';
 import { cleanText } from '../../../../utils/utils';
@@ -32,21 +31,8 @@ const GameCard = ({
         setIsDownloaded(!!downloadedGame);
     }, [id]);
 
-    const handleCardClick = async () => {
-        try {
-            console.log('GameCard clicked, current data:', {
-                id, distance, parsed_distance: parseFloat(distance)
-            });
-            // Ensure game is downloaded before navigation
-            if (!isDownloaded) {
-                await downloadGame(id);
-            }
-            navigate(`/gamedescription/${id}`);
-        } catch (error) {
-            console.error('Error preparing game:', error);
-            // Navigate anyway, HuntDescription will handle the retry
-            navigate(`/gamedescription/${id}`);
-        }
+    const handleCardClick = () => {
+        navigate(`/gamedescription/${id}`);
     };
 
     const formatDuration = (mins) => {
@@ -56,8 +42,32 @@ const GameCard = ({
         return remainingMins > 0 ? `${hours}h ${remainingMins}m` : `${hours}h`;
     };
 
+    const renderStars = (rating) => {
+        const stars = [];
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+        
+        // Add full stars
+        for (let i = 0; i < fullStars; i++) {
+            stars.push(<span key={`full-${i}`} className="star full" />);
+        }
+        
+        // Add half star if needed
+        if (hasHalfStar) {
+            stars.push(<span key="half" className="star half" />);
+        }
+        
+        // Add empty stars
+        const emptyStars = 5 - Math.ceil(rating);
+        for (let i = 0; i < emptyStars; i++) {
+            stars.push(<span key={`empty-${i}`} className="star empty" />);
+        }
+        
+        return <span className="stars">{stars}</span>;
+    };
+
     return (
-        <div className="game-card" onClick={handleCardClick}>
+        <div className="game-card" onClick={handleCardClick} title={`View ${title} details`}>
             <div className="game-image">
                 <div className={`difficulty-badge ${difficulty}`}>
                     {difficulty}
@@ -67,7 +77,7 @@ const GameCard = ({
                 </div>
                 <div className="distance-badge">
                     <i className="fas fa-route"></i>
-                    {distance ? `${Math.round(convertDistance(distance, true, isMetric))} ${getLargeDistanceUnit(isMetric)}` : '0 km'}
+                    {`${Math.round(convertDistance(distance || 0, true, isMetric))} ${getLargeDistanceUnit(isMetric)}`}
                 </div>
                 <div className="challenge-count">
                     <i className="fas fa-flag-checkered"></i>
@@ -78,7 +88,7 @@ const GameCard = ({
             <div className="game-info">
                 <h3>{title}</h3>
                 <div className="rating">
-                    <span className="stars">{'★'.repeat(Math.round(avg_rating))}</span>
+                    {renderStars(avg_rating)}
                     {ratingCount > 0 && <span className="rating-count">({ratingCount})</span>}
                 </div>
                 <div className="game-card-description">

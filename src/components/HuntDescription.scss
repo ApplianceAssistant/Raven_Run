@@ -1,0 +1,64 @@
+.hunt-description {
+    padding: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+
+    .hunt-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+
+        h1 {
+            font-size: 1.75rem;
+            margin: 0 0 0.75rem 0;
+            line-height: 1.2;
+        }
+
+        .meta-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+
+            span {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+
+                i {
+                    font-size: 1rem;
+                }
+
+                &.difficulty::before {
+                    content: '⚡';
+                }
+
+                &.duration::before {
+                    content: '⏱️';
+                }
+            }
+        }
+
+        .creator {
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+    }
+
+    .hunt-content {
+        padding: 1rem;
+        background: var(--modal-bg);
+        border-radius: 8px;
+
+        .description {
+            font-size: 1rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+
+            p {
+                margin-bottom: 1rem;
+            }
+        }
+    }
+}
