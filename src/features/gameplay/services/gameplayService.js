@@ -53,22 +53,25 @@ export const downloadGame = async (gameId) => {
 
     // Normalize the game object
     const normalizedGame = {
-      gameId: game.id || game.gameId, // Handle both id formats
+      gameId: game.id || game.gameId,
       title: game.title,
       description: game.description,
       challenges: Array.isArray(game.challenges) ? game.challenges : 
                  (typeof game.challenge_data === 'string' ? JSON.parse(game.challenge_data) : []),
-      isPublic: game.isPublic || game.is_public,
-      difficulty: game.difficulty || game.difficulty_level,
+      isPublic: game.isPublic || game.is_public || false,
+      difficulty: game.difficulty || game.difficulty_level || 'Normal',
       distance: parseFloat(game.distance) || 0,
       estimatedTime: parseInt(game.estimatedTime || game.estimated_time) || 60,
       tags: Array.isArray(game.tags) ? game.tags : [],
-      dayOnly: Boolean(game.dayOnly),
-      creator_name: game.creator_name || 'Anonymous',
+      dayOnly: Boolean(game.dayOnly || game.day_only),
+      creator_name: game.creator_name || game.creatorName || 'Anonymous',
       startLocation: game.startLocation || {
-        latitude: parseFloat(game.start_latitude) || 0,
-        longitude: parseFloat(game.start_longitude) || 0
-      }
+        latitude: parseFloat(game.start_latitude || game.startLat) || 0,
+        longitude: parseFloat(game.start_longitude || game.startLong) || 0
+      },
+      lastModified: Date.now(),
+      lastAccessed: Date.now(),
+      isSynced: true
     };
 
     // Ensure we have a valid game ID
@@ -77,6 +80,7 @@ export const downloadGame = async (gameId) => {
     }
 
     // Save to downloaded games
+    console.log('About to save game to localStorage:', normalizedGame);
     const success = saveDownloadedGame(normalizedGame);
     if (!success) {
       throw new Error('Failed to save game locally');
@@ -97,9 +101,13 @@ export const loadGame = async (gameId) => {
   try {
     // First try to load from downloaded games
     const downloadedGame = getDownloadedGame(gameId);
+    console.log('loadGame got from storage:', downloadedGame);
     if (downloadedGame) {
       updateGameLastPlayed(gameId);
-      return downloadedGame;
+      return {
+        ...downloadedGame,  // Spread all properties to ensure we keep everything
+        lastAccessed: Date.now()
+      };
     }
 
     // If not found locally, try to download it

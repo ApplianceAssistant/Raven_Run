@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ScrollableContent from './ScrollableContent';
 import TextToSpeech from './TextToSpeech';
 import ModalAgreement from './ModalAgreement';
-import { analyzeChallenges } from '../utils/challengeAnalysis';
-import { getUserUnitPreference } from '../utils/utils';
+import { getUserUnitPreference, cleanText } from '../utils/utils';
+import { getLargeDistanceUnit, convertDistance } from '../utils/unitConversion';
 import { useSettings } from '../utils/SettingsContext';
 import { loadGame, downloadGame } from '../features/gameplay/services/gameplayService';
 import { getDownloadedGame } from '../utils/localStorageUtils';
@@ -13,12 +13,12 @@ const HuntDescription = () => {
     const { gameId } = useParams();
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [huntAnalysis, setHuntAnalysis] = useState(null);
     const [autoPlayTrigger, setAutoPlayTrigger] = useState(0);
     const [game, setGame] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { settings } = useSettings();
+    const isMetric = getUserUnitPreference();
 
     useEffect(() => {
         const getGameData = async () => {
@@ -28,28 +28,29 @@ const HuntDescription = () => {
                 
                 // Try to load the game (this will check local storage first)
                 const gameData = await loadGame(gameId);
+                console.log('HuntDescription loadGame returned:', gameData);
                 
                 if (!gameData) {
                     throw new Error('Game not found');
                 }
 
                 // Transform game data to match GameCard format
-                const challenges = gameData.challenges || [];
-                const totalDuration = challenges.reduce((total, challenge) => {
-                    return total + (challenge.timeLimit || 0);
-                }, 0) || 60;
-
                 const transformedGame = {
-                    ...gameData,
+                    ...gameData,  // Keep all original properties
                     title: gameData.title || 'Untitled Adventure',
-                    estimatedTime: totalDuration,
+                    difficulty: gameData.difficulty || 'Normal',
+                    distance: typeof gameData.distance === 'number' ? gameData.distance : 
+                             typeof gameData.distance === 'string' ? parseFloat(gameData.distance) : 0,
+                    estimatedTime: parseInt(gameData.estimatedTime) || 60,
+                    creator_name: gameData.creator_name || 'Anonymous',
+                    description: gameData.description || 'No description available',
+                    isPublic: gameData.isPublic || gameData.public || false,
+                    dayOnly: Boolean(gameData.dayOnly),
+                    startLocation: gameData.startLocation || null
                 };
+                console.log('HuntDescription transformed game:', transformedGame);
 
                 setGame(transformedGame);
-                
-                // Analyze challenges
-                const analysis = analyzeChallenges(challenges);
-                setHuntAnalysis(analysis);
             } catch (error) {
                 console.error('Error getting game data:', error);
                 setError(error.message);
@@ -117,34 +118,22 @@ const HuntDescription = () => {
     console.log("game:", game);
     return (
         <div className="hunt-description">
-            <ScrollableContent>
                 <div className="hunt-header">
                     <h1>{game.title}</h1>
                     <div className="meta-info">
                         <span className="difficulty">Difficulty: {game.difficulty}</span>
                         <span className="duration">Duration: {game.estimatedTime} minutes</span>
-                        <span className="distance">Distance: {game.distance} km</span>
+                        <span className="distance">Distance: {convertDistance(game.distance, true, isMetric)} {getLargeDistanceUnit(isMetric)}</span>
                     </div>
                     <div className="creator">Created by: {game.creator_name || 'Anonymous'}</div>
                 </div>
-
+                <ScrollableContent maxHeight="50vh">
                 <div className="hunt-content">
                     <div className="description">
-                        <p>{game.description}</p>
+                        {cleanText(game.description, { asJsx: true })}
                     </div>
-
-                    {huntAnalysis && (
-                        <div className="analysis">
-                            <h2>Hunt Details</h2>
-                            <ul>
-                                <li>Total Challenges: {game.challengeCount}</li>
-                                <li>Total Distance: {huntAnalysis.maxDistance} {huntAnalysis.unit}</li>
-                                {game.dayOnly && <li>Day Only Hunt</li>}
-                            </ul>
-                        </div>
-                    )}
                 </div>
-
+                </ScrollableContent>
                 <div className="button-container">
                     <TextToSpeech
                         text={game.description}
@@ -155,7 +144,7 @@ const HuntDescription = () => {
                         Start Hunt
                     </button>
                 </div>
-            </ScrollableContent>
+            
 
             <ModalAgreement
                 isOpen={isModalOpen}

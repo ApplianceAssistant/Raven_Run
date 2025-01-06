@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import SearchBar from '../SearchBar/SearchBar';
 import GameCard from '../GameCard/GameCard';
 import ScrollableContent from '../../../../components/ScrollableContent';
-import { analyzeChallenges } from '../../../../utils/challengeAnalysis';
 import { getUserUnitPreference, authFetch, API_URL } from '../../../../utils/utils';
 import './GameLobby.scss';
 
@@ -44,6 +43,11 @@ const GameLobby = () => {
             try {
                 jsonData = JSON.parse(rawText);
                 console.log('Parsed JSON data:', jsonData);
+                console.log('Game data from server:', {
+                    sample: jsonData.data?.[0],
+                    distance: jsonData.data?.[0]?.distance,
+                    parsed_distance: parseFloat(jsonData.data?.[0]?.distance)
+                });
             } catch (parseError) {
                 console.error('JSON parse error:', parseError);
                 console.error('Failed to parse text:', rawText);
@@ -119,7 +123,6 @@ const GameLobby = () => {
 
         // Get challenge analysis
         const isMetric = getUserUnitPreference();
-        const analysis = analyzeChallenges(challenges, isMetric);
 
         // Calculate challenge type distribution
         const challengeTypes = challenges.reduce((acc, challenge) => {

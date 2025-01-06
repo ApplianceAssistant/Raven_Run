@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { downloadGame } from '../../../gameplay/services/gameplayService';
 import { getDownloadedGame } from '../../../../utils/localStorageUtils';
 import { getLargeDistanceUnit, convertDistance } from '../../../../utils/unitConversion';
+import { cleanText } from '../../../../utils/utils';
 import './GameCard.scss';
 
 const GameCard = ({ 
@@ -32,7 +33,20 @@ const GameCard = ({
     }, [id]);
 
     const handleCardClick = async () => {
-        navigate(`/gamedescription/${id}`);
+        try {
+            console.log('GameCard clicked, current data:', {
+                id, distance, parsed_distance: parseFloat(distance)
+            });
+            // Ensure game is downloaded before navigation
+            if (!isDownloaded) {
+                await downloadGame(id);
+            }
+            navigate(`/gamedescription/${id}`);
+        } catch (error) {
+            console.error('Error preparing game:', error);
+            // Navigate anyway, HuntDescription will handle the retry
+            navigate(`/gamedescription/${id}`);
+        }
     };
 
     const formatDuration = (mins) => {
@@ -40,12 +54,6 @@ const GameCard = ({
         const hours = Math.floor(mins / 60);
         const remainingMins = mins % 60;
         return remainingMins > 0 ? `${hours}h ${remainingMins}m` : `${hours}h`;
-    };
-
-    const truncateDescription = (text, maxLength = 100) => {
-        if (!text) return '';
-        if (text.length <= maxLength) return text;
-        return text.substring(0, maxLength).trim() + '...';
     };
 
     return (
@@ -73,7 +81,9 @@ const GameCard = ({
                     <span className="stars">{'★'.repeat(Math.round(avg_rating))}</span>
                     {ratingCount > 0 && <span className="rating-count">({ratingCount})</span>}
                 </div>
-                <p className="description">{truncateDescription(description)}</p>
+                <div className="game-card-description">
+                    {cleanText(description, { maxLength: 100, truncationSuffix: '...' })}
+                </div>
                 <div className="meta-info">
                     <span className="duration">
                         <i className="far fa-clock"></i>

@@ -43,6 +43,7 @@ export const getGamesFromLocalStorage = () => {
  */
 export const getDownloadedGame = (gameId) => {
   try {
+    console.log('getDownloadedGame called for:', gameId);
     const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
     if (!storedData) return null;
 
@@ -66,6 +67,7 @@ export const getDownloadedGame = (gameId) => {
     }
 
     const game = downloadedGames[gameId];
+    console.log('getDownloadedGame returning:', game);
     return game ? normalizeGame(game) : null;
   } catch (error) {
     console.error('Error getting downloaded game:', error);
@@ -79,6 +81,7 @@ export const getDownloadedGame = (gameId) => {
  */
 export const saveDownloadedGame = (game) => {
   try {
+    console.log('saveDownloadedGame received:', game);
     const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
     let downloadedGames = {};
 
@@ -115,6 +118,7 @@ export const saveDownloadedGame = (game) => {
     }
     
     localStorage.setItem(DOWNLOADED_GAMES_KEY, encryptedData);
+    console.log('saveDownloadedGame saved game:', game);
     return true;
   } catch (error) {
     console.error('Error saving downloaded game:', error);
@@ -274,10 +278,22 @@ export const normalizeGame = (game) => {
   }
 
   return {
+    ...game,  // Keep all original properties
     gameId: game.gameId || game.game_id || game.id || '',
     title: game.title || '',
     description: game.description || '',
     public: game.public ?? game.is_public ?? false,
+    isPublic: game.isPublic ?? game.is_public ?? false,
+    difficulty: game.difficulty || game.difficulty_level || 'Normal',
+    distance: typeof game.distance === 'number' ? game.distance : 
+             typeof game.distance === 'string' ? parseFloat(game.distance) : 0,
+    estimatedTime: parseInt(game.estimatedTime || game.estimated_time) || 60,
+    creator_name: game.creator_name || game.creatorName || 'Anonymous',
+    dayOnly: Boolean(game.dayOnly || game.day_only),
+    startLocation: game.startLocation || {
+      latitude: parseFloat(game.start_latitude || game.startLat || 0),
+      longitude: parseFloat(game.start_longitude || game.startLong || 0)
+    },
     isSynced: game.isSynced ?? true,
     challenges: challenges,
     lastModified: game.lastModified || game.last_modified || game.updated_at || Date.now(),
@@ -290,6 +306,7 @@ export const normalizeGame = (game) => {
  */
 export const saveGameToLocalStorage = async (gameData) => {
   try {
+    console.log('saveGameToLocalStorage received:', gameData);
     const games = getGamesFromLocalStorage();
     const gamesArray = Array.isArray(gameData) ? gameData : [gameData];
     

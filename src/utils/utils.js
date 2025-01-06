@@ -1,6 +1,7 @@
 // src/utils/utils.js
 
 import axios from 'axios';
+import React from 'react'; // Import React for JSX usage
 
 const getApiUrl = () => {
   const env = process.env.REACT_APP_NODE_ENV || process.env.NODE_ENV || 'development';
@@ -298,3 +299,44 @@ export function isValidPhoneNumber(phone) {
     const cleaned = phone.replace(/\D/g, '');
     return cleaned.length === 10;
 }
+
+/**
+ * Cleans and formats text content, handling newlines and optional truncation
+ * @param {string} text - The text to clean and format
+ * @param {Object} options - Configuration options
+ * @param {boolean} [options.asJsx=false] - If true, returns JSX with <br/> tags instead of \n
+ * @param {number} [options.maxLength] - Optional maximum length before truncation
+ * @param {string} [options.truncationSuffix='...'] - String to append when truncating
+ * @returns {string|JSX.Element} Cleaned text, either as string or JSX
+ */
+export const cleanText = (text, options = {}) => {
+    const {
+        asJsx = false,
+        maxLength,
+        truncationSuffix = '...'
+    } = options;
+
+    if (!text) return '';
+
+    // Split on newlines and clean each line
+    let lines = text.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+
+    // Join lines based on output format
+    let cleaned = asJsx 
+        ? lines.map((line, i) => (
+            <React.Fragment key={i}>
+                {line}
+                {i < lines.length - 1 && <br />}
+            </React.Fragment>
+          ))
+        : lines.join('\n');
+
+    // Handle truncation if maxLength is specified
+    if (maxLength && typeof cleaned === 'string' && cleaned.length > maxLength) {
+        cleaned = cleaned.substring(0, maxLength).trim() + truncationSuffix;
+    }
+
+    return cleaned;
+};
