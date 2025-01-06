@@ -6,7 +6,7 @@ import ModalAgreement from './ModalAgreement';
 import { analyzeChallenges } from '../utils/challengeAnalysis';
 import { getUserUnitPreference } from '../utils/utils';
 import { useSettings } from '../utils/SettingsContext';
-import { downloadGame } from '../features/gameplay/services/gameplayService';
+import { loadGame, downloadGame } from '../features/gameplay/services/gameplayService';
 import { getDownloadedGame } from '../utils/localStorageUtils';
 
 const HuntDescription = () => {
@@ -24,18 +24,13 @@ const HuntDescription = () => {
         const getGameData = async () => {
             try {
                 setLoading(true);
+                setError(null);
                 
-                // First try to download the game if not already downloaded
-                try {
-                    await downloadGame(gameId);
-                } catch (downloadError) {
-                    console.error('Error downloading game:', downloadError);
-                }
-
-                const gameData = getDownloadedGame(gameId);
-
+                // Try to load the game (this will check local storage first)
+                const gameData = await loadGame(gameId);
+                
                 if (!gameData) {
-                    throw new Error('Game not found in downloaded games');
+                    throw new Error('Game not found');
                 }
 
                 // Transform game data to match GameCard format
@@ -63,11 +58,7 @@ const HuntDescription = () => {
             }
         };
 
-        getGameData().catch(error => {
-            console.error('Error in getGameData:', error);
-            setError(error.message);
-            setLoading(false);
-        });
+        getGameData();
     }, [gameId]);
 
     const handleEnterHunt = () => {
@@ -76,13 +67,22 @@ const HuntDescription = () => {
 
     const handleAgree = async () => {
         try {
-            await downloadGame(gameId);
+            // Only download if not already in local storage
+            const existingGame = getDownloadedGame(gameId);
+            if (!existingGame) {
+                await downloadGame(gameId);
+            }
             setIsModalOpen(false);
             navigate(`/game/${gameId}/challenge/0`);
         } catch (error) {
-            console.error('Error downloading game:', error);
-            // Still navigate, the game page will handle the error
-            navigate(`/game/${gameId}/challenge/0`);
+            console.error('Error preparing game:', error);
+            // Show error to user but still allow navigation if game exists
+            if (getDownloadedGame(gameId)) {
+                setIsModalOpen(false);
+                navigate(`/game/${gameId}/challenge/0`);
+            } else {
+                setError('Failed to prepare game for offline play');
+            }
         }
     };
 

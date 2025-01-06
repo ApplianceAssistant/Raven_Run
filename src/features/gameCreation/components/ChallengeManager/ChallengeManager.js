@@ -31,7 +31,7 @@ const ChallengeManager = () => {
       </button>
       <div className="challenge-manager">
         <div className="challenge-manager-header">
-          <h2>Challenges for {game?.name || 'Game'}</h2>
+          <h2>Challenges for {game?.title || 'Game'}</h2>
         </div>
         <button className="add-challenge-button" onClick={handleAddChallenge}>
           Add New Challenge

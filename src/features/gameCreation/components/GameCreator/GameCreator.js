@@ -18,7 +18,7 @@ const GameCreator = () => {
   
   const [showGameForm, setShowGameForm] = useState(false);
   const [newGameData, setNewGameData] = useState({ 
-    name: '', 
+    title: '', 
     description: '', 
     public: false, 
     gameId: '', 
@@ -50,7 +50,7 @@ const GameCreator = () => {
         console.log('Setting selected game:', game);
         dispatch({ type: 'SELECT_GAME', payload: game });
         setNewGameData({
-          name: game.name || '',
+          title: game.title || '',
           description: game.description || '',
           public: game.public ?? false,
           gameId: game.gameId,
@@ -75,7 +75,7 @@ const GameCreator = () => {
     console.log('Received gameId from generateUniqueGameId:', gameId, 'Length:', gameId.length);
     
     const newGame = { 
-      name: '', 
+      title: '', 
       description: '', 
       public: false, 
       gameId, 
@@ -94,7 +94,7 @@ const GameCreator = () => {
     
     try {
       const newGame = {
-        name: newGameData.name,
+        title: newGameData.title,
         description: newGameData.description,
         public: newGameData.public,
         challenges: [],
@@ -114,7 +114,7 @@ const GameCreator = () => {
   const validateGameData = (gameData) => {
     const errors = [];
     if (!gameData.gameId) errors.push('Game ID is required');
-    if (!gameData.name?.trim()) errors.push('Game name is required');
+    if (!gameData.title?.trim()) errors.push('Game name is required');
     if (!gameData.description?.trim()) errors.push('Game description is required');
     return errors;
   };
@@ -144,7 +144,7 @@ const GameCreator = () => {
 
       const newGame = {
         gameId: gameData.gameId,
-        name: gameData.name.trim(),
+        title: gameData.title.trim(),
         description: gameData.description.trim(),
         public: gameData.public ?? false,
         challenges: mergedChallenges,

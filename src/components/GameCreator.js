@@ -11,7 +11,7 @@ const GameCreator = () => {
   const [games, setGames] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
   const [showGameForm, setShowGameForm] = useState(false);
-  const [newGameData, setNewGameData] = useState({ name: '', description: '', public: false, gameId: '' });
+  const [newGameData, setNewGameData] = useState({ title: '', description: '', public: false, gameId: '' });
   const [isPublic, setIsPublic] = useState(false);
   const [currentChallenge, setCurrentChallenge] = useState(null);
   const [showChallengeCreator, setShowChallengeCreator] = useState(false);
@@ -42,7 +42,7 @@ const GameCreator = () => {
       if (selectedGame && !isLoading) {
         const gameId = selectedGame.gameId || await generateUniqueGameId();
         setNewGameData({
-          name: selectedGame.name,
+          title: selectedGame.title,
           description: selectedGame.description,
           public: selectedGame.public ?? false,
           gameId
@@ -86,7 +86,7 @@ const GameCreator = () => {
       setSelectedGame(newGame);
       saveGame(newGame);
       setShowGameForm(false);
-      setNewGameData({ name: '', description: '', public: false, gameId: '' });
+      setNewGameData({ title: '', description: '', public: false, gameId: '' });
     } else {
       alert('Please enter a game title');
     }
@@ -98,7 +98,7 @@ const GameCreator = () => {
     setSelectedGame(game);
     setNewGameData(prevData => ({
       ...prevData,
-      name: game.name,
+      title: game.title,
       description: game.description,
       public: game.public,
       gameId: game.gameId
@@ -234,7 +234,7 @@ const GameCreator = () => {
       {games.length > 0 ? (
         games.map(game => (
           <div key={game.id} className="game-item">
-            <h3>{game.name}</h3>
+            <h3>{game.title}</h3>
             <p>{game.description}</p>
             <p>Challenges: {game.challenges.length}</p>
             <p>Created: {new Date(game.id).toLocaleDateString()}</p>
@@ -257,13 +257,13 @@ const GameCreator = () => {
       </div>
       <form className="content flex-top">
         <div className="field-container">
-          <label htmlFor="gameName">Game Name:</label>
+          <label htmlFor="gameName">Game Title:</label>
           <input
             type="text"
             id="gameName"
-            name="name"
+            name="title"
             placeholder="Enter game name"
-            value={newGameData.name}
+            value={newGameData.title}
             onChange={handleInputChange}
             required
           />

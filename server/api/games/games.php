@@ -75,7 +75,7 @@ try {
                 $stmt = $conn->prepare("
                     SELECT 
                         g.gameId,
-                        g.name,
+                        g.title,
                         g.description,
                         g.challenge_data,
                         g.is_public,
@@ -144,7 +144,7 @@ try {
                         // Format the game data
                         $games[] = [
                             'id' => $row['gameId'],
-                            'title' => $row['name'],
+                            'title' => $row['title'],
                             'description' => $row['description'],
                             'challenges' => $challenges,
                             'isPublic' => (bool)$row['is_public'],
@@ -197,7 +197,7 @@ try {
                 $stmt = $conn->prepare("
                     SELECT 
                         g.gameId,
-                        g.name,
+                        g.title,
                         g.description,
                         g.challenge_data,
                         g.is_public,
@@ -246,7 +246,7 @@ try {
                     // Format the game data consistently with public_games endpoint
                     $formattedGame = [
                         'id' => $game['gameId'],
-                        'title' => $game['name'],
+                        'title' => $game['title'],
                         'description' => $game['description'],
                         'challenges' => json_decode($game['challenge_data'], true),
                         'isPublic' => (bool)$game['is_public'],
@@ -348,7 +348,7 @@ try {
                         // Format the game data
                         $games[] = [
                             'id' => $row['gameId'],
-                            'title' => $row['name'],
+                            'title' => $row['title'],
                             'description' => $row['description'],
                             'challenges' => $challenges,
                             'isPublic' => (bool)$row['is_public'],
@@ -393,7 +393,7 @@ try {
                 error_log("Saving game");
                 $game = $data['game'];
                 $gameId = $game['gameId'];
-                $name = $game['name'];
+                $title = $game['title'];
                 $description = $game['description'];
                 $isPublic = $game['is_public'] ? 1 : 0;
                 $challengeData = json_encode($game['challenges']);
@@ -491,7 +491,7 @@ try {
                         WHERE gameId = ?"
                     );
                     $stmt->bind_param("ssissdddds", 
-                        $name, 
+                        $title, 
                         $description, 
                         $isPublic, 
                         $challengeData, 
@@ -513,7 +513,7 @@ try {
                     $stmt->bind_param("sisssisdddds", 
                         $gameId, 
                         $user['id'], 
-                        $name, 
+                        $title, 
                         $description, 
                         $isPublic, 
                         $challengeData,

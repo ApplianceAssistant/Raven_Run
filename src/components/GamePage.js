@@ -8,7 +8,7 @@ import Congratulations from './Congratulations.js';
 import { useSettings } from '../utils/SettingsContext.js';
 import {
   getChallenges,
-  getGameName,
+  getGameTitle,
   initializeChallengeState,
   updateChallengeState,
   shouldDisplaySubmitButton,
@@ -67,7 +67,7 @@ function GamePage() {
 
         // Set game data
         setChallenges(game.challenges || []);
-        setGameName(game.name || '');
+        setGameName(game.title || '');
 
         // Save progress
         saveHuntProgress(gameId, urlChallengeIndex);

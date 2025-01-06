@@ -127,7 +127,7 @@ CREATE TABLE game_progress (
   "games": {
     [gameId: string]: {
       gameId: string,
-      name: string,
+      title: string,
       description: string,
       public: boolean,
       isSynced: boolean,

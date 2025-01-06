@@ -19,14 +19,14 @@ const GameForm = ({
   const navigate = useNavigate();
   const { showError, showSuccess } = useMessage();
   const [formData, setFormData] = useState({
-    name: '',
+    title: '',
     description: '',
     public: false,
     gameId: '',
     challenges: []
   });
   const [originalData, setOriginalData] = useState({
-    name: '',
+    title: '',
     description: '',
     public: false,
     gameId: '',
@@ -41,7 +41,7 @@ const GameForm = ({
   useEffect(() => {
     const initialData = {
       ...gameData,
-      name: gameData.name || '',
+      title: gameData.title || '',
       description: gameData.description || '',
       public: gameData.public || false,
       gameId: gameData.gameId || '',
@@ -163,12 +163,12 @@ const GameForm = ({
       <ScrollableContent maxHeight="calc(100vh - 180px)" className="form-content">
         <div className="main-form">
           <div className="field-container">
-            <label htmlFor="name">Game Name:</label>
+            <label htmlFor="title">Game Title:</label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="title"
+              name="title"
+              value={formData.title}
               onChange={handleInputChange}
               placeholder="Enter game name"
               required

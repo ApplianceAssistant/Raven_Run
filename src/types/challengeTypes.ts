@@ -31,6 +31,7 @@ interface BaseChallenge {
   repeatable: boolean;
   targetLocation?: Location;
   radius?: number; // in meters, used if targetLocation is set
+  completionFeedback?: string; // Optional feedback shown after completing the challenge
 }
 
 // Story Challenge
@@ -61,7 +62,6 @@ interface TextInputChallenge extends BaseChallenge {
 // Travel Challenge
 interface TravelChallenge extends BaseChallenge {
   type: 'travel';
-  completionFeedback: string; // Feedback shown when the location is reached
 }
 
 // Union type for all challenge types

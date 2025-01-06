@@ -38,6 +38,17 @@ server/
 
 ### Key Files
 
+#### Type Definitions
+- `src/types/games.ts`
+  - Centralized game type definitions
+  - Includes BaseGame, DownloadedGame, and EditableGame interfaces
+  - Type guards for game state checking
+
+- `src/types/challengeTypes.ts`
+  - Challenge type definitions
+  - Supports multiple challenge types (Story, MultipleChoice, TrueFalse, etc.)
+  - Common challenge properties like completionFeedback
+
 #### Game Creation
 - `src/features/gameCreation/components/GameCreator/GameCreator.js`
   - Main component for game creation and management

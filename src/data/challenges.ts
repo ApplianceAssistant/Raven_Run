@@ -5,7 +5,7 @@ interface Game {
   gameId: string;
   user_id: number;
   is_public: boolean;
-  name: string;
+  title: string;
   description: string;
   dayOnly: boolean;
   challenges: Challenge[];
@@ -17,7 +17,7 @@ export const games: Game[] = [
     gameId: "5483BBLMEJ0",
     user_id: 1,
     is_public: true,
-    name: "Tracking Shadows in Shelby County",
+    title: "Tracking Shadows in Shelby County",
     description: `Welcome to Crow Tours' hunt: Tracking Shadows in Shelby County.\n
       As night falls, strange occurrences have been reported across this once-quiet rural community.\n
       Inexplicable sounds echo through abandoned barns, eerie figures drift between ancient trees, and an oppressive atmosphere blankets the county.\n
@@ -616,7 +616,7 @@ export const games: Game[] = [
     gameId: 'B5483BBLMEJ2',
     user_id: 1,
     is_public: true,
-    name: "Tides of Mystery in North County",
+    title: "Tides of Mystery in North County",
     description: `As fog rolls inland, it carries whispers of forgotten tales and untold histories.\n
       Between the rhythmic sounds of breaking waves and mission bells, a murder of crows takes wing - your mysterious guides through time.\n
       These wise corvids know the secrets of corridors where footsteps echo across centuries, the humble resting places of pioneers who built towns from dust and dreams, and grand theaters where phantom audiences still applaud.\n

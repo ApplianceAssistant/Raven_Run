@@ -1,3 +1,8 @@
+/**
+ * @typedef {import('../../../types/games').Game} Game
+ * @typedef {import('../../../types/challengeTypes').Challenge} Challenge
+ */
+
 import React, { createContext, useContext, useReducer } from 'react';
 import { gameCreationReducer } from './gameCreationReducer';
 

@@ -1,7 +1,6 @@
-// src/utils/localStorageUtils.js
 /**
- * @typedef {import('../features/gameCreation/types/gameTypes').Game} Game
- * @typedef {import('../features/gameCreation/types/gameTypes').Challenge} Challenge
+ * @typedef {import('../types/games').Game} Game
+ * @typedef {import('../types/challengeTypes').Challenge} Challenge
  */
 
 import { encryptData, decryptData } from './encryption';
@@ -276,7 +275,7 @@ export const normalizeGame = (game) => {
 
   return {
     gameId: game.gameId || game.game_id || game.id || '',
-    name: game.name || game.title || '',
+    title: game.title || '',
     description: game.description || '',
     public: game.public ?? game.is_public ?? false,
     isSynced: game.isSynced ?? true,

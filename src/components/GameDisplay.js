@@ -7,7 +7,7 @@ const GameDisplay = ({ game, onCreateNewChallenge, onEditChallenge }) => {
   
   return (
     <div className="game-display">
-      <h2>{game?.name || 'Untitled Game'}</h2>
+      <h2>{game?.title || 'Untitled Game'}</h2>
       <p>{game?.description || 'No description provided.'}</p>
       
       <h3>Challenges:</h3>

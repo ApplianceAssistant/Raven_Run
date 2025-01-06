@@ -3,7 +3,7 @@ import React from 'react';
 const GameStructure = ({ game, onChallengeClick }) => {
   return (
     <div className="game-structure">
-      <h1 className="contentHeader">{game.name}</h1>
+      <h1 className="contentHeader">{game.title}</h1>
       <p>{game.description}</p>
       <h2>Challenges:</h2>
       <ul>

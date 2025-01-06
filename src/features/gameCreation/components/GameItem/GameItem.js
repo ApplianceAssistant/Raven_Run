@@ -13,7 +13,7 @@ const GameItem = ({ game, onSelect, onDelete }) => {
   return (
     <div className="game-item" onClick={() => onSelect(game)}>
       <div className="game-content">
-        <h3>{game.name}</h3>
+        <h3>{game.title}</h3>
         <p className="description">{truncateDescription(game.description)}</p>
         <p className="game-id">Game ID: {game.gameId}</p>
       </div>

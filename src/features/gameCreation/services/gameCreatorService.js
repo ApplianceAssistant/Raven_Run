@@ -1,20 +1,19 @@
-import { 
-  getGamesFromLocalStorage, 
-  saveGameToLocalStorage, 
-  deleteGameFromLocalStorage,
-  normalizeGame
-} from '../../../utils/localStorageUtils';
-import { 
-  checkServerConnectivity, 
-  API_URL, 
+import {
+  API_URL,
+  DOWNLOADED_GAMES_KEY,
+  HUNT_PROGRESS_KEY,
+  CURRENT_GAME_KEY,
+  UNIT_PREFERENCE_KEY,
+  THEME_KEY,
+  SETTINGS_KEY,
+  GAME_CREATOR_KEY,
   authFetch,
   calculateDistance 
 } from '../../../utils/utils';
-import { GameTypes } from '../types/gameTypes';
 
 /**
- * @typedef {import('../types/gameTypes').Game} Game
- * @typedef {import('../types/gameTypes').Challenge} Challenge
+ * @typedef {import('../../../types/games').Game} Game
+ * @typedef {import('../../../types/challengeTypes').Challenge} Challenge
  */
 
 /**
@@ -143,7 +142,7 @@ export const generateUniqueGameId = async () => {
 };
 
 export const isValidGame = (game) => {
-  return game.name && game.name.trim() !== '' &&
+  return game.title && game.title.trim() !== '' &&
          game.description && game.description.trim() !== '';
 };
 

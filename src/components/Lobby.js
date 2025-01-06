@@ -85,7 +85,7 @@ function Lobby() {
               onClick={() => handleGameSelect(game.id)}
               disabled={game.dayOnly && isCloseToNight()}
             >
-              {game.name}
+              {game.title}
               {game.dayOnly && (
                 <span className="day-only-indicator">
                   <FontAwesomeIcon icon={faSun} /> Day Only
