@@ -106,6 +106,7 @@ export const loadGame = async (gameId) => {
 
     // If not in local storage, fetch from server but don't save
     const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}`);
+    console.log("loadGame - response:", response);
     const rawText = await response.text();
     console.log("loadGame - rawText:", rawText);
     let game;
