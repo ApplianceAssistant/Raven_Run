@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getTimeUntilSkip } from '../services/challengeService';
 
-const SkipCountdown = ({ challengeState }) => {
+const SkipCountdown = ({ challengeState, onCountdownComplete }) => {
   const [timeRemaining, setTimeRemaining] = useState(getTimeUntilSkip(challengeState));
 
   useEffect(() => {
@@ -11,11 +11,14 @@ const SkipCountdown = ({ challengeState }) => {
 
       if (newTimeRemaining <= 0) {
         clearInterval(timer);
+        if (onCountdownComplete) {
+          onCountdownComplete();
+        }
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [challengeState]);
+  }, [challengeState, onCountdownComplete]);
 
   if (timeRemaining <= 0) {
     return null;

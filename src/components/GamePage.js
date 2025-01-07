@@ -320,7 +320,13 @@ function GamePage() {
         {shouldDisplaySkipButton(currentChallenge, challengeState) ? (
           <button onClick={handleSkipClick}>Skip</button>
         ) : (
-          <SkipCountdown challengeState={challengeState} />
+          <SkipCountdown 
+            challengeState={challengeState} 
+            onCountdownComplete={() => setChallengeState(prev => ({
+              ...prev,
+              startTime: prev.startTime - (5 * 60 * 1000) // Subtract 5 minutes to force skip button display
+            }))}
+          />
         )}
       </div>
     );
