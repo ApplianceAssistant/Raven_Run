@@ -480,7 +480,7 @@ try {
                     // Game exists, update it
                     $stmt = $conn->prepare(
                         "UPDATE games 
-                        SET name = ?, 
+                        SET title = ?, 
                             description = ?, 
                             is_public = ?, 
                             challenge_data = ?,
@@ -507,7 +507,7 @@ try {
                     // Insert new game
                     $stmt = $conn->prepare(
                         "INSERT INTO games 
-                        (gameId, user_id, name, description, is_public, challenge_data, 
+                        (gameId, user_id, title, description, is_public, challenge_data, 
                          start_latitude, start_longitude, end_latitude, end_longitude, distance) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     );
