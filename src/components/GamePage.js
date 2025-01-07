@@ -127,7 +127,7 @@ function GamePage() {
 
   useEffect(() => {
     const checkDistanceNoticeVisibility = () => {
-      const shouldBeVisible = currentChallenge && currentChallenge.targetLocation;
+      const shouldBeVisible = currentChallenge && currentChallenge.targetLocation && currentChallenge.targetLocation.latitude && currentChallenge.targetLocation.longitude;
       setDistanceNoticeVisible(shouldBeVisible);
     };
 
@@ -337,8 +337,6 @@ function GamePage() {
           </>
         )}
       </div>
-
-      <div className="spirit-guide"></div>
         <div className={`game-page ${contentVisible ? 'content-visible' : ''}`}>
           <main className="game-content content flex-top">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>

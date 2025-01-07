@@ -261,6 +261,7 @@ try {
                         ],
                         'creator_name' => $game['creator_name']
                     ];
+                    error_log("Successfully processed game data" . json_encode($formattedGame));
                     echo json_encode($formattedGame);
                 } else {
                     error_log("Game not found with ID: " . $gameId);

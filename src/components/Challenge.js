@@ -30,11 +30,12 @@ export const Challenge = ({ challenge, challengeState, onStateChange, onContinue
   };
 
   const renderStoryChallenge = () => {
-    return (
+    return;
+    /*return (
       <div className="story-challenge">
         {cleanText(challenge.description, { asJsx: true })}
       </div>
-    );
+    );*/
   };
 
   const renderMultipleChoiceChallenge = () => {
