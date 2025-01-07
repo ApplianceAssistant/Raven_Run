@@ -21,7 +21,6 @@ export const downloadGame = async (gameId) => {
     // First check if we already have it downloaded
     const existingGame = getDownloadedGame(gameId);
     if (existingGame) {
-      console.log('Game already downloaded:', gameId);
       return existingGame;
     }
 
@@ -78,7 +77,6 @@ export const downloadGame = async (gameId) => {
     }
 
     // Save to downloaded games
-    console.log('About to save game to localStorage:', normalizedGame);
     const success = saveDownloadedGame(normalizedGame);
     if (!success) {
       throw new Error('Failed to save game locally');
@@ -100,13 +98,11 @@ export const loadGame = async (gameId) => {
     // Check if game exists locally first
     const localGame = getDownloadedGame(gameId);
     if (localGame) {
-      console.log('Found game in local storage:', gameId);
       return localGame;
     }
 
     // If not in local storage, fetch from server but don't save
     const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}`);
-    console.log("loadGame - response:", response);
     const rawText = await response.text();
     let game;
     try {

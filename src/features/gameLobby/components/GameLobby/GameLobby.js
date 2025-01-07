@@ -30,11 +30,8 @@ const GameLobby = () => {
     const loadGames = async (pageNum = 1) => {
         try {
             setLoading(true);
-            console.log('Fetching games for page:', pageNum);
             
             const response = await authFetch(`${API_URL}/server/api/games/games.php?action=public_games&page=${pageNum}`);
-            console.log('Raw response status:', response.status);
-            console.log('Raw response headers:', Object.fromEntries(response.headers.entries()));
             
             if (!response.ok) {
                 throw new Error('Failed to fetch games');
@@ -47,12 +44,6 @@ const GameLobby = () => {
             let jsonData;
             try {
                 jsonData = JSON.parse(rawText);
-                console.log('Parsed JSON data:', jsonData);
-                console.log('Game data from server:', {
-                    sample: jsonData.data?.[0],
-                    distance: jsonData.data?.[0]?.distance,
-                    parsed_distance: parseFloat(jsonData.data?.[0]?.distance)
-                });
             } catch (parseError) {
                 console.error('JSON parse error:', parseError);
                 console.error('Failed to parse text:', rawText);
@@ -111,22 +102,16 @@ const GameLobby = () => {
     };
 
     const handleGameSelect = (gameId) => {
-        console.log('handleGameSelect called with gameId:', gameId);
         const progress = getHuntProgress();
-        console.log('Current progress:', progress);
         if (progress) {
-            console.log('Setting modal state - selectedGameId:', gameId);
             setSelectedGameId(gameId);
             setIsModalOpen(true);
-            console.log('Modal should be open now');
         } else {
-            console.log('Navigating to game description:', gameId);
             navigate(`/gamedescription/${gameId}`);
         }
     };
 
     const handleModalClose = () => {
-        console.log('Closing modal');
         setIsModalOpen(false);
         setSelectedGameId(null);
     };
