@@ -304,11 +304,21 @@ function GamePage() {
 
   const renderButtons = () => {
     if (!currentChallenge) return null;
+
+    const getTextToSpeak = () => {
+      let text = currentChallenge.description || currentChallenge.storyText || '';
+      if (currentChallenge.question) {
+        text = text ? `${text}. ${currentChallenge.question}` : currentChallenge.question;
+      }
+      return text;
+    };
+
     return (
       <div className={`button-container-bottom visible`}>
-        {(currentChallenge.description || currentChallenge.storyText) &&
-          <TextToSpeech text={currentChallenge.description || currentChallenge.storyText}
-          autoPlayTrigger={autoPlayTrigger}
+        {(currentChallenge.description || currentChallenge.storyText || currentChallenge.question) &&
+          <TextToSpeech 
+            text={getTextToSpeak()}
+            autoPlayTrigger={autoPlayTrigger}
           />
         }
         {canDisplayHints(currentChallenge) && !challengeState.isCorrect && (
