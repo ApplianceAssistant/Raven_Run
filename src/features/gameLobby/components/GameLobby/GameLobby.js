@@ -36,7 +36,6 @@ const GameLobby = () => {
 
             // Get the raw text first
             const rawText = await response.text();
-            console.log('Raw response text:', rawText);
             
             // Try to parse it as JSON
             let jsonData;

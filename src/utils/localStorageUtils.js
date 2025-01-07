@@ -42,6 +42,7 @@ export const getGamesFromLocalStorage = () => {
  * @returns {Game|null}
  */
 export const getDownloadedGame = (gameId) => {
+  console.warn("get downloaded game: ", gameId);
   try {
     const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
     if (!storedData) return null;

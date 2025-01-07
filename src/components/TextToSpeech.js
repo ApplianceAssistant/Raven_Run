@@ -93,12 +93,10 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
     if (isSpeaking) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
-      console.warn("update Setting autoSpeak to false");
       updateSetting('autoSpeak', false);
       setIsSpeaking(false);
     } else {
       speak();
-      console.warn("update Setting autoSpeak to true");
       updateSetting('autoSpeak', true);
       setIsSpeaking(true);
     }

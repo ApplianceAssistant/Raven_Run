@@ -277,7 +277,7 @@ try {
                 $stmt = $conn->prepare("
                     SELECT 
                         gameId,
-                        name,
+                        title,
                         description,
                         challenge_data,
                         is_public,

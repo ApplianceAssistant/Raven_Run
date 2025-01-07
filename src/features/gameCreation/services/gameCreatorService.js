@@ -1,15 +1,10 @@
 import {
   API_URL,
-  DOWNLOADED_GAMES_KEY,
-  HUNT_PROGRESS_KEY,
-  CURRENT_GAME_KEY,
-  UNIT_PREFERENCE_KEY,
-  THEME_KEY,
-  SETTINGS_KEY,
-  GAME_CREATOR_KEY,
+  checkServerConnectivity,
   authFetch,
   calculateDistance 
 } from '../../../utils/utils';
+import { getGamesFromLocalStorage, normalizeGame, saveGameToLocalStorage } from '../../../utils/localStorageUtils';
 
 /**
  * @typedef {import('../../../types/games').Game} Game
