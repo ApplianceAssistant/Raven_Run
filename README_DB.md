@@ -129,7 +129,7 @@ CREATE TABLE game_progress (
       gameId: string,
       title: string,
       description: string,
-      public: boolean,
+      isPublic: boolean,
       isSynced: boolean,
       challenges: Challenge[],
       lastModified: timestamp,

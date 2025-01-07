@@ -282,7 +282,6 @@ export const normalizeGame = (game) => {
     gameId: game.gameId || game.game_id || game.id || '',
     title: game.title || '',
     description: game.description || '',
-    public: game.public ?? game.is_public ?? false,
     isPublic: game.isPublic ?? game.is_public ?? false,
     difficulty: game.difficulty || game.difficulty_level || 'Normal',
     distance: typeof game.distance === 'number' ? game.distance : 

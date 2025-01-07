@@ -11,7 +11,7 @@ const GameCreator = () => {
   const [games, setGames] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
   const [showGameForm, setShowGameForm] = useState(false);
-  const [newGameData, setNewGameData] = useState({ title: '', description: '', public: false, gameId: '' });
+  const [newGameData, setNewGameData] = useState({ title: '', description: '', isPublic: false, gameId: '' });
   const [isPublic, setIsPublic] = useState(false);
   const [currentChallenge, setCurrentChallenge] = useState(null);
   const [showChallengeCreator, setShowChallengeCreator] = useState(false);
@@ -40,14 +40,15 @@ const GameCreator = () => {
   useEffect(() => {
     const updateGameData = async () => {
       if (selectedGame && !isLoading) {
+        console.log('Updating game data:', selectedGame);
         const gameId = selectedGame.gameId || await generateUniqueGameId();
         setNewGameData({
           title: selectedGame.title,
           description: selectedGame.description,
-          public: selectedGame.public ?? false,
+          isPublic: selectedGame.isPublic ?? false,
           gameId
         });
-        setIsPublic(selectedGame.public ?? false);
+        setIsPublic(selectedGame.isPublic ?? false);
       }
     };
     updateGameData();
@@ -55,9 +56,9 @@ const GameCreator = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (name === "public") {
+    if (name === "isPublic") {
       setIsPublic(checked);
-      setNewGameData(prev => ({ ...prev, public: checked }));
+      setNewGameData(prev => ({ ...prev, isPublic: checked }));
     } else {
       setNewGameData(prev => ({
         ...prev,
@@ -79,14 +80,14 @@ const GameCreator = () => {
         ...newGameData,
         id: Date.now(),
         challenges: [],
-        public: newGameData.public,
+        isPublic: newGameData.isPublic,
         gameId: newGameData.gameId
       };
       setGames(prevGames => [...prevGames, newGame]);
       setSelectedGame(newGame);
       saveGame(newGame);
       setShowGameForm(false);
-      setNewGameData({ title: '', description: '', public: false, gameId: '' });
+      setNewGameData({ title: '', description: '', isPublic: false, gameId: '' });
     } else {
       alert('Please enter a game title');
     }
@@ -94,13 +95,13 @@ const GameCreator = () => {
 
   const handleSelectGame = (game) => {
     console.warn("game selected: ", game);
-    setIsPublic(game.public);
+    setIsPublic(game.isPublic);
     setSelectedGame(game);
     setNewGameData(prevData => ({
       ...prevData,
       title: game.title,
       description: game.description,
-      public: game.public,
+      isPublic: game.isPublic,
       gameId: game.gameId
     }));
     setIsEditingGame(true);
@@ -287,7 +288,7 @@ const GameCreator = () => {
               handleInputChange(e);
             }}
             label={isPublic ? 'Public' : 'Private'}
-            name="public"
+            name="isPublic"
             id="gamePublic"
           />
         </div>

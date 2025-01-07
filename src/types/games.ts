@@ -19,7 +19,7 @@ export interface BaseGame {
     /** Array of challenges in the game */
     challenges: Challenge[];
     /** Whether the game is publicly visible */
-    public: boolean;
+    isPublic: boolean;
     /** Whether the game is synced with the server */
     isSynced: boolean;
     /** Whether the game can only be played during daytime */

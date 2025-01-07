@@ -21,14 +21,14 @@ const GameForm = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    public: false,
+    isPublic: false,
     gameId: '',
     challenges: []
   });
   const [originalData, setOriginalData] = useState({
     title: '',
     description: '',
-    public: false,
+    isPublic: false,
     gameId: '',
     challenges: []
   });
@@ -43,7 +43,7 @@ const GameForm = ({
       ...gameData,
       title: gameData.title || '',
       description: gameData.description || '',
-      public: gameData.public || false,
+      isPublic: gameData.isPublic || false,
       gameId: gameData.gameId || '',
       challenges: gameData.challenges || []
     };
@@ -91,7 +91,7 @@ const GameForm = ({
     const isChecked = e.target ? e.target.checked : e;
     setFormData(prev => ({
       ...prev,
-      public: isChecked
+      isPublic: isChecked
     }));
   };
 
@@ -106,6 +106,7 @@ const GameForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isValidGame(formData)) {
+      console.warn("save game: ", formData);
       try {
         const submittedData = {
           ...formData,
@@ -192,10 +193,10 @@ const GameForm = ({
           <div className="field-container">
             <label>Game Visibility:</label>
             <ToggleSwitch
-              checked={formData.public}
+              checked={formData.isPublic}
               onToggle={handlePublicToggle}
-              label={formData.public ? 'Public Game' : 'Private Game'}
-              name="public"
+              label={formData.isPublic ? 'Public Game' : 'Private Game'}
+              name="isPublic"
               id="public-toggle"
             />
           </div>

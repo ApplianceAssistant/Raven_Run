@@ -175,7 +175,7 @@ export const saveGame = async (gameData) => {
 
       const apiGameData = {
         ...gameData,
-        is_public: gameData.public,
+        is_public: gameData.isPublic,
         start_latitude: locationData.startLat,
         start_longitude: locationData.startLong,
         end_latitude: locationData.endLat,

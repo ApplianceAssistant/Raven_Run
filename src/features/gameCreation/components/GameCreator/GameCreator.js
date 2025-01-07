@@ -20,7 +20,7 @@ const GameCreator = () => {
   const [newGameData, setNewGameData] = useState({ 
     title: '', 
     description: '', 
-    public: false, 
+    isPublic: false, 
     gameId: '', 
     challenges: [] 
   });
@@ -52,7 +52,7 @@ const GameCreator = () => {
         setNewGameData({
           title: game.title || '',
           description: game.description || '',
-          public: game.public ?? false,
+          isPublic: game.isPublic ?? false,
           gameId: game.gameId,
           challenges: game.challenges || []
         });
@@ -77,7 +77,7 @@ const GameCreator = () => {
     const newGame = { 
       title: '', 
       description: '', 
-      public: false, 
+      isPublic: false, 
       gameId, 
       challenges: [] 
     };
@@ -96,7 +96,7 @@ const GameCreator = () => {
       const newGame = {
         title: newGameData.title,
         description: newGameData.description,
-        public: newGameData.public,
+        isPublic: newGameData.isPublic,
         challenges: [],
         isSynced: false
       };
@@ -146,7 +146,7 @@ const GameCreator = () => {
         gameId: gameData.gameId,
         title: gameData.title.trim(),
         description: gameData.description.trim(),
-        public: gameData.public ?? false,
+        isPublic: gameData.isPublic ?? false,
         challenges: mergedChallenges,
         isSynced: false,
         lastModified: new Date().toISOString()
@@ -155,6 +155,7 @@ const GameCreator = () => {
       // Attempt to save to server first
       let savedGame;
       try {
+        console.log("Saving game to server:", newGame);
         savedGame = await saveGame(newGame);
         newGame.isSynced = true;
       } catch (syncError) {
