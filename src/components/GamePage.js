@@ -313,6 +313,12 @@ function GamePage() {
       return text;
     };
 
+    // Create a state object that includes the current visibility state
+    const stateWithVisibility = {
+      ...challengeState,
+      textVisible: challengeVisible
+    };
+
     return (
       <div className={`button-container-bottom visible`}>
         {(currentChallenge.description || currentChallenge.storyText || currentChallenge.question) &&
@@ -324,14 +330,16 @@ function GamePage() {
         {canDisplayHints(currentChallenge) && !challengeState.isCorrect && (
           <button onClick={showHintModal} className="hint-button">Hint</button>
         )}
-        {shouldDisplaySubmitButton(currentChallenge, challengeState) && (
+        {shouldDisplaySubmitButton(currentChallenge, stateWithVisibility) && (
           <button onClick={handleSubmitClick} className="submit-button">Submit</button>
         )}
-        {shouldDisplaySkipButton(currentChallenge, challengeState) ? (
+        {shouldDisplayContinueButton(currentChallenge, stateWithVisibility) ? (
+          <button onClick={handleContinueClick} className="continue-button">Continue</button>
+        ) : shouldDisplaySkipButton(currentChallenge, stateWithVisibility) ? (
           <button onClick={handleSkipClick}>Skip</button>
         ) : (
           <SkipCountdown 
-            challengeState={challengeState} 
+            challengeState={stateWithVisibility}
             onCountdownComplete={() => setChallengeState(prev => ({
               ...prev,
               startTime: prev.startTime - (5 * 60 * 1000) // Subtract 5 minutes to force skip button display

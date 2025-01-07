@@ -38,7 +38,7 @@ const Congratulations = ({ onClose }) => {
                 </p>
 
                 <h2>Enjoy the hunt?</h2>
-                <p>Support CrowTours Development and Fuel new adventures! Your contribution helps create exciting quests, improve features, and keep our app free.</p>
+                <p>Support CrowTours Development and Fuel new adventures! Your contribution helps create exciting quests, improve features, and keep the fun free.</p>
                 <div className="button-container">
                     <a
                         href="https://donate.stripe.com/dR6g2P0UIdCEbT2148"

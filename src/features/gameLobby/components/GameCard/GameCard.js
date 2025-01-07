@@ -16,7 +16,9 @@ const GameCard = ({
     description, 
     tags,
     challenges = [],
-    creatorName
+    creatorName,
+    inProgress = false,
+    onClick
 }) => {
     const navigate = useNavigate();
     const [isDownloaded, setIsDownloaded] = useState(false);
@@ -26,13 +28,19 @@ const GameCard = ({
     });
 
     useEffect(() => {
-        // Check if game is already downloaded
         const downloadedGame = getDownloadedGame(id);
         setIsDownloaded(!!downloadedGame);
     }, [id]);
 
     const handleCardClick = () => {
-        navigate(`/gamedescription/${id}`);
+        console.log('Card clicked, onClick handler:', !!onClick);
+        if (onClick) {
+            console.log('Calling onClick with id:', id);
+            onClick(id);
+        } else {
+            console.log('Navigating to game description:', id);
+            navigate(`/gamedescription/${id}`);
+        }
     };
 
     const formatDuration = (mins) => {
@@ -67,7 +75,7 @@ const GameCard = ({
     };
 
     return (
-        <div className="game-card" onClick={handleCardClick} title={`View ${title} details`}>
+        <div className={`game-card ${inProgress ? 'in-progress' : ''}`} onClick={handleCardClick} title={`View ${title} details`}>
             <div className="game-image">
                 <div className={`difficulty-badge ${difficulty}`}>
                     {difficulty}
@@ -84,6 +92,11 @@ const GameCard = ({
                     {challenges.length}
                 </div>
                 {isDownloaded && <span className="downloaded" title="Available Offline">📱</span>}
+                {inProgress && (
+                    <div className="progress-badge">
+                        In Progress
+                    </div>
+                )}
             </div>
             <div className="game-info">
                 <h3>{title}</h3>

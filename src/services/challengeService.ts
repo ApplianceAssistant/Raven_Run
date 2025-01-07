@@ -81,8 +81,10 @@ export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
 
 // New function to check if the continue button should be displayed
 export function shouldDisplayContinueButton(challenge: Challenge, state: ChallengeState): boolean {
+  console.warn("challenge: ", challenge, "state: ", state);
   switch (challenge.type) {
     case 'story':
+      console.log("story challenge");
       return state.textVisible; // Story is complete when text has been displayed
     case 'trueFalse':
       return state.isAnswerSelected && (state.isCorrect || (hasTargetLocation(challenge) && state.isLocationReached));

@@ -67,7 +67,6 @@ export const getDownloadedGame = (gameId) => {
     }
 
     const game = downloadedGames[gameId];
-    console.log('getDownloadedGame returning:', game);
     return game ? normalizeGame(game) : null;
   } catch (error) {
     console.error('Error getting downloaded game:', error);
@@ -81,7 +80,6 @@ export const getDownloadedGame = (gameId) => {
  */
 export const saveDownloadedGame = (game) => {
   try {
-    console.log('saveDownloadedGame received:', game);
     const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
     let downloadedGames = {};
 
@@ -118,7 +116,6 @@ export const saveDownloadedGame = (game) => {
     }
     
     localStorage.setItem(DOWNLOADED_GAMES_KEY, encryptedData);
-    console.log('saveDownloadedGame saved game:', game);
     return true;
   } catch (error) {
     console.error('Error saving downloaded game:', error);
@@ -309,7 +306,6 @@ export const normalizeGame = (game) => {
  */
 export const saveGameToLocalStorage = async (gameData) => {
   try {
-    console.log('saveGameToLocalStorage received:', gameData);
     const games = getGamesFromLocalStorage();
     const gamesArray = Array.isArray(gameData) ? gameData : [gameData];
     
@@ -340,7 +336,6 @@ export const saveGameToLocalStorage = async (gameData) => {
     const encryptedGames = await encryptData(games);
     if (encryptedGames) {
       localStorage.setItem(CUSTOM_GAMES_KEY, encryptedGames);
-      console.log('Games saved successfully:', games);
     }
   } catch (error) {
     console.error('Error saving games to localStorage:', error);
