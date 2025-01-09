@@ -284,10 +284,8 @@ function GamePage() {
     const buttons = [];
     if (isCorrect) {
       buttons.push({ label: 'Continue', onClick: handleContinueClick, className: 'continue-button' });
-    } else if (currentChallenge.repeatable) {
-      buttons.push({ label: 'Close', onClick: () => setIsModalOpen(false), className: 'close-button' });
     } else {
-      buttons.push({ label: 'Continue', onClick: handleContinueClick, className: 'continue-button' });
+      buttons.push({ label: 'Close', onClick: () => setIsModalOpen(false), className: 'close-button' });
     }
 
     let contentText = feedbackText;
