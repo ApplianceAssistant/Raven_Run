@@ -147,6 +147,12 @@ export const saveGame = async (gameData) => {
     throw new Error('Invalid game data');
   }
   
+  // Sort challenges by order property if challenges exist
+  if (gameData.challenges && Array.isArray(gameData.challenges)) {
+    gameData.challenges.sort((a, b) => (a.order || 0) - (b.order || 0));
+  }
+
+  console.log("game with sorted challenges:", gameData);
   if (!gameData.gameId) {
     gameData.gameId = await generateUniqueGameId();
   }
