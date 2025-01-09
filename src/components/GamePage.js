@@ -39,9 +39,7 @@ function GamePage() {
   const { gameId, challengeIndex: urlChallengeIndex } = useParams();
   const [gameName, setGameName] = useState('');
   const [challenges, setChallenges] = useState([]);
-  const [originalChallenges, setOriginalChallenges] = useState([]);
-  const [sortedToOriginalMap, setSortedToOriginalMap] = useState([]);
-  const [challengeIndex, setChallengeIndex] = useState(0);
+  const [challengeIndex, setChallengeIndex] = useState(parseInt(urlChallengeIndex, 10) || 0);
   const [challengeState, setChallengeState] = useState(initializeChallengeState());
   const [contentVisible, setContentVisible] = useState(false);
   const [challengeVisible, setChallengeVisible] = useState(false);
@@ -59,6 +57,7 @@ function GamePage() {
   useEffect(() => {
     const loadGameData = async () => {
       try {
+        // Load game from downloaded games or download it
         const game = await loadGame(gameId);
         if (!game) {
           console.error('Game not found:', gameId);
@@ -66,35 +65,11 @@ function GamePage() {
           return;
         }
 
-        // Store original challenges
-        const origChallenges = game.challenges || [];
-        console.log("Original challenges:", origChallenges);
-        setOriginalChallenges(origChallenges);
-
-        // Create sorted challenges and mapping
-        const sortedIndices = origChallenges.map((_, index) => index)
-          .sort((a, b) => {
-            // Convert order to number, using parseInt to handle string values
-            const orderA = origChallenges[a].order !== undefined ? parseInt(origChallenges[a].order, 10) : Number.MAX_SAFE_INTEGER;
-            const orderB = origChallenges[b].order !== undefined ? parseInt(origChallenges[b].order, 10) : Number.MAX_SAFE_INTEGER;
-            console.log(`Comparing orders: ${orderA} (${typeof orderA}) vs ${orderB} (${typeof orderB})`);
-            return orderA - orderB;
-          });
-
-        // Create mapping from sorted position to original index
-        setSortedToOriginalMap(sortedIndices);
-
-        // Sort challenges using the indices
-        const sortedChallenges = sortedIndices.map(i => origChallenges[i]);
-        console.warn("Sorted challenges:", sortedChallenges);
-        setChallenges(sortedChallenges);
+        // Set game data
+        setChallenges(game.challenges || []);
         setGameName(game.title || '');
 
-        // Find sorted index for the URL challenge index
-        const sortedIndex = sortedIndices.indexOf(parseInt(urlChallengeIndex, 10) || 0);
-        setChallengeIndex(sortedIndex >= 0 ? sortedIndex : 0);
-
-        // Save progress with original index
+        // Save progress
         saveHuntProgress(gameId, urlChallengeIndex);
       } catch (error) {
         console.error('Error loading game:', error);
@@ -103,11 +78,8 @@ function GamePage() {
     };
 
     loadGameData();
+    setChallengeIndex(parseInt(urlChallengeIndex, 10) || 0);
   }, [gameId, urlChallengeIndex, navigate]);
-
-  const getOriginalIndex = useCallback((sortedIndex) => {
-    return sortedToOriginalMap[sortedIndex];
-  }, [sortedToOriginalMap]);
 
   const updateDistanceAndCheckLocation = useCallback(() => {
     if (currentChallenge?.targetLocation && userLocation && !completedChallenges.has(challengeIndex)) {
@@ -198,6 +170,7 @@ function GamePage() {
     setIsModalOpen(false);
     setModalContent({ title: '', content: '', buttons: [], type: '', showTextToSpeech: false, speak: '' });
 
+    // Mark the current challenge as completed
     setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
 
     setTimeout(() => {
@@ -207,18 +180,18 @@ function GamePage() {
       setIsLocationReached(false);
       setChallengeState(initializeChallengeState());
 
-      const nextSortedIndex = challengeIndex + 1;
-      if (nextSortedIndex < challenges.length) {
-        const nextOriginalIndex = getOriginalIndex(nextSortedIndex);
-        navigate(`/game/${gameId}/challenge/${nextOriginalIndex}`);
-        saveHuntProgress(gameId, nextOriginalIndex);
+      const nextIndex = challengeIndex + 1;
+      if (nextIndex < challenges.length) {
+        navigate(`/game/${gameId}/challenge/${nextIndex}`);
+        saveHuntProgress(gameId, nextIndex);
 
         setTimeout(() => {
           setContentVisible(true);
           setTimeout(() => {
             setChallengeVisible(true);
             setButtonContainerVisible(true);
-            if (shouldDisplayDistanceNotice(challenges[nextSortedIndex])) {
+            // Check if the next challenge requires location tracking
+            if (shouldDisplayDistanceNotice(challenges[nextIndex])) {
               setDistanceNoticeVisible(true);
               updateDistanceAndCheckLocation();
             } else {
@@ -231,24 +204,12 @@ function GamePage() {
         navigate('/congratulations');
       }
     }, 300);
-  }, [challengeIndex, challenges.length, navigate, gameId, getOriginalIndex]);
+  }, [challengeIndex, challenges.length, navigate, gameId]);
 
-  const handleSkipClick = () => {
-    setContentVisible(false);
-    setChallengeVisible(false);
-    setTimeout(() => {
-      const nextSortedIndex = challengeIndex + 1;
-      if (nextSortedIndex < challenges.length) {
-        const nextOriginalIndex = getOriginalIndex(nextSortedIndex);
-        navigate(`/game/${gameId}/challenge/${nextOriginalIndex}`);
-        saveHuntProgress(gameId, nextOriginalIndex);
-        setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
-      } else {
-        clearHuntProgress();
-        navigate('/congratulations');
-      }
-    }, 500);
-  };
+  // Reset completedChallenges when changing games
+  useEffect(() => {
+    setCompletedChallenges(new Set());
+  }, [gameId]);
 
   const showHintModal = () => {
     if (currentChallenge && currentChallenge.hints && currentChallenge.hints.length > 0) {
@@ -282,6 +243,23 @@ function GamePage() {
       setModalKey(prevKey => prevKey + 1);  // Force re-render of Modal
       setIsModalOpen(true);
     }, 300); // Adjust this delay as needed to match your modal transition duration
+  };
+
+  const handleSkipClick = () => {
+    setContentVisible(false);
+    setChallengeVisible(false);
+    setTimeout(() => {
+      const nextIndex = challengeIndex + 1;
+      if (nextIndex < challenges.length) {
+        setChallengeIndex(nextIndex);
+        saveHuntProgress(gameId, nextIndex);
+        setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
+      } else {
+        // Navigate to Congratulations page
+        clearHuntProgress();
+        navigate('/congratulations');
+      }
+    }, 500);
   };
 
   const handleCloseCongratulations = () => {
