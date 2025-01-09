@@ -5,7 +5,8 @@ import GameCard from '../GameCard/GameCard';
 import Modal from '../../../../components/Modal';
 import ScrollableContent from '../../../../components/ScrollableContent';
 import { getUserUnitPreference, authFetch, API_URL } from '../../../../utils/utils';
-import { getHuntProgress } from '../../../../utils/huntProgressUtils';
+import { getHuntProgress, clearHuntProgress } from '../../../../utils/huntProgressUtils';
+import { downloadGame } from '../../../gameplay/services/gameplayService';
 import './GameLobby.scss';
 
 const GameLobby = () => {
@@ -124,8 +125,34 @@ const GameLobby = () => {
         setIsModalOpen(false);
     };
 
-    const startNewGame = () => {
+    const startNewGame = async () => {
         if (selectedGameId) {
+            try {
+                // Get the hunt progress to check timestamp
+                const progress = getHuntProgress();
+                if (progress && progress.gameId === selectedGameId) {
+                    // Check if we have a server connection and if the game needs updating
+                    const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${selectedGameId}`);
+                    if (response.ok) {
+                        const rawText = await response.text();
+                        const serverGame = JSON.parse(rawText);
+                        
+                        // Compare timestamps to see if game needs updating
+                        if (serverGame.updated_at && progress.timestamp && 
+                            new Date(serverGame.updated_at) > new Date(progress.timestamp)) {
+                            // Game has been updated since last play, download fresh version
+                            await downloadGame(selectedGameId);
+                            console.log('Game updated to latest version');
+                        }
+                    }
+                }
+            } catch (error) {
+                // If there's any error (offline, parse error, etc.), just continue with local version
+                console.warn('Could not check for game updates:', error);
+            }
+            
+            // Clear hunt progress and navigate to game description
+            clearHuntProgress();
             navigate(`/gamedescription/${selectedGameId}`);
         }
         setIsModalOpen(false);
