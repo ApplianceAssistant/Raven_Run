@@ -81,9 +81,6 @@ function GamePage() {
         // Set game data
         setChallenges(game.challenges || []);
         setGameName(game.title || '');
-
-        // Save progress only if we're not redirecting
-        saveHuntProgress(gameId, requestedIndex);
       } catch (error) {
         console.error('Error loading game:', error);
         navigate('/lobby');
@@ -185,7 +182,7 @@ function GamePage() {
 
     // Mark the current challenge as completed
     setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
-
+    saveHuntProgress(gameId, challengeIndex + 1);
     setTimeout(() => {
       setContentVisible(false);
       setChallengeVisible(false);
@@ -195,8 +192,8 @@ function GamePage() {
 
       const nextIndex = challengeIndex + 1;
       if (nextIndex < challenges.length) {
+        console.warn("next challenge: ", challenges[nextIndex]);
         navigate(`/game/${gameId}/challenge/${nextIndex}`);
-        saveHuntProgress(gameId, nextIndex);
 
         setTimeout(() => {
           setContentVisible(true);

@@ -3,7 +3,6 @@
 const HUNT_PROGRESS_KEY = 'huntProgress';
 
 export const saveHuntProgress = (gameId, challengeIndex) => {
-  console.warn("save hunt progress: ", gameId, challengeIndex);
   const progress = {
     gameId: gameId,
     challengeIndex: parseInt(challengeIndex),
