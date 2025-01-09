@@ -251,6 +251,39 @@ export const getAllDownloadedGames = () => {
 };
 
 /**
+ * Normalizes a challenge object to ensure consistent structure
+ * @param {Object} challenge - Challenge object from either server or local storage
+ * @returns {Challenge} - Normalized challenge object
+ */
+export const normalizeChallenge = (challenge) => {
+  if (!challenge) return null;
+
+  // Only normalize targetLocation if it exists
+  const targetLocation = challenge.targetLocation ? {
+    latitude: typeof challenge.targetLocation.latitude === 'string' ? 
+              parseFloat(challenge.targetLocation.latitude) : 
+              (typeof challenge.targetLocation.latitude === 'number' ? challenge.targetLocation.latitude : null),
+    longitude: typeof challenge.targetLocation.longitude === 'string' ? 
+              parseFloat(challenge.targetLocation.longitude) : 
+              (typeof challenge.targetLocation.longitude === 'number' ? challenge.targetLocation.longitude : null)
+  } : null;
+
+  // Only include targetLocation in the result if both coordinates are valid numbers
+  const hasValidLocation = targetLocation && 
+                         typeof targetLocation.latitude === 'number' && 
+                         typeof targetLocation.longitude === 'number' && 
+                         !isNaN(targetLocation.latitude) && 
+                         !isNaN(targetLocation.longitude);
+
+  return {
+    ...challenge,
+    targetLocation: hasValidLocation ? targetLocation : null,
+    radius: typeof challenge.radius === 'string' ? parseFloat(challenge.radius) : (challenge.radius || 10),
+    order: typeof challenge.order === 'string' ? parseInt(challenge.order) : (challenge.order || 0)
+  };
+};
+
+/**
  * Normalizes a game object to ensure consistent structure
  * @param {Object} game - Game object from either server or local storage
  * @returns {Game} - Normalized game object
@@ -272,6 +305,9 @@ export const normalizeGame = (game) => {
   } else if (Array.isArray(game.challenges)) {
     challenges = game.challenges;
   }
+
+  // Normalize each challenge
+  challenges = challenges.map(challenge => normalizeChallenge(challenge));
 
   return {
     ...game,  // Keep all original properties
