@@ -25,7 +25,7 @@ import { handleError } from '../utils/utils.js';
 import { useLocationWatcher } from '../hooks/locationWatcher.js';
 import TextToSpeech from './TextToSpeech.js';
 import { getDownloadedGame, saveDownloadedGame } from '../utils/localStorageUtils.js';
-import { saveHuntProgress, clearHuntProgress } from '../utils/huntProgressUtils.js';
+import { saveHuntProgress, clearHuntProgress, getHuntProgress } from '../utils/huntProgressUtils.js';
 import { playAudio } from '../utils/audioFeedback.js';
 import { loadGame } from '../features/gameplay/services/gameplayService.js';
 
@@ -65,12 +65,25 @@ function GamePage() {
           return;
         }
 
+        // Check hunt progress to prevent skipping ahead
+        const progress = getHuntProgress();
+        const requestedIndex = parseInt(urlChallengeIndex, 10) || 0;
+        
+        if (progress && progress.gameId === gameId) {
+          // If trying to access a future challenge, redirect to the last saved challenge
+          if (requestedIndex > progress.challengeIndex) {
+            console.warn('Attempted to skip ahead. Redirecting to last saved challenge:', progress.challengeIndex);
+            navigate(`/game/${gameId}/challenge/${progress.challengeIndex}`);
+            return;
+          }
+        }
+
         // Set game data
         setChallenges(game.challenges || []);
         setGameName(game.title || '');
 
-        // Save progress
-        saveHuntProgress(gameId, urlChallengeIndex);
+        // Save progress only if we're not redirecting
+        saveHuntProgress(gameId, requestedIndex);
       } catch (error) {
         console.error('Error loading game:', error);
         navigate('/lobby');
