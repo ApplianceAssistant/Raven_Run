@@ -507,7 +507,16 @@ const ChallengeCreator = () => {
                   id={`${fieldName}.latitude`}
                   name={`${fieldName}.latitude`}
                   value={value?.latitude || ''}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const numValue = e.target.value === '' ? '' : parseFloat(e.target.value);
+                    setChallenge(prev => ({
+                      ...prev,
+                      [fieldName]: {
+                        ...prev[fieldName],
+                        latitude: numValue
+                      }
+                    }));
+                  }}
                   step="any"
                   required={fieldConfig.required}
                 />
@@ -519,7 +528,16 @@ const ChallengeCreator = () => {
                   id={`${fieldName}.longitude`}
                   name={`${fieldName}.longitude`}
                   value={value?.longitude || ''}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const numValue = e.target.value === '' ? '' : parseFloat(e.target.value);
+                    setChallenge(prev => ({
+                      ...prev,
+                      [fieldName]: {
+                        ...prev[fieldName],
+                        longitude: numValue
+                      }
+                    }));
+                  }}
                   step="any"
                   required={fieldConfig.required}
                 />
