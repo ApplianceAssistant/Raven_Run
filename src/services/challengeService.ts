@@ -81,6 +81,12 @@ export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
 
 // New function to check if the continue button should be displayed
 export function shouldDisplayContinueButton(challenge: Challenge, state: ChallengeState): boolean {
+  console.log('[Continue Button Check]', {
+    challengeType: challenge.type,
+    state: state,
+    hasLocation: hasTargetLocation(challenge)
+  });
+
   switch (challenge.type) {
     case 'story':
       return state.textVisible; // Story is complete when text has been displayed
@@ -90,19 +96,29 @@ export function shouldDisplayContinueButton(challenge: Challenge, state: Challen
     case 'textInput':
       return state.isCorrect;
     case 'travel':
-      return hasTargetLocation(challenge) && state.isLocationReached;
+      const shouldShow = hasTargetLocation(challenge) && state.isLocationReached;
+      console.log('[Travel Continue Button]', { shouldShow, state });
+      return shouldShow;
     default:
       return false; // For any other challenge types
   }
 }
 
 export function shouldDisplaySkipButton(challenge: Challenge, state: ChallengeState): boolean {
-  if (shouldDisplayContinueButton(challenge, state)) {
+  console.log('[Skip Button Check]', {
+    challengeType: challenge.type,
+    state: state,
+    continueButtonVisible: shouldDisplayContinueButton(challenge, state)
+  });
+
+  if (shouldDisplayContinueButton(challenge, state) || state.isLocationReached) {
+    console.log('[Skip Button] Hidden due to continue button or location reached');
     return false;
   }
 
   const huntProgress = getHuntProgress();
   if (huntProgress && huntProgress.challengeIndex > challenge.id) {
+    console.log('[Skip Button] Shown due to previous completion');
     return true;
   }
 
@@ -111,7 +127,9 @@ export function shouldDisplaySkipButton(challenge: Challenge, state: ChallengeSt
   const timeElapsed = currentTime - startTime;
   const fiveMinutesInMs = 5 * 60 * 1000;
 
-  return timeElapsed >= fiveMinutesInMs;
+  const shouldShow = timeElapsed >= fiveMinutesInMs;
+  console.log('[Skip Button] Time check:', { timeElapsed, shouldShow });
+  return shouldShow;
 }
 
 export function getTimeUntilSkip(state: ChallengeState): number {
@@ -340,4 +358,5 @@ export default {
   updateDistance,
   shouldDisplayDistanceNotice,
   shouldDisplaySkipButton,
+  getTimeUntilSkip,
 };

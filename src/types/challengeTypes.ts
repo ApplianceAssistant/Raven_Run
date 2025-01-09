@@ -113,10 +113,10 @@ export function hasTargetLocation(challenge: Challenge): boolean {
     !isNaN(longitude)
   );
 
-  // Check if both latitude and longitude are not zero
-  const isNonZero = latitude !== 0 || longitude !== 0;
+  // Check if both latitude and longitude are zero (invalid location)
+  const isZeroLocation = latitude === 0 && longitude === 0;
 
-  return isValidNumber && isNonZero;
+  return isValidNumber && !isZeroLocation;
 }
 
 export function hasHints(challenge: Challenge): boolean {

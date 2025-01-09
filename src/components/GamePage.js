@@ -97,14 +97,31 @@ function GamePage() {
       setDistanceInfo(newDistanceInfo);
 
       const { isReached } = checkLocationReached(currentChallenge, userLocation);
+      console.log('[Location Check]', { 
+        isReached, 
+        currentIsLocationReached: isLocationReached,
+        challengeType: currentChallenge.type,
+        challengeState: challengeState
+      });
+
       if (isReached && !isLocationReached) {
+        console.log('[Location Reached] Setting isLocationReached to true');
         setIsLocationReached(true);
         setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
+        
+        // Update challenge state to reflect location reached
+        const newState = {
+          ...challengeState,
+          isLocationReached: true
+        };
+        console.log('[Location Reached] Updating challenge state:', newState);
+        setChallengeState(newState);
+        
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
         playAudio('locationReached').catch(error => console.error('Error playing location reached audio:', error));
       }
     }
-  }, [currentChallenge, userLocation, isLocationReached]);
+  }, [currentChallenge, userLocation, isLocationReached, challengeState]);
 
   useEffect(() => {
     if (currentChallenge && userLocation && !isLocationReached) {
@@ -119,6 +136,10 @@ function GamePage() {
       setContentVisible(false);
       setChallengeVisible(false);
       setButtonContainerVisible(false);
+
+      // Reset location reached state when changing challenges
+      setIsLocationReached(false);
+      
       setTimeout(() => {
         setContentVisible(true);
         setTimeout(() => {
@@ -126,6 +147,21 @@ function GamePage() {
           setButtonContainerVisible(true);
           // Trigger auto-play for TextToSpeech
           setAutoPlayTrigger(prev => prev + 1);
+
+          // Check location immediately after challenge is visible
+          if (currentChallenge && userLocation) {
+            console.log('[Challenge Init] Checking initial location');
+            const { isReached } = checkLocationReached(currentChallenge, userLocation);
+            if (isReached) {
+              console.log('[Challenge Init] Location already reached, updating state');
+              setIsLocationReached(true);
+              setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
+              setChallengeState(prev => ({
+                ...prev,
+                isLocationReached: true
+              }));
+            }
+          }
         }, 300); // Delay challenge visibility
       }, 100); // Delay to trigger transition
 
@@ -133,11 +169,11 @@ function GamePage() {
         updateDistanceAndCheckLocation();
       }
     }
-  }, [challengeIndex, challenges, currentChallenge]);
+  }, [challengeIndex, challenges, currentChallenge, userLocation]);
 
   useEffect(() => {
     const checkDistanceNoticeVisibility = () => {
-      const shouldBeVisible = currentChallenge && currentChallenge.targetLocation && currentChallenge.targetLocation.latitude && currentChallenge.targetLocation.longitude;
+      const shouldBeVisible = shouldDisplayDistanceNotice(currentChallenge) && !isLocationReached;
       setDistanceNoticeVisible(shouldBeVisible);
     };
 
@@ -158,7 +194,7 @@ function GamePage() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [currentChallenge, distanceNoticeVisible, updateDistanceAndCheckLocation]);
+  }, [currentChallenge, distanceNoticeVisible, updateDistanceAndCheckLocation, isLocationReached]);
 
   const handleStateChange = useCallback((updates) => {
     setChallengeState(prevState => updateChallengeState(currentChallenge, prevState, updates));
