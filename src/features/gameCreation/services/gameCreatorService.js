@@ -233,6 +233,7 @@ export const getGames = async () => {
     const isConnected = (await checkServerConnectivity()).isConnected;
     if (isConnected) {
       const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get_games`);
+      console.warn("getGames - response:", response);
       if (response.ok) {
         const serverGames = await response.json();
         console.warn("getGames - serverGames:", serverGames);
