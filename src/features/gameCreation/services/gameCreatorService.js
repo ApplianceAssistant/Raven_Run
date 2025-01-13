@@ -4,7 +4,7 @@ import {
   authFetch,
   calculateDistance 
 } from '../../../utils/utils';
-import { getGamesFromLocalStorage, normalizeGame, saveGameToLocalStorage } from '../../../utils/localStorageUtils';
+import { getGamesFromLocalStorage, normalizeGame, saveGameToLocalStorage, deleteGameFromLocalStorage } from '../../../utils/localStorageUtils';
 
 /**
  * @typedef {import('../../../types/games').Game} Game
@@ -237,7 +237,20 @@ export const getGames = async () => {
       if (response.ok) {
         const rawText = await response.text();
         console.log("rawText:", rawText);
-        const serverGames = await response.json();
+        
+        if (!rawText) {
+          console.error('Empty response from server');
+          return games;
+        }
+
+        let serverGames;
+        try {
+          serverGames = JSON.parse(rawText);
+        } catch (error) {
+          console.error('Error parsing game JSON:', error);
+          return games;
+        }
+
         console.warn("getGames - serverGames:", serverGames);
         
         if (!Array.isArray(serverGames)) {

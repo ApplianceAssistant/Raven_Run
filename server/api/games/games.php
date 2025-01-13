@@ -279,6 +279,17 @@ try {
                 }
             } elseif ($action === 'get_games') {
                 error_log("Fetching games for user ID: " . $user['id']);
+                
+                if (!isset($user['id'])) {
+                    error_log("User ID not set in get_games");
+                    http_response_code(400);
+                    echo json_encode([
+                        "error" => "User ID not set",
+                        "status" => "error"
+                    ]);
+                    exit;
+                }
+                
                 // Get all games for the authenticated user
                 $stmt = $conn->prepare("
                     SELECT 
@@ -336,8 +347,16 @@ try {
                 
                 error_log("Found " . $result->num_rows . " games");
                 
+                if ($result->num_rows === 0) {
+                    error_log("No games found for user " . $user['id']);
+                    echo json_encode([]);
+                    exit;
+                }
+                
                 while ($row = $result->fetch_assoc()) {
                     try {
+                        error_log("Processing game ID: " . $row['gameId']);
+                        
                         // Convert radius values in challenges to display units
                         $challenge_data = $row['challenge_data'];
                         error_log("Processing challenge data: " . substr($challenge_data, 0, 100) . "...");
