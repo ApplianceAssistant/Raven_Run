@@ -278,8 +278,11 @@ try {
                     // Ensure headers are set
                     header('Content-Type: application/json; charset=utf-8');
                     
-                    // Send response and exit
-                    echo json_encode($formattedGame);
+                    // Send response and exit with same structure as public_games
+                    echo json_encode([
+                        'status' => 'success',
+                        'data' => $formattedGame
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 } else {
                     error_log("Game not found with ID: " . $gameId);
