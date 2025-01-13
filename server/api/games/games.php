@@ -187,14 +187,17 @@ try {
                 });
 
                 $response = ['status' => 'success', 'data' => $games];
-                $json_response = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                 
-                if ($json_response === false) {
-                    error_log("JSON encode error: " . json_last_error_msg());
-                    throw new Exception("Failed to encode response as JSON: " . json_last_error_msg());
-                }
+                // Clear any previous output
+                if (ob_get_length()) ob_clean();
+                
+                // Ensure headers are set
+                header('Content-Type: application/json; charset=utf-8');
+                
+                // Send response and exit
+                echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                exit;
 
-                echo $json_response;
             } elseif ($action === 'get' && isset($_GET['gameId'])) {
                 $gameId = $_GET['gameId'];
                 error_log("Fetching game with ID: " . $gameId);
@@ -268,14 +271,32 @@ try {
                         'creator_name' => $game['creator_name']
                     ];
                     error_log("Successfully processed game data" . json_encode($formattedGame));
+                    
+                    // Clear any previous output
+                    if (ob_get_length()) ob_clean();
+                    
+                    // Ensure headers are set
+                    header('Content-Type: application/json; charset=utf-8');
+                    
+                    // Send response and exit
                     echo json_encode($formattedGame);
+                    exit;
                 } else {
                     error_log("Game not found with ID: " . $gameId);
                     http_response_code(404);
+                    
+                    // Clear any previous output
+                    if (ob_get_length()) ob_clean();
+                    
+                    // Ensure headers are set
+                    header('Content-Type: application/json; charset=utf-8');
+                    
+                    // Send error response and exit
                     echo json_encode([
                         "status" => "error",
                         "message" => "Game not found or is not public"
                     ]);
+                    exit;
                 }
             } elseif ($action === 'get_games') {
                 error_log("Fetching games for user ID: " . $user['id']);
@@ -405,9 +426,17 @@ try {
                     }
                 }
                 
-                error_log("Successfully processed " . count($games) . " games");
                 handleError(200, "Successfully processed " . count($games) . " games", __FILE__, __LINE__);
+                
+                // Ensure headers are set correctly
+                header('Content-Type: application/json; charset=utf-8');
+                
+                // Clear any previous output
+                if (ob_get_length()) ob_clean();
+                
+                // Send the response and exit
                 echo json_encode($games);
+                exit;
             } else {
                 http_response_code(400);
                 echo json_encode(["error" => "Invalid action"]);
@@ -555,11 +584,21 @@ try {
                 }
 
                 if ($stmt->execute()) {
+                    error_log("Game saved successfully");
+                    
+                    // Clear any previous output
+                    if (ob_get_length()) ob_clean();
+                    
+                    // Ensure headers are set
+                    header('Content-Type: application/json; charset=utf-8');
+                    
+                    // Send success response and exit
                     echo json_encode([
                         "gameId" => $gameId,
                         "message" => "Game saved successfully",
                         "status" => "success"
                     ]);
+                    exit;
                 } else {
                     http_response_code(500);
                     error_log("Failed to save game: " . $stmt->error);
@@ -567,6 +606,7 @@ try {
                         "error" => "Unable to save your game at this time. Please try again later.",
                         "status" => "error"
                     ]);
+                    exit;
                 }
             } elseif ($action === 'delete_game') {
                 $gameId = $data['gameId'] ?? '';
@@ -606,7 +646,20 @@ try {
                 $stmt->bind_param("s", $gameId);
                 
                 if ($stmt->execute()) {
-                    echo json_encode(["message" => "Game deleted successfully"]);
+                    error_log("Game deleted successfully");
+                    
+                    // Clear any previous output
+                    if (ob_get_length()) ob_clean();
+                    
+                    // Ensure headers are set
+                    header('Content-Type: application/json; charset=utf-8');
+                    
+                    // Send success response and exit
+                    echo json_encode([
+                        "status" => "success",
+                        "message" => "Game deleted successfully"
+                    ]);
+                    exit;
                 } else {
                     http_response_code(500);
                     error_log("Failed to delete game: " . $stmt->error);
