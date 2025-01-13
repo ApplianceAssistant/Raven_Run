@@ -103,22 +103,34 @@ export const loadGame = async (gameId) => {
 
     // If not in local storage, fetch from server but don't save
     const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}`);
+    console.log("loadGame - response:", response);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch game');
+    }
+    
+    // Get the raw text first
     const rawText = await response.text();
     console.log("rawText:", rawText);
-    let game;
+    
+    // Try to parse it as JSON
+    let gameData;
     try {
-      game = JSON.parse(rawText);
-    } catch (e) {
-      console.error('Error parsing game JSON:', e);
-      throw new Error('Failed to parse game data from server');
+      gameData = JSON.parse(rawText);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Failed to parse text:', rawText);
+      throw new Error(`Failed to parse response as JSON: ${parseError.message}`);
     }
+    
+    console.log("loadGame - parsed data:", gameData);
 
-    if (!response.ok || game.status === 'error') {
-      throw new Error(game.message || 'Failed to fetch game data');
+    if (gameData.status === 'error') {
+      throw new Error(gameData.message || 'Failed to fetch game data');
     }
 
     // Return the game data without saving to localStorage
-    return game.data || game;
+    return gameData.data || gameData;
   } catch (error) {
     console.error('Error loading game:', error);
     throw error;

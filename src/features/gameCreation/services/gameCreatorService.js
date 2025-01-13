@@ -238,21 +238,19 @@ export const getGames = async () => {
         const rawText = await response.text();
         console.log("rawText:", rawText);
         
-        if (!rawText) {
-          console.error('Empty response from server');
-          return games;
-        }
-
-        let serverGames;
+        // Try to parse the raw text as JSON
+        let jsonData;
         try {
-          serverGames = JSON.parse(rawText);
-        } catch (error) {
-          console.error('Error parsing game JSON:', error);
-          return games;
+            jsonData = JSON.parse(rawText);
+        } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            console.error('Failed to parse text:', rawText);
+            return games;
         }
 
-        console.warn("getGames - serverGames:", serverGames);
+        console.warn("getGames - parsed data:", jsonData);
         
+        const serverGames = jsonData.data || [];
         if (!Array.isArray(serverGames)) {
           console.error('Invalid server games format');
           return games;
