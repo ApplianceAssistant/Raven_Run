@@ -1,4 +1,8 @@
 <?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once (__DIR__ . '/../../utils/db_connection.php');
 require_once (__DIR__ . '/../../utils/encryption.php');
 require_once (__DIR__ . '/../../utils/errorHandler.php');
@@ -36,6 +40,7 @@ try {
             "error" => "Unable to connect to the service. Please try again later.",
             "status" => "error"
         ]);
+        handleError(500, 'Failed to connect to database', __FILE__, __LINE__);
         exit;
     }
         
@@ -58,6 +63,7 @@ try {
                 "error" => "You must be logged in to perform this action.",
                 "status" => "error"
             ]);
+            handleError(401, 'Authentication failed', __FILE__, __LINE__);
             exit;
         }
     }
@@ -307,6 +313,7 @@ try {
                         "message" => "Failed to prepare statement",
                         "status" => "error"
                     ]);
+                    handleError(500, "Database error: Failed to prepare statement" . $conn->error, __FILE__, __LINE__);
                     exit;
                 }
 
@@ -320,6 +327,7 @@ try {
                         "message" => "Failed to execute query",
                         "status" => "error"
                     ]);
+                    handleError(500, "Database error: Failed to execute query" . $stmt->error, __FILE__, __LINE__);
                     exit;
                 }
 
@@ -379,6 +387,7 @@ try {
                 }
                 
                 error_log("Successfully processed " . count($games) . " games");
+                handleError(200, "Successfully processed " . count($games) . " games", __FILE__, __LINE__);
                 echo json_encode($games);
             } else {
                 http_response_code(400);
