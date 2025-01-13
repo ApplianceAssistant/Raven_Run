@@ -101,6 +101,44 @@ DB_PORT=3306
 APP_ENV=development
 ```
 
+### API Response Handling
+
+The application implements a robust API response handling system that works consistently across different environments:
+
+1. **Server-Side Response Format**:
+   ```php
+   // All API responses follow this structure
+   {
+       "status": "success|error",
+       "data": payload,      // for success responses
+       "message": "error"    // for error responses
+   }
+   ```
+
+2. **Client-Side Handling**:
+   ```javascript
+   // Recommended pattern for API calls
+   const response = await fetch(url);
+   const rawText = await response.text();
+   const jsonData = JSON.parse(rawText);
+   
+   if (jsonData.status === 'success') {
+       return jsonData.data;
+   }
+   ```
+
+3. **Environment Considerations**:
+   - Development and production environments may handle responses differently
+   - Always use explicit encoding settings in PHP responses
+   - Handle UTF-8 encoding consistently across environments
+   - Use proper content-type headers and JSON encoding flags
+
+4. **Error Handling**:
+   - Consistent error format across all API endpoints
+   - Detailed error messages in development
+   - Sanitized error messages in production
+   - Proper logging of all API errors
+
 ## Challenge Types
 
 ### Travel Challenges

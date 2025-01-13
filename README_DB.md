@@ -97,21 +97,43 @@ CREATE TABLE game_progress (
    require_once __DIR__ . '/../../utils/errorHandler.php';
    
    // Set content type before any output
-   header('Content-Type: application/json');
+   header('Content-Type: application/json; charset=utf-8');
+   ```
+
+2. Response Format Standards:
+   - All responses must follow a consistent structure:
+   ```php
+   // Success response
+   echo json_encode([
+       'status' => 'success',
+       'data' => $payload
+   ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+
+   // Error response
+   echo json_encode([
+       'status' => 'error',
+       'message' => 'Error description'
+   ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+   ```
+
+3. Client-Side Response Handling:
+   - Always get raw text first, then parse JSON:
+   ```javascript
+   const response = await fetch(url);
+   const rawText = await response.text();
+   const jsonData = JSON.parse(rawText);
    
-   // Get database connection
-   $conn = getDbConnection();
-   if (!$conn) {
-       handleError(500, 'Failed to connect to database', __FILE__, __LINE__);
-       exit(0);
+   if (jsonData.status === 'success') {
+       return jsonData.data;
+   } else {
+       throw new Error(jsonData.message);
    }
    ```
 
-2. Error Handling:
-   - Always use handleError() for consistent error logging
-   - Include file and line information for debugging
-   - Format: handleError(status_code, error_message, __FILE__, __LINE__)
-   - Exit after handling critical errors
+4. Environment Considerations:
+   - Local development servers may be more forgiving with response handling
+   - Production/staging servers often have stricter encoding requirements
+   - Always use explicit encoding flags and headers for consistency across environments
 
 ## Data Synchronization
 
