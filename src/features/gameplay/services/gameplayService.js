@@ -27,26 +27,26 @@ export const downloadGame = async (gameId) => {
     // Fetch from server
     const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}`);
     
-    // Log the raw response for debugging
+    // Get the raw text first
     const rawText = await response.text();
+    console.log("downloadGame - rawText:", rawText);
     
-    let game;
+    // Try to parse it as JSON
+    let jsonData;
     try {
-      game = JSON.parse(rawText);
-    } catch (e) {
-      console.error('Error parsing game JSON:', e);
-      throw new Error('Failed to parse game data from server');
+      jsonData = JSON.parse(rawText);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Failed to parse text:', rawText);
+      throw new Error(`Failed to parse response as JSON: ${parseError.message}`);
     }
 
-    if (!response.ok) {
-      const errorMsg = game?.message || 'Failed to fetch game from server';
+    if (!response.ok || jsonData.status === 'error') {
+      const errorMsg = jsonData?.message || 'Failed to fetch game from server';
       throw new Error(`Server returned ${response.status}: ${errorMsg}`);
     }
 
-    // Handle both response formats (direct game object or {status, message, data})
-    if (game.status === 'error') {
-      throw new Error(game.message || 'Server returned an error');
-    }
+    const game = jsonData.data || jsonData;
 
     // Normalize the game object
     const normalizedGame = {

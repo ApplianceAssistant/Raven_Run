@@ -37,11 +37,10 @@ try {
         error_log("Database connection failed");
         http_response_code(500);
         echo json_encode([
-            "error" => "Unable to connect to the service. Please try again later.",
-            "status" => "error"
-        ]);
-        handleError(500, 'Failed to connect to database', __FILE__, __LINE__);
-        exit;
+            'status' => 'error',
+            'message' => 'Database connection failed'
+        ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+        exit(0);
     }
         
     // Handle different API endpoints
@@ -60,11 +59,10 @@ try {
         if (!$user) {
             http_response_code(401);
             echo json_encode([
-                "error" => "You must be logged in to perform this action.",
-                "status" => "error"
-            ]);
-            handleError(401, 'Authentication failed', __FILE__, __LINE__);
-            exit;
+                'status' => 'error',
+                'message' => 'Unauthorized access'
+            ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+            exit(0);
         }
     }
 
@@ -107,10 +105,10 @@ try {
                     error_log("Failed to prepare statement: " . $conn->error);
                     http_response_code(500);
                     echo json_encode([
-                        "status" => "error",
-                        "message" => "Database error",
-                        "debug" => "Failed to prepare statement"
-                    ]);
+                        'status' => 'error',
+                        'message' => 'Database error',
+                        'debug' => 'Failed to prepare statement'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
                 
@@ -118,10 +116,10 @@ try {
                     error_log("Failed to execute statement: " . $stmt->error);
                     http_response_code(500);
                     echo json_encode([
-                        "status" => "error",
-                        "message" => "Database error",
-                        "debug" => "Failed to execute statement"
-                    ]);
+                        'status' => 'error',
+                        'message' => 'Database error',
+                        'debug' => 'Failed to execute statement'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
 
@@ -229,10 +227,10 @@ try {
                     error_log("Failed to prepare statement: " . $conn->error);
                     http_response_code(500);
                     echo json_encode([
-                        "status" => "error",
-                        "message" => "Database error",
-                        "debug" => "Failed to prepare statement"
-                    ]);
+                        'status' => 'error',
+                        'message' => 'Database error',
+                        'debug' => 'Failed to prepare statement'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
 
@@ -242,10 +240,10 @@ try {
                     error_log("Failed to execute statement: " . $stmt->error);
                     http_response_code(500);
                     echo json_encode([
-                        "status" => "error",
-                        "message" => "Database error",
-                        "debug" => "Failed to execute statement"
-                    ]);
+                        'status' => 'error',
+                        'message' => 'Database error',
+                        'debug' => 'Failed to execute statement'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
 
@@ -296,9 +294,9 @@ try {
                     
                     // Send error response and exit
                     echo json_encode([
-                        "status" => "error",
-                        "message" => "Game not found or is not public"
-                    ]);
+                        'status' => 'error',
+                        'message' => 'Game not found or is not public'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
             } elseif ($action === 'get_games') {
@@ -308,9 +306,9 @@ try {
                     error_log("User ID not set in get_games");
                     http_response_code(400);
                     echo json_encode([
-                        "error" => "User ID not set",
-                        "status" => "error"
-                    ]);
+                        'status' => 'error',
+                        'message' => 'User ID not set'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
                 
@@ -344,11 +342,10 @@ try {
                     error_log("Failed to prepare statement: " . $conn->error);
                     http_response_code(500);
                     echo json_encode([
-                        "error" => "Database error",
-                        "message" => "Failed to prepare statement",
-                        "status" => "error"
-                    ]);
-                    handleError(500, "Database error: Failed to prepare statement" . $conn->error, __FILE__, __LINE__);
+                        'status' => 'error',
+                        'message' => 'Database error',
+                        'debug' => 'Failed to prepare statement'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
 
@@ -358,11 +355,10 @@ try {
                     error_log("Failed to execute statement: " . $stmt->error);
                     http_response_code(500);
                     echo json_encode([
-                        "error" => "Database error",
-                        "message" => "Failed to execute query",
-                        "status" => "error"
-                    ]);
-                    handleError(500, "Database error: Failed to execute query" . $stmt->error, __FILE__, __LINE__);
+                        'status' => 'error',
+                        'message' => 'Database error',
+                        'debug' => 'Failed to execute statement'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
 
@@ -432,12 +428,24 @@ try {
                 error_log("Successfully processed " . count($games) . " games");
                 error_log("Pre-JSON data: " . print_r($games, true));
                 
-                // Simple response like users.php
-                echo json_encode(['status' => 'success', 'data' => $games]);
+                // Clear any previous output
+                if (ob_get_length()) ob_clean();
+                
+                // Ensure headers are set
+                header('Content-Type: application/json; charset=utf-8');
+                
+                // Send response and exit with same structure as other endpoints
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => $games
+                ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                 exit;
             } else {
                 http_response_code(400);
-                echo json_encode(["error" => "Invalid action"]);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Invalid action'
+                ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
             }
             break;
 
@@ -592,18 +600,18 @@ try {
                     
                     // Send success response and exit
                     echo json_encode([
-                        "gameId" => $gameId,
-                        "message" => "Game saved successfully",
-                        "status" => "success"
-                    ]);
+                        'status' => 'success',
+                        'message' => 'Game saved successfully'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 } else {
                     http_response_code(500);
                     error_log("Failed to save game: " . $stmt->error);
                     echo json_encode([
-                        "error" => "Unable to save your game at this time. Please try again later.",
-                        "status" => "error"
-                    ]);
+                        'status' => 'error',
+                        'message' => 'Failed to save game',
+                        'debug' => $stmt->error
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
             } elseif ($action === 'delete_game') {
@@ -612,9 +620,9 @@ try {
                     http_response_code(400);
                     error_log("Game ID is required for deletion");
                     echo json_encode([
-                        "error" => "Unable to delete the game. Please try again.",
-                        "status" => "error"
-                    ]);
+                        'status' => 'error',
+                        'message' => 'Game ID is required for deletion'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
 
@@ -627,7 +635,10 @@ try {
                 if ($result->num_rows === 0) {
                     http_response_code(404);
                     error_log("Game not found");
-                    echo json_encode(["error" => "Game not found"]);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Game not found'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
 
@@ -635,7 +646,10 @@ try {
                 if ($game['user_id'] != $user['id']) {
                     http_response_code(403);
                     error_log("Access denied");
-                    echo json_encode(["error" => "You don't have permission to delete this game"]);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => "You don't have permission to delete this game"
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
 
@@ -654,26 +668,37 @@ try {
                     
                     // Send success response and exit
                     echo json_encode([
-                        "status" => "success",
-                        "message" => "Game deleted successfully"
-                    ]);
+                        'status' => 'success',
+                        'message' => 'Game deleted successfully'
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 } else {
                     http_response_code(500);
                     error_log("Failed to delete game: " . $stmt->error);
-                    echo json_encode(["error" => "Failed to delete game"]);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Failed to delete game',
+                        'debug' => $stmt->error
+                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                    exit;
                 }
             } else {
                 http_response_code(400);
                 error_log("Invalid action");
-                echo json_encode(["error" => "Invalid action"]);
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Invalid action'
+                ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
             }
             break;
 
         default:
             http_response_code(405);
             error_log("Method not allowed");
-            echo json_encode(["error" => "Method not allowed"]);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Method not allowed'
+            ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
             break;
     }
 
@@ -684,9 +709,9 @@ try {
     
     // Return a generic error message to the user
     echo json_encode([
-        "error" => "An unexpected error occurred while processing your request. Please try again later.",
-        "status" => "error"
-    ]);
+        'status' => 'error',
+        'message' => 'An unexpected error occurred while processing your request. Please try again later.'
+    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
 } finally {
     // Release the connection but don't close it
     releaseDbConnection();
