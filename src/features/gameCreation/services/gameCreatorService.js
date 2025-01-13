@@ -235,6 +235,8 @@ export const getGames = async () => {
       const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get_games`);
       console.warn("getGames - response:", response);
       if (response.ok) {
+        const rawText = await response.text();
+        console.log("rawText:", rawText);
         const serverGames = await response.json();
         console.warn("getGames - serverGames:", serverGames);
         
