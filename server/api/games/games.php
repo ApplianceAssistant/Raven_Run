@@ -426,16 +426,11 @@ try {
                     }
                 }
                 
-                handleError(200, "Successfully processed " . count($games) . " games", __FILE__, __LINE__);
+                error_log("Successfully processed " . count($games) . " games");
+                error_log("Pre-JSON data: " . print_r($games, true));
                 
-                // Ensure headers are set correctly
-                header('Content-Type: application/json; charset=utf-8');
-                
-                // Clear any previous output
-                if (ob_get_length()) ob_clean();
-                
-                // Send the response and exit
-                echo json_encode($games);
+                // Simple response like users.php
+                echo json_encode(['status' => 'success', 'data' => $games]);
                 exit;
             } else {
                 http_response_code(400);
