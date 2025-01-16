@@ -1,4 +1,15 @@
 /* App.scss */
+// Viewport height mixins
+@mixin safe-height($height) {
+  height: $height;
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+@mixin max-safe-height($height) {
+  max-height: $height;
+  max-height: calc(var(--vh, 1vh) * 100);
+}
+
 @import 'variables';
 @import 'floating-ghost';
 @import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap'); //1920s broadway feel
@@ -353,6 +364,9 @@ canvas {
 }
 
 .content {
+  @include safe-height(100vh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
   position: relative;
   z-index: 1;
   display: flex;
@@ -378,6 +392,9 @@ canvas {
   position: relative;
   width: 100%;
   padding-bottom: 35px;
+  &[style*="max-height"] {
+    @include max-safe-height(attr(style));
+  }
   .bodyContent {
     padding: 0.2rem;
   }
@@ -562,6 +579,7 @@ canvas {
 
 //game page styles
 .game-page {
+  @include safe-height(100vh);
   display: flex;
   flex-direction: column;
   opacity: 0;
@@ -823,6 +841,7 @@ canvas {
 
 /* Modal styles */
 .modal-overlay {
+  @include safe-height(100vh);
   position: fixed;
   top: 0;
   left: 0;

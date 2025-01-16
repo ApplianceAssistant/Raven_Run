@@ -1,57 +1,59 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-const ScrollableContent = ({ children, maxHeight, bottomPadding = '30px', dependencies = [] }) => {
+const ScrollableContent = ({ children, maxHeight, bottomPadding = '30px', dependencies = [], className = '', style = {} }) => {
   const contentRef = useRef(null);
   const [scrollState, setScrollState] = useState('none');
 
   const checkScrollState = () => {
-    const content = contentRef.current;
-    if (content) {
-      const { scrollTop, scrollHeight, clientHeight } = content;
-      
-      if (scrollHeight <= clientHeight) {
-        setScrollState('none');
-      } else if (scrollTop === 0) {
-        setScrollState('down');
-      } else if (scrollTop + clientHeight >= scrollHeight) {
-        setScrollState('up');
-      } else {
-        setScrollState('both');
-      }
+    const element = contentRef.current;
+    if (!element) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = element;
+    const isScrollable = scrollHeight > clientHeight;
+
+    if (!isScrollable) {
+      setScrollState('none');
+    } else if (scrollTop === 0) {
+      setScrollState('down');
+    } else if (scrollTop + clientHeight >= scrollHeight) {
+      setScrollState('up');
+    } else {
+      setScrollState('both');
     }
   };
 
   useEffect(() => {
-    const content = contentRef.current;
+    const element = contentRef.current;
+    if (!element) return;
 
-    if (content) {
-      content.addEventListener('scroll', checkScrollState);
-      // Initial check
-      checkScrollState();
-      // Re-check after a short delay to account for dynamic content
-      setTimeout(checkScrollState, 100);
-    }
+    element.addEventListener('scroll', checkScrollState);
+    window.addEventListener('resize', checkScrollState);
 
     return () => {
-      if (content) {
-        content.removeEventListener('scroll', checkScrollState);
-      }
+      element.removeEventListener('scroll', checkScrollState);
+      window.removeEventListener('resize', checkScrollState);
     };
   }, []);
 
-  // Add new useEffect to recheck scroll state when dependencies change
   useEffect(() => {
-    checkScrollState();
-    // Re-check after a short delay to account for dynamic content
     setTimeout(checkScrollState, 100);
   }, dependencies);
 
+  // Convert vh values to use the custom property
+  const adjustedStyle = { ...style };
+  if (maxHeight && maxHeight.includes('vh')) {
+    const value = parseFloat(maxHeight);
+    adjustedStyle.maxHeight = `calc(var(--vh, 1vh) * ${value})`;
+  } else {
+    adjustedStyle.maxHeight = maxHeight;
+  }
+
   return (
-    <div className="scrollable-content">
+    <div className={`scrollable-content ${className}`}>
       <div 
         ref={contentRef} 
         className="bodyContent" 
-        style={{ maxHeight, paddingBottom: bottomPadding }}
+        style={{ ...adjustedStyle, paddingBottom: bottomPadding }}
       >
         {children}
       </div>
