@@ -29,7 +29,6 @@ export const downloadGame = async (gameId) => {
     
     // Get the raw text first
     const rawText = await response.text();
-    console.log("downloadGame - rawText:", rawText);
     
     // Try to parse it as JSON
     let jsonData;
@@ -103,7 +102,6 @@ export const loadGame = async (gameId) => {
 
     // If not in local storage, fetch from server but don't save
     const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}`);
-    console.log("loadGame - response:", response);
     
     if (!response.ok) {
       throw new Error('Failed to fetch game');
@@ -111,7 +109,6 @@ export const loadGame = async (gameId) => {
     
     // Get the raw text first
     const rawText = await response.text();
-    console.log("rawText:", rawText);
     
     // Try to parse it as JSON
     let gameData;
@@ -123,7 +120,6 @@ export const loadGame = async (gameId) => {
       throw new Error(`Failed to parse response as JSON: ${parseError.message}`);
     }
     
-    console.log("loadGame - parsed data:", gameData);
 
     if (gameData.status === 'error') {
       throw new Error(gameData.message || 'Failed to fetch game data');

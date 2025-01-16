@@ -378,6 +378,9 @@ canvas {
   position: relative;
   width: 100%;
   padding-bottom: 35px;
+  .bodyContent {
+    padding: 0.2rem;
+  }
 
   .scroll-indicator {
     position: absolute;
@@ -422,12 +425,6 @@ canvas {
 .base-page {
   .content {
     margin-top: 20px;
-  }
-
-  .scrollable-content {
-    .bodyContent {
-      padding: 20px;
-    }
   }
 
   .base-container {
@@ -742,8 +739,10 @@ canvas {
   margin-top: 10px;
   margin-bottom: 10px;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
+  width: 100%;
 
   &.home {
     max-width: 500px;
@@ -862,7 +861,7 @@ canvas {
 }
 
 .modal-header {
-  margin-bottom: 15px;
+  margin-bottom: 0.5rem;
   width: 100%;
   text-align: center;
 

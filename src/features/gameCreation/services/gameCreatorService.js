@@ -236,7 +236,6 @@ export const getGames = async () => {
       console.warn("getGames - response:", response);
       if (response.ok) {
         const rawText = await response.text();
-        console.log("rawText:", rawText);
         
         // Try to parse the raw text as JSON
         let jsonData;

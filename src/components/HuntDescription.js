@@ -9,7 +9,7 @@ import { useSettings } from '../utils/SettingsContext';
 import { loadGame, downloadGame } from '../features/gameplay/services/gameplayService';
 import { getDownloadedGame } from '../utils/localStorageUtils';
 
-import './HuntDescription.scss';
+import '../css/HuntDescription.scss';
 
 const HuntDescription = () => {
     const { gameId } = useParams();
@@ -118,7 +118,7 @@ const HuntDescription = () => {
                 </div>
                 <div className="creator">Created by: {game.creator_name || 'Anonymous'}</div>
             </div>
-            <ScrollableContent maxHeight="50vh">
+            <ScrollableContent maxHeight="45vh">
                 <div className="hunt-content">
                     <div className="description">
                         {cleanText(game.description, { asJsx: true })}
