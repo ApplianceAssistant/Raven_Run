@@ -118,7 +118,7 @@ const HuntDescription = () => {
                 </div>
                 <div className="creator">Created by: {game.creator_name || 'Anonymous'}</div>
             </div>
-            <ScrollableContent maxHeight="45vh">
+            <ScrollableContent maxHeight="40vh">
                 <div className="hunt-content">
                     <div className="description">
                         {cleanText(game.description, { asJsx: true })}
