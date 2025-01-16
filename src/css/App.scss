@@ -597,15 +597,20 @@ canvas {
 .distance-notice {
   height: 20px; // Fixed height to maintain space
   text-align: center;
-  overflow: hidden; // Ensure content doesn't spill out
 
-  .distance-notice-content {
+  .distance-notice-content{
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
   }
 
-  &.content-visible .distance-notice-content {
+  .error-message {
+    color: #ff4444;
+    font-size: 0.9rem;
+  }
+
+  &.content-visible .distance-notice-content,
+  &.content-visible .error-message {
     opacity: 1;
     transform: translateY(0);
   }

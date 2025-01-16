@@ -128,8 +128,7 @@ const HuntDescription = () => {
             <div className="button-container">
                 <TextToSpeech
                     text={game.description}
-                    autoPlay={settings.autoPlayDescription}
-                    trigger={autoPlayTrigger}
+                    autoPlayTrigger={settings.autoSpeak}
                 />
                 <button className="primary" onClick={handleEnterHunt}>
                     Start Hunt

@@ -50,11 +50,12 @@ function GamePage() {
   const navigate = useNavigate();
   const [isLocationReached, setIsLocationReached] = useState(false);
   const [completedChallenges, setCompletedChallenges] = useState(new Set());
-  const userLocation = useLocationWatcher();
+  const { userLocation, hasLocationError } = useLocationWatcher();
 
   const currentChallenge = challenges[challengeIndex];
 
   useEffect(() => {
+    console.log("useEffect 1");
     const loadGameData = async () => {
       try {
         // Load game from downloaded games or download it
@@ -97,47 +98,43 @@ function GamePage() {
       setDistanceInfo(newDistanceInfo);
 
       const { isReached } = checkLocationReached(currentChallenge, userLocation);
-      console.log('[Location Check]', { 
-        isReached, 
-        currentIsLocationReached: isLocationReached,
-        challengeType: currentChallenge.type,
-        challengeState: challengeState
-      });
-
       if (isReached && !isLocationReached) {
-        console.log('[Location Reached] Setting isLocationReached to true');
         setIsLocationReached(true);
         setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
         
-        // Update challenge state to reflect location reached
-        const newState = {
-          ...challengeState,
+        setChallengeState(prev => ({
+          ...prev,
           isLocationReached: true
-        };
-        console.log('[Location Reached] Updating challenge state:', newState);
-        setChallengeState(newState);
+        }));
         
         displayFeedback(true, currentChallenge.completionFeedback || 'You have reached the destination!');
         playAudio('locationReached').catch(error => console.error('Error playing location reached audio:', error));
       }
     }
-  }, [currentChallenge, userLocation, isLocationReached, challengeState]);
+  }, [currentChallenge, userLocation, challengeIndex, isLocationReached, completedChallenges]);
 
   useEffect(() => {
+    console.log("useEffect 2", {
+      hasCurrentChallenge: !!currentChallenge,
+      hasUserLocation: !!userLocation,
+      isLocationReached,
+      userLat: userLocation?.latitude,
+      userLng: userLocation?.longitude
+    });
+    
     if (currentChallenge && userLocation && !isLocationReached) {
       updateDistanceAndCheckLocation();
     }
-  }, [currentChallenge, userLocation, updateDistanceAndCheckLocation]);
+  }, [currentChallenge, userLocation, isLocationReached, updateDistanceAndCheckLocation]);
 
   useEffect(() => {
+    console.log("useEffect 3 - Challenge Loading");
     if (challenges.length > 0) {
       const initialState = initializeChallengeState();
       setChallengeState(initialState);
       setContentVisible(false);
       setChallengeVisible(false);
       setButtonContainerVisible(false);
-
-      // Reset location reached state when changing challenges
       setIsLocationReached(false);
       
       setTimeout(() => {
@@ -145,56 +142,26 @@ function GamePage() {
         setTimeout(() => {
           setChallengeVisible(true);
           setButtonContainerVisible(true);
-          // Trigger auto-play for TextToSpeech
           setAutoPlayTrigger(prev => prev + 1);
-
-          // Check location immediately after challenge is visible
-          if (currentChallenge && userLocation) {
-            console.log('[Challenge Init] Checking initial location');
-            const { isReached } = checkLocationReached(currentChallenge, userLocation);
-            if (isReached) {
-              console.log('[Challenge Init] Location already reached, updating state');
-              setIsLocationReached(true);
-              setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
-              setChallengeState(prev => ({
-                ...prev,
-                isLocationReached: true
-              }));
-            }
-          }
-        }, 300); // Delay challenge visibility
-      }, 100); // Delay to trigger transition
-
-      if (shouldDisplayDistanceNotice(currentChallenge)) {
-        updateDistanceAndCheckLocation();
-      }
+        }, 300);
+      }, 100);
     }
-  }, [challengeIndex, challenges, currentChallenge, userLocation]);
+  }, [challengeIndex, challenges]);
 
   useEffect(() => {
-    const checkDistanceNoticeVisibility = () => {
+    console.log("Location updates");
+    if (currentChallenge && userLocation && !isLocationReached) {
+      updateDistanceAndCheckLocation();
+    }
+  }, [currentChallenge, userLocation, isLocationReached, updateDistanceAndCheckLocation]);
+
+  useEffect(() => {
+    console.log("Distance notice visibility update");
+    if (currentChallenge) {
       const shouldBeVisible = shouldDisplayDistanceNotice(currentChallenge) && !isLocationReached;
       setDistanceNoticeVisible(shouldBeVisible);
-    };
-
-    checkDistanceNoticeVisibility();
-
-    // Check visibility when the tab becomes active
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        checkDistanceNoticeVisibility();
-        if (distanceNoticeVisible) {
-          updateDistanceAndCheckLocation();
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [currentChallenge, distanceNoticeVisible, updateDistanceAndCheckLocation, isLocationReached]);
+    }
+  }, [currentChallenge, isLocationReached]);
 
   const handleStateChange = useCallback((updates) => {
     setChallengeState(prevState => updateChallengeState(currentChallenge, prevState, updates));
@@ -254,6 +221,7 @@ function GamePage() {
 
   // Reset completedChallenges when changing games
   useEffect(() => {
+    console.log("useEffect 5");
     setCompletedChallenges(new Set());
   }, [gameId]);
 
@@ -399,9 +367,17 @@ function GamePage() {
       <div className={`distance-notice ${contentVisible && distanceNoticeVisible ? 'visible' : ''}`}>
         {distanceNoticeVisible && (
           <>
-            Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span>{' '}
-            <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
-            <Compass direction={distanceInfo.direction} />
+            {hasLocationError ? (
+              <div className="error-message">
+                Please enable location services to continue.
+              </div>
+            ) : (
+              <>
+                Distance: <span id="distanceToTarget">{distanceInfo.displayValue}</span>{' '}
+                <span id="distanceToTargetUnit">{distanceInfo.unit}</span>
+                <Compass direction={distanceInfo.direction} />
+              </>
+            )}
           </>
         )}
       </div>
