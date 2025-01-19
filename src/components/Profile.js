@@ -252,7 +252,7 @@ function Profile() {
       <div className="tab-content">
         
           {activeTab === 'profile' && (
-            <ScrollableContent dependencies={[activeTab]} maxHeight="calc(100vh - 250px)">
+            <ScrollableContent dependencies={[activeTab]} maxHeight="80vh">
               <div className="profile-header">
                 <div className="profile-picture-container">
                   <div className="profile-picture">

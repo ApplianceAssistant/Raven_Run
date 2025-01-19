@@ -161,7 +161,7 @@ const GameForm = ({
         </div>
       </div>
 
-      <ScrollableContent maxHeight="calc(100vh - 180px)" className="form-content">
+      <ScrollableContent maxHeight="80vh" className="form-content">
         <div className="main-form">
           <div className="field-container">
             <label htmlFor="title">Game Title:</label>

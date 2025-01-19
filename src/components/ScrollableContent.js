@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-const ScrollableContent = ({ children, maxHeight, bottomPadding = '30px', dependencies = [], className = '', style = {} }) => {
+const ScrollableContent = ({ children, maxHeight = '80vh', bottomPadding = '30px', dependencies = [], className = '', style = {} }) => {
   const contentRef = useRef(null);
   const [scrollState, setScrollState] = useState('none');
 

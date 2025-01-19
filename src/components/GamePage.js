@@ -381,7 +381,7 @@ function GamePage() {
           </>
         )}
       </div>
-        <div className={`game-page ${contentVisible ? 'content-visible' : ''}`}>
+        <div className={`content ${contentVisible ? 'visible' : ''}`}>
           <main className="game-content content flex-top">
             <div className={`challenge-wrapper ${challengeVisible ? 'visible' : ''}`}>
             {currentChallenge && (
