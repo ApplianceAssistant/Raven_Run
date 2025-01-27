@@ -27,7 +27,7 @@ import MessageDisplay from './components/MessageDisplay';
 import Documentation from './components/Documentation';
 
 import './css/App.scss';
-import { setupViewportHeight } from './utils/viewportHeight';
+import { setupViewport } from './utils/viewport';
 
 export const AuthContext = createContext(null);
 
@@ -178,7 +178,11 @@ function AppContent() {
 
 function App() {
   useEffect(() => {
-    return setupViewportHeight();
+    let cleanup = setupViewport();
+    
+    return () => {
+      if (cleanup) cleanup();
+    };
   }, []);
 
   return (

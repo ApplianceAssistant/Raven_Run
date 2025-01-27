@@ -11,6 +11,7 @@
 }
 
 @import 'variables';
+@import 'viewport';  // Import our new viewport mixins
 @import 'floating-ghost';
 @import url('https://fonts.googleapis.com/css2?family=Limelight&display=swap'); //1920s broadway feel
 
@@ -33,6 +34,7 @@
 
 html {
   overflow: hidden;
+  height: 100%;
   font-family: var(--font-family);
 }
 
@@ -43,8 +45,13 @@ body {
   font-size: 1.3rem;
   font-family: var(--font-family);
   line-height: 1.2;
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
 }
 
 // Button styles
@@ -364,7 +371,7 @@ canvas {
 }
 
 .content {
-  @include safe-height(100vh);
+  @include content-height;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
   position: relative;
@@ -388,6 +395,9 @@ canvas {
 }
 
 .scrollable-content {
+  @include max-safe-height(80vh);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
   position: relative;
   width: 100%;
   padding-bottom: 35px;
@@ -1194,4 +1204,8 @@ body.menu-open {
   svg {
     font-size: 16px;
   }
+}
+
+.button-container-bottom {
+  @include mobile-safe-bottom;
 }

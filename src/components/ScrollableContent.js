@@ -40,20 +40,29 @@ const ScrollableContent = ({ children, maxHeight = '80vh', bottomPadding = '30px
   }, dependencies);
 
   // Convert vh values to use the custom property
-  const adjustedStyle = { ...style };
+  const adjustedStyle = { 
+    ...style,
+    overflow: 'hidden' // Ensure container doesn't show scrollbars
+  };
+  
   if (maxHeight && maxHeight.includes('vh')) {
     const value = parseFloat(maxHeight);
-    adjustedStyle.maxHeight = `calc(var(--vh, 1vh) * ${value})`;
+    adjustedStyle.maxHeight = `calc(var(--safe-vh, 1vh) * ${value})`;
   } else {
     adjustedStyle.maxHeight = maxHeight;
   }
 
   return (
-    <div className={`scrollable-content ${className}`}>
+    <div className={`scrollable-content ${className}`} style={adjustedStyle}>
       <div 
         ref={contentRef} 
         className="bodyContent" 
-        style={{ ...adjustedStyle, paddingBottom: bottomPadding }}
+        style={{ 
+          height: '100%',
+          overflowY: 'auto',
+          paddingBottom: bottomPadding,
+          WebkitOverflowScrolling: 'touch'
+        }}
       >
         {children}
       </div>
