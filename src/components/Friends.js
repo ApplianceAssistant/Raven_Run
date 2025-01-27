@@ -290,7 +290,7 @@ function Friends() {
                     className="search-input"
                 />
             </div>
-            <ScrollableContent maxHeight="60vh">
+            <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 60)">
                 <div className="search-results">
                     {searchQuery && (
                         <>

@@ -161,7 +161,7 @@ const GameForm = ({
         </div>
       </div>
 
-      <ScrollableContent maxHeight="80vh" className="form-content">
+      <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 80)" className="form-content" dependencies={[formData]}>
         <div className="main-form">
           <div className="field-container">
             <label htmlFor="title">Game Title:</label>

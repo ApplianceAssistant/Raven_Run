@@ -18,7 +18,7 @@ const GameList = ({ onGameSelect, onDeleteGame }) => {
       ) : (
         <>
           <h2>Your Games</h2>
-          <ScrollableContent maxHeight="60vh" className="games-container">
+          <ScrollableContent dependencies={['game-list']} maxHeight="calc(var(--content-vh, 1vh) * 80)" className="games-container">
             {games.map((game) => (
               <GameItem
                 key={game.gameId}

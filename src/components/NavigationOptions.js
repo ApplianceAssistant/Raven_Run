@@ -62,7 +62,7 @@ const NavigationOptions = ({
     };
 
     return (
-        <ScrollableContent maxHeight="85vh">
+        <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 85)">
             <div className={`navigation-wrapper ${className}`}>
                 {title && <h1 className="navigation-title">{title}</h1>}
                 {subtitle && <p className="navigation-subtitle">{subtitle}</p>}

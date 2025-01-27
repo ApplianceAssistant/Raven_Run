@@ -201,13 +201,13 @@ function Profile() {
           ...result.user,
           phone: result.user.phone ? formatPhoneNumber(result.user.phone) : ''
         };
-  
+
         login(updatedUser);
         setOriginalData(formattedData);
         setProfileData(formattedData);
         setImagePreview(result.user.profile_picture_url);
         setHasChanges(false);
-        
+
       } else {
         showError(result.message || 'Failed to update profile.');
       }
@@ -250,9 +250,10 @@ function Profile() {
 
 
       <div className="tab-content">
-        
-          {activeTab === 'profile' && (
-            <ScrollableContent dependencies={[activeTab]} maxHeight="80vh">
+
+        {activeTab === 'profile' && (
+          <ScrollableContent dependencies={[activeTab]} maxHeight="calc(var(--content-vh, 1vh) * 80)">
+            <div className="profile-content">
               <div className="profile-header">
                 <div className="profile-picture-container">
                   <div className="profile-picture">
@@ -307,18 +308,15 @@ function Profile() {
                   );
                 })}
               </form>
-              </ScrollableContent>
-          )}
-          {activeTab === 'settings' && (
-            <ScrollableContent dependencies={[activeTab]}>
-              <Settings />
-            </ScrollableContent>
-          )}
-          {activeTab === 'friends' && (
-            <ScrollableContent dependencies={[activeTab]}>
-              <Friends />
-            </ScrollableContent>
-          )}
+            </div>
+          </ScrollableContent>
+        )}
+        {activeTab === 'settings' && (
+            <Settings />
+        )}
+        {activeTab === 'friends' && (
+          <Friends />
+        )}
       </div>
 
     </div>

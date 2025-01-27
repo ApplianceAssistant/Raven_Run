@@ -4,7 +4,7 @@ import '../css/Documentation.scss';
 
 function Documentation() {
     return (
-        <ScrollableContent maxHeight="85vh">
+        <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 90)">
             <div className="documentation-container">
                 <h1>Crow Tours Documentation</h1>
                 

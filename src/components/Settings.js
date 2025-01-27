@@ -41,7 +41,7 @@ function Settings() {
 
   return (
     <>
-      <ScrollableContent maxHeight="60vh">
+      <ScrollableContent dependencies={['settings']} maxHeight="calc(var(--content-vh, 1vh) * 80)">
         <div className="settings-container">
           <ThemeSwitcher></ThemeSwitcher>
           <ToggleSwitch

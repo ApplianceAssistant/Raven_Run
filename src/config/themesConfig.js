@@ -55,8 +55,4 @@ export const noThemeElementPages = [
   '/thank_you'
 ];
 
-export const pagesNotCentered = [
-  '/profile'
-];
-
 export default themesConfig;

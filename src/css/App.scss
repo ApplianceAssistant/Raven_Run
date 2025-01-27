@@ -378,12 +378,12 @@ canvas {
   z-index: 1;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   height: 100%;
   width: 100%;
   max-width: 700px;
   flex-grow: 1;
   overflow: hidden;
-  padding: 20px;
 }
 
 .centered {
@@ -396,35 +396,60 @@ canvas {
 
 .scrollable-content {
   @include max-safe-height(80vh);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
   position: relative;
   width: 100%;
-  padding-bottom: 35px;
+  display: flex;
+  flex-direction: column;
+  
+  // Hide scrollbar
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
   &[style*="max-height"] {
     @include max-safe-height(attr(style));
   }
+  
   .bodyContent {
+    flex: 1;
     padding: 0.2rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    
+    // Hide scrollbar on bodyContent
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .scroll-indicator {
-    position: absolute;
-    bottom: 0px;
-    left: 50%;
-    transform: translateX(-50%);
+    flex: none;
+    height: 35px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     opacity: 1;
     transition: opacity 0.3s ease;
-    padding: 5px 0;
+    z-index: 1;
+    pointer-events: none;
+    background-color: var(--bg-color);
 
     .arrow {
       font-size: 24px;
       opacity: 0.5;
       transition: opacity 0.3s ease;
       animation: verticalShake 1s ease-in-out infinite;
+      color: var(--text-color);
+      height: 24px;
+      line-height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover {
         opacity: 1;
@@ -434,7 +459,7 @@ canvas {
     &.up .arrow.up,
     &.down .arrow.down,
     &.both .arrow.updown {
-      display: inline-block;
+      display: flex;
     }
 
     &.up .arrow.down,
@@ -449,9 +474,6 @@ canvas {
 }
 
 .base-page {
-  .content {
-    margin-top: 20px;
-  }
 
   .base-container {
     display: flex;
@@ -587,7 +609,6 @@ canvas {
 }
 
 .game-content {
-  margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
@@ -775,10 +796,8 @@ canvas {
 
 .button-container-bottom {
   z-index: 1000;
-  bottom: 10px;
   width: 100%;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin-top: 5px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -1133,8 +1152,8 @@ body.menu-open {
   position: fixed;
   width: 100vw;
   height: 100vh;
-  pointer-events: none; // Ensures it doesn’t interfere with other elements
-  z-index: -11; // Adjust as needed
+  pointer-events: none; 
+  z-index: -11; 
 }
 
 .button-group {

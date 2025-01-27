@@ -23,7 +23,7 @@ const ModalAgreement = ({ isOpen, onAgree, title, content }) => {
         <div className="modal-header">
           <h2>{title}</h2>
         </div>
-        <ScrollableContent maxHeight="50vh">
+        <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 55)">
           <div className={`modal-body`}>
             {content}
           </div>

@@ -737,7 +737,7 @@ const ChallengeCreator = () => {
 
       </div>
 
-      <ScrollableContent maxHeight="60vh">
+      <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 60)">
         {/* Dynamic Fields - Only show if type is selected */}
         {challenge.type && renderFields(Object.entries(challengeTypeConfig[challenge.type]).filter(([fieldName]) => fieldName !== 'order'))}
       </ScrollableContent>

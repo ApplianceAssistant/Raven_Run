@@ -5,7 +5,7 @@ function Contact() {
   return (
     <>
       <h1 className="contentHeader">Have a Question?</h1>
-      <ScrollableContent maxHeight="60vh">
+      <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 60)">
         <p>Hello! We're excited to have you join our community of urban explorers and puzzle enthusiasts.</p>
         <p>For any questions, issues, or feedback about Crow Tours, please visit our Facebook page. We're actively monitoring it and look forward to hearing from you!</p>
         <p>

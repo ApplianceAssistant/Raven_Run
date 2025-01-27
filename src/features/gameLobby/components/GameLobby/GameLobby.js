@@ -222,7 +222,7 @@ const GameLobby = () => {
                 />
             </div>
             
-            <ScrollableContent maxHeight="80vh" onScrollEnd={handleScroll} className="games-container">
+            <ScrollableContent dependencies={['game-lobby']} maxHeight="calc(var(--content-vh, 1vh) * 80)" onScrollEnd={handleScroll} className="games-container">
                 <div className="games-grid">
                     {transformedGames.map(game => (
                         <GameCard 

@@ -8,11 +8,13 @@ const AutoExpandingTextArea = ({
   name, 
   id, 
   required,
-  maxHeight = '50vh', // Maximum height as percentage of viewport height
-  minHeight = '60px'  // Minimum height in pixels
+  maxHeight = '40vh', // Maximum height as percentage of viewport height
+  minHeight = '60px',  // Minimum height in pixels
+  onHeightChange // Callback for height changes
 }) => {
   const textareaRef = useRef(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [currentHeight, setCurrentHeight] = useState(minHeight);
 
   const adjustHeight = () => {
     const textarea = textareaRef.current;
@@ -22,30 +24,28 @@ const AutoExpandingTextArea = ({
     textarea.style.height = 'auto';
     
     // Calculate the new height
-    const newHeight = Math.min(
-      textarea.scrollHeight,
-      window.innerHeight * (parseInt(maxHeight) / 100)
-    );
+    const maxHeightPx = window.innerHeight * (parseInt(maxHeight) / 100);
+    const newHeight = isFocused
+      ? Math.min(textarea.scrollHeight, maxHeightPx)
+      : Math.min(parseInt(minHeight) * 2, textarea.scrollHeight, maxHeightPx);
 
     // Set the height, ensuring it's not less than minHeight
-    textarea.style.height = `${Math.max(parseInt(minHeight), newHeight)}px`;
+    const finalHeight = Math.max(parseInt(minHeight), newHeight);
+    textarea.style.height = `${finalHeight}px`;
+
+    // Notify parent of height change if callback provided
+    if (onHeightChange && finalHeight !== currentHeight) {
+      setCurrentHeight(finalHeight);
+      onHeightChange(finalHeight);
+    }
   };
 
-  // Adjust height when value changes
   useEffect(() => {
     adjustHeight();
-  }, [value]);
-
-  // Adjust height on window resize
-  useEffect(() => {
-    const handleResize = () => adjustHeight();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [value, isFocused]);
 
   const handleFocus = () => {
     setIsFocused(true);
-    adjustHeight();
   };
 
   const handleBlur = () => {
@@ -69,7 +69,8 @@ const AutoExpandingTextArea = ({
       className={`auto-expanding-textarea ${isFocused ? 'focused' : ''}`}
       style={{
         minHeight,
-        maxHeight
+        maxHeight: `calc(var(--safe-vh, 1vh) * ${parseInt(maxHeight)})`,
+        transition: 'height 0.2s ease-out'
       }}
     />
   );

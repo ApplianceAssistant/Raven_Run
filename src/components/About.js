@@ -7,7 +7,7 @@ function About() {
 
     <>
       <h1 className="contentHeader">Like to play games?</h1>
-      <ScrollableContent maxHeight="60vh">
+      <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
         <h3>Crow Tours is currently in alpha testing.</h3>
         <p>We're excited to have you join our flock of early explorers! Your feedback is invaluable in helping us refine and improve the game.
           Please note that you may encounter unexpected behaviors or changes as we continue to develop. We appreciate your patience and input during this phase.

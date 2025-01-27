@@ -36,29 +36,29 @@ const ChallengeManager = () => {
         <button className="add-challenge-button" onClick={handleAddChallenge}>
           Add New Challenge
         </button>
-        <ScrollableContent maxHeight="70vh">
-        <div className="challenges-list">
-          {challenges.length > 0 ? (
-            challenges.map((challenge, index) => (
-              <div key={challenge.id} className="challenge-item" onClick={() => handleEditChallenge(challenge)}>
-                <div className="challenge-header">
-                  <span className="challenge-type">{challenge.type}</span>
-                  <span className="challenge-order">#{challenge.order || index + 1}</span>
+        <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 50)">
+          <div className="challenges-list">
+            {challenges.length > 0 ? (
+              challenges.map((challenge, index) => (
+                <div key={challenge.id} className="challenge-item" onClick={() => handleEditChallenge(challenge)}>
+                  <div className="challenge-header">
+                    <span className="challenge-type">{challenge.type}</span>
+                    <span className="challenge-order">#{challenge.order || index + 1}</span>
+                  </div>
+                  <h3>{challenge.title}</h3>
+                  <div className="challenge-preview">
+                    {challenge.description && (
+                      <p className="challenge-description">{challenge.description.substring(0, 100)}...</p>
+                    )}
+                  </div>
                 </div>
-                <h3>{challenge.title}</h3>
-                <div className="challenge-preview">
-                  {challenge.description && (
-                    <p className="challenge-description">{challenge.description.substring(0, 100)}...</p>
-                  )}
-                </div>
+              ))
+            ) : (
+              <div className="no-challenges">
+                <p>No challenges yet. Click the button below to add your first challenge!</p>
               </div>
-            ))
-          ) : (
-            <div className="no-challenges">
-              <p>No challenges yet. Click the button below to add your first challenge!</p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
         </ScrollableContent>
       </div>
     </>

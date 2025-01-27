@@ -99,7 +99,7 @@ export const Challenge = ({ challenge, challengeState, onStateChange, onContinue
 
   return (
     <div className={`challengeBody ${challengeState.textVisible ? 'visible' : ''}`}>
-      <ScrollableContent maxHeight="60vh">
+      <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
         <h2>{challenge.title}</h2>
         <div className="challenge-content">
           {challenge.description && (
