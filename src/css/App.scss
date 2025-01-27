@@ -378,11 +378,9 @@ canvas {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  height: 100%;
+  justify-content: space-between;
   width: 100%;
   max-width: 700px;
-  flex-grow: 1;
   overflow: hidden;
 }
 
@@ -495,11 +493,6 @@ canvas {
   text-decoration: none;
 }
 
-.flex-top {
-  display: flex;
-  justify-content: flex-start;
-}
-
 .contentHeader {
   padding-bottom: 20px;
   line-height: 1;
@@ -606,15 +599,6 @@ canvas {
   .day-night-indicator {
     margin-left: 10px;
   }
-}
-
-.game-content {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
 }
 
 .game-title {
