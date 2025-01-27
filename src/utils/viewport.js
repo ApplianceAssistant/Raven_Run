@@ -20,6 +20,7 @@ export function setupViewport() {
             // Typical mobile browser chrome is around 75-100px
             const safeVh = (window.innerHeight - (isMobile ? 100 : 0)) * 0.01;
             document.documentElement.style.setProperty('--safe-vh', `${safeVh}px`);
+            document.documentElement.style.setProperty('--safe-vh', `${vh}px`);
         } else {
             document.documentElement.style.setProperty('--safe-vh', `${vh}px`);
         }
