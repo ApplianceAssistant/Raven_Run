@@ -544,8 +544,8 @@ try {
                     $stmt = $conn->prepare(
                         "UPDATE games 
                         SET title = ?, 
-                            description = ?, 
-                            is_public = ?, 
+                            description = ?,
+                            is_public = ?,
                             challenge_data = ?,
                             start_latitude = ?,
                             start_longitude = ?,
@@ -554,7 +554,7 @@ try {
                             distance = ?
                         WHERE gameId = ?"
                     );
-                    $stmt->bind_param("ssissdddds", 
+                    $stmt->bind_param("ssisddddds", 
                         $title, 
                         $description, 
                         $isPublic, 
@@ -574,7 +574,7 @@ try {
                          start_latitude, start_longitude, end_latitude, end_longitude, distance) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     );
-                    $stmt->bind_param("sisssisdddds", 
+                    $stmt->bind_param("isssisddddd", 
                         $gameId, 
                         $user['id'], 
                         $title, 
