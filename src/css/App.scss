@@ -100,7 +100,7 @@ button {
 
   &.btn-remove {
     background: none; 
-    color: var(--danger-color, #dc3545);
+    color: var(--button-bg-caution, #dc3545);
     padding: 8px 16px;
     height: 36px;
     box-shadow: none;
