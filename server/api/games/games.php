@@ -426,7 +426,6 @@ try {
                 }
                 
                 error_log("Successfully processed " . count($games) . " games");
-                error_log("Pre-JSON data: " . print_r($games, true));
                 
                 // Clear any previous output
                 if (ob_get_length()) ob_clean();
@@ -574,7 +573,7 @@ try {
                          start_latitude, start_longitude, end_latitude, end_longitude, distance) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     );
-                    $stmt->bind_param("isssisddddd", 
+                    $stmt->bind_param("ssssisddddd", 
                         $gameId, 
                         $user['id'], 
                         $title, 

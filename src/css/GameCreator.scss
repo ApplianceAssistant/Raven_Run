@@ -92,7 +92,7 @@
         right: 1rem;
         background: none;
         border: none;
-        color: var(--danger-color, #ff4444);
+        color: var(--button-bg-caution, #ff4444);
         cursor: pointer;
         opacity: 0.7;
         transition: opacity 0.2s, transform 0.2s;
@@ -107,7 +107,7 @@
         &:hover {
           opacity: 1;
           transform: scale(1.1);
-          background-color: rgba(var(--danger-color-rgb, 255, 68, 68), 0.1);
+          background-color: var(--button-bg-caution);
 
           &::after {
             content: 'Delete Game';
@@ -538,6 +538,40 @@
         margin-bottom: 16px;
         cursor: pointer;
         transition: all 0.2s ease;
+        position: relative;
+
+        .challenge-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 10px;
+
+          .btn-remove {
+            background: none;
+            border: none;
+            color: var(--button-bg-caution);
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.2s ease;
+
+            &:hover {
+              transform: scale(1.1);
+            }
+          }
+
+          .challenge-type {
+            background-color: var(--primary-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+          }
+
+          .challenge-order {
+            margin-left: auto;
+            font-weight: bold;
+            color: var(--text-color-secondary);
+          }
+        }
 
         &:hover {
           transform: translateY(-2px);
@@ -556,24 +590,6 @@
             box-shadow: 0 2px 4px var(--shadow);
             z-index: 1;
           }
-        }
-
-        .challenge-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 8px;
-        }
-
-        .challenge-type {
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 0.9em;
-          text-transform: capitalize;
-        }
-
-        .challenge-order {
-          font-size: 0.9em;
         }
 
         h3 {
