@@ -208,7 +208,7 @@ export const saveGame = async (gameData) => {
         const errorData = await response.json();
         gameData.isSynced = false;
         await saveGameToLocalStorage(gameData);
-        throw new Error(errorData.error || 'Failed to sync game with server');
+        throw new Error('Failed to sync game with server');
       }
     } else {
       gameData.isSynced = false;
@@ -221,7 +221,7 @@ export const saveGame = async (gameData) => {
     // Ensure local storage save even if server sync fails
     gameData.isSynced = false;
     await saveGameToLocalStorage(gameData);
-    throw error; // Re-throw the error to be handled by the caller
+    throw new Error('Failed to save game'); 
   }
 };
 

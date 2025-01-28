@@ -36,7 +36,7 @@ const ChallengeManager = () => {
         <button className="add-challenge-button" onClick={handleAddChallenge}>
           Add New Challenge
         </button>
-        <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 50)">
+        <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
           <div className="challenges-list">
             {challenges.length > 0 ? (
               challenges.map((challenge, index) => (

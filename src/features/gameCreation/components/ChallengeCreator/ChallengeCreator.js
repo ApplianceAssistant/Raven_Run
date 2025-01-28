@@ -111,19 +111,34 @@ const ChallengeCreator = () => {
     }
   }, [gameId, challengeId]);
 
-  // Track changes
+  // Track changes and validate required fields
   useEffect(() => {
     if (isEditing && originalChallenge) {
       const changed = JSON.stringify(challenge) !== JSON.stringify(originalChallenge);
-      console.log('Change detection:', {
-        isEditing,
-        challenge,
-        originalChallenge,
-        changed
-      });
       setHasChanges(changed);
     }
   }, [challenge, originalChallenge, isEditing]);
+
+  // Validate required fields
+  const validateFields = () => {
+    if (!challenge.type) return false;
+    
+    const typeFields = challengeTypeConfig[challenge.type];
+    const missingFields = [];
+    
+    for (const [fieldName, config] of Object.entries(typeFields)) {
+      if (config.required) {
+        const value = challenge[fieldName];
+        if (value === undefined || value === null || value === '' || 
+            (Array.isArray(value) && value.length === 0) ||
+            (typeof value === 'object' && Object.keys(value).length === 0)) {
+          missingFields.push(config.label || fieldName);
+        }
+      }
+    }
+    
+    return missingFields;
+  };
 
   const handleBack = () => {
     if (hasChanges) {
@@ -311,6 +326,12 @@ const ChallengeCreator = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const missingFields = validateFields();
+    if (missingFields.length > 0) {
+      showError(`Please fill in all required fields:\n${missingFields.join('\n')}`);
+      return;
+    }
 
     try {
       const games = getGamesFromLocalStorage();
@@ -351,7 +372,8 @@ const ChallengeCreator = () => {
       showSuccess('Challenge saved successfully!');
       navigate(`/create/edit/${gameId}/challenges`);
     } catch (error) {
-      showError('Failed to save challenge: ' + error.message);
+      console.error('Save challenge error:', error); // Log full error for debugging
+      showError('Failed to save challenge. Please try again.'); // User-friendly message
     }
   };
 
@@ -688,17 +710,19 @@ const ChallengeCreator = () => {
       </button>
       <div className="creator-header">
         <h2>{isEditing ? 'Edit Challenge' : 'Create New Challenge'}</h2>
-        {/* Save/Cancel Buttons */}
-        {showButtons && (
-          <div className={`button-container ${isAnimatingOut ? 'sliding-up' : ''}`}>
-            <button type="submit" className="save-button">
-              {isEditing ? 'Save Changes' : 'Create Challenge'}
-            </button>
-            <button type="button" className="cancel-button" onClick={handleCancel}>
-              Cancel
-            </button>
-          </div>
-        )}
+        {/* Save/Cancel Buttons - Always visible for new challenges */}
+        <div className={`button-container ${(!isEditing || showButtons) ? '' : 'sliding-up'}`}>
+          <button 
+            type="submit" 
+            className="save-button"
+            disabled={validateFields().length > 0}
+          >
+            {isEditing ? 'Save Changes' : 'Create Challenge'}
+          </button>
+          <button type="button" className="cancel-button" onClick={handleCancel}>
+            Cancel
+          </button>
+        </div>
       </div>
 
       {/* Challenge Type and Order */}
