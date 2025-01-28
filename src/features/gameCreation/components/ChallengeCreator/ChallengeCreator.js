@@ -5,6 +5,7 @@ import { faArrowLeft, faBan, faPlusCircle } from '@fortawesome/free-solid-svg-ic
 import { challengeTypeConfig } from '../../../../config/challengeTypeConfig';
 import ScrollableContent from '../../../../components/ScrollableContent';
 import { getSmallDistanceUnit } from '../../../../utils/unitConversion';
+import AutoExpandingTextArea from '../../../../components/AutoExpandingTextArea/AutoExpandingTextArea';
 import { useMessage } from '../../../../utils/MessageProvider';
 import '../../../../css/GameCreator.scss';
 import ToggleSwitch from '../../../../components/ToggleSwitch';
@@ -122,21 +123,21 @@ const ChallengeCreator = () => {
   // Validate required fields
   const validateFields = () => {
     if (!challenge.type) return false;
-    
+
     const typeFields = challengeTypeConfig[challenge.type];
     const missingFields = [];
-    
+
     for (const [fieldName, config] of Object.entries(typeFields)) {
       if (config.required) {
         const value = challenge[fieldName];
-        if (value === undefined || value === null || value === '' || 
-            (Array.isArray(value) && value.length === 0) ||
-            (typeof value === 'object' && Object.keys(value).length === 0)) {
+        if (value === undefined || value === null || value === '' ||
+          (Array.isArray(value) && value.length === 0) ||
+          (typeof value === 'object' && Object.keys(value).length === 0)) {
           missingFields.push(config.label || fieldName);
         }
       }
     }
-    
+
     return missingFields;
   };
 
@@ -167,7 +168,7 @@ const ChallengeCreator = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === 'type') {
       // Initialize default values for the selected challenge type
       const defaultValues = {
@@ -189,7 +190,7 @@ const ChallengeCreator = () => {
       setChallenge(defaultValues);
       return;
     }
-    
+
     // Handle nested fields (like feedbackTexts.correct)
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
@@ -326,7 +327,7 @@ const ChallengeCreator = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const missingFields = validateFields();
     if (missingFields.length > 0) {
       showError(`Please fill in all required fields:\n${missingFields.join('\n')}`);
@@ -412,7 +413,7 @@ const ChallengeCreator = () => {
       case 'textarea':
         // Regular textarea handling for all fields including completionFeedback
         return (
-          <textarea
+          <AutoExpandingTextArea
             id={fieldName}
             name={fieldName}
             value={value || ''}
@@ -424,6 +425,8 @@ const ChallengeCreator = () => {
             }}
             required={fieldConfig.required}
             placeholder={`Enter ${fieldConfig.label || fieldName}`}
+            maxHeight="50vh"
+            minHeight="60px"
           />
         );
       case 'number':
@@ -582,7 +585,7 @@ const ChallengeCreator = () => {
                     <label>Correct Answer Feedback{fieldConfig.required && <span className="required">*</span>}</label>
                   </div>
                   <div className="array-item">
-                    <textarea
+                    <AutoExpandingTextArea
                       id="feedbackTexts.correct"
                       name="feedbackTexts.correct"
                       value={value?.correct || ''}
@@ -594,6 +597,8 @@ const ChallengeCreator = () => {
                       }}
                       required={fieldConfig.required}
                       placeholder="Enter feedback for correct answers"
+                      maxHeight="50vh"
+                      minHeight="60px"
                     />
                   </div>
                 </div>
@@ -620,7 +625,7 @@ const ChallengeCreator = () => {
                       >
                         <FontAwesomeIcon icon={faBan} />
                       </button>
-                      <textarea
+                      <AutoExpandingTextArea
                         name={`feedbackTexts.incorrect.${index}`}
                         value={feedback}
                         onChange={(e) => handleFeedbackChange(e, 'incorrect', index)}
@@ -631,6 +636,8 @@ const ChallengeCreator = () => {
                         }}
                         required={fieldConfig.required}
                         placeholder="Enter feedback for incorrect answers"
+                        maxHeight="50vh"
+                        minHeight="60px"
                       />
                     </div>
                   ))}
@@ -712,8 +719,8 @@ const ChallengeCreator = () => {
         <h2>{isEditing ? 'Edit Challenge' : 'Create New Challenge'}</h2>
         {/* Save/Cancel Buttons - Always visible for new challenges */}
         <div className={`button-container ${(!isEditing || showButtons) ? '' : 'sliding-up'}`}>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="save-button"
             disabled={validateFields().length > 0}
           >

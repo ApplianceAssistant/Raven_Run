@@ -38,8 +38,8 @@
       position: relative;
       border: none;
       width: 100%;
-      max-width: 400px;
       cursor: pointer;
+      margin-bottom: 1rem;
 
       .game-content {
         height: 100%;
@@ -86,6 +86,26 @@
         opacity: 0.8;
       }
 
+      .game-visibility {
+        margin: 5px 0;
+        
+        .visibility-badge {
+          display: inline-block;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 0.85rem;
+          font-weight: 500;
+          
+          &.public {
+            background-color: var(--success-color, #4CAF50);
+          }
+          
+          &.private {
+            background-color: var(--button-bg-caution, #FFC107);
+          }
+        }
+      }
+
       .btn-remove {
         position: absolute;
         bottom: 1rem;
@@ -107,7 +127,6 @@
         &:hover {
           opacity: 1;
           transform: scale(1.1);
-          background-color: var(--button-bg-caution);
 
           &::after {
             content: 'Delete Game';
@@ -531,7 +550,7 @@
       }
 
       .challenge-item {
-        background-color: var(--input-bg);
+        background-color: var(--modal-bg);
         border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 16px;

@@ -571,23 +571,6 @@ canvas {
   margin-bottom: 0.5rem;
 }
 
-//lobby styles
-.game-list {
-  list-style-type: none;
-  padding: 10px;
-  min-width: 250px;
-
-  .game-item {
-    margin-bottom: 10px;
-
-    button {
-      height: auto;
-      width: 100%;
-      padding: 10px;
-    }
-  }
-}
-
 .day-only-indicator {
   font-size: 1rem;
   opacity: 0.7;
