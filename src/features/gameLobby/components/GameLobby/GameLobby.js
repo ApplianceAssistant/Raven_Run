@@ -7,6 +7,7 @@ import ScrollableContent from '../../../../components/ScrollableContent';
 import { getUserUnitPreference, authFetch, API_URL } from '../../../../utils/utils';
 import { getHuntProgress, clearHuntProgress } from '../../../../utils/huntProgressUtils';
 import { downloadGame } from '../../../gameplay/services/gameplayService';
+import { clearPlaytestState } from '../../../../utils/localStorageUtils';
 import './GameLobby.scss';
 
 const GameLobby = () => {
@@ -102,13 +103,29 @@ const GameLobby = () => {
         loadGames(1);
     };
 
-    const handleGameSelect = (gameId) => {
-        const progress = getHuntProgress();
-        if (progress) {
-            setSelectedGameId(gameId);
-            setIsModalOpen(true);
-        } else {
+    const handleGameSelect = async (gameId) => {
+        try {
+            // Clear any existing playtest state
+            clearPlaytestState();
+            
+            // Check if there's existing progress
+            const progress = getHuntProgress();
+            if (progress?.gameId === gameId) {
+                setSelectedGameId(gameId);
+                setIsModalOpen(true);
+                return;
+            }
+
+            // Download and start new game
+            const game = await downloadGame(gameId);
+            if (!game) {
+                throw new Error('Failed to download game');
+            }
+
             navigate(`/gamedescription/${gameId}`);
+        } catch (error) {
+            console.error('Error selecting game:', error);
+            setError('Failed to load game. Please try again.');
         }
     };
 

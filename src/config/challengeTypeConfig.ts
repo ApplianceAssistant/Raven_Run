@@ -30,7 +30,7 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
   },
   multipleChoice: {
     title: { required: true, type: 'text', label: 'Title' },
-    question: { required: true, type: 'text', label: 'Question' },
+    question: { required: true, type: 'textarea', label: 'Question' },
     options: { required: true, type: 'array', label: 'Answer Options' },
     correctAnswer: { required: true, type: 'text', label: 'Correct Answer' },
     hints: { required: false, type: 'array', label: 'Hints' },
@@ -39,7 +39,7 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
   },
   trueFalse: {
     title: { required: true, type: 'text', label: 'Title' },
-    question: { required: true, type: 'text', label: 'Question' },
+    question: { required: true, type: 'textarea', label: 'Question' },
     correctAnswer: { required: true, type: 'boolean', label: 'Correct Answer' },
     hints: { required: false, type: 'array', label: 'Hints' },
     feedbackTexts: { required: false, type: 'feedback', label: 'Challenge Feedback' },
@@ -47,7 +47,7 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
   },
   textInput: {
     title: { required: true, type: 'text', label: 'Title' },
-    question: { required: true, type: 'text', label: 'Question' },
+    question: { required: true, type: 'textarea', label: 'Question' },
     correctAnswer: { required: true, type: 'text', label: 'Correct Answer' },
     hints: { required: false, type: 'array', label: 'Hints' },
     feedbackTexts: { required: false, type: 'feedback', label: 'Challenge Feedback' },

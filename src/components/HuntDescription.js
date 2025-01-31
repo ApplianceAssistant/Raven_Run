@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ScrollableContent from './ScrollableContent';
 import TextToSpeech from './TextToSpeech';
@@ -7,7 +7,10 @@ import { getUserUnitPreference, cleanText } from '../utils/utils';
 import { getLargeDistanceUnit, convertDistance } from '../utils/unitConversion';
 import { useSettings } from '../utils/SettingsContext';
 import { loadGame, downloadGame } from '../features/gameplay/services/gameplayService';
-import { getDownloadedGame } from '../utils/localStorageUtils';
+import { getDownloadedGame, getPlaytestState } from '../utils/localStorageUtils';
+import { handlePlaytestQuit } from '../features/gameCreation/services/gameCreatorService';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 import '../css/HuntDescription.scss';
 
@@ -22,15 +25,21 @@ const HuntDescription = () => {
     const { settings } = useSettings();
     const isMetric = getUserUnitPreference();
 
+    // Memoize the playtest state to avoid checks during render
+    const isPlaytestMode = useMemo(() => {
+        const playtestState = getPlaytestState();
+        return playtestState?.gameId === gameId;
+    }, [gameId]);
+
     useEffect(() => {
         const getGameData = async () => {
             try {
                 setLoading(true);
                 setError(null);
-                
+
                 // Try to load the game (this will check local storage first)
                 const gameData = await loadGame(gameId);
-                
+
                 if (!gameData) {
                     throw new Error('Game not found');
                 }
@@ -40,8 +49,8 @@ const HuntDescription = () => {
                     ...gameData,  // Keep all original properties
                     title: gameData.title || 'Untitled Adventure',
                     difficulty: gameData.difficulty || 'Normal',
-                    distance: typeof gameData.distance === 'number' ? gameData.distance : 
-                             typeof gameData.distance === 'string' ? parseFloat(gameData.distance) : 0,
+                    distance: typeof gameData.distance === 'number' ? gameData.distance :
+                        typeof gameData.distance === 'string' ? parseFloat(gameData.distance) : 0,
                     estimatedTime: parseInt(gameData.estimatedTime) || 60,
                     creator_name: gameData.creator_name || 'Anonymous',
                     description: gameData.description || 'No description available',
@@ -79,6 +88,12 @@ const HuntDescription = () => {
         }
     };
 
+    const handleQuit = () => {
+        if (!handlePlaytestQuit(gameId, navigate)) {
+            navigate('/games');
+        }
+    };
+
     const disclaimerContent = (
         <div>
             <p>CrowTours.com reminds you to <b>HAVE FUN</b> but also remember to <b>BE SAFE</b>!</p>
@@ -107,16 +122,19 @@ const HuntDescription = () => {
     if (error || !game) {
         return <div>Game not found</div>;
     }
+
+    const distanceDisplay = convertDistance(game.distance, true, isMetric) + ' ' + getLargeDistanceUnit(isMetric);
+
     return (
         <div className="hunt-description">
             <div className="hunt-header">
                 <h1>{game.title}</h1>
                 <div className="meta-info">
-                    <span className="difficulty">Difficulty: {game.difficulty}</span>
-                    <span className="duration">Duration: {game.estimatedTime} minutes</span>
-                    <span className="distance"><i className="fas fa-route"></i> Distance: {convertDistance(game.distance, true, isMetric)} {getLargeDistanceUnit(isMetric)}</span>
+                    <p>Created by: {game.creator_name}</p>
+                    <p>Difficulty: {game.difficulty}</p>
+                    <p>Distance: {distanceDisplay}</p>
+                    <p>Estimated Time: {game.estimatedTime} minutes</p>
                 </div>
-                <div className="creator">Created by: {game.creator_name || 'Anonymous'}</div>
             </div>
             <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 50)">
                 <div className="hunt-content">
@@ -126,6 +144,15 @@ const HuntDescription = () => {
                 </div>
             </ScrollableContent>
             <div className="button-container">
+                {isPlaytestMode && (
+                    <button
+                        className="back-to-editor"
+                        onClick={handleQuit}
+                        title="Return to game editor"
+                    >
+                        <FontAwesomeIcon icon={faPenToSquare} /> Back to Editor
+                    </button>
+                )}
                 <TextToSpeech
                     text={game.description}
                     autoPlayTrigger={settings.autoSpeak}
@@ -134,7 +161,6 @@ const HuntDescription = () => {
                     Start Hunt
                 </button>
             </div>
-            
 
             <ModalAgreement
                 isOpen={isModalOpen}

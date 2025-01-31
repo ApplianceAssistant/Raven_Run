@@ -9,20 +9,11 @@ const ScrollableContent = ({ children, maxHeight = 'calc(var(--content-vh, 1vh) 
   const checkScrollState = () => {
     const content = bodyRef.current;
     if (!content) {
-      console.log('ScrollableContent: bodyRef not found');
       return;
     }
 
     const { scrollTop, scrollHeight, clientHeight } = content;
     const isScrollable = scrollHeight > clientHeight;
-
-    console.log('ScrollableContent Debug:', {
-      scrollTop,
-      scrollHeight,
-      clientHeight,
-      isScrollable,
-      currentState: scrollState
-    });
 
     let newState = 'none';
     if (!isScrollable) {
@@ -36,7 +27,6 @@ const ScrollableContent = ({ children, maxHeight = 'calc(var(--content-vh, 1vh) 
     }
 
     if (newState !== scrollState) {
-      console.log('ScrollableContent: State changing from', scrollState, 'to', newState);
       setScrollState(newState);
     }
   };
@@ -45,11 +35,9 @@ const ScrollableContent = ({ children, maxHeight = 'calc(var(--content-vh, 1vh) 
     const content = bodyRef.current;
     if (!content) return;
 
-    console.log('ScrollableContent: Setting up listeners and observer');
 
     // Setup ResizeObserver
     resizeObserverRef.current = new ResizeObserver(() => {
-      console.log('ScrollableContent: Resize detected');
       checkScrollState();
     });
     resizeObserverRef.current.observe(content);
@@ -59,12 +47,10 @@ const ScrollableContent = ({ children, maxHeight = 'calc(var(--content-vh, 1vh) 
 
     // Initial check after a short delay to ensure content is rendered
     setTimeout(() => {
-      console.log('ScrollableContent: Initial check after delay');
       checkScrollState();
     }, 100);
 
     return () => {
-      console.log('ScrollableContent: Cleaning up listeners');
       content.removeEventListener('scroll', checkScrollState);
       window.removeEventListener('resize', checkScrollState);
       if (resizeObserverRef.current) {
@@ -78,8 +64,6 @@ const ScrollableContent = ({ children, maxHeight = 'calc(var(--content-vh, 1vh) 
     ...style,
     ...(maxHeight ? { maxHeight } : {})
   };
-
-  console.log('ScrollableContent: Rendering with scroll state:', scrollState);
 
   return (
     <div 

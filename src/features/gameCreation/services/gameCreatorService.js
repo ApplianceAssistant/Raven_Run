@@ -5,6 +5,7 @@ import {
   calculateDistance 
 } from '../../../utils/utils';
 import { getGamesFromLocalStorage, normalizeGame, saveGameToLocalStorage, deleteGameFromLocalStorage } from '../../../utils/localStorageUtils';
+import { getPlaytestState, clearPlaytestState } from '../../../utils/localStorageUtils';
 
 /**
  * @typedef {import('../../../types/games').Game} Game
@@ -290,4 +291,20 @@ export const getGames = async () => {
 
 export const deleteGame = async (gameId) => {
   await deleteGameFromLocalStorage(gameId);
+};
+
+/**
+ * Handle quitting from playtest mode and returning to editor
+ * @param {string} gameId - Current game ID
+ * @param {Function} navigate - React Router navigate function
+ * @returns {void}
+ */
+export const handlePlaytestQuit = (gameId, navigate) => {
+    const playtestState = getPlaytestState();
+    if (playtestState?.gameId === gameId) {
+        clearPlaytestState();
+        navigate(`/create/edit/${gameId}`);
+        return true;
+    }
+    return false;
 };

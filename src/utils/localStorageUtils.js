@@ -8,6 +8,7 @@ import { encryptData, decryptData } from './encryption';
 const CUSTOM_GAMES_KEY = 'Custom_Games';
 const DOWNLOADED_GAMES_KEY = 'Downloaded_Games';
 const DEBUG_STORAGE_KEY = 'Debug_Custom_Games';
+const PLAYTEST_KEY = 'Playtest_State';
 
 /**
  * @returns {Game[]}
@@ -418,5 +419,42 @@ export const clearGamesFromLocalStorage = () => {
     localStorage.removeItem(DEBUG_STORAGE_KEY);
   } catch (error) {
     console.error('Error clearing games from localStorage:', error);
+  }
+};
+
+/**
+ * Set playtest state
+ * @param {string} gameId - ID of game being playtested
+ */
+export const setPlaytestState = (gameId) => {
+  try {
+    localStorage.setItem(PLAYTEST_KEY, JSON.stringify({ gameId }));
+  } catch (error) {
+    console.error('Error setting playtest state:', error);
+  }
+};
+
+/**
+ * Get playtest state
+ * @returns {{ gameId: string } | null}
+ */
+export const getPlaytestState = () => {
+  try {
+    const state = localStorage.getItem(PLAYTEST_KEY);
+    return state ? JSON.parse(state) : null;
+  } catch (error) {
+    console.error('Error getting playtest state:', error);
+    return null;
+  }
+};
+
+/**
+ * Clear playtest state
+ */
+export const clearPlaytestState = () => {
+  try {
+    localStorage.removeItem(PLAYTEST_KEY);
+  } catch (error) {
+    console.error('Error clearing playtest state:', error);
   }
 };

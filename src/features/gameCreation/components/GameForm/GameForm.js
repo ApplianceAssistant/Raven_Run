@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPlay } from '@fortawesome/free-solid-svg-icons';
 import ToggleSwitch from '../../../../components/ToggleSwitch';
 import AutoExpandingTextArea from '../../../../components/AutoExpandingTextArea/AutoExpandingTextArea';
 import ChallengeCard from '../ChallengeCard/ChallengeCard';
 import ScrollableContent from '../../../../components/ScrollableContent';
 import { isValidGame } from '../../services/gameCreatorService';
 import { useMessage } from '../../../../utils/MessageProvider';
+import { setPlaytestState } from '../../../../utils/localStorageUtils';
 import '../../../../css/GameCreator.scss';
 
 const GameForm = ({
@@ -135,6 +136,15 @@ const GameForm = ({
     }
   };
 
+  const handlePlaytest = () => {
+    console.warn("handle play test called")
+    if (formData?.gameId) {
+      console.log("Navigating to playtest")
+      setPlaytestState(formData.gameId);
+      navigate(`/gamedescription/${formData.gameId}`);
+    }
+  };
+
   return (
     <div className="creator-form">
       <button onClick={handleBack} className="back-button" title="Back to Games">
@@ -143,6 +153,15 @@ const GameForm = ({
 
       <div className="creator-header">
         <h2>{isEditing ? 'Edit Game' : 'Create New Game'}</h2>
+        {isEditing && (
+          <button
+            className="playtest-button"
+            onClick={handlePlaytest}
+            title="Playtest Game"
+          >
+            <FontAwesomeIcon icon={faPlay} /> Playtest
+          </button>
+        )}
         <div className={`button-group ${hasChanges ? 'visible' : ''} ${isAnimatingOut ? 'animating-out' : ''}`}>
           {(showButtons || isAnimatingOut) && (
             <>

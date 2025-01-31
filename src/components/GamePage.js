@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPenToSquare, faForward } from '@fortawesome/free-solid-svg-icons';
 import { Challenge } from './Challenge.js';
 import Compass from './Compass.js';
 import Modal from './Modal.js';
@@ -28,6 +30,8 @@ import { getDownloadedGame, saveDownloadedGame } from '../utils/localStorageUtil
 import { saveHuntProgress, clearHuntProgress, getHuntProgress } from '../utils/huntProgressUtils.js';
 import { playAudio } from '../utils/audioFeedback.js';
 import { loadGame } from '../features/gameplay/services/gameplayService.js';
+import { handlePlaytestQuit } from '../features/gameCreation/services/gameCreatorService.js';
+import { getPlaytestState } from '../utils/localStorageUtils.js';
 
 function GamePage() {
   const [autoPlayTrigger, setAutoPlayTrigger] = useState(0);
@@ -54,43 +58,10 @@ function GamePage() {
 
   const currentChallenge = challenges[challengeIndex];
 
-  useEffect(() => {
-    console.log("useEffect 1");
-    const loadGameData = async () => {
-      try {
-        // Load game from downloaded games or download it
-        const game = await loadGame(gameId);
-        if (!game) {
-          console.error('Game not found:', gameId);
-          navigate('/lobby');
-          return;
-        }
-
-        // Check hunt progress to prevent skipping ahead
-        const progress = getHuntProgress();
-        const requestedIndex = parseInt(urlChallengeIndex, 10) || 0;
-        
-        if (progress && progress.gameId === gameId) {
-          // If trying to access a future challenge, redirect to the last saved challenge
-          if (requestedIndex > progress.challengeIndex) {
-            console.warn('Attempted to skip ahead. Redirecting to last saved challenge:', progress.challengeIndex);
-            navigate(`/game/${gameId}/challenge/${progress.challengeIndex}`);
-            return;
-          }
-        }
-
-        // Set game data
-        setChallenges(game.challenges || []);
-        setGameName(game.title || '');
-      } catch (error) {
-        console.error('Error loading game:', error);
-        navigate('/lobby');
-      }
-    };
-
-    loadGameData();
-    setChallengeIndex(parseInt(urlChallengeIndex, 10) || 0);
-  }, [gameId, urlChallengeIndex, navigate]);
+  const isPlaytestMode = useMemo(() => {
+    const playtestState = getPlaytestState();
+    return playtestState?.gameId === gameId;
+  }, [gameId]);
 
   const updateDistanceAndCheckLocation = useCallback(() => {
     if (currentChallenge?.targetLocation && userLocation && !completedChallenges.has(challengeIndex)) {
@@ -114,21 +85,57 @@ function GamePage() {
   }, [currentChallenge, userLocation, challengeIndex, isLocationReached, completedChallenges]);
 
   useEffect(() => {
-    console.log("useEffect 2", {
-      hasCurrentChallenge: !!currentChallenge,
-      hasUserLocation: !!userLocation,
-      isLocationReached,
-      userLat: userLocation?.latitude,
-      userLng: userLocation?.longitude
-    });
-    
+    const loadGameData = async () => {
+      try {
+        // Load game from downloaded games or download it
+        const gameData = await loadGame(gameId);
+        if (!gameData) {
+          console.error('Game not found:', gameId);
+          navigate('/lobby');
+          return;
+        }
+
+        // Get progress
+        const progress = getHuntProgress();
+        const requestedIndex = parseInt(urlChallengeIndex, 10) || 0;
+
+        // In playtest mode, bypass progress checks
+        if (!isPlaytestMode && progress?.gameId === gameId && requestedIndex > progress.challengeIndex) {
+          console.warn('Attempted to skip ahead. Redirecting to last saved challenge:', progress.challengeIndex);
+          navigate(`/game/${gameId}/challenge/${progress.challengeIndex}`);
+          return;
+        }
+
+        // Check hunt progress to prevent skipping ahead
+        if (progress && progress.gameId === gameId) {
+          // If trying to access a future challenge, redirect to the last saved challenge
+          if (requestedIndex > progress.challengeIndex) {
+            console.warn('Attempted to skip ahead. Redirecting to last saved challenge:', progress.challengeIndex);
+            navigate(`/game/${gameId}/challenge/${progress.challengeIndex}`);
+            return;
+          }
+        }
+
+        // Set game data
+        setChallenges(gameData.challenges || []);
+        setGameName(gameData.title || '');
+      } catch (error) {
+        console.error('Error loading game:', error);
+        navigate('/lobby');
+      }
+    };
+
+    loadGameData();
+    setChallengeIndex(parseInt(urlChallengeIndex, 10) || 0);
+  }, [gameId, urlChallengeIndex, navigate, isPlaytestMode]);
+
+  useEffect(() => {
     if (currentChallenge && userLocation && !isLocationReached) {
       updateDistanceAndCheckLocation();
     }
   }, [currentChallenge, userLocation, isLocationReached, updateDistanceAndCheckLocation]);
 
   useEffect(() => {
-    console.log("useEffect 3 - Challenge Loading");
     if (challenges.length > 0) {
       const initialState = initializeChallengeState();
       setChallengeState(initialState);
@@ -219,9 +226,36 @@ function GamePage() {
     }, 300);
   }, [challengeIndex, challenges.length, navigate, gameId]);
 
+  const handlePlaytestNext = () => {
+    const nextIndex = challengeIndex + 1;
+    setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
+    
+    if (nextIndex < challenges.length) {
+      setChallengeIndex(nextIndex);
+      
+      // Update progress for playtest mode
+      if (isPlaytestMode) {
+        saveHuntProgress(gameId, nextIndex);
+      }
+      
+      // Use the correct URL path
+      navigate(`/game/${gameId}/challenge/${nextIndex}`, { replace: true });
+      
+      // Reset challenge state
+      setCurrentHint(0);
+      setChallengeState(initializeChallengeState());
+      setContentVisible(true);
+      setChallengeVisible(false);
+      setAutoPlayTrigger(prev => prev + 1);
+    } else {
+      // Clear hunt progress and navigate to congratulations
+      clearHuntProgress();
+      navigate('/congratulations', { state: { fromGame: gameId } });
+    }
+  };
+
   // Reset completedChallenges when changing games
   useEffect(() => {
-    console.log("useEffect 5");
     setCompletedChallenges(new Set());
   }, [gameId]);
 
@@ -314,6 +348,10 @@ function GamePage() {
     });
   };
 
+  const handleBackToEditor = () => {
+    handlePlaytestQuit(gameId, navigate);
+  };
+
   const renderButtons = () => {
     if (!currentChallenge) return null;
 
@@ -333,6 +371,24 @@ function GamePage() {
 
     return (
       <div className={`button-container-bottom visible`}>
+        {isPlaytestMode && (
+          <div className="playtest-controls">
+            <button
+              className="quit-playtest"
+              onClick={handleBackToEditor}
+              title="Return to Game Editor"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} />
+            </button>
+            <button
+              className="playtest-next"
+              onClick={handlePlaytestNext}
+              title="Skip to Next Challenge"
+            >
+              <FontAwesomeIcon icon={faForward} />
+            </button>
+          </div>
+        )}
         {(currentChallenge.description || currentChallenge.storyText || currentChallenge.question) &&
           <TextToSpeech 
             text={getTextToSpeak()}
