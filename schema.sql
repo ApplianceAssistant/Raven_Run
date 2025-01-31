@@ -129,6 +129,39 @@ CREATE TABLE `game_ratings` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `bug_reports`
+--
+
+CREATE TABLE `bug_reports` (
+  `id` int(11) NOT NULL,
+  `gameId` varchar(12) NOT NULL,
+  `userId` int(11) NOT NULL,
+  `description` text NOT NULL,
+  `status` enum('new','in_progress','resolved','wont_fix') DEFAULT 'new',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `resolved_at` timestamp NULL DEFAULT NULL,
+  `resolved_by` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Indexes for table `bug_reports`
+--
+
+ALTER TABLE `bug_reports`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `gameId` (`gameId`),
+  ADD KEY `userId` (`userId`);
+
+--
+-- AUTO_INCREMENT for table `bug_reports`
+--
+
+ALTER TABLE `bug_reports`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `password_resets`
 --
 
