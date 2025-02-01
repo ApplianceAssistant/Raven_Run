@@ -55,28 +55,23 @@ const Congratulations = () => {
     };
 
     const handleRatingSubmit = async () => {
-        if (!gameId) {
-            showError('Game information is missing');
-            return;
-        }
-
         if (rating === 0) {
-            showError('Please select a rating');
+            showError('Please select a rating before submitting feedback');
             return;
         }
 
         setIsSubmitting(true);
 
         try {
-            // Submit game rating
+            // Submit game rating and feedback
             const ratingResponse = await authFetch(`${API_URL}/server/api/games/feedback.php`, {
                 method: 'POST',
                 body: JSON.stringify({
                     action: 'rate',
-                    gameId,
+                    gameId: gameId || '',
                     rating,
-                    review: comment,
-                    suggestedDifficulty
+                    review: comment || '',
+                    suggestedDifficulty: suggestedDifficulty || ''
                 })
             });
 
@@ -88,7 +83,7 @@ const Congratulations = () => {
                     method: 'POST',
                     body: JSON.stringify({
                         action: 'report_bug',
-                        gameId,
+                        gameId: gameId || '',
                         description: bugReport
                     })
                 });
@@ -184,7 +179,7 @@ const Congratulations = () => {
                         <button
                             className="submit-button"
                             onClick={handleRatingSubmit}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || rating === 0 || (rating === 0 && (comment || bugReport || suggestedDifficulty))}
                         >
                             {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
                         </button>
