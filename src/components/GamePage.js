@@ -9,8 +9,6 @@ import SkipCountdown from './SkipCountdown.js';
 import Congratulations from './Congratulations.js';
 import { useSettings } from '../utils/SettingsContext.js';
 import {
-  getChallenges,
-  getGameTitle,
   initializeChallengeState,
   updateChallengeState,
   shouldDisplaySubmitButton,
@@ -26,7 +24,6 @@ import {
 import { handleError } from '../utils/utils.js';
 import { useLocationWatcher } from '../hooks/locationWatcher.js';
 import TextToSpeech from './TextToSpeech.js';
-import { getDownloadedGame, saveDownloadedGame } from '../utils/localStorageUtils.js';
 import { saveHuntProgress, clearHuntProgress, getHuntProgress } from '../utils/huntProgressUtils.js';
 import { playAudio } from '../utils/audioFeedback.js';
 import { loadGame } from '../features/gameplay/services/gameplayService.js';

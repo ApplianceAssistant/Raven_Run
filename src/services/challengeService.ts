@@ -161,16 +161,6 @@ export function getGame(gameId: string) {
   };
 }
 
-export function getChallenges(gameId: string): Challenge[] {
-  const game = getGame(gameId);
-  return game?.challenges || [];
-}
-
-export function getGameTitle(gameId: string): string {
-  const game = getGame(gameId);
-  return game?.title || 'Unknown Game';
-}
-
 export function getNextHint(challenge: Challenge): string {
   if (hasHints(challenge)) {
     let hintIndex = hintIndexMap.get(challenge.id) ?? -1;
@@ -326,8 +316,6 @@ export function shouldDisplaySubmitButton(challenge: Challenge, state: Challenge
 
 export default {
   getGame,
-  getChallenges,
-  getGameTitle,
   checkLocationReached,
   checkAnswer,
   getNextIncorrectFeedback,
