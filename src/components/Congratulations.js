@@ -39,11 +39,12 @@ const Congratulations = () => {
 
     const fetchGameDetails = async () => {
         try {
-            const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}`);
+            const isPlaytest = getPlaytestState()?.gameId === gameId;
+            const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}${isPlaytest ? '&playtest=true' : ''}`);
             if (!response.ok) throw new Error('Failed to fetch game details');
             const data = await response.json();
-            if (data.success && data.game) {
-                setCurrentDifficulty(data.game.difficulty_level || 'medium');
+            if (data.status === 'success' && data.data.game) {
+                setCurrentDifficulty(data.data.game.difficulty_level || 'medium');
             }
         } catch (error) {
             console.error('Error fetching game details:', error);

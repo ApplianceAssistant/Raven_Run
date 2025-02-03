@@ -49,8 +49,12 @@ try {
 
     // Skip authentication for public endpoints
     $skipAuth = false;
-    if ($method === 'GET' && ($action === 'public_games' || $action === 'get')) {
-        $skipAuth = true;
+    if ($method === 'GET') {
+        if ($action === 'public_games') {
+            $skipAuth = true;
+        } elseif ($action === 'get' && (!isset($_GET['playtest']) || $_GET['playtest'] !== 'true')) {
+            $skipAuth = true;
+        }
     }
 
     // Authenticate user for protected routes
@@ -60,9 +64,9 @@ try {
             http_response_code(401);
             echo json_encode([
                 'status' => 'error',
-                'message' => 'Unauthorized access'
-            ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
-            exit(0);
+                'message' => 'Unauthorized'
+            ]);
+            exit;
         }
     }
 
@@ -198,6 +202,7 @@ try {
 
             } elseif ($action === 'get' && isset($_GET['gameId'])) {
                 $gameId = $_GET['gameId'];
+                $isPlaytest = isset($_GET['playtest']) && $_GET['playtest'] === 'true';
                 error_log("Fetching game with ID: " . $gameId);
                 
                 // Modified query to get game data for public games without requiring user authentication
@@ -217,10 +222,11 @@ try {
                         g.estimated_time,
                         g.tags,
                         g.dayOnly,
+                        g.user_id,
                         u.username as creator_name
                     FROM games g
                     LEFT JOIN users u ON g.user_id = u.id
-                    WHERE g.gameId = ? AND g.is_public = 1
+                    WHERE g.gameId = ? AND (g.is_public = 1 OR (? AND g.user_id = ?))
                 ");
                 
                 if (!$stmt) {
@@ -234,8 +240,8 @@ try {
                     exit;
                 }
 
-                $stmt->bind_param("s", $gameId);
-                
+                $stmt->bind_param("sis", $gameId, $isPlaytest, $user['id']);
+
                 if (!$stmt->execute()) {
                     error_log("Failed to execute statement: " . $stmt->error);
                     http_response_code(500);
@@ -248,57 +254,28 @@ try {
                 }
 
                 $result = $stmt->get_result();
-                if ($game = $result->fetch_assoc()) {
-                    error_log("Game found, processing data");
-                    // Format the game data consistently with public_games endpoint
-                    $formattedGame = [
-                        'id' => $game['gameId'],
-                        'title' => $game['title'],
-                        'description' => $game['description'],
-                        'challenges' => json_decode($game['challenge_data'], true),
-                        'isPublic' => (bool)$game['is_public'],
-                        'difficulty' => $game['difficulty_level'],
-                        'distance' => (float)$game['distance'],
-                        'estimatedTime' => (int)$game['estimated_time'],
-                        'tags' => $game['tags'] !== null ? json_decode($game['tags'], true) : [],
-                        'dayOnly' => (bool)$game['dayOnly'],
-                        'startLocation' => [
-                            'latitude' => (float)$game['start_latitude'],
-                            'longitude' => (float)$game['start_longitude']
-                        ],
-                        'creator_name' => $game['creator_name']
-                    ];
-                    error_log("Successfully processed game data" . json_encode($formattedGame));
-                    
-                    // Clear any previous output
-                    if (ob_get_length()) ob_clean();
-                    
-                    // Ensure headers are set
-                    header('Content-Type: application/json; charset=utf-8');
-                    
-                    // Send response and exit with same structure as public_games
-                    echo json_encode([
-                        'status' => 'success',
-                        'data' => $formattedGame
-                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
-                    exit;
-                } else {
-                    error_log("Game not found with ID: " . $gameId);
-                    http_response_code(404);
-                    
-                    // Clear any previous output
-                    if (ob_get_length()) ob_clean();
-                    
-                    // Ensure headers are set
-                    header('Content-Type: application/json; charset=utf-8');
-                    
-                    // Send error response and exit
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => 'Game not found or is not public'
-                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                $game = $result->fetch_assoc();
+
+                if (!$game) {
+                    sendError('Game not found') ;
                     exit;
                 }
+
+                // For playtest mode, allow access if user is the game creator
+                if ($isPlaytest && $game['user_id'] === $user['id']) {
+                    sendSuccess(['game' => $game]);
+                    exit;
+                }
+
+                // Otherwise check normal visibility rules
+                if ($game['is_public'] === 0 && $game['user_id'] !== $user['id']) {
+                    sendError('Game not found') ;
+                    exit;
+                }
+
+                sendSuccess(['game' => $game]);
+                exit;
+
             } elseif ($action === 'get_games') {
                 error_log("Fetching games for user ID: " . $user['id']);
                 
@@ -636,7 +613,7 @@ try {
                     error_log("Game not found");
                     echo json_encode([
                         'status' => 'error',
-                        'message' => 'Game not found'
+                        'message' => 'Game not found for delete'
                     ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
                     exit;
                 }
@@ -714,4 +691,22 @@ try {
 } finally {
     // Release the connection but don't close it
     releaseDbConnection();
+}
+
+function sendError($message) {
+    http_response_code(400);
+    echo json_encode([
+        'status' => 'error',
+        'message' => $message
+    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
+}
+
+function sendSuccess($data) {
+    http_response_code(200);
+    echo json_encode([
+        'status' => 'success',
+        'data' => $data
+    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
 }
