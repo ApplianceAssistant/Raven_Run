@@ -2,11 +2,13 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faChevronDown, faChevronUp, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { AuthContext } from '../App';
 import { API_URL, authFetch } from '../utils/utils';
 import ScrollableContent from './ScrollableContent';
 import { useMessage } from '../utils/MessageProvider';
+import { getPlaytestState } from '../utils/localStorageUtils';
+import { handlePlaytestQuit } from '../features/gameCreation/services/gameCreatorService';
 import '../css/Congratulations.scss';
 
 const Congratulations = () => {
@@ -179,9 +181,10 @@ const Congratulations = () => {
                         <button
                             className="submit-button"
                             onClick={handleRatingSubmit}
-                            disabled={isSubmitting || rating === 0 || (rating === 0 && (comment || bugReport || suggestedDifficulty))}
+                            disabled={isSubmitting || rating === 0 || getPlaytestState()}
                         >
-                            {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
+                            {isSubmitting ? 'Submitting...' : 
+                             getPlaytestState() ? 'Feedback unavailable for playtest' : 'Submit Feedback'}
                         </button>
                     </div>
                 </div>
@@ -197,6 +200,16 @@ const Congratulations = () => {
                     >
                         Join the Flock!
                     </a>
+                    {getPlaytestState() && (
+                        <button
+                            className="button-link"
+                            onClick={() => {
+                                handlePlaytestQuit(gameId, navigate);
+                            }}
+                        >
+                            <FontAwesomeIcon icon={faPenToSquare} /> Quit Playtest
+                        </button>
+                    )}
                 </p>
             </div>
 

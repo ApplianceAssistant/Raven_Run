@@ -356,6 +356,30 @@ export const saveGameToLocalStorage = async (gameData) => {
       } else {
         games.push(normalizedGame);
       }
+
+      // Also update in Downloaded_Games
+      try {
+        const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
+        let downloadedGames = {};
+        if (storedData) {
+          try {
+            downloadedGames = JSON.parse(storedData);
+          } catch {
+            try {
+              downloadedGames = decryptData(storedData) || {};
+            } catch (decryptError) {
+              console.error('Error decrypting existing games:', decryptError);
+            }
+          }
+        }
+        downloadedGames[normalizedGame.gameId] = normalizedGame;
+        const encryptedDownloadedGames = await encryptData(downloadedGames);
+        if (encryptedDownloadedGames) {
+          localStorage.setItem(DOWNLOADED_GAMES_KEY, encryptedDownloadedGames);
+        }
+      } catch (error) {
+        console.error('Error updating Downloaded_Games:', error);
+      }
     }
 
     // Remove old games if we exceed storage limit

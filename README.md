@@ -3,6 +3,81 @@
 ## Project Overview
 Raven Run is a web-based scavenger hunt application that allows users to create and participate in location-based challenges and games. The application supports various challenge types including travel/location-based challenges, multiple choice questions, true/false questions, and story-based challenges.
 
+## Development Conversation Guidelines
+
+### Communication and Code Changes
+1. Before making any code changes:
+   - Outline the planned changes
+   - Wait for approval before proceeding
+   - Break down complex changes into smaller, manageable steps
+
+2. When proposing changes:
+   - Explain which files will be modified/created
+   - Describe the purpose of each change
+   - Only show code drafts when specifically requested
+
+3. After approval:
+   - Proceed with implementing the agreed-upon changes
+   - DO NOT make changes that are unrelated to the proposed changes
+   - Follow the existing patterns and conventions
+   - Maintain consistent error handling and logging
+
+### File Modifications
+1. **Pre-modification Approval**
+   - Always explain planned changes before modifying any files
+   - Get explicit approval before proceeding with modifications
+   - Provide clear reasoning for proposed changes
+
+2. **Clarification Requirements**
+   - Ask all necessary questions before starting modifications
+   - Seek clarification on ambiguous requirements
+   - Confirm understanding before implementing changes
+
+3. **New File Creation**
+   - Always request permission before creating new files
+   - Explain the purpose and necessity of new files
+   - Provide proposed file structure and content overview
+
+### Styling Guidelines
+1. **CSS Usage**
+   - Prioritize using existing styles and classes
+   - Reference current styling patterns in `src/css/`
+   - Always review _variables.scss first and do not create new style veriables
+   - Request approval before creating new styles/classes
+   - Provide justification for new style additions
+
+### Code Review Process
+1. **Before Implementation**
+   - Review existing codebase for similar functionality
+   - Identify potential impacts on other components
+   - Discuss approach and alternatives
+
+2. **During Implementation**
+   - Follow established patterns and conventions
+   - Document significant decisions
+   - Maintain consistent code style
+
+3. **After Implementation**
+   - Explain changes made
+   - Highlight any deviations from original plan
+   - Document any new patterns introduced
+
+### Communication Best Practices
+1. **Clear Intent**
+   - Explain reasoning behind proposed changes
+   - Outline expected impacts
+   - Describe alternatives considered
+
+2. **Progressive Disclosure**
+   - Break down complex changes into manageable steps
+   - Seek confirmation at key decision points
+
+3. **Documentation**
+   - Update relevant documentation alongside changes
+   - Note any new patterns or conventions
+   - Document any workarounds or temporary solutions
+
+
 ## Project Structure
 
 ### Key Directories
@@ -111,7 +186,7 @@ The application implements a robust API response handling system that works cons
    {
        "status": "success|error",
        "data": payload,      // for success responses
-       "message": "error"    // for error responses
+       "message": "success message|error message"    // for user displayable message
    }
    ```
 
@@ -252,24 +327,6 @@ The application implements a robust API response handling system that works cons
 - Clear feedback for user actions
 - Progressive disclosure of features
 
-## Development Guidelines
-
-### Communication and Code Changes
-1. Before making any code changes:
-   - Outline the planned changes
-   - Wait for approval before proceeding
-   - Break down complex changes into smaller, manageable steps
-
-2. When proposing changes:
-   - Explain which files will be modified/created
-   - Describe the purpose of each change
-   - Only show code drafts when specifically requested
-
-3. After approval:
-   - Proceed with implementing the agreed-upon changes
-   - Follow the existing patterns and conventions
-   - Maintain consistent error handling and logging
-
 ## Common Issues and Solutions
 
 1. Location Updates
@@ -294,59 +351,3 @@ The application implements a robust API response handling system that works cons
 - [ ] Social sharing capabilities
 - [ ] Achievement system
 
-## Development Conversation Guidelines
-
-### File Modifications
-1. **Pre-modification Approval**
-   - Always explain planned changes before modifying any files
-   - Get explicit approval before proceeding with modifications
-   - Provide clear reasoning for proposed changes
-
-2. **Clarification Requirements**
-   - Ask all necessary questions before starting modifications
-   - Seek clarification on ambiguous requirements
-   - Confirm understanding before implementing changes
-
-3. **New File Creation**
-   - Always request permission before creating new files
-   - Explain the purpose and necessity of new files
-   - Provide proposed file structure and content overview
-
-### Styling Guidelines
-1. **CSS Usage**
-   - Prioritize using existing styles and classes
-   - Reference current styling patterns in `src/css/`
-   - Request approval before creating new styles/classes
-   - Provide justification for new style additions
-
-### Code Review Process
-1. **Before Implementation**
-   - Review existing codebase for similar functionality
-   - Identify potential impacts on other components
-   - Discuss approach and alternatives
-
-2. **During Implementation**
-   - Follow established patterns and conventions
-   - Document significant decisions
-   - Maintain consistent code style
-
-3. **After Implementation**
-   - Explain changes made
-   - Highlight any deviations from original plan
-   - Document any new patterns introduced
-
-### Communication Best Practices
-1. **Clear Intent**
-   - Explain reasoning behind proposed changes
-   - Outline expected impacts
-   - Describe alternatives considered
-
-2. **Progressive Disclosure**
-   - Break down complex changes into manageable steps
-   - Seek confirmation at key decision points
-   - Provide regular progress updates
-
-3. **Documentation**
-   - Update relevant documentation alongside changes
-   - Note any new patterns or conventions
-   - Document any workarounds or temporary solutions
