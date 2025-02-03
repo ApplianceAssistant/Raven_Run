@@ -437,6 +437,9 @@ try {
                 $description = $game['description'];
                 $isPublic = $game['is_public'] ? 1 : 0;
                 $challengeData = json_encode($game['challenges']);
+                $difficultyLevel = $game['difficulty'] ?? 'medium';
+                $tags = json_encode($game['tags'] ?? []);
+                $dayOnly = $game['day_only'] ? 1 : 0;
 
                 // Initialize location variables
                 $startLat = null;
@@ -527,10 +530,13 @@ try {
                             start_longitude = ?,
                             end_latitude = ?,
                             end_longitude = ?,
-                            distance = ?
+                            distance = ?,
+                            difficulty_level = ?,
+                            tags = ?,
+                            dayOnly = ?
                         WHERE gameId = ?"
                     );
-                    $stmt->bind_param("ssisddddds", 
+                    $stmt->bind_param("ssisdddddssis", 
                         $title, 
                         $description, 
                         $isPublic, 
@@ -540,6 +546,9 @@ try {
                         $endLat,
                         $endLong,
                         $distance,
+                        $difficultyLevel,
+                        $tags,
+                        $dayOnly,
                         $gameId
                     );
                 } else {
@@ -547,10 +556,11 @@ try {
                     $stmt = $conn->prepare(
                         "INSERT INTO games 
                         (gameId, user_id, title, description, is_public, challenge_data, 
-                         start_latitude, start_longitude, end_latitude, end_longitude, distance) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                         start_latitude, start_longitude, end_latitude, end_longitude, distance,
+                         difficulty_level, tags, dayOnly) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     );
-                    $stmt->bind_param("ssssisddddd", 
+                    $stmt->bind_param("ssssisddddssis", 
                         $gameId, 
                         $user['id'], 
                         $title, 
@@ -561,7 +571,10 @@ try {
                         $startLong,
                         $endLat,
                         $endLong,
-                        $distance
+                        $distance,
+                        $difficultyLevel,
+                        $tags,
+                        $dayOnly
                     );
                 }
 

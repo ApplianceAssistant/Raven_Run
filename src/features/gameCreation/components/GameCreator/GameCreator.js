@@ -22,7 +22,10 @@ const GameCreator = () => {
     description: '', 
     isPublic: false, 
     gameId: '', 
-    challenges: [] 
+    challenges: [],
+    difficulty_level: 'medium',
+    tags: [],
+    dayOnly: false
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [gameToDelete, setGameToDelete] = useState(null);
@@ -54,7 +57,10 @@ const GameCreator = () => {
           description: game.description || '',
           isPublic: game.isPublic ?? false,
           gameId: game.gameId,
-          challenges: game.challenges || []
+          challenges: game.challenges || [],
+          difficulty_level: game.difficulty || game.difficulty_level || 'medium',
+          tags: game.tags || [],
+          dayOnly: game.dayOnly || false
         });
       } else {
         console.warn('Game not found for ID:', gameId);
@@ -79,7 +85,10 @@ const GameCreator = () => {
       description: '', 
       isPublic: false, 
       gameId, 
-      challenges: [] 
+      challenges: [],
+      difficulty_level: 'medium',
+      tags: [],
+      dayOnly: false
     };
     console.log('Created newGame object:', newGame);
     
@@ -87,28 +96,6 @@ const GameCreator = () => {
     console.log('Set newGameData:', newGame);
     
     navigate('/create/new');
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const newGame = {
-        title: newGameData.title,
-        description: newGameData.description,
-        isPublic: newGameData.isPublic,
-        challenges: [],
-        isSynced: false
-      };
-      
-      const savedGame = await saveGame(newGame);
-      
-      dispatch({ type: 'SET_GAMES', payload: [...games, savedGame] });
-      setShowGameForm(false);
-      navigate(`/create/edit/${savedGame.gameId}`);
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: error.message });
-    }
   };
 
   const validateGameData = (gameData) => {
@@ -147,6 +134,9 @@ const GameCreator = () => {
         title: gameData.title.trim(),
         description: gameData.description.trim(),
         isPublic: gameData.isPublic ?? false,
+        difficulty_level: gameData.difficulty_level || 'medium',
+        tags: gameData.tags || [],
+        dayOnly: gameData.dayOnly || false,
         challenges: mergedChallenges,
         isSynced: false,
         lastModified: new Date().toISOString()

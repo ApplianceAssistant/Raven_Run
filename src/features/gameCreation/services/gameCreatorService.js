@@ -138,8 +138,29 @@ export const generateUniqueGameId = async () => {
 };
 
 export const isValidGame = (game) => {
-  return game.title && game.title.trim() !== '' &&
-         game.description && game.description.trim() !== '';
+  // Required fields
+  if (!game.title || game.title.trim() === '' ||
+      !game.description || game.description.trim() === '') {
+    return false;
+  }
+
+  // Validate difficulty level
+  if (game.difficulty_level && 
+      !['easy', 'medium', 'hard'].includes(game.difficulty_level)) {
+    return false;
+  }
+
+  // Validate tags array
+  if (game.tags && !Array.isArray(game.tags)) {
+    return false;
+  }
+
+  // Validate dayOnly boolean
+  if (game.dayOnly !== undefined && typeof game.dayOnly !== 'boolean') {
+    return false;
+  }
+
+  return true;
 };
 
 export const saveGame = async (gameData) => {
@@ -183,6 +204,9 @@ export const saveGame = async (gameData) => {
       const apiGameData = {
         ...gameData,
         is_public: gameData.isPublic,
+        difficulty: gameData.difficulty_level || 'medium',
+        tags: gameData.tags || [],
+        day_only: gameData.dayOnly || false,
         start_latitude: locationData.startLat,
         start_longitude: locationData.startLong,
         end_latitude: locationData.endLat,

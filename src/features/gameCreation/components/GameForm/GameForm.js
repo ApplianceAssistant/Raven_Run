@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPlay, faInfoCircle, faPlusCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
 import ToggleSwitch from '../../../../components/ToggleSwitch';
 import AutoExpandingTextArea from '../../../../components/AutoExpandingTextArea/AutoExpandingTextArea';
 import ChallengeCard from '../ChallengeCard/ChallengeCard';
@@ -24,19 +24,27 @@ const GameForm = ({
     description: '',
     isPublic: false,
     gameId: '',
-    challenges: []
+    challenges: [],
+    difficulty_level: 'medium',
+    tags: [],
+    dayOnly: false
   });
   const [originalData, setOriginalData] = useState({
     title: '',
     description: '',
     isPublic: false,
     gameId: '',
-    challenges: []
+    challenges: [],
+    difficulty_level: 'medium',
+    tags: [],
+    dayOnly: false
   });
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+  const [showTagInput, setShowTagInput] = useState(false);
+  const [newTag, setNewTag] = useState('');
 
   // Initialize both formData and originalData when gameData changes
   useEffect(() => {
@@ -46,7 +54,10 @@ const GameForm = ({
       description: gameData.description || '',
       isPublic: gameData.isPublic || false,
       gameId: gameData.gameId || '',
-      challenges: gameData.challenges || []
+      challenges: gameData.challenges || [],
+      difficulty_level: gameData.difficulty || gameData.difficulty_level || 'medium',
+      tags: gameData.tags || [],
+      dayOnly: gameData.dayOnly || false
     };
     setFormData(initialData);
     setOriginalData(JSON.parse(JSON.stringify(initialData)));
@@ -59,8 +70,21 @@ const GameForm = ({
 
   useEffect(() => {
     const hasDataChanges = Object.keys(formData).some(key => {
-      const isDifferent = JSON.stringify(formData[key]) !== JSON.stringify(originalData[key]);
-      return isDifferent;
+      // Skip comparison if values are undefined or null
+      if (!formData[key] && !originalData[key]) return false;
+      
+      try {
+        // Handle special cases for DOM events and complex objects
+        if (typeof formData[key] === 'object' || typeof originalData[key] === 'object') {
+          return JSON.stringify(formData[key]) !== JSON.stringify(originalData[key]);
+        }
+        // Simple comparison for primitive values
+        return formData[key] !== originalData[key];
+      } catch (error) {
+        console.warn('Comparison error for key:', key, error);
+        // If JSON stringify fails, do a direct comparison
+        return formData[key] !== originalData[key];
+      }
     });
     setHasChanges(hasDataChanges);
   }, [formData, originalData]);
@@ -81,11 +105,42 @@ const GameForm = ({
   }, [hasChanges]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+  const handleAddTag = () => {
+    if (newTag.trim()) {
+      const trimmedTag = newTag.trim();
+      if (!formData.tags.includes(trimmedTag)) {
+        setFormData(prev => ({
+          ...prev,
+          tags: [...prev.tags, trimmedTag]
+        }));
+      }
+      setNewTag('');
+      setShowTagInput(false);
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  const handleTagInputKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    } else if (e.key === 'Escape') {
+      setShowTagInput(false);
+      setNewTag('');
+    }
   };
 
   const handlePublicToggle = (e) => {
@@ -93,6 +148,13 @@ const GameForm = ({
     setFormData(prev => ({
       ...prev,
       isPublic: isChecked
+    }));
+  };
+
+  const handleDayOnlyToggle = (isChecked) => {
+    setFormData(prev => ({
+      ...prev,
+      dayOnly: isChecked
     }));
   };
 
@@ -178,6 +240,12 @@ const GameForm = ({
             </>
           )}
         </div>
+        {formData.gameId && (
+            <>
+              
+              <span className="game-id-display"> <span className="label">Game ID: </span>{formData.gameId}</span>
+            </>
+          )}
       </div>
 
       <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 80)" className="form-content" dependencies={[formData]}>
@@ -210,22 +278,96 @@ const GameForm = ({
           </div>
 
           <div className="field-container">
-            <label>Game Visibility:</label>
-            <ToggleSwitch
-              checked={formData.isPublic}
-              onToggle={handlePublicToggle}
-              label={formData.isPublic ? 'Public Game' : 'Private Game'}
-              name="isPublic"
-              id="public-toggle"
-            />
+            <label htmlFor="difficulty_level">Difficulty Level:</label>
+            <select
+              id="difficulty_level"
+              name="difficulty_level"
+              value={formData.difficulty_level}
+              onChange={handleInputChange}
+              className="difficulty-select"
+            >
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
           </div>
 
-          {formData.gameId && (
-            <div className="field-container">
-              <label>Game ID:</label>
-              <span className="game-id-display">{formData.gameId}</span>
+          <div className="field-container tags-section">
+            <div className="section-header">
+              <label>Keywords:</label>
+              <button
+                type="button"
+                className="btn-add"
+                onClick={() => setShowTagInput(true)}
+                title="Add Keyword"
+              >
+                <FontAwesomeIcon icon={faPlusCircle} />
+              </button>
             </div>
-          )}
+
+            {showTagInput && (
+              <div className="tag-input-container">
+                <input
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={handleTagInputKeyPress}
+                  placeholder="Type keyword and press Enter"
+                  autoFocus
+                  className="tag-input"
+                />
+              </div>
+            )}
+
+            <div className="tags-display">
+              {formData.tags.map((tag, index) => (
+                <div key={index} className="tag-button">
+                  <span className="tag-text">{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(tag)}
+                    className="remove-tag"
+                    title="Remove Tag"
+                  >
+                    <FontAwesomeIcon icon={faTimes} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="field-container toggle-container">
+            <div className="toggle-with-tooltip">
+              <label>Game Visibility:</label>
+              <ToggleSwitch
+                checked={formData.isPublic}
+                onToggle={handlePublicToggle}
+                label={formData.isPublic ? 'Public Game' : 'Private Game'}
+                name="isPublic"
+                id="public-toggle"
+              />
+            </div>
+          </div>
+
+          <div className="field-container toggle-container">
+            <div className="toggle-with-tooltip">
+              <label>Day Only Mode:</label>
+              <div className="tooltip-container">
+                <FontAwesomeIcon 
+                  icon={faInfoCircle} 
+                  className="tooltip-icon"
+                  title="This game will only be playable during daylight hours. Useful for challenges at locations that are closed at night."
+                />
+              </div>
+              <ToggleSwitch
+                checked={formData.dayOnly}
+                onToggle={handleDayOnlyToggle}
+                label={formData.dayOnly ? 'Day Only' : 'Any Time'}
+                name="dayOnly"
+                id="day-only-toggle"
+              />
+            </div>
+          </div>
         </div>
 
         {isEditing && (
