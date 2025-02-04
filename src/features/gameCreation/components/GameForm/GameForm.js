@@ -224,6 +224,12 @@ const GameForm = ({
     }
   };
 
+  const handleCancel = () => {
+    // Reset form data to original state
+    setFormData(JSON.parse(JSON.stringify(originalData)));
+    setHasChanges(false);
+  };
+
   return (
     <div className="creator-form">
       <button onClick={handleBack} className="back-button" title="Back to Games">
@@ -258,7 +264,7 @@ const GameForm = ({
             >
               {isEditing ? 'Save Changes' : 'Create Game'}
             </button>
-            <button onClick={onCancel} className="cancel-button">
+            <button onClick={handleCancel} className="cancel-button">
               Cancel
             </button>
           </>
