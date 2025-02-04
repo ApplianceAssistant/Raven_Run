@@ -25,7 +25,9 @@
       align-self: flex-start;
     }
 
-    input, select, textarea {
+    input,
+    select,
+    textarea {
       width: 100%;
       padding: 10px;
       border: 1px solid var(--border-color);
@@ -63,33 +65,13 @@
     }
 
     &.toggle-container {
-      .toggle-with-tooltip {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        width: 100%;
-        padding: 8px 0;
-
-        label {
-          margin: 0;
-          flex: 1;
-        }
-
-        .tooltip-container {
-          margin-right: 8px;
-          
-          .tooltip-icon {
-            color: var(--text-secondary);
-            font-size: 16px;
-            cursor: help;
-            transition: color 0.2s;
-
-            &:hover {
-              color: var(--primary-color);
-            }
-          }
-        }
-      }
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      align-items: flex-start;
     }
 
     &.tags-section {
@@ -98,7 +80,7 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        margin-bottom: 12px;
+        margin-bottom: 5px;
 
         label {
           margin: 0;
@@ -147,6 +129,17 @@
         gap: 8px;
         width: 100%;
         min-height: 32px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 8px;
+        background: var(--input-bg);
+
+        .empty-tags-message {
+          font-style: italic;
+          width: 100%;
+          text-align: center;
+          padding: 4px;
+        }
 
         .tag-button {
           display: inline-flex;
@@ -166,11 +159,16 @@
             background: none;
             border: none;
             color: var(--text-color);
+            background-color: var(--button-bg-caution);
             cursor: pointer;
             padding: 2px;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
             font-size: 0.9em;
             opacity: 0.7;
             transition: opacity 0.2s;
+            box-shadow: none;
 
             &:hover {
               opacity: 1;
@@ -257,18 +255,18 @@
 
       .game-visibility {
         margin: 5px 0;
-        
+
         .visibility-badge {
           display: inline-block;
           padding: 4px 8px;
           border-radius: 4px;
           font-size: 0.85rem;
           font-weight: 500;
-          
+
           &.public {
             border: 1px solid var(--success-color, #4CAF50);
           }
-          
+
           &.private {
             border: 1px solid var(--button-bg-caution, #FFC107);
           }

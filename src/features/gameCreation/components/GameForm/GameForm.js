@@ -43,7 +43,6 @@ const GameForm = ({
   const [hasChanges, setHasChanges] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
-  const [showTagInput, setShowTagInput] = useState(false);
   const [newTag, setNewTag] = useState('');
 
   // Initialize both formData and originalData when gameData changes
@@ -72,7 +71,7 @@ const GameForm = ({
     const hasDataChanges = Object.keys(formData).some(key => {
       // Skip comparison if values are undefined or null
       if (!formData[key] && !originalData[key]) return false;
-      
+
       try {
         // Handle special cases for DOM events and complex objects
         if (typeof formData[key] === 'object' || typeof originalData[key] === 'object') {
@@ -114,15 +113,43 @@ const GameForm = ({
 
   const handleAddTag = () => {
     if (newTag.trim()) {
-      const trimmedTag = newTag.trim();
-      if (!formData.tags.includes(trimmedTag)) {
-        setFormData(prev => ({
-          ...prev,
-          tags: [...prev.tags, trimmedTag]
-        }));
-      }
+      // Split the input by commas and filter out empty strings
+      const tagsToAdd = newTag.split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0);
+
+      // Add each tag if it's not already in the list
+      const updatedTags = [...formData.tags];
+      tagsToAdd.forEach(tag => {
+        if (!updatedTags.includes(tag)) {
+          updatedTags.push(tag);
+        }
+      });
+
+      setFormData(prev => ({
+        ...prev,
+        tags: updatedTags
+      }));
       setNewTag('');
-      setShowTagInput(false);
+    }
+  };
+
+  const handleTagInputChange = (e) => {
+    const value = e.target.value;
+    setNewTag(value);
+
+    // If the last character is a comma, automatically add the tags
+    if (value.endsWith(',')) {
+      handleAddTag();
+    }
+  };
+
+  const handleTagInputKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    } else if (e.key === 'Escape') {
+      setNewTag('');
     }
   };
 
@@ -131,16 +158,6 @@ const GameForm = ({
       ...prev,
       tags: prev.tags.filter(tag => tag !== tagToRemove)
     }));
-  };
-
-  const handleTagInputKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddTag();
-    } else if (e.key === 'Escape') {
-      setShowTagInput(false);
-      setNewTag('');
-    }
   };
 
   const handlePublicToggle = (e) => {
@@ -224,30 +241,29 @@ const GameForm = ({
             <FontAwesomeIcon icon={faPlay} /> Playtest
           </button>
         )}
-        <div className={`button-group ${hasChanges ? 'visible' : ''} ${isAnimatingOut ? 'animating-out' : ''}`}>
-          {(showButtons || isAnimatingOut) && (
-            <>
-              <button
-                onClick={handleSubmit}
-                disabled={!allRequiredFieldsFilled}
-                className={`save-button ${!allRequiredFieldsFilled ? 'disabled' : ''}`}
-              >
-                {isEditing ? 'Update Game' : 'Create Game'}
-              </button>
-              <button onClick={onCancel} className="cancel-button">
-                Cancel
-              </button>
-            </>
-          )}
-        </div>
-        {formData.gameId && (
-            <>
-              
-              <span className="game-id-display"> <span className="label">Game ID: </span>{formData.gameId}</span>
-            </>
-          )}
       </div>
-
+      
+      <div>
+        {formData.gameId && (
+          <span className="game-id-display"> <span className="label">Game ID: </span>{formData.gameId}</span>
+        )}
+      </div>
+      <div className={`button-group ${hasChanges ? 'visible' : ''} ${isAnimatingOut ? 'animating-out' : ''}`}>
+        {(showButtons || isAnimatingOut) && (
+          <>
+            <button
+              onClick={handleSubmit}
+              disabled={!allRequiredFieldsFilled}
+              className={`save-button ${!allRequiredFieldsFilled ? 'disabled' : ''}`}
+            >
+              {isEditing ? 'Save Changes' : 'Create Game'}
+            </button>
+            <button onClick={onCancel} className="cancel-button">
+              Cancel
+            </button>
+          </>
+        )}
+      </div>
       <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 80)" className="form-content" dependencies={[formData]}>
         <div className="main-form">
           <div className="field-container">
@@ -293,80 +309,60 @@ const GameForm = ({
           </div>
 
           <div className="field-container tags-section">
-            <div className="section-header">
-              <label>Keywords:</label>
-              <button
-                type="button"
-                className="btn-add"
-                onClick={() => setShowTagInput(true)}
-                title="Add Keyword"
-              >
-                <FontAwesomeIcon icon={faPlusCircle} />
-              </button>
+            <label>Keywords:</label>
+            <div className="tag-input-container">
+              <input
+                type="text"
+                value={newTag}
+                onChange={handleTagInputChange}
+                onKeyDown={handleTagInputKeyPress}
+                placeholder="Type keywords separated by commas or press Enter"
+                autoFocus
+                className="tag-input"
+              />
             </div>
-
-            {showTagInput && (
-              <div className="tag-input-container">
-                <input
-                  type="text"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyDown={handleTagInputKeyPress}
-                  placeholder="Type keyword and press Enter"
-                  autoFocus
-                  className="tag-input"
-                />
-              </div>
-            )}
 
             <div className="tags-display">
-              {formData.tags.map((tag, index) => (
-                <div key={index} className="tag-button">
-                  <span className="tag-text">{tag}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTag(tag)}
-                    className="remove-tag"
-                    title="Remove Tag"
-                  >
-                    <FontAwesomeIcon icon={faTimes} />
-                  </button>
-                </div>
-              ))}
+              {formData.tags.length > 0 ? (
+                formData.tags.map((tag, index) => (
+                  <div key={index} className="tag-button">
+                    <span className="tag-text">{tag}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTag(tag)}
+                      className="remove-tag"
+                      title="Remove Tag"
+                    >
+                      <FontAwesomeIcon icon={faTimes} />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <span className="empty-tags-message">Keywords Display</span>
+              )}
             </div>
           </div>
 
           <div className="field-container toggle-container">
-            <div className="toggle-with-tooltip">
-              <label>Game Visibility:</label>
-              <ToggleSwitch
-                checked={formData.isPublic}
-                onToggle={handlePublicToggle}
-                label={formData.isPublic ? 'Public Game' : 'Private Game'}
-                name="isPublic"
-                id="public-toggle"
-              />
-            </div>
+            <div className="label">Game Visibility:</div>
+            <ToggleSwitch
+              checked={formData.isPublic}
+              onToggle={handlePublicToggle}
+              label={formData.isPublic ? 'Public Game' : 'Private Game'}
+              name="isPublic"
+              id="public-toggle"
+            />
           </div>
 
           <div className="field-container toggle-container">
-            <div className="toggle-with-tooltip">
-              <label>Day Only Mode:</label>
-              <div className="tooltip-container">
-                <FontAwesomeIcon 
-                  icon={faInfoCircle} 
-                  className="tooltip-icon"
-                  title="This game will only be playable during daylight hours. Useful for challenges at locations that are closed at night."
-                />
-              </div>
-              <ToggleSwitch
-                checked={formData.dayOnly}
-                onToggle={handleDayOnlyToggle}
-                label={formData.dayOnly ? 'Day Only' : 'Any Time'}
-                name="dayOnly"
-                id="day-only-toggle"
-              />
-            </div>
+            <div className="label">Day Only Mode:</div>
+            <ToggleSwitch
+              checked={formData.dayOnly}
+              onToggle={handleDayOnlyToggle}
+              label={formData.dayOnly ? 'Day Only' : 'Any Time'}
+              name="dayOnly"
+              id="day-only-toggle"
+            />
           </div>
         </div>
 
