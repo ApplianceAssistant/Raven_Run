@@ -15,15 +15,17 @@ const GameLobby = () => {
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [games, setGames] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [hasMore, setHasMore] = useState(true);
     const [page, setPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedGameId, setSelectedGameId] = useState(null);
     const [filters, setFilters] = useState({
-        location: '',
-        radius: '10',
+        location: null,
+        latitude: null,
+        longitude: null,
+        radius: '50',
         difficulty: [],
         duration: 'any',
         sortBy: 'rating'
@@ -32,41 +34,72 @@ const GameLobby = () => {
     const loadGames = async (pageNum = 1) => {
         try {
             setLoading(true);
+            setError(null);
             
-            const response = await authFetch(`${API_URL}/server/api/games/games.php?action=public_games&page=${pageNum}`);
+            // Build search parameters
+            const params = new URLSearchParams({
+                page: pageNum,
+                sort_by: filters.sortBy
+            });
+
+            if (searchQuery) {
+                params.append('search', searchQuery);
+            }
+
+            if (filters.difficulty.length > 0) {
+                params.append('difficulty', filters.difficulty);
+            }
+
+            if (filters.duration !== 'any') {
+                params.append('duration', filters.duration);
+            }
+
+            // Convert radius to kilometers for API
+            if (filters.location && filters.radius) {
+                const radiusInKm = getUserUnitPreference() ? 
+                    parseFloat(filters.radius) : 
+                    parseFloat(filters.radius) * 1.60934; // miles to km
+                params.append('radius', radiusInKm.toString());
+            }
+
+            // Add location if available
+            if (filters.location && filters.latitude && filters.longitude) {
+                params.append('latitude', filters.latitude);
+                params.append('longitude', filters.longitude);
+            }
+            
+            const response = await authFetch(`${API_URL}/server/api/games/searchGames.php?${params.toString()}`);
             
             if (!response.ok) {
                 throw new Error('Failed to fetch games');
             }
 
-            // Get the raw text first
-            const rawText = await response.text();
+            const jsonData = await response.json();
             
-            // Try to parse it as JSON
-            let jsonData;
-            try {
-                jsonData = JSON.parse(rawText);
-            } catch (parseError) {
-                console.error('JSON parse error:', parseError);
-                console.error('Failed to parse text:', rawText);
-                throw new Error(`Failed to parse response as JSON: ${parseError.message}`);
-            }
+            if (jsonData.status === 'success') {
+                // Convert distances if needed
+                const processedGames = jsonData.data.games.map(game => ({
+                    ...game,
+                    distance: game.distance !== null ? 
+                        (getUserUnitPreference() ? 
+                            game.distance : 
+                            game.distance * 0.621371) // km to miles
+                        : null
+                }));
 
-            const { status, data, message } = jsonData;
-            
-            if (status === 'success') {
                 if (pageNum === 1) {
-                    setGames(data);
+                    setGames(processedGames);
                 } else {
-                    setGames(prev => [...prev, ...data]);
+                    setGames(prev => [...prev, ...processedGames]);
                 }
-                setHasMore(data.length > 0);
+                
+                setHasMore(jsonData.data.page < jsonData.data.total_pages);
                 setError(null);
             } else {
-                throw new Error(message || 'Failed to fetch games');
+                throw new Error(jsonData.message || 'Failed to fetch games');
             }
         } catch (err) {
-            setError('Failed to load games');
+            setError('Failed to load games. Please try again.');
             console.error('Error fetching games:', err);
         } finally {
             setLoading(false);
@@ -75,6 +108,29 @@ const GameLobby = () => {
 
     useEffect(() => {
         loadGames();
+    }, []);
+
+    useEffect(() => {
+        setPage(1);
+        loadGames(1);
+    }, [filters, searchQuery]);
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setFilters(prev => ({
+                        ...prev,
+                        location: 'current',
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    }));
+                },
+                (error) => {
+                    console.error('Error getting location:', error);
+                }
+            );
+        }
     }, []);
 
     const handleLoadMore = () => {
@@ -99,8 +155,34 @@ const GameLobby = () => {
 
     const handleFilterChange = (newFilters) => {
         setFilters(prev => ({ ...prev, ...newFilters }));
-        setPage(1);
-        loadGames(1);
+    };
+
+    const handleLocationSelect = async (location) => {
+        if (location === 'current') {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        setFilters(prev => ({
+                            ...prev,
+                            location: 'current',
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        }));
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        setError('Failed to get current location');
+                    }
+                );
+            }
+        } else {
+            setFilters(prev => ({
+                ...prev,
+                location: location,
+                latitude: null,
+                longitude: null
+            }));
+        }
     };
 
     const handleGameSelect = async (gameId) => {
@@ -236,6 +318,7 @@ const GameLobby = () => {
                     isFilterVisible={isFilterVisible}
                     filters={filters}
                     onFilterChange={handleFilterChange}
+                    onLocationSelect={handleLocationSelect}
                 />
             </div>
             

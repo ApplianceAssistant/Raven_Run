@@ -50,6 +50,12 @@ const GameCard = ({
         return remainingMins > 0 ? `${hours}h ${remainingMins}m` : `${hours}h`;
     };
 
+    const formatDistance = (distanceValue) => {
+        if (distanceValue === null) return 'Distance N/A';
+        const unit = isMetric ? 'km' : 'mi';
+        return `${distanceValue.toFixed(1)} ${unit}`;
+    };
+
     const renderStars = (rating) => {
         const stars = [];
         const fullStars = Math.floor(rating);
@@ -75,7 +81,10 @@ const GameCard = ({
     };
 
     return (
-        <div className={`game-card ${inProgress ? 'in-progress' : ''}`} onClick={handleCardClick} title={`View ${title} details`}>
+        <div 
+            className={`game-card ${isDownloaded ? 'downloaded' : ''} ${inProgress ? 'in-progress' : ''}`}
+            onClick={handleCardClick}
+        >
             <div className="game-image">
                 <div className={`difficulty-badge ${difficulty}`}>
                     {difficulty}
@@ -83,10 +92,12 @@ const GameCard = ({
                 <div className="creator-name" title="Created by">
                     Created by: {creatorName}
                 </div>
-                <div className="distance-badge">
-                    <i className="fas fa-route"></i>
-                    {`${Math.round(convertDistance(distance || 0, true, isMetric))} ${getLargeDistanceUnit(isMetric)}`}
-                </div>
+                {distance !== null && (
+                    <div className="distance-badge">
+                        <i className="fas fa-route"></i>
+                        {formatDistance(convertDistance(distance || 0, true, isMetric))}
+                    </div>
+                )}
                 <div className="challenge-count">
                     <i className="fas fa-flag-checkered"></i>
                     {challenges.length}
