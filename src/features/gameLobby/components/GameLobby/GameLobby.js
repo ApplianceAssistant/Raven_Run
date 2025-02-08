@@ -27,15 +27,12 @@ const GameLobby = () => {
     });
 
     const handleFilterChange = (newFilters) => {
-        console.log('GameLobby received filter change:', newFilters);
-        console.log('Current filters before update:', filters);
         
         setFilters(prev => {
             const updatedFilters = {
                 ...prev,
                 ...newFilters
             };
-            console.log('Updated filters:', updatedFilters);
             return updatedFilters;
         });
         
@@ -43,13 +40,9 @@ const GameLobby = () => {
     };
 
     const fetchGames = async (searchFilters = filters) => {
-        console.log('Fetching games with filters:', searchFilters);
         setIsLoading(true);
         try {
             const params = new URLSearchParams();
-            
-            console.log('Building URL parameters...');
-            console.log('Location filter state:', searchFilters.locationFilter);
             
             // Only add location params if we're using "mylocation" and have valid coordinates
             if (searchFilters.locationFilter === 'mylocation' && 
@@ -58,35 +51,23 @@ const GameLobby = () => {
                 params.append('latitude', searchFilters.latitude);
                 params.append('longitude', searchFilters.longitude);
                 params.append('radius', searchFilters.radius || 0);
-                console.log('Added location parameters:', {
-                    latitude: searchFilters.latitude,
-                    longitude: searchFilters.longitude,
-                    radius: searchFilters.radius
-                });
-            } else {
-                console.log('Skipping location parameters - not using mylocation or coordinates missing');
             }
 
             // Add other filters
             if (searchFilters.search) {
                 params.append('search', searchFilters.search);
-                console.log('Added search parameter:', searchFilters.search);
             }
             if (searchFilters.difficulty) {
                 params.append('difficulty', searchFilters.difficulty);
-                console.log('Added difficulty parameter:', searchFilters.difficulty);
             }
             if (searchFilters.duration && searchFilters.duration !== 'any') {
                 params.append('duration', searchFilters.duration);
-                console.log('Added duration parameter:', searchFilters.duration);
             }
             if (searchFilters.sort_by) {
                 params.append('sort_by', searchFilters.sort_by);
-                console.log('Added sort parameter:', searchFilters.sort_by);
             }
             
             const requestUrl = `${API_URL}/server/api/games/searchGames.php?${params.toString()}`;
-            console.log('Final request URL:', requestUrl);
             
             const response = await authFetch(requestUrl);
             const rawText = await response.text();

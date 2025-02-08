@@ -22,13 +22,10 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Form submitted with query:', query);
         onSearch(query);
     };
 
     const handleFilterChange = (field, value) => {
-        console.log('Filter change initiated:', { field, value });
-        console.log('Current filters before update:', filters);
         
         const newFilters = {
             ...filters,
@@ -40,10 +37,8 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
             newFilters.radius = null;
             newFilters.latitude = null;
             newFilters.longitude = null;
-            console.log('Location is "any", nullifying location fields');
         }
 
-        console.log('New filters after update:', newFilters);
         onFilterChange(newFilters);
     };
 
@@ -79,7 +74,6 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
     const [radius, setRadius] = useState(filters?.radius || 50);
 
     const handleLocationChange = (value) => {
-        console.log('Location change initiated:', value);
         setLocationFilter(value);
         
         // Clear location-related filters if 'any' is selected
@@ -91,11 +85,9 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
                 latitude: null,
                 longitude: null
             };
-            console.log('Setting location to "any", new filters:', newFilters);
             onFilterChange(newFilters);
         } else {
             // Get location for 'mylocation'
-            console.log('Getting current location...');
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     // Convert radius to km if using imperial units
@@ -107,7 +99,6 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude
                     };
-                    console.log('Location obtained, new filters:', newFilters);
                     onFilterChange(newFilters);
                 },
                 (error) => {
@@ -121,7 +112,6 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
                         latitude: null,
                         longitude: null
                     };
-                    console.log('Location error, resetting to "any":', newFilters);
                     onFilterChange(newFilters);
                 }
             );
