@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getUserUnitPreference } from '../../../../utils/utils';
 import './SearchBar.scss';
 
 const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, onFilterChange, resultCount }) => {
     const [query, setQuery] = useState('');
     const searchPanelRef = useRef(null);
+    const isMetric = getUserUnitPreference();
+    // Convert miles to km for database
+    const milesToKm = (miles) => Math.round(miles * 1.60934);
 
     const handleClickOutside = (event) => {
         if (searchPanelRef.current && !searchPanelRef.current.contains(event.target)) {
@@ -44,7 +48,19 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
     };
 
     const difficultyOptions = ['any', 'easy', 'medium', 'hard'];
-    const radiusOptions = ['5', '10', '25', '50'];
+    const radiusOptions = isMetric ? 
+        [
+            { value: '20', label: 'Within 20 km' },
+            { value: '40', label: 'Within 40 km' },
+            { value: '60', label: 'Within 60 km' },
+            { value: '80', label: 'Within 80 km' }
+        ] : 
+        [
+            { value: '10', label: 'Within 10 mi' },   // ~32 km
+            { value: '20', label: 'Within 20 mi' },   // ~64 km
+            { value: '35', label: 'Within 35 mi' },   // ~97 km
+            { value: '60', label: 'Within 60 mi' }    // ~129 km
+        ];
     const durationOptions = [
         { value: 'any', label: 'Any Duration' },
         { value: '30', label: '< 30 mins' },
@@ -82,10 +98,12 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
             console.log('Getting current location...');
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    // Convert radius to km if using imperial units
+                    const radiusInKm = isMetric ? radius : milesToKm(radius);
                     const newFilters = {
                         ...filters,
                         locationFilter: value,
-                        radius: radius,
+                        radius: radiusInKm,
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude
                     };
@@ -152,13 +170,20 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
                                         {locationFilter === 'mylocation' && (
                                             <select
                                                 value={radius}
-                                                onChange={(e) => setRadius(Number(e.target.value))}
+                                                onChange={(e) => {
+                                                    const selectedValue = Number(e.target.value);
+                                                    setRadius(selectedValue);
+                                                    // Convert to km if using imperial units
+                                                    const valueInKm = isMetric ? selectedValue : milesToKm(selectedValue);
+                                                    handleFilterChange('radius', valueInKm);
+                                                }}
                                                 className="radius-select"
                                             >
-                                                <option value="5">Within 5 km</option>
-                                                <option value="10">Within 10 km</option>
-                                                <option value="25">Within 25 km</option>
-                                                <option value="50">Within 50 km</option>
+                                                {radiusOptions.map(option => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
                                             </select>
                                         )}
                                     </div>
