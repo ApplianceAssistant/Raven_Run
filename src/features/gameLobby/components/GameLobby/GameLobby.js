@@ -22,7 +22,7 @@ const GameLobby = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedGameId, setSelectedGameId] = useState(null);
     const [filters, setFilters] = useState({
-        location: null,
+        location: '',
         latitude: null,
         longitude: null,
         radius: '50',
