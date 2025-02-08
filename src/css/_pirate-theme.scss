@@ -11,8 +11,8 @@
   --page-bg-rgb: 250, 236, 207;  // RGB values for #faeccf
   --secondary-page-bg: #e6d4b3;  // Slightly darker complementary background
   --secondary-page-bg-rgb: 230, 212, 179;
-  
   --text-color: #4a2f1f;
+  --text-color-secondary: #6a5acd; // Spacey lavender blue for secondary text color
   --button-bg: #6e360d;
   --button-bg-hint: #dfb601;
   --button-text-color: #f0dcb1;
@@ -36,6 +36,7 @@
     --secondary-page-bg: #2a221c;  // Darker complementary background
     --secondary-page-bg-rgb: 42, 34, 28;
     --text-color: #f5dbbe;
+    --text-color-secondary: #a8a6a6; // Spacey lavender blue for secondary text color
     --button-bg: #603311;
     --button-bg-hint: #dfb601;
     --button-text-color: #f5dbbe;

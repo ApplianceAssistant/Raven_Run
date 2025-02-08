@@ -7,6 +7,7 @@
   --font-family-heading: 'Pirata One', serif;
   --page-bg: #d5ebf8;
   --text-color: #002c46;
+  --text-color-secondary: #3f1d1d;
   --button-bg: #046096;
   --button-bg-hint: #f78e05;
   --button-text-color: #e4f8fc;
@@ -27,6 +28,7 @@
   &.dark-mode {
     --page-bg: #012438;
     --text-color: #f5dbbe;
+    --text-color-secondary: #f5dbbe;
     --button-bg: #586a9c;
     --button-bg-hint: #f78e05;
     --button-text-color: #f5dbbe;

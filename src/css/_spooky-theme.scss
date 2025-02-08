@@ -8,6 +8,7 @@
   --font-family-heading: 'Rubik Wet Paint', serif;
   --page-bg: #f1f1f1;
   --text-color: #2c2c2c;
+  --text-color-secondary: #6a5d6d; // Muted earthy brown for secondary text color
   --button-bg: #7a2d2d; // Dark, blood red
   --button-bg-hint: #f78e05;
   --button-bg-save: #4e5b44; // Muted olive green
@@ -28,6 +29,7 @@
   &.dark-mode {
     --page-bg: #1c1c24;
     --text-color: #e7e5e5;
+    --text-color-secondary: #a09e9e; // Muted earthy brown for secondary text color
     --button-bg: #722d2d; // Deep, dark red for button
     --button-bg-hint: #f78e05;
     --button-bg-save: #3d4e38; // Darker olive green for save
