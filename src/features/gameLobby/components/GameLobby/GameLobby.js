@@ -12,72 +12,87 @@ import './GameLobby.scss';
 
 const GameLobby = () => {
     const navigate = useNavigate();
-    const [isFilterVisible, setIsFilterVisible] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
     const [games, setGames] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [hasMore, setHasMore] = useState(true);
-    const [page, setPage] = useState(1);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedGameId, setSelectedGameId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [filters, setFilters] = useState({
-        location: '',
+        locationFilter: 'any',
+        radius: null,
         latitude: null,
         longitude: null,
-        radius: '50',
-        difficulty: [],
+        difficulty: null,
         duration: 'any',
-        sortBy: 'rating'
+        sort_by: 'rating',
+        search: ''
     });
 
-    const loadGames = async (pageNum = 1) => {
+    const handleFilterChange = (newFilters) => {
+        console.log('GameLobby received filter change:', newFilters);
+        console.log('Current filters before update:', filters);
+        
+        setFilters(prev => {
+            const updatedFilters = {
+                ...prev,
+                ...newFilters
+            };
+            console.log('Updated filters:', updatedFilters);
+            return updatedFilters;
+        });
+        
+        fetchGames(newFilters);
+    };
+
+    const fetchGames = async (searchFilters = filters) => {
+        console.log('Fetching games with filters:', searchFilters);
+        setIsLoading(true);
         try {
-            setLoading(true);
-            setError(null);
+            const params = new URLSearchParams();
             
-            // Build search parameters
-            const params = new URLSearchParams({
-                page: pageNum,
-                sort_by: filters.sortBy
-            });
-
-            if (searchQuery) {
-                params.append('search', searchQuery);
+            console.log('Building URL parameters...');
+            console.log('Location filter state:', searchFilters.locationFilter);
+            
+            // Only add location params if we're using "mylocation" and have valid coordinates
+            if (searchFilters.locationFilter === 'mylocation' && 
+                searchFilters.latitude != null && 
+                searchFilters.longitude != null) {
+                params.append('latitude', searchFilters.latitude);
+                params.append('longitude', searchFilters.longitude);
+                params.append('radius', searchFilters.radius || 0);
+                console.log('Added location parameters:', {
+                    latitude: searchFilters.latitude,
+                    longitude: searchFilters.longitude,
+                    radius: searchFilters.radius
+                });
+            } else {
+                console.log('Skipping location parameters - not using mylocation or coordinates missing');
             }
 
-            if (filters.difficulty.length > 0) {
-                params.append('difficulty', filters.difficulty);
+            // Add other filters
+            if (searchFilters.search) {
+                params.append('search', searchFilters.search);
+                console.log('Added search parameter:', searchFilters.search);
             }
-
-            if (filters.duration !== 'any') {
-                params.append('duration', filters.duration);
+            if (searchFilters.difficulty) {
+                params.append('difficulty', searchFilters.difficulty);
+                console.log('Added difficulty parameter:', searchFilters.difficulty);
             }
-
-            // Convert radius to kilometers for API
-            if (filters.location && filters.radius) {
-                const radiusInKm = getUserUnitPreference() ? 
-                    parseFloat(filters.radius) : 
-                    parseFloat(filters.radius) * 1.60934; // miles to km
-                params.append('radius', radiusInKm.toString());
+            if (searchFilters.duration && searchFilters.duration !== 'any') {
+                params.append('duration', searchFilters.duration);
+                console.log('Added duration parameter:', searchFilters.duration);
             }
-
-            // Add location if available
-            if (filters.location && filters.latitude && filters.longitude) {
-                params.append('latitude', filters.latitude);
-                params.append('longitude', filters.longitude);
+            if (searchFilters.sort_by) {
+                params.append('sort_by', searchFilters.sort_by);
+                console.log('Added sort parameter:', searchFilters.sort_by);
             }
             
-            const response = await authFetch(`${API_URL}/server/api/games/searchGames.php?${params.toString()}`);
+            const requestUrl = `${API_URL}/server/api/games/searchGames.php?${params.toString()}`;
+            console.log('Final request URL:', requestUrl);
             
-            if (!response.ok) {
-                throw new Error('Failed to fetch games');
-            }
-
-            const jsonData = await response.json();
+            const response = await authFetch(requestUrl);
+            const rawText = await response.text();
+            const jsonData = JSON.parse(rawText);
             
             if (jsonData.status === 'success') {
-                // Convert distances if needed
                 const processedGames = jsonData.data.games.map(game => ({
                     ...game,
                     distance: game.distance !== null ? 
@@ -86,45 +101,37 @@ const GameLobby = () => {
                             game.distance * 0.621371) // km to miles
                         : null
                 }));
-
-                if (pageNum === 1) {
-                    setGames(processedGames);
-                } else {
-                    setGames(prev => [...prev, ...processedGames]);
-                }
-                
-                setHasMore(jsonData.data.page < jsonData.data.total_pages);
-                setError(null);
+                setGames(processedGames);
             } else {
-                throw new Error(jsonData.message || 'Failed to fetch games');
+                console.error('Error fetching games:', jsonData.message);
             }
-        } catch (err) {
-            setError('Failed to load games. Please try again.');
-            console.error('Error fetching games:', err);
+        } catch (error) {
+            console.error('Error fetching games:', error);
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        loadGames();
+        fetchGames();
     }, []);
 
-    useEffect(() => {
-        setPage(1);
-        loadGames(1);
-    }, [filters, searchQuery]);
-
+    // Store user's location without changing filter settings
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    setFilters(prev => ({
-                        ...prev,
-                        location: 'current',
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude
-                    }));
+                    setFilters(prev => {
+                        // Only update location data if locationFilter is already 'mylocation'
+                        if (prev.locationFilter === 'mylocation') {
+                            return {
+                                ...prev,
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude
+                            };
+                        }
+                        return prev; // Don't change anything if locationFilter is 'any'
+                    });
                 },
                 (error) => {
                     console.error('Error getting location:', error);
@@ -132,58 +139,6 @@ const GameLobby = () => {
             );
         }
     }, []);
-
-    const handleLoadMore = () => {
-        if (!loading && hasMore) {
-            const nextPage = page + 1;
-            setPage(nextPage);
-            loadGames(nextPage);
-        }
-    };
-
-    const handleScroll = (isAtBottom) => {
-        if (isAtBottom && !loading && hasMore) {
-            handleLoadMore();
-        }
-    };
-
-    const handleSearch = (query) => {
-        setSearchQuery(query);
-        setPage(1);
-        loadGames(1);
-    };
-
-    const handleFilterChange = (newFilters) => {
-        setFilters(prev => ({ ...prev, ...newFilters }));
-    };
-
-    const handleLocationSelect = async (location) => {
-        if (location === 'current') {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        setFilters(prev => ({
-                            ...prev,
-                            location: 'current',
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude
-                        }));
-                    },
-                    (error) => {
-                        console.error('Error getting location:', error);
-                        setError('Failed to get current location');
-                    }
-                );
-            }
-        } else {
-            setFilters(prev => ({
-                ...prev,
-                location: location,
-                latitude: null,
-                longitude: null
-            }));
-        }
-    };
 
     const handleGameSelect = async (gameId) => {
         try {
@@ -193,8 +148,8 @@ const GameLobby = () => {
             // Check if there's existing progress
             const progress = getHuntProgress();
             if (progress?.gameId === gameId) {
-                setSelectedGameId(gameId);
-                setIsModalOpen(true);
+                const selectedGameId = gameId;
+                const isModalOpen = true;
                 return;
             }
 
@@ -207,54 +162,8 @@ const GameLobby = () => {
             navigate(`/gamedescription/${gameId}`);
         } catch (error) {
             console.error('Error selecting game:', error);
-            setError('Failed to load game. Please try again.');
+            console.error('Failed to load game. Please try again.');
         }
-    };
-
-    const handleModalClose = () => {
-        setIsModalOpen(false);
-        setSelectedGameId(null);
-    };
-
-    const continueGame = () => {
-        const progress = getHuntProgress();
-        if (progress) {
-            navigate(`/game/${progress.gameId}/challenge/${progress.challengeIndex}`);
-        }
-        setIsModalOpen(false);
-    };
-
-    const startNewGame = async () => {
-        if (selectedGameId) {
-            try {
-                // Get the hunt progress to check timestamp
-                const progress = getHuntProgress();
-                if (progress && progress.gameId === selectedGameId) {
-                    // Check if we have a server connection and if the game needs updating
-                    const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${selectedGameId}`);
-                    if (response.ok) {
-                        const rawText = await response.text();
-                        const serverGame = JSON.parse(rawText);
-                        
-                        // Compare timestamps to see if game needs updating
-                        if (serverGame.updated_at && progress.timestamp && 
-                            new Date(serverGame.updated_at) > new Date(progress.timestamp)) {
-                            // Game has been updated since last play, download fresh version
-                            await downloadGame(selectedGameId);
-                            console.log('Game updated to latest version');
-                        }
-                    }
-                }
-            } catch (error) {
-                // If there's any error (offline, parse error, etc.), just continue with local version
-                console.warn('Could not check for game updates:', error);
-            }
-            
-            // Clear hunt progress and navigate to game description
-            clearHuntProgress();
-            navigate(`/gamedescription/${selectedGameId}`);
-        }
-        setIsModalOpen(false);
     };
 
     // Transform games data to match GameCard props
@@ -313,16 +222,16 @@ const GameLobby = () => {
         <div className="game-lobby">
             <div className="lobby-header">
                 <SearchBar
-                    onSearch={handleSearch}
+                    onSearch={(search) => handleFilterChange({ search })}
                     onFilterToggle={setIsFilterVisible}
                     isFilterVisible={isFilterVisible}
                     filters={filters}
                     onFilterChange={handleFilterChange}
-                    onLocationSelect={handleLocationSelect}
+                    resultCount={games.length}
                 />
             </div>
             
-            <ScrollableContent dependencies={['game-lobby']} maxHeight="calc(var(--content-vh, 1vh) * 80)" onScrollEnd={handleScroll} className="games-container">
+            <ScrollableContent dependencies={['game-lobby']} maxHeight="calc(var(--content-vh, 1vh) * 80)" className="games-container">
                 <div className="games-grid">
                     {transformedGames.map(game => (
                         <GameCard 
@@ -333,27 +242,8 @@ const GameLobby = () => {
                         />
                     ))}
                 </div>
-                {loading && <div className="loading">Loading...</div>}
-                {error && <div className="error">{error}</div>}
+                {isLoading && <div className="loading">Loading...</div>}
             </ScrollableContent>
-
-            <Modal
-                isOpen={isModalOpen}
-                onClose={handleModalClose}
-                title={getHuntProgress()?.gameId === selectedGameId ? "Continue Hunt?" : "Hunt in Progress"}
-                content={getHuntProgress()?.gameId === selectedGameId ? 
-                    "You have a hunt in progress. Would you like to continue where you left off?" :
-                    "You have another hunt in progress. Would you like to abandon it and start a new one?"}
-                buttons={getHuntProgress()?.gameId === selectedGameId ? [
-                    { label: 'Continue', onClick: continueGame },
-                    { label: 'Start Over', onClick: startNewGame },
-                    { label: 'Cancel', onClick: handleModalClose }
-                ] : [
-                    { label: 'Start New', onClick: startNewGame },
-                    { label: 'Cancel', onClick: handleModalClose }
-                ]}
-                showTextToSpeech={false}
-            />
         </div>
     );
 };

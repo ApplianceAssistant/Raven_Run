@@ -19,7 +19,10 @@ header('Content-Type: application/json; charset=utf-8');
 if (isset($_SERVER['HTTP_ORIGIN'])) {
     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
     header('Access-Control-Allow-Credentials: true');
+    header('Access-Control-Max-Age: 86400');    // cache for 1 day
 }
+
+// Access-Control headers are received during OPTIONS requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
         header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -29,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     }
     exit(0);
 }
+
 // Get client IP address
 $ip_address = $_SERVER['REMOTE_ADDR'];
 
@@ -53,33 +57,51 @@ if (!$user) {
     exit;
 }
 
-// Get search parameters
-$search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$latitude = isset($_GET['latitude']) ? floatval($_GET['latitude']) : null;
-$longitude = isset($_GET['longitude']) ? floatval($_GET['longitude']) : null;
-$radius = isset($_GET['radius']) ? floatval($_GET['radius']) : 80; // Default 80 km (approximately 50 miles)
-$difficulty = isset($_GET['difficulty']) ? $_GET['difficulty'] : null;
-$duration = isset($_GET['duration']) ? intval($_GET['duration']) : null;
+// Get parameters
+$search = isset($_GET['search']) ? trim($_GET['search']) : null;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
 $sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'rating';
-$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-$per_page = 10;
+$difficulty = isset($_GET['difficulty']) ? $_GET['difficulty'] : null;
+$latitude = isset($_GET['latitude']) ? (float)$_GET['latitude'] : null;
+$longitude = isset($_GET['longitude']) ? (float)$_GET['longitude'] : null;
+$radius = isset($_GET['radius']) ? (float)$_GET['radius'] : null;
+$duration = isset($_GET['duration']) ? $_GET['duration'] : null;
+
+// Debug log all parameters
+error_log("Received parameters: " . json_encode([
+    'search' => $search,
+    'page' => $page,
+    'per_page' => $per_page,
+    'sort_by' => $sort_by,
+    'difficulty' => $difficulty,
+    'latitude' => $latitude,
+    'longitude' => $longitude,
+    'radius' => $radius,
+    'duration' => $duration
+]));
+
+// Initialize parameters array and types string
+$params = [];
+$types = '';
 
 try {
     $conn = getDbConnection();
-    $params = [];
-    $types = '';
-    
+
     // Base query for public games
     $sql = "SELECT g.*, 
             u.username as creator_name";
-    
-    // Only add distance calculation if location parameters are provided
-    if ($latitude !== null && $longitude !== null) {
+
+    // Only add distance calculation if location parameters are provided AND radius is set
+    if ($latitude !== null && $longitude !== null && $radius !== null) {
         $sql .= ",
             ST_Distance_Sphere(
                 point(g.start_longitude, g.start_latitude),
                 point(?, ?)
             ) * 0.001 as distance_km";
+        $params[] = $longitude;
+        $params[] = $latitude;
+        $types .= 'dd';
     } else {
         $sql .= ", NULL as distance_km";
     }
@@ -89,18 +111,50 @@ try {
         $sql .= ",
             (
                 CASE 
-                    WHEN g.title LIKE CONCAT('%', ?, '%') THEN 10
+                    -- Exact title match (highest priority)
+                    WHEN LOWER(g.title) = LOWER(?) THEN 50
+                    -- Title starts with search term (word boundary)
+                    WHEN LOWER(g.title) LIKE CONCAT(LOWER(?), '%') THEN 30
+                    -- Title contains full word
+                    WHEN LOWER(g.title) LIKE CONCAT('% ', LOWER(?), ' %') 
+                         OR LOWER(g.title) LIKE CONCAT(LOWER(?), ' %')
+                         OR LOWER(g.title) LIKE CONCAT('% ', LOWER(?)) THEN 20
+                    -- Similar sounding title (using SOUNDEX)
+                    WHEN SOUNDEX(g.title) = SOUNDEX(?) THEN 15
                     ELSE 0
                 END +
+                -- Keywords/tags match (second priority)
                 CASE 
-                    WHEN g.description LIKE CONCAT('%', ?, '%') THEN 3
+                    WHEN JSON_CONTAINS(g.tags, JSON_ARRAY(?)) THEN 25
+                    WHEN g.tags LIKE CONCAT('%\"', LOWER(?), '\"%') THEN 15
                     ELSE 0
                 END +
+                -- Description match (third priority)
                 CASE 
-                    WHEN JSON_CONTAINS(g.tags, JSON_ARRAY(?)) THEN 2
+                    WHEN LOWER(g.description) LIKE CONCAT('% ', LOWER(?), ' %') THEN 10
+                    ELSE 0
+                END +
+                -- Challenge data match (lowest priority)
+                CASE 
+                    WHEN LOWER(g.challenge_data) LIKE CONCAT('%', LOWER(?), '%') THEN 5
                     ELSE 0
                 END
             ) as relevance_score";
+
+        // Add search parameters for relevance calculation
+        $params = array_merge($params, [
+            $search, // Exact title match
+            $search, // Title starts with
+            $search, // Title word match 1
+            $search, // Title word match 2
+            $search, // Title word match 3
+            $search, // Soundex match
+            $search, // Exact tag match
+            $search, // Partial tag match
+            $search, // Description match
+            $search  // Challenge data match
+        ]);
+        $types .= str_repeat('s', 10);
     } else {
         $sql .= ", 0 as relevance_score";
     }
@@ -108,45 +162,78 @@ try {
     $sql .= " FROM games g
               LEFT JOIN users u ON g.user_id = u.id
               WHERE g.is_public = 1";
-    
-    // Initialize parameters array and types string
-    $params = [];
-    $types = '';
 
-    // Add location parameters if provided
-    if ($latitude !== null && $longitude !== null) {
+    // Only apply location filtering if radius is explicitly set
+    if ($radius !== null && $latitude !== null && $longitude !== null) {
+        error_log("Applying location filter with radius: $radius km");
+        $sql .= " AND ST_Distance_Sphere(
+            point(g.start_longitude, g.start_latitude),
+            point(?, ?)
+        ) * 0.001 <= ?";
         $params[] = $longitude;
         $params[] = $latitude;
-        $types .= 'dd';
+        $params[] = $radius;
+        $types .= 'ddd';
+    } else {
+        error_log("No location filter applied");
+    }
 
-        if ($radius) {
-            $sql .= " AND ST_Distance_Sphere(
-                point(g.start_longitude, g.start_latitude),
-                point(?, ?)
-            ) * 0.001 <= ?";
-            $params[] = $longitude;
-            $params[] = $latitude;
-            $params[] = $radius;
-            $types .= 'ddd';
+    // Add duration filter
+    if ($duration && $duration !== 'any') {
+        $duration = intval($duration);
+        error_log("Applying duration filter: " . $duration . " minutes");
+        
+        // Add duration condition based on the value
+        switch($duration) {
+            case 30: // < 30 mins
+                $sql .= " AND g.estimated_time < 30";
+                break;
+            case 60: // 30-60 mins
+                $sql .= " AND g.estimated_time >= 30 AND g.estimated_time <= 60";
+                break;
+            case 120: // 1-2 hours
+                $sql .= " AND g.estimated_time > 60 AND g.estimated_time <= 120";
+                break;
+            case 121: // 2+ hours
+                $sql .= " AND g.estimated_time > 120";
+                break;
         }
     }
 
-    // Add search parameters if provided
+    // Add search conditions
     if ($search) {
-        $params[] = $search;
-        $params[] = $search;
-        $params[] = $search;
-        $types .= 'sss';
+        // Debug logging
+        error_log("Search term: " . $search);
         
         $sql .= " AND (
-            g.title LIKE CONCAT('%', ?, '%') OR
-            g.description LIKE CONCAT('%', ?, '%') OR
-            JSON_CONTAINS(g.tags, JSON_ARRAY(?))
+            LOWER(g.title) LIKE CONCAT('%', LOWER(?), '%')
+            OR g.tags LIKE CONCAT('%', ?, '%')
+            OR LOWER(g.description) LIKE CONCAT('%', LOWER(?), '%')
+            OR LOWER(g.challenge_data) LIKE CONCAT('%', LOWER(?), '%')
         )";
+
+        // Log the constructed SQL
+        error_log("Search SQL: " . $sql);
+        error_log("Search params: " . print_r($params, true));
+
+        // Add parameters for search conditions
+        $params = array_merge($params, [
+            $search, // Title LIKE
+            $search, // Tags
+            $search, // Description
+            $search  // Challenge data
+        ]);
+        $types .= str_repeat('s', 4);
+
+        // Order by relevance score for search results
+        $sql .= " ORDER BY relevance_score DESC, 
+                  CASE WHEN LOWER(g.title) LIKE CONCAT('%', LOWER(?), '%') THEN 0 ELSE 1 END,
+                  g.created_at DESC";
         $params[] = $search;
-        $params[] = $search;
-        $params[] = $search;
-        $types .= 'sss';
+        $types .= 's';
+    } else {
+        // Default ordering when no search
+        $sql .= " ORDER BY g.created_at DESC";
     }
 
     // Add difficulty filter if provided
@@ -154,22 +241,6 @@ try {
         $sql .= " AND g.difficulty_level = ?";
         $params[] = $difficulty;
         $types .= 's';
-    }
-
-    // Add duration filter if provided
-    if ($duration) {
-        $sql .= " AND g.estimated_time <= ?";
-        $params[] = $duration;
-        $types .= 'i';
-    }
-
-    // Add sorting
-    if ($sort_by === 'distance' && $latitude !== null && $longitude !== null) {
-        $sql .= " ORDER BY distance_km ASC";
-    } else if ($sort_by === 'relevance' && $search) {
-        $sql .= " ORDER BY relevance_score DESC";
-    } else {
-        $sql .= " ORDER BY g.avg_rating DESC";
     }
 
     // Add pagination
@@ -184,7 +255,7 @@ try {
     $count_types = '';
 
     // Add location filter to count query
-    if ($latitude !== null && $longitude !== null && $radius) {
+    if ($radius !== null && $latitude !== null && $longitude !== null) {
         $count_sql .= " AND ST_Distance_Sphere(
             point(g.start_longitude, g.start_latitude),
             point(?, ?)
@@ -195,17 +266,41 @@ try {
         $count_types .= 'ddd';
     }
 
+    // Add duration filter to count query
+    if ($duration && $duration !== 'any') {
+        $duration = intval($duration);
+        error_log("Applying duration filter: " . $duration . " minutes");
+        
+        // Add duration condition based on the value
+        switch($duration) {
+            case 30: // < 30 mins
+                $count_sql .= " AND g.estimated_time < 30";
+                break;
+            case 60: // 30-60 mins
+                $count_sql .= " AND g.estimated_time >= 30 AND g.estimated_time <= 60";
+                break;
+            case 120: // 1-2 hours
+                $count_sql .= " AND g.estimated_time > 60 AND g.estimated_time <= 120";
+                break;
+            case 121: // 2+ hours
+                $count_sql .= " AND g.estimated_time > 120";
+                break;
+        }
+    }
+
     // Add search conditions to count query
     if ($search) {
         $count_sql .= " AND (
-            g.title LIKE CONCAT('%', ?, '%') OR
-            g.description LIKE CONCAT('%', ?, '%') OR
-            JSON_CONTAINS(g.tags, JSON_ARRAY(?))
+            LOWER(g.title) LIKE CONCAT('%', LOWER(?), '%')
+            OR g.tags LIKE CONCAT('%', ?, '%')
+            OR LOWER(g.description) LIKE CONCAT('%', LOWER(?), '%')
+            OR LOWER(g.challenge_data) LIKE CONCAT('%', LOWER(?), '%')
         )";
         $count_params[] = $search;
         $count_params[] = $search;
         $count_params[] = $search;
-        $count_types .= 'sss';
+        $count_params[] = $search;
+        $count_types .= str_repeat('s', 4);
     }
 
     // Add other filters to count query
@@ -213,11 +308,6 @@ try {
         $count_sql .= " AND g.difficulty_level = ?";
         $count_params[] = $difficulty;
         $count_types .= 's';
-    }
-    if ($duration) {
-        $count_sql .= " AND g.estimated_time <= ?";
-        $count_params[] = $duration;
-        $count_types .= 'i';
     }
 
     // Execute count query first
