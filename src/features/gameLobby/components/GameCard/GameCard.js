@@ -95,7 +95,7 @@ const GameCard = ({
                 {distance !== null && (
                     <div className="distance-badge">
                         <i className="fas fa-route"></i>
-                        {formatDistance(convertDistance(distance || 0, true, isMetric))}
+                        {`${Math.round(convertDistance(distance || 0, true, isMetric))} ${getLargeDistanceUnit(isMetric)}`}
                     </div>
                 )}
                 <div className="challenge-count">

@@ -178,37 +178,52 @@ try {
     $params[] = ($page - 1) * $per_page;
     $types .= 'ii';
 
-    // Prepare count query (remove LIMIT and SELECT specific columns)
+    // Prepare count query
     $count_sql = "SELECT COUNT(*) as total FROM games g WHERE g.is_public = 1";
+    $count_params = [];
+    $count_types = '';
+
+    // Add location filter to count query
     if ($latitude !== null && $longitude !== null && $radius) {
         $count_sql .= " AND ST_Distance_Sphere(
             point(g.start_longitude, g.start_latitude),
             point(?, ?)
         ) * 0.001 <= ?";
+        $count_params[] = $longitude;
+        $count_params[] = $latitude;
+        $count_params[] = $radius;
+        $count_types .= 'ddd';
     }
+
+    // Add search conditions to count query
     if ($search) {
         $count_sql .= " AND (
             g.title LIKE CONCAT('%', ?, '%') OR
             g.description LIKE CONCAT('%', ?, '%') OR
             JSON_CONTAINS(g.tags, JSON_ARRAY(?))
         )";
+        $count_params[] = $search;
+        $count_params[] = $search;
+        $count_params[] = $search;
+        $count_types .= 'sss';
     }
+
+    // Add other filters to count query
     if ($difficulty) {
         $count_sql .= " AND g.difficulty_level = ?";
+        $count_params[] = $difficulty;
+        $count_types .= 's';
     }
     if ($duration) {
         $count_sql .= " AND g.estimated_time <= ?";
+        $count_params[] = $duration;
+        $count_types .= 'i';
     }
 
     // Execute count query first
     $count_stmt = $conn->prepare($count_sql);
-    if (!empty($params)) {
-        // Remove the LIMIT/OFFSET parameters for count query
-        $count_params = array_slice($params, 0, -2);
-        $count_types = substr($types, 0, -2);
-        if (!empty($count_params)) {
-            $count_stmt->bind_param($count_types, ...$count_params);
-        }
+    if (!empty($count_params)) {
+        $count_stmt->bind_param($count_types, ...$count_params);
     }
     $count_stmt->execute();
     $total_result = $count_stmt->get_result()->fetch_assoc();
