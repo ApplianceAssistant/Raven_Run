@@ -224,7 +224,17 @@ try {
             $search  // Challenge data
         ]);
         $types .= str_repeat('s', 4);
+    }
 
+    // Add difficulty filter if provided
+    if ($difficulty) {
+        $sql .= " AND g.difficulty_level = ?";
+        $params[] = $difficulty;
+        $types .= 's';
+    }
+
+    // Add ordering
+    if ($search) {
         // Order by relevance score for search results
         $sql .= " ORDER BY relevance_score DESC, 
                   CASE WHEN LOWER(g.title) LIKE CONCAT('%', LOWER(?), '%') THEN 0 ELSE 1 END,
@@ -234,13 +244,6 @@ try {
     } else {
         // Default ordering when no search
         $sql .= " ORDER BY g.created_at DESC";
-    }
-
-    // Add difficulty filter if provided
-    if ($difficulty) {
-        $sql .= " AND g.difficulty_level = ?";
-        $params[] = $difficulty;
-        $types .= 's';
     }
 
     // Add pagination
