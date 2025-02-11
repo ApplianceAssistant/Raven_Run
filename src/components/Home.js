@@ -23,7 +23,7 @@ function Home() {
   return (
     <NavigationOptions 
       title="Welcome to Crow Tours"
-      subtitle="Choose your next adventure"
+      subtitle="Create your next adventure"
     />
   );
 }
