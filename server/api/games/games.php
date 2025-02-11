@@ -229,37 +229,34 @@ try {
                     WHERE g.gameId = ? AND (g.is_public = 1 OR (? AND g.user_id = ?))
                 ");
                 
+                error_log("Prepared statement for game fetch");
+                
                 if (!$stmt) {
                     error_log("Failed to prepare statement: " . $conn->error);
-                    http_response_code(500);
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => 'Database error',
-                        'debug' => 'Failed to prepare statement'
-                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                    sendError("Database error");
                     exit;
                 }
 
                 $stmt->bind_param("sis", $gameId, $isPlaytest, $user['id']);
+                error_log("Bound parameters: gameId=" . $gameId . ", isPlaytest=" . ($isPlaytest ? 'true' : 'false') . ", userId=" . ($user['id'] ?? 'null'));
 
                 if (!$stmt->execute()) {
                     error_log("Failed to execute statement: " . $stmt->error);
-                    http_response_code(500);
-                    echo json_encode([
-                        'status' => 'error',
-                        'message' => 'Database error',
-                        'debug' => 'Failed to execute statement'
-                    ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                    sendError("Failed to fetch game");
                     exit;
                 }
 
                 $result = $stmt->get_result();
-                $game = $result->fetch_assoc();
+                error_log("Query executed, got result");
 
-                if (!$game) {
-                    sendError('Game not found') ;
+                if ($result->num_rows === 0) {
+                    error_log("No game found with ID: " . $gameId);
+                    sendError("Game not found");
                     exit;
                 }
+
+                $game = $result->fetch_assoc();
+                error_log("Game data fetched: " . json_encode($game));
 
                 // For playtest mode, allow access if user is the game creator
                 if ($isPlaytest && $game['user_id'] === $user['id']) {

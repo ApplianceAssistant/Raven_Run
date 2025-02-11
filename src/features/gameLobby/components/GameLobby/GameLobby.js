@@ -122,6 +122,7 @@ const GameLobby = () => {
     }, []);
 
     const handleGameSelect = async (gameId) => {
+        console.log("handleGameSelect gameId:", gameId)
         try {
             // Clear any existing playtest state
             clearPlaytestState();

@@ -18,22 +18,29 @@ import { API_URL, authFetch } from '../../../utils/utils';
  */
 export const downloadGame = async (gameId) => {
   try {
+    console.log('Starting downloadGame for gameId:', gameId);
+    
     // First check if we already have it downloaded
     const existingGame = getDownloadedGame(gameId);
     if (existingGame) {
+      console.log('Game found in local storage:', existingGame);
       return existingGame;
     }
 
     // Fetch from server
-    const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}`);
+    const url = `${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}`;
+    console.log('Fetching game from:', url);
+    const response = await authFetch(url);
     
     // Get the raw text first
     const rawText = await response.text();
+    console.log('Server response raw text:', rawText);
     
     // Try to parse it as JSON
     let jsonData;
     try {
       jsonData = JSON.parse(rawText);
+      console.log('Parsed server response:', jsonData);
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
       console.error('Failed to parse text:', rawText);
@@ -45,7 +52,16 @@ export const downloadGame = async (gameId) => {
       throw new Error(`Server returned ${response.status}: ${errorMsg}`);
     }
 
-    const game = jsonData.data || jsonData;
+    const data = jsonData.data || jsonData;
+    console.log('data before normalization:', data);
+    const game = data.game;
+
+    // Log the specific ID fields we're looking for
+    console.log('Game ID fields:', {
+        id: game.id,
+        gameId: game.gameId,
+        game: game
+    });
 
     // Normalize the game object
     const normalizedGame = {
