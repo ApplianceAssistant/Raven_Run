@@ -44,6 +44,10 @@ function Profile() {
   };
 
   useEffect(() => {
+    setActiveTab(tab || 'profile');
+  }, [tab]);
+
+  useEffect(() => {
     if (user) {
       fetchUserData();
     }
