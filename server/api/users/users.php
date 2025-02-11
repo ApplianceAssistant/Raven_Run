@@ -322,7 +322,7 @@ try {
                 $imageData = base64_decode($base64Data);
 
                 if (file_put_contents($targetPath, $imageData)) {
-                    $data['profile_picture_url'] = '/permanent_uploads/profiles/' . $fileName;
+                    $data['profile_picture_url'] = '/uploads/profiles/' . $fileName;
                 }
                 unset($data['profile_picture']);
             }
