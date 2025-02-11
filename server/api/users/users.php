@@ -243,7 +243,6 @@ try {
 
             if (empty($updateFields)) {
                 echo json_encode(['error' => 'No fields to update']);
-                error_log('No fields to update');
                 throw new Exception('No fields to update', 400);
             }
 

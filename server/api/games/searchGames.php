@@ -68,19 +68,6 @@ $longitude = isset($_GET['longitude']) ? (float)$_GET['longitude'] : null;
 $radius = isset($_GET['radius']) ? (float)$_GET['radius'] : null;
 $duration = isset($_GET['duration']) ? $_GET['duration'] : null;
 
-// Debug log all parameters
-error_log("Received parameters: " . json_encode([
-    'search' => $search,
-    'page' => $page,
-    'per_page' => $per_page,
-    'sort_by' => $sort_by,
-    'difficulty' => $difficulty,
-    'latitude' => $latitude,
-    'longitude' => $longitude,
-    'radius' => $radius,
-    'duration' => $duration
-]));
-
 // Initialize parameters array and types string
 $params = [];
 $types = '';
@@ -165,7 +152,6 @@ try {
 
     // Only apply location filtering if radius is explicitly set
     if ($radius !== null && $latitude !== null && $longitude !== null) {
-        error_log("Applying location filter with radius: $radius km");
         $sql .= " AND ST_Distance_Sphere(
             point(g.start_longitude, g.start_latitude),
             point(?, ?)
@@ -174,14 +160,11 @@ try {
         $params[] = $latitude;
         $params[] = $radius;
         $types .= 'ddd';
-    } else {
-        error_log("No location filter applied");
     }
 
     // Add duration filter
     if ($duration && $duration !== 'any') {
         $duration = intval($duration);
-        error_log("Applying duration filter: " . $duration . " minutes");
         
         // Add duration condition based on the value
         switch($duration) {
@@ -202,8 +185,6 @@ try {
 
     // Add search conditions
     if ($search) {
-        // Debug logging
-        error_log("Search term: " . $search);
         
         $sql .= " AND (
             LOWER(g.title) LIKE CONCAT('%', LOWER(?), '%')
@@ -211,10 +192,6 @@ try {
             OR LOWER(g.description) LIKE CONCAT('%', LOWER(?), '%')
             OR LOWER(g.challenge_data) LIKE CONCAT('%', LOWER(?), '%')
         )";
-
-        // Log the constructed SQL
-        error_log("Search SQL: " . $sql);
-        error_log("Search params: " . print_r($params, true));
 
         // Add parameters for search conditions
         $params = array_merge($params, [
@@ -272,7 +249,6 @@ try {
     // Add duration filter to count query
     if ($duration && $duration !== 'any') {
         $duration = intval($duration);
-        error_log("Applying duration filter: " . $duration . " minutes");
         
         // Add duration condition based on the value
         switch($duration) {

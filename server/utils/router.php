@@ -19,10 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $request_uri = $_SERVER['REQUEST_URI'];
 $game = parse_url($request_uri, PHP_URL_PATH);
 
-// Debug logging
-error_log("Request URI: " . $request_uri);
-error_log("Game: " . $game);
-
 // Remove leading slash if present
 $game = ltrim($game, '/');
 
@@ -60,10 +56,7 @@ if (empty($game)) {
 // Map the game to the corresponding PHP file
 $file = __DIR__ . '/' . $game;
 
-error_log("Looking for file: " . $file);
-
 if (file_exists($file)) {
-    error_log("File found: " . $file);
     // Set up the environment
     $_SERVER['SCRIPT_FILENAME'] = $file;
     $_SERVER['SCRIPT_NAME'] = '/' . $game;

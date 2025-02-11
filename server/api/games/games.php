@@ -78,7 +78,6 @@ try {
     switch ($method) {
         case 'GET':
             if ($action === 'public_games') {
-                error_log("Fetching public games");
                 // Get all public games
                 $stmt = $conn->prepare("
                     SELECT 
@@ -128,7 +127,6 @@ try {
                 }
 
                 $result = $stmt->get_result();
-                error_log("Found " . $result->num_rows . " public games");
                 
                 $games = [];
                 while ($row = $result->fetch_assoc()) {
@@ -178,7 +176,6 @@ try {
                     }
                 }
                 
-                error_log("Successfully processed " . count($games) . " games");
                 
                 array_walk_recursive($games, function(&$item) {
                     if (is_string($item)) {
@@ -203,7 +200,6 @@ try {
             } elseif ($action === 'get' && isset($_GET['gameId'])) {
                 $gameId = $_GET['gameId'];
                 $isPlaytest = isset($_GET['playtest']) && $_GET['playtest'] === 'true';
-                error_log("Fetching game with ID: " . $gameId);
                 
                 // Modified query to get game data for public games without requiring user authentication
                 $stmt = $conn->prepare("
@@ -228,9 +224,7 @@ try {
                     LEFT JOIN users u ON g.user_id = u.id
                     WHERE g.gameId = ? AND (g.is_public = 1 OR (? AND g.user_id = ?))
                 ");
-                
-                error_log("Prepared statement for game fetch");
-                
+                                
                 if (!$stmt) {
                     error_log("Failed to prepare statement: " . $conn->error);
                     sendError("Database error");
@@ -238,7 +232,6 @@ try {
                 }
 
                 $stmt->bind_param("sis", $gameId, $isPlaytest, $user['id']);
-                error_log("Bound parameters: gameId=" . $gameId . ", isPlaytest=" . ($isPlaytest ? 'true' : 'false') . ", userId=" . ($user['id'] ?? 'null'));
 
                 if (!$stmt->execute()) {
                     error_log("Failed to execute statement: " . $stmt->error);
@@ -247,7 +240,6 @@ try {
                 }
 
                 $result = $stmt->get_result();
-                error_log("Query executed, got result");
 
                 if ($result->num_rows === 0) {
                     error_log("No game found with ID: " . $gameId);
@@ -256,7 +248,6 @@ try {
                 }
 
                 $game = $result->fetch_assoc();
-                error_log("Game data fetched: " . json_encode($game));
 
                 // For playtest mode, allow access if user is the game creator
                 if ($isPlaytest && $game['user_id'] === $user['id']) {
@@ -398,9 +389,7 @@ try {
                         continue;
                     }
                 }
-                
-                error_log("Successfully processed " . count($games) . " games");
-                
+                                
                 // Clear any previous output
                 if (ob_get_length()) ob_clean();
                 
@@ -427,7 +416,6 @@ try {
             $action = $data['action'] ?? '';
 
             if ($action === 'save_game') {
-                error_log("Saving game");
                 $game = $data['game'];
                 $gameId = $game['gameId'];
                 $title = $game['title'];
@@ -576,7 +564,6 @@ try {
                 }
 
                 if ($stmt->execute()) {
-                    error_log("Game saved successfully");
                     
                     // Clear any previous output
                     if (ob_get_length()) ob_clean();
@@ -644,7 +631,6 @@ try {
                 $stmt->bind_param("s", $gameId);
                 
                 if ($stmt->execute()) {
-                    error_log("Game deleted successfully");
                     
                     // Clear any previous output
                     if (ob_get_length()) ob_clean();
