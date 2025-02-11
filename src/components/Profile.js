@@ -258,7 +258,7 @@ function Profile() {
                   <div className="profile-picture">
                     {profileData.profile_picture_url || imagePreview ? (
                       <img
-                        src={imagePreview || `${API_URL}/uploads/${profileData.profile_picture_url}`}
+                        src={imagePreview || `${API_URL}${profileData.profile_picture_url}`}
                         alt="Profile"
                         className="profile-image"
                       />
