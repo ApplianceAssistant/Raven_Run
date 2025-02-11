@@ -8,6 +8,7 @@ import { faUser, faEdit, faCog, faUserFriends } from '@fortawesome/free-solid-sv
 import { useMessage } from '../utils/MessageProvider';
 import Settings from './Settings';
 import Friends from './Friends';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const CROP_SIZE = 200; // Fixed size for crop box
@@ -17,7 +18,9 @@ function Profile() {
   const { showError, showSuccess } = useMessage();
   const fileInputRef = useRef(null);
   const scrollableRef = useRef(null);
-  const [activeTab, setActiveTab] = useState('profile');
+  const navigate = useNavigate();
+  const { tab } = useParams();
+  const [activeTab, setActiveTab] = useState(tab || 'profile');
   const [profileData, setProfileData] = useState({
     username: '',
     email: '',
@@ -224,24 +227,29 @@ function Profile() {
     setHasChanges(false);
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    navigate(`/profile/${tab}`);
+  };
+
   return (
     <div className="profile-container">
       <div className="profile-tabs">
         <button
           className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
-          onClick={() => setActiveTab('profile')}
+          onClick={() => handleTabChange('profile')}
         >
           <FontAwesomeIcon icon={faUser} /> Profile
         </button>
         <button
           className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setActiveTab('settings')}
+          onClick={() => handleTabChange('settings')}
         >
           <FontAwesomeIcon icon={faCog} /> Settings
         </button>
         <button
           className={`tab-button ${activeTab === 'friends' ? 'active' : ''}`}
-          onClick={() => setActiveTab('friends')}
+          onClick={() => handleTabChange('friends')}
         >
           <FontAwesomeIcon icon={faUserFriends} /> Friends
         </button>

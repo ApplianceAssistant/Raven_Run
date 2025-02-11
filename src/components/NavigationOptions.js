@@ -31,14 +31,14 @@ const defaultOptions = [
     {
         id: 'friends',
         label: 'Friends',
-        route: '/friends',
+        route: '/profile/friends',
         icon: faUsers,
         description: 'Connect with other players'
     },
     {
         id: 'settings',
         label: 'Settings',
-        route: '/settings',
+        route: '/profile/settings',
         icon: faGear,
         description: 'Adjust game settings'
     },

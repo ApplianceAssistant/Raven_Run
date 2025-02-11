@@ -21,10 +21,9 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
         { label: 'Home', game: '/' },
         { label: 'About', game: '/about' },
         { label: 'Contact', game: '/contact' },
-        //{ label: 'Create', game: '/create' },
-        //{ label: 'Settings', game: '/settings' },
-        //{ label: 'Friends', game: '/friends' },
         { label: 'Profile', game: '/profile' },
+        { label: 'Settings', game: '/profile/settings' },
+        { label: 'Friends', game: '/profile/friends' },
         { label: 'Log Out', game: '/logout' }  // We'll handle this specially
       ];
     } else {
@@ -32,11 +31,11 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
         { label: 'Home', game: '/' },
         { label: 'About', game: '/about' },
         { label: 'Contact', game: '/contact' },
-        { label: 'Settings', game: '/settings' },
+        { label: 'Settings', game: '/profile/settings' },
       ];
-      if (location.gamename === '/log-in') {
+      if (location.pathname === '/log-in') {
         return [...baseItems, { label: 'Create Profile', game: '/create-profile' }];
-      } else if (location.gamename === '/create-profile') {
+      } else if (location.pathname === '/create-profile') {
         return [...baseItems, { label: 'Log In', game: '/log-in' }];
       } else {
         return [
@@ -48,14 +47,14 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
     }
   };
 
-  const isProfileGroup = ['/profile', '/settings', '/friends'].includes(location.gamename);
+  const isProfileGroup = ['/profile', '/profile/settings', '/profile/friends'].includes(location.pathname);
 
   const menuItems = getMenuItems();
 
   const subNavItems = [
     { game: '/profile', label: 'Profile' },
-    { game: '/settings', label: 'Settings' },
-    { game: '/friends', label: 'Friends' }
+    { game: '/profile/settings', label: 'Settings' },
+    { game: '/profile/friends', label: 'Friends' }
   ];
 
   return (

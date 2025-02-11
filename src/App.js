@@ -119,8 +119,7 @@ function AppContent() {
           <Route path="/game/:gameId/challenge/:challengeIndex" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
           <Route path="/congratulations" element={<ThemeContainer theme={theme}><Congratulations /></ThemeContainer>} />
           <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
-          <Route path="/settings" element={<ThemeContainer theme={theme}><Settings /></ThemeContainer>} />
-          <Route path="/friends" element={<ThemeContainer theme={theme}><Friends /></ThemeContainer>} />
+          <Route path="/profile/:tab" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
           <Route path="/documentation" element={<ThemeContainer theme={theme}><Documentation /></ThemeContainer>} />
           {authContextValue.isAuthenticated && (
             <>
