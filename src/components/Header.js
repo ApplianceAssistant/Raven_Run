@@ -66,7 +66,7 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
           target="_blank" 
           description="Crow Tours Facebook Page" 
           rel="noopener noreferrer"
-          >Crow Tours <span className="versionDisplay">V0.10</span></a>
+          >Crow Tours <span className="versionDisplay">V0.11</span></a>
         </div>
         <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <ul>

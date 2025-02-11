@@ -1,6 +1,6 @@
 {
   "name": "raven-run",
-  "version": "0.0.9",
+  "version": "0.0.11",
   "description": "",
   "main": "index.js",
   "proxy": "https://crowtours.com",
