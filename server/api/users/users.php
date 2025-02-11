@@ -309,7 +309,7 @@ try {
             // Handle base64 image
             if (!empty($data['profile_picture'])) {
                 // Use permanent_uploads directory for file storage
-                $uploadDir = __DIR__ . '/../../permanent_uploads/profiles/';
+                $uploadDir = dirname(dirname(dirname(__DIR__))) . '/permanent_uploads/profiles/';
                 if (!file_exists($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }

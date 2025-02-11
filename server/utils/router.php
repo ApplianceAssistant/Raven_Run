@@ -24,10 +24,10 @@ $game = ltrim($game, '/');
 
 // Handle uploads directory requests
 if (strpos($game, 'uploads/') === 0) {
-    $file = __DIR__ . '/../' . $game;
+    $file = dirname(dirname(dirname(__FILE__))) . '/' . $game;
     if (file_exists($file)) {
         // Set appropriate content type
-        $ext = gameinfo($file, PATHINFO_EXTENSION);
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
         $content_types = [
             'jpg' => 'image/jpeg',
             'jpeg' => 'image/jpeg',
