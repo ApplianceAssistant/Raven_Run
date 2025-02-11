@@ -66,4 +66,4 @@ export const playAudio = async (type) => {
   };
 
 // Preload audio files
-Object.keys(audioFiles).forEach(type => loadAudio(type).catch(error => console.warn(`Failed to preload ${type}:`, error)));
+Object.keys(audioFiles).forEach(type => loadAudio(type).catch(error => console.error(`Failed to preload ${type}:`, error)));

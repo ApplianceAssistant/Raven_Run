@@ -21,7 +21,6 @@ if (gamesMatch) {
     
     // Write the JSON to a file
     fs.writeFileSync(path.join(__dirname, 'games.json'), jsonStr);
-    console.log('Successfully converted games data to JSON');
 } else {
     console.error('Failed to extract games data from challenges.ts');
 }

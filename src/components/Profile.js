@@ -191,7 +191,6 @@ function Profile() {
       }
 
       const result = await response.json();
-      console.warn('Result:', result);
 
       if (result.success) {
         showSuccess('Profile updated successfully');

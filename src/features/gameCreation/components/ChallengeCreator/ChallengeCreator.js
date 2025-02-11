@@ -56,17 +56,12 @@ const ChallengeCreator = () => {
   // Load existing challenge if editing
   useEffect(() => {
     const games = getGamesFromLocalStorage();
-    console.log('Games from storage:', games);
     const game = games.find(g => g.gameId === gameId);
-    console.log('Found game:', game, 'looking for gameId:', gameId);
 
     if (challengeId && game) {
-      console.log('Loading challenge:', challengeId, typeof challengeId);
       // Convert challengeId to number since IDs in the data are numbers
       const numericChallengeId = parseInt(challengeId, 10);
-      console.log('Numeric challenge ID:', numericChallengeId);
       const existingChallenge = game.challenges.find(c => c.id === numericChallengeId);
-      console.log('Found existing challenge:', existingChallenge);
 
       if (existingChallenge) {
         // Create merged challenge with all required fields
@@ -93,7 +88,6 @@ const ChallengeCreator = () => {
             : (existingChallenge.correctAnswer || '')
         };
 
-        console.log('Setting merged challenge:', mergedChallenge);
         setChallenge(mergedChallenge);
         setOriginalChallenge(mergedChallenge);
         setIsEditing(true);
@@ -108,7 +102,6 @@ const ChallengeCreator = () => {
         ...prev,
         order: maxOrder + 1  // Set order to next available number
       }));
-      console.log('Setting new challenge order to:', maxOrder + 1);
     }
   }, [gameId, challengeId]);
 

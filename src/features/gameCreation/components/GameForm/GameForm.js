@@ -80,7 +80,6 @@ const GameForm = ({
         // Simple comparison for primitive values
         return formData[key] !== originalData[key];
       } catch (error) {
-        console.warn('Comparison error for key:', key, error);
         // If JSON stringify fails, do a direct comparison
         return formData[key] !== originalData[key];
       }
@@ -186,7 +185,6 @@ const GameForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isValidGame(formData)) {
-      console.warn("save game: ", formData);
       try {
         const submittedData = {
           ...formData,
@@ -216,9 +214,7 @@ const GameForm = ({
   };
 
   const handlePlaytest = () => {
-    console.warn("handle play test called")
     if (formData?.gameId) {
-      console.log("Navigating to playtest")
       setPlaytestState(formData.gameId);
       navigate(`/gamedescription/${formData.gameId}`);
     }

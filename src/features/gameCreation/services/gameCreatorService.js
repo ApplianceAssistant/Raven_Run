@@ -77,7 +77,6 @@ const calculateGameLocationData = (challenges) => {
 };
 
 export const generateUniqueGameId = async () => {
-  console.log('=== Starting generateUniqueGameId ===');
   const length = 12;
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let gameId = '';
@@ -88,52 +87,41 @@ export const generateUniqueGameId = async () => {
     tempArray[i] = characters.charAt(Math.floor(Math.random() * characters.length));
   }
   gameId = tempArray.join('');
-  console.log('1. Initial gameId generation:', gameId, 'Length:', gameId.length);
-
   // Check uniqueness
   let isUnique = false;
   try {
     const isConnected = (await checkServerConnectivity()).isConnected;
-    console.log('2. Server connectivity:', isConnected);
 
     if (isConnected) {
-      console.log('3. Checking with server for:', gameId);
       const response = await authFetch(`${API_URL}/server/api/games/games.php?action=check_gameId&gameId=${gameId}`);
       if (response.ok) {
         const data = await response.json();
         isUnique = data.isUnique;
-        console.log('4. Server response - isUnique:', isUnique);
       } else {
         throw new Error('Server response not ok');
       }
     } else {
-      console.log('3. Offline - checking local storage');
       isUnique = !getGamesFromLocalStorage().some(game => game.gameId === gameId);
-      console.log('4. Local storage check - isUnique:', isUnique);
     }
   } catch (error) {
     console.error('Error during uniqueness check:', error);
     // Fallback to local storage check
     isUnique = !getGamesFromLocalStorage().some(game => game.gameId === gameId);
-    console.log('4. Fallback local storage check - isUnique:', isUnique);
   }
 
   // If not unique or wrong length, generate new ID
   while (!isUnique || gameId.length !== length) {
-    console.log('5. Generating new ID - current not valid. Length:', gameId.length, 'isUnique:', isUnique);
     
     // Generate new ID
     for (let i = 0; i < length; i++) {
       tempArray[i] = characters.charAt(Math.floor(Math.random() * characters.length));
     }
     gameId = tempArray.join('');
-    console.log('6. New gameId generated:', gameId, 'Length:', gameId.length);
     
     // Check uniqueness again
     isUnique = !getGamesFromLocalStorage().some(game => game.gameId === gameId);
   }
 
-  console.log('=== Final gameId:', gameId, 'Length:', gameId.length, '===');
   return gameId;
 };
 
@@ -164,7 +152,6 @@ export const isValidGame = (game) => {
 };
 
 export const saveGame = async (gameData) => {
-  console.warn('saveGame called with gameData:', gameData);
   if (!isValidGame(gameData)) {
     throw new Error('Invalid game data');
   }
@@ -174,7 +161,6 @@ export const saveGame = async (gameData) => {
     gameData.challenges.sort((a, b) => (a.order || 0) - (b.order || 0));
   }
 
-  console.log("game with sorted challenges:", gameData);
   if (!gameData.gameId) {
     gameData.gameId = await generateUniqueGameId();
   }
@@ -251,14 +237,12 @@ export const saveGame = async (gameData) => {
 };
 
 export const getGames = async () => {
-  console.warn("getGames called");
   let games = getGamesFromLocalStorage() || [];
   
   try {
     const isConnected = (await checkServerConnectivity()).isConnected;
     if (isConnected) {
       const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get_games`);
-      console.warn("getGames - response:", response);
       if (response.ok) {
         const rawText = await response.text();
         
@@ -272,7 +256,6 @@ export const getGames = async () => {
             return games;
         }
 
-        console.warn("getGames - parsed data:", jsonData);
         
         const serverGames = jsonData.data || [];
         if (!Array.isArray(serverGames)) {
@@ -298,7 +281,6 @@ export const getGames = async () => {
           }
         });
         
-        console.log('mergedGames:', mergedGames);
         // Update local storage with merged games
         if (mergedGames.length > 0) {
           saveGameToLocalStorage(mergedGames);

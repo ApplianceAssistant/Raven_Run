@@ -144,7 +144,3 @@ app.use((err, req, res, next) => {
     error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error' 
   });
 });
-
-app.listen(PORT, () => {
-  console.log(`Server running in ${ENV} mode on port ${PORT}`);
-});

@@ -153,14 +153,12 @@ function GamePage() {
   }, [challengeIndex, challenges]);
 
   useEffect(() => {
-    console.log("Location updates");
     if (currentChallenge && userLocation && !isLocationReached) {
       updateDistanceAndCheckLocation();
     }
   }, [currentChallenge, userLocation, isLocationReached, updateDistanceAndCheckLocation]);
 
   useEffect(() => {
-    console.log("Distance notice visibility update");
     if (currentChallenge) {
       const shouldBeVisible = shouldDisplayDistanceNotice(currentChallenge) && !isLocationReached;
       setDistanceNoticeVisible(shouldBeVisible);
@@ -199,7 +197,6 @@ function GamePage() {
 
       const nextIndex = challengeIndex + 1;
       if (nextIndex < challenges.length) {
-        console.warn("next challenge: ", challenges[nextIndex]);
         navigate(`/game/${gameId}/challenge/${nextIndex}`);
 
         setTimeout(() => {
@@ -281,7 +278,6 @@ function GamePage() {
   };
 
   const updateModalContent = (newContent) => {
-    console.warn("newContent: ", newContent);
     setIsModalOpen(false);
     setTimeout(() => {
       setModalContent(newContent);

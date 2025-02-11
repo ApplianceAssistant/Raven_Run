@@ -50,7 +50,6 @@ const GameCreator = () => {
     if (gameId && games.length > 0) {
       const game = games.find(g => g.gameId === gameId);
       if (game) {
-        console.log('Setting selected game:', game);
         dispatch({ type: 'SELECT_GAME', payload: game });
         setNewGameData({
           title: game.title || '',
@@ -63,22 +62,18 @@ const GameCreator = () => {
           dayOnly: game.dayOnly || false
         });
       } else {
-        console.warn('Game not found for ID:', gameId);
         navigate('/create');
       }
     }
   }, [gameId, games, dispatch, navigate]);
 
   const handleGameSelect = (game) => {
-    console.log('Selecting game:', game);
     dispatch({ type: 'SELECT_GAME', payload: game });
     navigate(`/create/edit/${game.gameId}`);
   };
 
   const handleCreateNewGame = async () => {
-    console.log('Starting handleCreateNewGame');
     const gameId = await generateUniqueGameId();
-    console.log('Received gameId from generateUniqueGameId:', gameId, 'Length:', gameId.length);
     
     const newGame = { 
       title: '', 
@@ -90,10 +85,8 @@ const GameCreator = () => {
       tags: [],
       dayOnly: false
     };
-    console.log('Created newGame object:', newGame);
     
     setNewGameData(newGame);
-    console.log('Set newGameData:', newGame);
     
     navigate('/create/new');
   };
@@ -107,7 +100,6 @@ const GameCreator = () => {
   };
 
   const handleSaveGame = async (gameData) => {
-    console.log('Starting handleSaveGame with gameData:', gameData);
     try {
       // Validate required fields
       const validationErrors = validateGameData(gameData);
@@ -145,7 +137,6 @@ const GameCreator = () => {
       // Attempt to save to server first
       let savedGame;
       try {
-        console.log("Saving game to server:", newGame);
         savedGame = await saveGame(newGame);
         newGame.isSynced = true;
       } catch (syncError) {

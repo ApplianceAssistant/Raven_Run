@@ -58,7 +58,6 @@ function LogIn() {
         }
 
         try {
-            console.log('Attempting login with email:', email);
             const response = await authFetch(`${API_URL}/server/api/auth/login.php`, {
                 method: 'POST',
                 headers: {
@@ -72,9 +71,7 @@ function LogIn() {
                 credentials: 'include' 
             });
 
-            console.log('Server response:', response);
             const data = await response.json();
-            console.log('Server response data:', { ...data, token: data.token ? '[REDACTED]' : undefined });
 
             if (!response.ok) {
                 if (response.status === 429) {
@@ -87,7 +84,6 @@ function LogIn() {
             }
 
             if (data.status === 'success') {
-                console.log('Login successful, setting up user data...');
                 const userData = {
                     id: data.user.id,
                     username: data.user.username,

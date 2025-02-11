@@ -33,12 +33,9 @@ const GameCard = ({
     }, [id]);
 
     const handleCardClick = () => {
-        console.log('Card clicked, onClick handler:', !!onClick);
         if (onClick) {
-            console.log('Calling onClick with id:', id);
             onClick(id);
         } else {
-            console.log('Navigating to game description:', id);
             navigate(`/gamedescription/${id}`);
         }
     };
