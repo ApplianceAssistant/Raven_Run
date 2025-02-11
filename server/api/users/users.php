@@ -308,7 +308,8 @@ try {
 
             // Handle base64 image
             if (!empty($data['profile_picture'])) {
-                $uploadDir = __DIR__ . '/../uploads/profiles/';
+                // Use permanent_uploads directory for file storage
+                $uploadDir = __DIR__ . '/../../permanent_uploads/profiles/';
                 if (!file_exists($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
@@ -321,7 +322,7 @@ try {
                 $imageData = base64_decode($base64Data);
 
                 if (file_put_contents($targetPath, $imageData)) {
-                    $data['profile_picture_url'] = '/uploads/profiles/' . $fileName;
+                    $data['profile_picture_url'] = '/permanent_uploads/profiles/' . $fileName;
                 }
                 unset($data['profile_picture']);
             }

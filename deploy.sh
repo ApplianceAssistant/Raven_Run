@@ -6,6 +6,12 @@ if [[ ! "$PWD" == */public_html ]]; then
     exit 1
 fi
 
+# Create permanent uploads directory if it doesn't exist
+echo "Setting up permanent uploads directory..."
+mkdir -p permanent_uploads/profiles
+chmod 775 permanent_uploads
+chmod 775 permanent_uploads/profiles
+
 # Remove development-only files
 echo "Removing development-only files..."
 rm -f start-api.bat
@@ -39,18 +45,17 @@ fi
 mv build/* . 2>/dev/null || true
 mv build/.* . 2>/dev/null || true
 
+# Set up symbolic link for uploads
+echo "Setting up uploads symbolic link..."
+rm -rf uploads  # Remove existing uploads directory or link
+ln -s permanent_uploads uploads
+
 # Ensure .htaccess exists
 echo "Checking .htaccess..."
 if [ ! -f ".htaccess" ]; then
     echo "Creating .htaccess file..."
     cp .htaccess.example .htaccess || echo "No .htaccess.example found, skipping..."
 fi
-
-# Ensure uploads directories exist
-echo "Ensuring uploads directories exist..."
-mkdir -p server/uploads/profiles
-chmod 775 server/uploads
-chmod 775 server/uploads/profiles
 
 # Clean up
 echo "Cleaning up..."
