@@ -27,19 +27,29 @@ function Documentation() {
 
                 <section className="doc-section">
                     <h2>Playing Games</h2>
-                    <h3>Finding a Game</h3>
+                    <h3>Finding Games in the Lobby</h3>
                     <ul>
-                        <li>Click "Find a Game" in the main menu</li>
-                        <li>Browse available games in the lobby</li>
-                        <li>Select a game to start playing</li>
+                        <li>Access the Game Lobby through the "Find a Game" option</li>
+                        <li>Use the search bar to find specific games by title or keywords</li>
+                        <li>Sort games by various criteria:
+                            <ul>
+                                <li>Duration</li>
+                                <li>Popularity</li>
+                                <li>Difficulty Level</li>
+                                <li>Location</li>
+                            </ul>
+                        </li>
+                        <li>Filter games using keywords like your city, country, or keywords in the game description</li>
+                        <li>Click on a game to view greater detail and start playing</li>
+                        <li>Note: Private games will not appear in the Game Lobby until made public by their creator</li>
                     </ul>
 
-                    <h3>Challenge Types</h3>
+                    <h3>Playing a Game</h3>
                     <ul>
-                        <li><strong>Travel Challenges:</strong> Navigate to specific locations</li>
-                        <li><strong>Story Challenges:</strong> Read and interact with narrative content</li>
-                        <li><strong>Multiple Choice:</strong> Answer questions with multiple options</li>
-                        <li><strong>True/False:</strong> Answer simple true or false questions</li>
+                        <li>Follow the on-screen instructions for each challenge</li>
+                        <li>Use the distance notice and direction to find your way to the required location</li>
+                        <li>Complete challenges to progress through the game</li>
+                        <li>Note: Games with Day-Only mode can only be played during daylight hours</li>
                     </ul>
                 </section>
 
@@ -48,28 +58,72 @@ function Documentation() {
                     <h3>Game Creation Process</h3>
                     <ul>
                         <li>Click "Create" in the main menu</li>
-                        <li>Fill in basic game information</li>
-                        <li>Add challenges one by one</li>
-                        <li>Set locations for travel challenges</li>
-                        <li>Preview and test your game</li>
+                        <li>Fill in basic game information:
+                            <ul>
+                                <li>Title and description</li>
+                                <li>Difficulty level</li>
+                                <li>Keywords for searchability</li>
+                                <li>Privacy setting (private/public)</li>
+                                <li>Day-Only mode setting for locations only accessible during daylight</li>
+                            </ul>
+                        </li>
+                        <li>Add challenges using different types:
+                            <ul>
+                                <li><strong>Travel Challenges:</strong> Set specific locations players must visit</li>
+                                <li><strong>Story Challenges:</strong> Create narrative content and interactions</li>
+                                <li><strong>Multiple Choice:</strong> Design questions with multiple options</li>
+                                <li><strong>True/False:</strong> Create simple true/false questions</li>
+                                <li><strong>Text Input:</strong> Create questions where players must type the correct answer</li>
+                            </ul>
+                        </li>
                     </ul>
 
-                    <h3>Challenge Creation Tips</h3>
+                    <h3>Playtesting Your Game</h3>
                     <ul>
-                        <li>Keep instructions clear and concise</li>
-                        <li>Test all locations before publishing</li>
-                        <li>Include engaging descriptions</li>
+                        <li>Use the Playtest mode to test your game during development</li>
+                        <li>Special creator features in Playtest mode:
+                            <ul>
+                                <li>Skip location requirements to test all challenges</li>
+                                <li>Jump between challenges freely</li>
+                                <li>Preview all content as players will see it</li>
+                                <li>Test updates in real-time as you make changes</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h3>Game Optimization Tips</h3>
+                    <ul>
+                        <li>Add relevant keywords to help players find your game</li>
+                        <li>Test all locations and challenges thoroughly</li>
+                        <li>Write clear, engaging instructions</li>
                         <li>Consider accessibility in your design</li>
+                        <li>Use the playtest function to check content formatting</li>
+                        <li>Enable Day-Only mode if your game includes locations that close after dark</li>
+                        <li>Keep games private during development and testing</li>
                     </ul>
                 </section>
 
                 <section className="doc-section">
                     <h2>Settings and Preferences</h2>
                     <ul>
-                        <li>Adjust text-to-speech settings</li>
-                        <li>Change theme preferences</li>
-                        <li>Modify notification settings</li>
-                        <li>Update profile information</li>
+                        <li>Theme preferences:
+                            <ul>
+                                <li>Toggle between Light and Dark mode</li>
+                                <li>Adjust display settings</li>
+                            </ul>
+                        </li>
+                        <li>Measurement preferences:
+                            <ul>
+                                <li>Choose between Metric (km/m) or Imperial (mi/ft)</li>
+                            </ul>
+                        </li>
+                        <li>Accessibility settings:
+                            <ul>
+                                <li>Enable/disable Auto-Speak feature</li>
+                                <li>Select preferred voice for text-to-speech</li>
+                                <li>Test voice settings</li>
+                            </ul>
+                        </li>
                     </ul>
                 </section>
 
@@ -80,6 +134,7 @@ function Documentation() {
                         <li>Location not updating: Check device GPS settings</li>
                         <li>Can't create game: Ensure all required fields are filled</li>
                         <li>Login issues: Verify email and password</li>
+                        <li>Search not working: Try different keywords or clear filters</li>
                     </ul>
                 </section>
             </div>

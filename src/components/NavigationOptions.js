@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ScrollableContent from './ScrollableContent';
-import { faUser, faGamepad, faPlus, faSearch, faTrophy, faUsers, faDiceD20, faBook } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faGamepad, faPlus, faSearch, faTrophy, faUsers, faDiceD20, faBook, faGear } from '@fortawesome/free-solid-svg-icons';
 import '../css/NavigationOptions.scss';
 
 const defaultOptions = [
@@ -34,6 +34,13 @@ const defaultOptions = [
         route: '/friends',
         icon: faUsers,
         description: 'Connect with other players'
+    },
+    {
+        id: 'settings',
+        label: 'Settings',
+        route: '/settings',
+        icon: faGear,
+        description: 'Adjust game settings'
     },
     {
         id: 'documentation',
