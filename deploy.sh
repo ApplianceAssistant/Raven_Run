@@ -46,6 +46,12 @@ if [ ! -f ".htaccess" ]; then
     cp .htaccess.example .htaccess || echo "No .htaccess.example found, skipping..."
 fi
 
+# Ensure uploads directories exist
+echo "Ensuring uploads directories exist..."
+mkdir -p server/uploads/profiles
+chmod 775 server/uploads
+chmod 775 server/uploads/profiles
+
 # Clean up
 echo "Cleaning up..."
 rm -rf build
