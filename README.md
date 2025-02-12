@@ -327,6 +327,51 @@ The application implements a robust API response handling system that works cons
 - Clear feedback for user actions
 - Progressive disclosure of features
 
+## Image Upload System
+
+1. **Game Cover Images**
+   - Images are stored in `/server/permanent_uploads/games/{gameId}/`
+   - Supports version control with previous versions in `.previous` subdirectory
+   - Maintains the last 2 previous versions for rollback capability
+   - File naming convention: 
+     - Current: `cover.jpg`
+     - Previous: `{timestamp}_cover.jpg`
+
+2. **Image Processing**
+   - Maximum file size: 5MB
+   - Images are automatically cropped and centered
+   - Served via `/server/permanent_uploads/games/{gameId}/cover.jpg`
+   - Previous versions accessible in `.previous` directory
+
+3. **Components and Services**
+   - `game_images.php`: Backend endpoint for image operations
+   - `gameCreatorService.js`: Frontend service for image upload/delete
+   - `ImageUploadModal`: Reusable component for image upload/crop
+   - Integrated with both GameForm and Profile components
+
+4. **Error Handling**
+   - Size validation (5MB limit)
+   - File type validation (images only)
+   - Ownership validation before modifications
+   - Comprehensive error logging in PHP error logs
+
+5. **UI/UX Features**
+   - Hover overlay for image actions
+   - Edit and remove capabilities
+   - Loading states during upload
+   - Success/error notifications
+   - Maintains consistent 200x200 display size
+
+### API Response Format
+Game image endpoints follow the standard response format:
+```json
+{
+  "status": "success|error",
+  "imageUrl": "/server/permanent_uploads/games/{gameId}/cover.jpg",
+  "message": "Success/error message"
+}
+```
+
 ## Common Issues and Solutions
 
 1. Location Updates
@@ -350,4 +395,3 @@ The application implements a robust API response handling system that works cons
 - [ ] Enhanced location features
 - [ ] Social sharing capabilities
 - [ ] Achievement system
-

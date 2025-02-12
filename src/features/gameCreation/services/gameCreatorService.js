@@ -151,6 +151,57 @@ export const isValidGame = (game) => {
   return true;
 };
 
+/**
+ * Upload a game image
+ * @param {string} gameId - The game ID
+ * @param {string} imageData - Base64 encoded image data
+ * @returns {Promise<string>} The image URL
+ */
+export const uploadGameImage = async (gameId, imageData) => {
+  try {
+    const response = await authFetch(`${API_URL}/server/api/games/game_images.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ gameId, imageData })
+    });
+
+    const data = await response.json();
+    if (data.status !== 'success') {
+      throw new Error(data.message || 'Failed to upload image');
+    }
+
+    return data.imageUrl;
+  } catch (error) {
+    console.error('Error uploading game image:', error);
+    throw new Error('Failed to upload image');
+  }
+};
+
+/**
+ * Delete a game image
+ * @param {string} gameId - The game ID
+ * @returns {Promise<void>}
+ */
+export const deleteGameImage = async (gameId) => {
+  try {
+    const response = await authFetch(`${API_URL}/server/api/games/game_images.php?gameId=${gameId}`, {
+      method: 'DELETE',
+      headers: {
+      }
+    });
+
+    const data = await response.json();
+    if (data.status !== 'success') {
+      throw new Error(data.message || 'Failed to delete image');
+    }
+  } catch (error) {
+    console.error('Error deleting game image:', error);
+    throw new Error('Failed to delete image');
+  }
+};
+
 export const saveGame = async (gameData) => {
   if (!isValidGame(gameData)) {
     throw new Error('Invalid game data');
@@ -166,6 +217,13 @@ export const saveGame = async (gameData) => {
   }
 
   try {
+    // Handle image upload first if present
+    if (gameData.imageData) {
+      const imageUrl = await uploadGameImage(gameData.gameId, gameData.imageData);
+      gameData.imageUrl = imageUrl;
+    }
+    delete gameData.imageData; // Remove base64 data before saving game
+
     // First save to local storage
     await saveGameToLocalStorage(gameData);
 

@@ -1,0 +1,102 @@
+@import '../../../../css/variables';
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+
+    &.visible {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.modal-content {
+    background: var(--modal-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+
+    &.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .modal-header {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h2 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1.25rem;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 1.25rem;
+            transition: color 0.3s ease;
+
+            &:hover {
+                color: var(--text-color);
+            }
+        }
+    }
+
+    .modal-body {
+        padding: 1rem;
+        overflow-y: auto;
+        flex: 1;
+        background: var(--modal-bg);
+    }
+
+    .modal-footer {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &.secondary-button {
+                background: var(--secondary-button-bg);
+                border: 1px solid var(--border-color);
+                color: var(--text-color);
+
+                &:hover {
+                    background: var(--secondary-button-hover-bg);
+                }
+            }
+        }
+    }
+}

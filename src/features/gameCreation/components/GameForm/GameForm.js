@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faPlay, faInfoCircle, faPlusCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPlay, faInfoCircle, faPlusCircle, faTimes, faImage, faEdit } from '@fortawesome/free-solid-svg-icons';
 import ToggleSwitch from '../../../../components/ToggleSwitch';
 import AutoExpandingTextArea from '../../../../components/AutoExpandingTextArea/AutoExpandingTextArea';
 import ChallengeCard from '../ChallengeCard/ChallengeCard';
 import ScrollableContent from '../../../../components/ScrollableContent';
+import ImageUploadModal from '../ImageUploadModal/ImageUploadModal';
 import { isValidGame } from '../../services/gameCreatorService';
+import { uploadGameImage, deleteGameImage } from '../../services/gameCreatorService';
 import { useMessage } from '../../../../utils/MessageProvider';
 import { setPlaytestState } from '../../../../utils/localStorageUtils';
 import '../../../../css/GameCreator.scss';
@@ -27,7 +29,9 @@ const GameForm = ({
     challenges: [],
     difficulty_level: 'medium',
     tags: [],
-    dayOnly: false
+    dayOnly: false,
+    imageUrl: '',
+    imageData: ''
   });
   const [originalData, setOriginalData] = useState({
     title: '',
@@ -37,13 +41,48 @@ const GameForm = ({
     challenges: [],
     difficulty_level: 'medium',
     tags: [],
-    dayOnly: false
+    dayOnly: false,
+    imageUrl: '',
+    imageData: ''
   });
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const [newTag, setNewTag] = useState('');
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [imageStatus, setImageStatus] = useState({
+    loading: false,
+    error: null
+  });
+
+  const openImageModal = () => {
+    console.log('Opening image modal');
+    setIsImageModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    console.log('Closing image modal');
+    setIsImageModalOpen(false);
+  };
+
+  const handleImageChange = async (imageData) => {
+    setImageStatus({ loading: true, error: null });
+    try {
+      const response = await uploadGameImage(formData.id, imageData);
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: response.imageUrl
+      }));
+      setImageStatus({ loading: false, error: null });
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      setImageStatus({ 
+        loading: false, 
+        error: 'Failed to upload image. Please try again.' 
+      });
+    }
+  };
 
   // Initialize both formData and originalData when gameData changes
   useEffect(() => {
@@ -56,7 +95,9 @@ const GameForm = ({
       challenges: gameData.challenges || [],
       difficulty_level: gameData.difficulty || gameData.difficulty_level || 'medium',
       tags: gameData.tags || [],
-      dayOnly: gameData.dayOnly || false
+      dayOnly: gameData.dayOnly || false,
+      imageUrl: gameData.imageUrl || '',
+      imageData: ''
     };
     setFormData(initialData);
     setOriginalData(JSON.parse(JSON.stringify(initialData)));
@@ -269,6 +310,59 @@ const GameForm = ({
       <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 80)" className="form-content" dependencies={[formData]}>
         <div className="main-form">
           <div className="field-container">
+
+            <div className="image-section">
+              {formData.imageUrl ? (
+                <div className="current-image">
+                  <div className="image-container">
+                    <img 
+                      src={formData.imageUrl} 
+                      alt="Game cover" 
+                      className="cover-image"
+                    />
+                    <div className="image-overlay">
+                      <button 
+                        className="edit-button"
+                        onClick={() => setIsImageModalOpen(true)}
+                        title="Edit cover image"
+                      >
+                        <FontAwesomeIcon icon={faEdit} />
+                      </button>
+                      <button 
+                        className="remove-button"
+                        onClick={async () => {
+                          try {
+                            await deleteGameImage(formData.gameId);
+                            setFormData(prev => ({
+                              ...prev,
+                              imageUrl: '',
+                              imageData: ''
+                            }));
+                            showSuccess('Image removed successfully');
+                          } catch (error) {
+                            showError('Failed to remove image');
+                          }
+                        }}
+                        title="Remove cover image"
+                      >
+                        <FontAwesomeIcon icon={faTimes} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  className="upload-button"
+                  onClick={() => setIsImageModalOpen(true)}
+                >
+                  <FontAwesomeIcon icon={faImage} />
+                  <span>Add Cover Image</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="field-container">
             <label htmlFor="title">Game Title:</label>
             <input
               type="text"
@@ -377,6 +471,12 @@ const GameForm = ({
           </div>
         )}
       </ScrollableContent>
+      <ImageUploadModal
+        isOpen={isImageModalOpen}
+        onClose={closeImageModal}
+        onImageChange={handleImageChange}
+        currentImage={formData.imageUrl}
+      />
     </div>
   );
 };

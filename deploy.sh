@@ -9,8 +9,12 @@ fi
 # Create permanent uploads directory if it doesn't exist
 echo "Setting up permanent uploads directory..."
 mkdir -p permanent_uploads/profiles
+mkdir -p permanent_uploads/games
+mkdir -p permanent_uploads/challenges
 chmod 775 permanent_uploads
 chmod 775 permanent_uploads/profiles
+chmod 775 permanent_uploads/games
+chmod 775 permanent_uploads/challenges
 
 # Remove development-only files
 echo "Removing development-only files..."

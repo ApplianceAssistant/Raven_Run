@@ -1,0 +1,105 @@
+@import '../../../../css/variables';
+
+.image-upload {
+    width: 100%;
+    
+    .upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &.drag-active {
+            border-color: var(--primary-color);
+            background-color: var(--hover-bg);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin: 0.5rem 0;
+            color: var(--text-color);
+        }
+
+        .file-requirements {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            margin-top: 1rem;
+        }
+    }
+
+    .image-preview {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--modal-bg);
+        padding: 1rem;
+
+        img {
+            display: block;
+            max-width: 100%;
+            border-radius: 4px;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: flex-end;
+            align-items: center;
+
+            button {
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-size: 0.875rem;
+
+                &.save-crop-button {
+                    background: var(--primary-button-bg);
+                    color: var(--primary-button-text);
+                    border: none;
+
+                    &:hover:not(:disabled) {
+                        background: var(--primary-button-hover-bg);
+                    }
+
+                    &:disabled {
+                        opacity: 0.5;
+                        cursor: not-allowed;
+                    }
+                }
+
+                &.clear-button {
+                    background: var(--secondary-button-bg);
+                    border: 1px solid var(--border-color);
+                    color: var(--text-color);
+
+                    &:hover {
+                        background: var(--secondary-button-hover-bg);
+                    }
+
+                    svg {
+                        margin-right: 0.5rem;
+                    }
+                }
+            }
+        }
+
+        .error-message {
+            color: var(--error-color);
+            margin-top: 1rem;
+            text-align: center;
+        }
+    }
+}
