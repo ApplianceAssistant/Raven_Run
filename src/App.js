@@ -169,6 +169,15 @@ function AppContent() {
               </ThemeContainer>
             </GameCreationProvider>
           } />
+          {/* Add a catch-all route for 404s */}
+          <Route path="*" element={
+            <div className="content-wrapper">
+              <div className="bodyContent">
+                <h1>404 - Page Not Found</h1>
+                <p>The page you're looking for doesn't exist.</p>
+              </div>
+            </div>
+          } />
         </Routes>
       </div>
     </AuthContext.Provider>
@@ -178,7 +187,7 @@ function AppContent() {
 function App() {
   useEffect(() => {
     let cleanup = setupViewport();
-    
+
     return () => {
       if (cleanup) cleanup();
     };

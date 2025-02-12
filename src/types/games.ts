@@ -17,9 +17,9 @@ export interface BaseGame {
     /** Game description */
     description: string;
     /** Game cover image URL */
-    imageUrl?: string;
+    image_url?: string;
     /** Original image data for upload/edit */
-    imageData?: string;
+    image_data?: string;
     /** Array of challenges in the game */
     challenges: Challenge[];
     /** Whether the game is publicly visible */

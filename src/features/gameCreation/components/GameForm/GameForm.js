@@ -30,8 +30,8 @@ const GameForm = ({
     difficulty_level: 'medium',
     tags: [],
     dayOnly: false,
-    imageUrl: '',
-    imageData: ''
+    image_url: '',
+    image_data: ''
   });
   const [originalData, setOriginalData] = useState({
     title: '',
@@ -42,8 +42,8 @@ const GameForm = ({
     difficulty_level: 'medium',
     tags: [],
     dayOnly: false,
-    imageUrl: '',
-    imageData: ''
+    image_url: '',
+    image_data: ''
   });
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -66,21 +66,25 @@ const GameForm = ({
     setIsImageModalOpen(false);
   };
 
-  const handleImageChange = async (imageData) => {
+  const handleImageChange = async (image_data) => {
     setImageStatus({ loading: true, error: null });
     try {
-      const response = await uploadGameImage(formData.id, imageData);
-      setFormData(prev => ({
-        ...prev,
-        imageUrl: response.imageUrl
-      }));
+      const response = await uploadGameImage(formData.gameId, image_data);
+      console.warn("response:", response)
+      const updatedFormData = {
+        ...formData,
+        image_url: response.image_url
+      };
+      console.log("updatedFormData:", updatedFormData);
+      setFormData(updatedFormData);
       setImageStatus({ loading: false, error: null });
+      
+      // Save the updated game data to sync with localStorage
+      await onSave(updatedFormData);
     } catch (error) {
-      console.error('Failed to upload image:', error);
-      setImageStatus({ 
-        loading: false, 
-        error: 'Failed to upload image. Please try again.' 
-      });
+      console.error('Error uploading image:', error);
+      setImageStatus({ loading: false, error: error.message });
+      showError(error.message || 'Failed to upload image');
     }
   };
 
@@ -96,9 +100,10 @@ const GameForm = ({
       difficulty_level: gameData.difficulty || gameData.difficulty_level || 'medium',
       tags: gameData.tags || [],
       dayOnly: gameData.dayOnly || false,
-      imageUrl: gameData.imageUrl || '',
-      imageData: ''
+      image_url: gameData.image_url || '',
+      image_data: ''
     };
+    console.warn('initialData:', initialData);
     setFormData(initialData);
     setOriginalData(JSON.parse(JSON.stringify(initialData)));
   }, [gameData]);
@@ -312,11 +317,11 @@ const GameForm = ({
           <div className="field-container">
 
             <div className="image-section">
-              {formData.imageUrl ? (
+              {formData.image_url ? (
                 <div className="current-image">
                   <div className="image-container">
                     <img 
-                      src={formData.imageUrl} 
+                      src={formData.image_url} 
                       alt="Game cover" 
                       className="cover-image"
                     />
@@ -335,8 +340,8 @@ const GameForm = ({
                             await deleteGameImage(formData.gameId);
                             setFormData(prev => ({
                               ...prev,
-                              imageUrl: '',
-                              imageData: ''
+                              image_url: '',
+                              image_data: ''
                             }));
                             showSuccess('Image removed successfully');
                           } catch (error) {
@@ -475,7 +480,7 @@ const GameForm = ({
         isOpen={isImageModalOpen}
         onClose={closeImageModal}
         onImageChange={handleImageChange}
-        currentImage={formData.imageUrl}
+        currentImage={formData.image_url}
       />
     </div>
   );

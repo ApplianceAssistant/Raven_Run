@@ -154,17 +154,17 @@ export const isValidGame = (game) => {
 /**
  * Upload a game image
  * @param {string} gameId - The game ID
- * @param {string} imageData - Base64 encoded image data
+ * @param {string} image_data - Base64 encoded image data
  * @returns {Promise<string>} The image URL
  */
-export const uploadGameImage = async (gameId, imageData) => {
+export const uploadGameImage = async (gameId, image_data) => {
   try {
     const response = await authFetch(`${API_URL}/server/api/games/game_images.php`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ gameId, imageData })
+      body: JSON.stringify({ gameId, image_data })
     });
 
     const data = await response.json();
@@ -172,7 +172,7 @@ export const uploadGameImage = async (gameId, imageData) => {
       throw new Error(data.message || 'Failed to upload image');
     }
 
-    return data.imageUrl;
+    return data;
   } catch (error) {
     console.error('Error uploading game image:', error);
     throw new Error('Failed to upload image');
@@ -218,11 +218,11 @@ export const saveGame = async (gameData) => {
 
   try {
     // Handle image upload first if present
-    if (gameData.imageData) {
-      const imageUrl = await uploadGameImage(gameData.gameId, gameData.imageData);
-      gameData.imageUrl = imageUrl;
+    if (gameData.image_data) {
+      const image_url = await uploadGameImage(gameData.gameId, gameData.image_data);
+      gameData.image_url = image_url;
     }
-    delete gameData.imageData; // Remove base64 data before saving game
+    delete gameData.image_data; // Remove base64 data before saving game
 
     // First save to local storage
     await saveGameToLocalStorage(gameData);
@@ -295,6 +295,7 @@ export const saveGame = async (gameData) => {
 };
 
 export const getGames = async () => {
+  console.log('Getting games');
   let games = getGamesFromLocalStorage() || [];
   
   try {
@@ -308,6 +309,7 @@ export const getGames = async () => {
         let jsonData;
         try {
             jsonData = JSON.parse(rawText);
+            console.log('getGames JSON data returned:', jsonData);
         } catch (parseError) {
             console.error('JSON parse error:', parseError);
             console.error('Failed to parse text:', rawText);
@@ -328,6 +330,7 @@ export const getGames = async () => {
         
         // Keep unsynced local games
         const unsynced = games.filter(localGame => {
+          console.warn('returning unsynced local game:', localGame);
           return !localGame.isSynced && localGame.gameId;
         });
         
@@ -349,7 +352,7 @@ export const getGames = async () => {
   } catch (error) {
     console.error('Error fetching games from server:', error);
   }
-  
+  console.warn('returning filtered games:', games.filter(game => game && game.gameId));
   return games.filter(game => game && game.gameId);
 };
 

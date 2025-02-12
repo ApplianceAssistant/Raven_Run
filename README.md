@@ -330,7 +330,7 @@ The application implements a robust API response handling system that works cons
 ## Image Upload System
 
 1. **Game Cover Images**
-   - Images are stored in `/server/permanent_uploads/games/{gameId}/`
+   - Images are stored in `/permanent_uploads/games/{gameId}/`
    - Supports version control with previous versions in `.previous` subdirectory
    - Maintains the last 2 previous versions for rollback capability
    - File naming convention: 
@@ -340,7 +340,7 @@ The application implements a robust API response handling system that works cons
 2. **Image Processing**
    - Maximum file size: 5MB
    - Images are automatically cropped and centered
-   - Served via `/server/permanent_uploads/games/{gameId}/cover.jpg`
+   - Served via `/permanent_uploads/games/{gameId}/cover.jpg`
    - Previous versions accessible in `.previous` directory
 
 3. **Components and Services**
@@ -367,7 +367,7 @@ Game image endpoints follow the standard response format:
 ```json
 {
   "status": "success|error",
-  "imageUrl": "/server/permanent_uploads/games/{gameId}/cover.jpg",
+  "image_url": "/permanent_uploads/games/{gameId}/cover.jpg",
   "message": "Success/error message"
 }
 ```

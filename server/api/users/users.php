@@ -319,9 +319,9 @@ try {
 
                 // Extract and save base64 image
                 $base64Data = preg_replace('#^data:image/\w+;base64,#i', '', $data['profile_picture']);
-                $imageData = base64_decode($base64Data);
+                $image_data = base64_decode($base64Data);
 
-                if (file_put_contents($targetPath, $imageData)) {
+                if (file_put_contents($targetPath, $image_data)) {
                     $data['profile_picture_url'] = '/uploads/profiles/' . $fileName;
                 }
                 unset($data['profile_picture']);

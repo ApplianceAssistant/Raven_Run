@@ -7,8 +7,8 @@ import './ImageUploadModal.scss';
 const ImageUploadModal = ({ isOpen, onClose, onImageChange, currentImage }) => {
     if (!isOpen) return null;
 
-    const handleImageChange = (imageData) => {
-        onImageChange(imageData);
+    const handleImageChange = (image_data) => {
+        onImageChange(image_data);
         onClose();
     };
 
@@ -23,8 +23,6 @@ const ImageUploadModal = ({ isOpen, onClose, onImageChange, currentImage }) => {
         e.stopPropagation(); // Prevent event from bubbling to overlay
         onClose();
     };
-
-    console.log('Rendering modal with isOpen:', isOpen);
 
     return (
         <div className={`modal-overlay ${isOpen ? 'visible' : ''}`} onClick={handleOverlayClick}>

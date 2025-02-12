@@ -11,6 +11,10 @@
 
 #uploaded files
 /uploads
+/permanent_uploads
+
+#core images
+/images
 
 # Environment files
 .env
@@ -22,9 +26,6 @@
 
 # Production build
 /build
-
-#core images
-/images
 
 # Configuration files
 /server/config/dev.config.php

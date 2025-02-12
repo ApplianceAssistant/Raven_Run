@@ -35,6 +35,7 @@ const GameCreator = () => {
 
   useEffect(() => {
     const loadGames = async () => {
+      console.log('Loading games');
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
         const savedGames = await getGames();
@@ -100,6 +101,7 @@ const GameCreator = () => {
   };
 
   const handleSaveGame = async (gameData) => {
+    console.log("handleSaveGame called with gameData:", gameData);
     try {
       // Validate required fields
       const validationErrors = validateGameData(gameData);
@@ -107,7 +109,7 @@ const GameCreator = () => {
         throw new Error(`Invalid game data: ${validationErrors.join(', ')}`);
       }
 
-      // Find the existing game to preserve its challenges
+      // Find the existing game to preserve its challenges and image
       const existingGame = games.find(g => g.gameId === gameData.gameId);
       
       // Ensure challenges array is valid
@@ -131,7 +133,9 @@ const GameCreator = () => {
         dayOnly: gameData.dayOnly || false,
         challenges: mergedChallenges,
         isSynced: false,
-        lastModified: new Date().toISOString()
+        lastModified: new Date().toISOString(),
+        // Preserve existing image_url if not provided in gameData
+        image_url: gameData.image_url || existingGame?.image_url || ''
       };
       
       // Attempt to save to server first
@@ -139,6 +143,10 @@ const GameCreator = () => {
       try {
         savedGame = await saveGame(newGame);
         newGame.isSynced = true;
+        // Ensure we preserve the image_url from server response
+        if (savedGame.image_url) {
+          newGame.image_url = savedGame.image_url;
+        }
       } catch (syncError) {
         console.error('Failed to sync with server:', syncError);
         savedGame = newGame; // Use local data as fallback

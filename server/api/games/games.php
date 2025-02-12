@@ -298,7 +298,8 @@ try {
                         start_latitude,
                         start_longitude,
                         end_latitude,
-                        end_longitude
+                        end_longitude,
+                        image_url
                     FROM games 
                     WHERE user_id = ?
                 ");
@@ -382,7 +383,8 @@ try {
                             'endLocation' => [
                                 'latitude' => (float)$row['end_latitude'],
                                 'longitude' => (float)$row['end_longitude']
-                            ]
+                            ],
+                            'image_url' => $row['image_url']
                         ];
                     } catch (Exception $e) {
                         error_log("Error processing game " . $row['gameId'] . ": " . $e->getMessage());

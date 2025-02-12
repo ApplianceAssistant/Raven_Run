@@ -52,7 +52,7 @@ try {
             error_log("Processing image upload request");
             $data = json_decode(file_get_contents('php://input'), true);
             
-            if (empty($data) || empty($data['gameId']) || empty($data['imageData'])) {
+            if (empty($data) || empty($data['gameId']) || empty($data['image_data'])) {
                 error_log("Missing required data for image upload");
                 http_response_code(400);
                 echo json_encode([
@@ -82,18 +82,18 @@ try {
             // Process and save the image
             try {
                 error_log("Saving image for game: " . $data['gameId']);
-                $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data['imageData']));
-                $imageUrl = saveGameImage($data['gameId'], $imageData);
+                $image_data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data['image_data']));
+                $image_url = saveGameImage($data['gameId'], $image_data);
                 
                 // Update game record with new image URL
                 $stmt = $conn->prepare('UPDATE games SET image_url = ? WHERE gameId = ?');
-                $stmt->bind_param('ss', $imageUrl, $data['gameId']);
+                $stmt->bind_param('ss', $image_url, $data['gameId']);
                 $stmt->execute();
 
                 error_log("Successfully saved image for game: " . $data['gameId']);
                 echo json_encode([
                     'status' => 'success',
-                    'imageUrl' => $imageUrl
+                    'image_url' => $image_url
                 ]);
             } catch (Exception $e) {
                 error_log("Failed to save image: " . $e->getMessage());

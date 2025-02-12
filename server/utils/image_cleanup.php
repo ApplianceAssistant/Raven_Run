@@ -31,7 +31,7 @@ function cleanupGameImages($gameId) {
 /**
  * Save game image with version control
  */
-function saveGameImage($gameId, $imageData) {
+function saveGameImage($gameId, $image_data) {
     $gameDir = dirname(dirname(dirname(__FILE__))) . '/permanent_uploads/games/' . $gameId;
     $previousDir = $gameDir . '/.previous';
     $currentFile = $gameDir . '/cover.jpg';
@@ -51,7 +51,7 @@ function saveGameImage($gameId, $imageData) {
     }
     
     // Save new image
-    file_put_contents($currentFile, $imageData);
+    file_put_contents($currentFile, $image_data);
     chmod($currentFile, 0644);
     
     // Cleanup old versions

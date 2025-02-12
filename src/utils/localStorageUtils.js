@@ -23,6 +23,7 @@ export const getGamesFromLocalStorage = () => {
     }
 
     const games = decryptData(encryptedGames);
+    console.warn('decrypted games:', games)
     if (!games || !Array.isArray(games)) {
       console.warn('Invalid games data format or decryption failed');
       return [];
@@ -334,7 +335,12 @@ export const normalizeGame = (game) => {
     isSynced: game.isSynced ?? true,
     challenges: challenges,
     lastModified: game.lastModified || game.last_modified || game.updated_at || Date.now(),
-    lastAccessed: Date.now()
+    lastAccessed: Date.now(),
+    image_url: game.image_url || '',
+    image_data: game.image_data || '',
+    creatorName: game.creatorName || game.creator_name || 'Anonymous',
+    tags: game.tags || [],
+
   };
 };
 
