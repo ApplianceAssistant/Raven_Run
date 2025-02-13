@@ -265,7 +265,7 @@ const GameLobby = () => {
                 onClose={() => setIsGameChangeModalOpen(false)}
                 title="Game in Progress"
                 content={
-                    <p>You have a game in progress. Would you like to:</p>
+                    <p>You have a game in progress. Would you like to continue or start a new game?</p>
                 }
                 buttons={[
                     {
