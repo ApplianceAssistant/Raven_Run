@@ -10,6 +10,7 @@ import ImageUploadModal from '../ImageUploadModal/ImageUploadModal';
 import { isValidGame } from '../../services/gameCreatorService';
 import { uploadGameImage, deleteGameImage } from '../../services/gameCreatorService';
 import { useMessage } from '../../../../utils/MessageProvider';
+import { API_URL } from '../../../../utils/utils';
 import { setPlaytestState } from '../../../../utils/localStorageUtils';
 import '../../../../css/GameCreator.scss';
 
@@ -240,7 +241,7 @@ const GameForm = ({
         const newOriginalData = JSON.parse(JSON.stringify(submittedData));
         setOriginalData(newOriginalData);
         setHasChanges(false);
-        showSuccess(isEditing ? 'Game updated successfully!' : 'Game created successfully!');
+        showSuccess(isEditing ? 'Yea Game updated successfully!' : 'Game created successfully!');
       } catch (error) {
         showError(error.message || 'Failed to save game. Please try again.');
       }
@@ -321,7 +322,7 @@ const GameForm = ({
                 <div className="current-image">
                   <div className="image-container">
                     <img 
-                      src={formData.image_url} 
+                      src={`${API_URL}${formData.image_url}`} 
                       alt="Game cover" 
                       className="cover-image"
                     />
@@ -480,7 +481,7 @@ const GameForm = ({
         isOpen={isImageModalOpen}
         onClose={closeImageModal}
         onImageChange={handleImageChange}
-        currentImage={formData.image_url}
+        currentImage={`${API_URL}${formData.image_url}`}
       />
     </div>
   );

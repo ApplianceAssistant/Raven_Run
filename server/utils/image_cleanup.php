@@ -57,5 +57,5 @@ function saveGameImage($gameId, $image_data) {
     // Cleanup old versions
     cleanupGameImages($gameId);
     
-    return '/uploads/games/' . $gameId . '/cover.jpg';
+    return '/permanent_uploads/games/' . $gameId . '/cover.jpg';
 }

@@ -39,11 +39,6 @@ const ImageUploadModal = ({ isOpen, onClose, onImageChange, currentImage }) => {
                         currentImage={currentImage}
                     />
                 </div>
-                <div className="modal-footer">
-                    <button className="secondary-button" onClick={handleCloseClick}>
-                        Cancel
-                    </button>
-                </div>
             </div>
         </div>
     );

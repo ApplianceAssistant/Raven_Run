@@ -1,14 +1,32 @@
 <?php
-// Configure error reporting at the very top
+// Set character encoding first
+ini_set('default_charset', 'UTF-8');
+mb_internal_encoding('UTF-8');
+mb_http_output('UTF-8');
+mb_regex_encoding('UTF-8');
+
+// Configure error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/../logs/php_errors.log');
+
+// Set error log path and ensure UTF-8 BOM for Windows
+$logFile = __DIR__ . '/../logs/php_errors.log';
+ini_set('error_log', $logFile);
 
 // Create logs directory if it doesn't exist
 if (!file_exists(__DIR__ . '/../logs')) {
     mkdir(__DIR__ . '/../logs', 0777, true);
 }
+
+// Always recreate the log file with UTF-8 BOM to ensure proper encoding
+file_put_contents($logFile, "\xEF\xBB\xBF"); // UTF-8 BOM
+
+// Set default timezone
+date_default_timezone_set('UTC');
+
+// Force content type for all responses
+header('Content-Type: application/json; charset=utf-8');
 
 // Include CORS configuration
 require_once __DIR__ . '/../config/cors.php';

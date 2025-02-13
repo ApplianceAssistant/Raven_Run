@@ -139,7 +139,6 @@ try {
             // Delete the image
             try {
                 error_log("Deleting image for game: " . $gameId);
-                deleteGameImage($gameId);
                 
                 // Update game record to remove image URL
                 $stmt = $conn->prepare('UPDATE games SET image_url = NULL WHERE gameId = ?');

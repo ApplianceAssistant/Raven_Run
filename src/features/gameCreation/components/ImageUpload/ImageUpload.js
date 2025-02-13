@@ -1,29 +1,18 @@
 import React, { useState, useCallback } from 'react';
-import ReactCrop from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImage, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faImage, faTimes, faEdit } from '@fortawesome/free-solid-svg-icons';
 import './ImageUpload.scss';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png'];
 const MIN_WIDTH = 600;
 const MIN_HEIGHT = 315;
-const TARGET_WIDTH = 1200;
-const TARGET_HEIGHT = 630;
 
 const ImageUpload = ({ onImageChange, currentImage }) => {
-    console.log('Rendering ImageUpload with currentImage:', currentImage);
-
     const [dragActive, setDragActive] = useState(false);
     const [error, setError] = useState('');
-    const [crop, setCrop] = useState({
-        unit: '%',
-        width: 100,
-        aspect: 16 / 9
-    });
     const [imageSrc, setImageSrc] = useState(currentImage || '');
-    const [imageRef, setImageRef] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     const validateImage = (file) => {
         return new Promise((resolve, reject) => {
@@ -56,6 +45,7 @@ const ImageUpload = ({ onImageChange, currentImage }) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 setImageSrc(e.target.result);
+                onImageChange(e.target.result);
                 setError('');
             };
             reader.readAsDataURL(file);
@@ -88,106 +78,67 @@ const ImageUpload = ({ onImageChange, currentImage }) => {
         }
     };
 
-    const getCroppedImg = useCallback(async () => {
-        if (!imageRef || !crop.width || !crop.height) return;
-
-        const canvas = document.createElement('canvas');
-        const scaleX = imageRef.naturalWidth / imageRef.width;
-        const scaleY = imageRef.naturalHeight / imageRef.height;
-        
-        canvas.width = TARGET_WIDTH;
-        canvas.height = TARGET_HEIGHT;
-        
-        const ctx = canvas.getContext('2d');
-        
-        ctx.drawImage(
-            imageRef,
-            crop.x * scaleX,
-            crop.y * scaleY,
-            crop.width * scaleX,
-            crop.height * scaleY,
-            0,
-            0,
-            TARGET_WIDTH,
-            TARGET_HEIGHT
-        );
-
-        return new Promise((resolve) => {
-            canvas.toBlob(
-                (blob) => {
-                    if (!blob) return;
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        onImageChange(reader.result);
-                        resolve(reader.result);
-                    };
-                    reader.readAsDataURL(blob);
-                },
-                'image/jpeg',
-                0.9
-            );
-        });
-    }, [imageRef, crop, onImageChange]);
-
-    const clearImage = () => {
+    const removeImage = () => {
         setImageSrc('');
         onImageChange('');
+        setShowModal(false);
     };
 
     return (
-        <div className="image-upload">
+        <div className="image-upload-container">
+            {error && <div className="error-message">{error}</div>}
+            
             {!imageSrc ? (
                 <div
                     className={`upload-area ${dragActive ? 'drag-active' : ''}`}
                     onDrop={onDrop}
                     onDragOver={onDragOver}
                     onDragLeave={onDragLeave}
-                    onClick={() => document.querySelector('.file-input').click()}
                 >
+                    <FontAwesomeIcon icon={faImage} className="upload-icon" />
+                    <p>Drag and drop an image here or</p>
                     <input
                         type="file"
-                        accept="image/jpeg,image/png"
                         onChange={onSelectFile}
+                        accept="image/png, image/jpeg"
+                        id="file-upload"
                         className="file-input"
-                        style={{ display: 'none' }}
                     />
-                    <FontAwesomeIcon icon={faImage} className="upload-icon" />
-                    <p>Drag and drop an image here or click to upload</p>
-                    <p className="file-requirements">
-                        JPG or PNG, max 2MB, minimum {MIN_WIDTH}x{MIN_HEIGHT}px
-                    </p>
-                    {error && <p className="error-message">{error}</p>}
+                    <label htmlFor="file-upload" className="file-label">
+                        Choose a file
+                    </label>
                 </div>
             ) : (
-                <div className="image-preview">
-                    <ReactCrop
-                        crop={crop}
-                        onChange={(c) => setCrop(c)}
-                        aspect={16/9}
-                    >
-                        <img
-                            ref={setImageRef}
-                            src={imageSrc}
-                            alt="Upload preview"
-                            style={{ maxWidth: '100%' }}
+                <div className="image-preview-container">
+                    <div className="image-preview">
+                        <img 
+                            src={imageSrc} 
+                            alt="Preview" 
+                            className="preview-image" 
+                            onClick={() => setShowModal(true)}
                         />
-                    </ReactCrop>
-                    <div className="image-actions">
-                        <button 
-                            className="save-crop-button" 
-                            onClick={getCroppedImg}
-                            disabled={!imageRef || !crop.width || !crop.height}
-                        >
-                            Save Crop
-                        </button>
-                        <button 
-                            className="clear-button" 
-                            onClick={clearImage}
-                        >
-                            <FontAwesomeIcon icon={faTimes} /> Clear
-                        </button>
+                        <FontAwesomeIcon icon={faEdit} className="edit-icon" />
                     </div>
-                    {error && <p className="error-message">{error}</p>}
+                </div>
+            )}
+
+            {showModal && (
+                <div className="image-modal" onClick={(e) => {
+                    if (e.target === e.currentTarget) setShowModal(false);
+                }}>
+                    <div className="modal-content">
+                        <button className="close-button" onClick={() => setShowModal(false)}>
+                            <FontAwesomeIcon icon={faTimes} />
+                        </button>
+                        <div className="modal-body">
+                            <img src={imageSrc} alt="Full size" className="modal-image" />
+                        </div>
+                        <div className="modal-footer">
+                            <button className="remove-button" onClick={removeImage}>
+                                Remove Image
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

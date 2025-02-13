@@ -54,9 +54,8 @@
         }
 
         .close-button {
-            background: none;
+            background-color: var(--button-bg-caution);
             border: none;
-            color: var(--text-muted);
             cursor: pointer;
             padding: 0.5rem;
             font-size: 1.25rem;
@@ -73,30 +72,5 @@
         overflow-y: auto;
         flex: 1;
         background: var(--modal-bg);
-    }
-
-    .modal-footer {
-        padding: 1rem;
-        border-top: 1px solid var(--border-color);
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-
-        button {
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-
-            &.secondary-button {
-                background: var(--secondary-button-bg);
-                border: 1px solid var(--border-color);
-                color: var(--text-color);
-
-                &:hover {
-                    background: var(--secondary-button-hover-bg);
-                }
-            }
-        }
     }
 }

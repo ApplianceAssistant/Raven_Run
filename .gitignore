@@ -10,11 +10,7 @@
 .vscode/
 
 #uploaded files
-/uploads
 /permanent_uploads
-
-#core images
-/images
 
 # Environment files
 .env

@@ -2,6 +2,18 @@
 // Development router for PHP's built-in server
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+// Global UTF-8 Configuration
+ini_set('default_charset', 'UTF-8');
+mb_internal_encoding('UTF-8');
+mb_http_output('UTF-8');
+mb_http_input('UTF-8');
+mb_regex_encoding('UTF-8');
+
+// Set default timezone
+date_default_timezone_set('UTC');
+
+// Force content type for all responses
+header('Content-Type: application/json; charset=utf-8');
 
 // Set CORS headers for development
 header('Access-Control-Allow-Origin: http://localhost:5000');
@@ -22,8 +34,8 @@ $game = parse_url($request_uri, PHP_URL_PATH);
 // Remove leading slash if present
 $game = ltrim($game, '/');
 
-// Handle uploads directory requests
-if (strpos($game, 'uploads/') === 0) {
+// Handle permanent_uploads directory requests
+if (strpos($game, 'permanent_uploads/') === 0) {
     $file = dirname(dirname(dirname(__FILE__))) . '/' . $game;
     if (file_exists($file)) {
         // Set appropriate content type

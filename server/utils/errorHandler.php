@@ -14,7 +14,19 @@ function handleError($errno, $errstr, $errfile, $errline)
         'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown'
     ];
     
-    error_log(json_encode($error));
+    // Format error message in a human-readable way
+    $logMessage = sprintf(
+        "[%s] %s: %s in %s on line %d (URI: %s, Method: %s)\n",
+        $error['timestamp'],
+        getErrorTypeName($errno),
+        $error['message'],
+        $error['file'],
+        $error['line'],
+        $error['request_uri'],
+        $error['request_method']
+    );
+    
+    error_log($logMessage);
     
     if (in_array($errno, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR])) {
         http_response_code(500);
@@ -24,8 +36,6 @@ function handleError($errno, $errstr, $errfile, $errline)
     
     return true;
 }
-
-set_error_handler('handleError');
 
 function handleException($e) {
     $error = [
@@ -39,11 +49,47 @@ function handleException($e) {
         'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown'
     ];
     
-    error_log(json_encode($error));
+    // Format exception message in a human-readable way
+    $logMessage = sprintf(
+        "[%s] Exception %s: %s in %s on line %d\nStack Trace:\n%s\n(URI: %s, Method: %s)\n",
+        $error['timestamp'],
+        $error['type'],
+        $error['message'],
+        $error['file'],
+        $error['line'],
+        $error['trace'],
+        $error['request_uri'],
+        $error['request_method']
+    );
+    
+    error_log($logMessage);
     
     http_response_code(500);
     echo json_encode(['error' => 'Internal Server Error', 'details' => $error]);
 }
+
+// Helper function to get error type name
+function getErrorTypeName($errno) {
+    switch ($errno) {
+        case E_ERROR: return 'E_ERROR';
+        case E_WARNING: return 'E_WARNING';
+        case E_PARSE: return 'E_PARSE';
+        case E_NOTICE: return 'E_NOTICE';
+        case E_CORE_ERROR: return 'E_CORE_ERROR';
+        case E_CORE_WARNING: return 'E_CORE_WARNING';
+        case E_COMPILE_ERROR: return 'E_COMPILE_ERROR';
+        case E_COMPILE_WARNING: return 'E_COMPILE_WARNING';
+        case E_USER_ERROR: return 'E_USER_ERROR';
+        case E_USER_WARNING: return 'E_USER_WARNING';
+        case E_USER_NOTICE: return 'E_USER_NOTICE';
+        case E_RECOVERABLE_ERROR: return 'E_RECOVERABLE_ERROR';
+        case E_DEPRECATED: return 'E_DEPRECATED';
+        case E_USER_DEPRECATED: return 'E_USER_DEPRECATED';
+        default: return 'UNKNOWN';
+    }
+}
+
+set_error_handler('handleError');
 
 set_exception_handler('handleException');
 
