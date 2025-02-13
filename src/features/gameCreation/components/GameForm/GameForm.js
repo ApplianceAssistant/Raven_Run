@@ -83,7 +83,6 @@ const GameForm = ({
         setFormData(updatedData);
         setOriginalData(updatedData);
         setImageStatus({ loading: false, error: null });
-        // Save the updated game data to sync with localStorage
         await onSave(updatedData);
         closeImageModal();
       } else {
@@ -91,13 +90,12 @@ const GameForm = ({
         const response = await uploadGameImage(formData.gameId, image_data);
         const updatedData = {
           ...formData,
-          image_url: response.image_url,
+          image_url: `${response.image_url}?t=${Date.now()}`,
           imageDeleted: false
         };
         setFormData(updatedData);
         setOriginalData(updatedData);
         setImageStatus({ loading: false, error: null });
-        // Save the updated game data to sync with localStorage
         await onSave(updatedData);
         closeImageModal();
       }
@@ -341,6 +339,11 @@ const GameForm = ({
                 <div className="current-image" onClick={openImageModal}>
                   <div className="image-container">
                     <img src={`${API_URL}${formData.image_url}`} alt='Game image' />
+                    {imageStatus.loading && (
+                      <div className="loading-overlay">
+                        <span>Uploading...</span>
+                      </div>
+                    )}
                   </div>
                   <div className="edit-icon">
                     <FontAwesomeIcon icon={faEdit} />
