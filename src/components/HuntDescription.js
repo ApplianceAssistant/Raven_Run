@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ScrollableContent from './ScrollableContent';
 import TextToSpeech from './TextToSpeech';
 import ModalAgreement from './ModalAgreement';
-import { getUserUnitPreference, cleanText } from '../utils/utils';
+import { getUserUnitPreference, cleanText, API_URL } from '../utils/utils';
 import { getLargeDistanceUnit, convertDistance } from '../utils/unitConversion';
 import { useSettings } from '../utils/SettingsContext';
 import { loadGame, downloadGame } from '../features/gameplay/services/gameplayService';
@@ -39,6 +39,7 @@ const HuntDescription = () => {
 
                 // Try to load the game (this will check local storage first)
                 const gameData = await loadGame(gameId);
+                console.warn('gameData', gameData);
 
                 if (!gameData) {
                     throw new Error('Game not found');
@@ -56,7 +57,8 @@ const HuntDescription = () => {
                     description: gameData.description || 'No description available',
                     isPublic: gameData.isPublic || gameData.public || false,
                     dayOnly: Boolean(gameData.dayOnly),
-                    startLocation: gameData.startLocation || null
+                    startLocation: gameData.startLocation || null,
+                    image_url: gameData.image_url || null
                 };
 
                 setGame(transformedGame);
@@ -136,8 +138,13 @@ const HuntDescription = () => {
                     <p>Estimated Time: {game.estimatedTime} minutes</p>
                 </div>
             </div>
-            <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 50)">
+            <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
                 <div className="hunt-content">
+                    {game.image_url && (
+                        <div className="game-image">
+                            <img src={`${API_URL}${game.image_url}`} alt={game.title} />
+                        </div>
+                    )}
                     <div className="description">
                         {cleanText(game.description, { asJsx: true })}
                     </div>
