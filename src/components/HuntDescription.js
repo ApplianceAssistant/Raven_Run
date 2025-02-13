@@ -60,7 +60,7 @@ const HuntDescription = () => {
                     startLocation: gameData.startLocation || null,
                     image_url: gameData.image_url || null
                 };
-
+                console.warn('transformedGame', transformedGame);
                 setGame(transformedGame);
             } catch (error) {
                 console.error('Error getting game data:', error);

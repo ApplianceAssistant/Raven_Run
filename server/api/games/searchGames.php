@@ -317,13 +317,14 @@ try {
             'id' => $row['gameId'],
             'title' => $row['title'],
             'description' => $row['description'],
+            'challenges' => json_decode($row['challenge_data'], true),
             'difficulty' => $row['difficulty_level'],
-            'distance' => $row['distance_km'] ? round($row['distance_km'], 1) : null,
+            'distance' => $row['distance'] ? round($row['distance'], 1) : null,
             'avg_rating' => $row['avg_rating'],
             'rating_count' => $row['rating_count'],
             'duration' => $row['estimated_time'],
             'tags' => json_decode($row['tags'], true),
-            'creatorName' => $row['creator_name'],
+            'creator_name' => $row['creator_name'],
             'created_at' => $row['created_at'],
             'image_url' => $row['image_url']
         ];

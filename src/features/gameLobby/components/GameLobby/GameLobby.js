@@ -67,7 +67,7 @@ const GameLobby = () => {
             if (searchFilters.sort_by) {
                 params.append('sort_by', searchFilters.sort_by);
             }
-            
+            console.log('fetching games with params', params.toString());
             const requestUrl = `${API_URL}/server/api/games/searchGames.php?${params.toString()}`;
             
             const response = await authFetch(requestUrl);
@@ -198,7 +198,7 @@ const GameLobby = () => {
             duration: totalDuration,
             tags: tags,
             challenges: challenges,
-            creatorName: game.creatorName || 'Anonymous',
+            creator_name: game.creator_name || 'Anonymous',
             isDownloaded: false,
             image_url: game.image_url || null
         };

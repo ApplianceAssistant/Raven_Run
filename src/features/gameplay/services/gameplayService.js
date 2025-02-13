@@ -63,7 +63,7 @@ export const downloadGame = async (gameId) => {
       estimatedTime: parseInt(game.estimatedTime || game.estimated_time) || 60,
       tags: Array.isArray(game.tags) ? game.tags : [],
       dayOnly: Boolean(game.dayOnly || game.day_only),
-      creator_name: game.creator_name || game.creatorName || 'Anonymous',
+      creator_name: game.creator_name || 'Anonymous',
       startLocation: game.startLocation || {
         latitude: parseFloat(game.start_latitude || game.startLat) || 0,
         longitude: parseFloat(game.start_longitude || game.startLong) || 0

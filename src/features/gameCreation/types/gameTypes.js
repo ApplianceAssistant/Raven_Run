@@ -9,7 +9,7 @@
  * @property {boolean} isSynced - Database sync status
  * @property {string} [image_url] - URL of the game cover image
  * @property {string} [image_data] - Base64 encoded image data
- * @property {string} [creatorName] - Name of the game creator
+ * @property {string} [creator_name] - Name of the game creator
  * @property {string[]} [tags] - Array of tags
  */
 

@@ -96,6 +96,25 @@
             }
         }
 
+        .day-only-badge {
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: #ffd700;
+            background: var(--modal-bg);
+            padding: 4px;
+            border-radius: 4px;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            svg {
+                font-size: 1rem;
+            }
+        }
+
         .challenge-count {
             position: absolute;
             bottom: 8px;

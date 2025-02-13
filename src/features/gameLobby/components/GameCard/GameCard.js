@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faClock, faRoute, faFlagCheckered } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faClock, faRoute, faFlagCheckered, faSun } from '@fortawesome/free-solid-svg-icons';
 import { getDownloadedGame } from '../../../../utils/localStorageUtils';
 import { getLargeDistanceUnit, convertDistance } from '../../../../utils/unitConversion';
 import { cleanText, API_URL } from '../../../../utils/utils';
@@ -18,9 +18,10 @@ const GameCard = ({
     description,
     tags,
     challenges = [],
-    creatorName,
+    creator_name,
     inProgress = false,
     image_url,
+    dayOnly = false,
     onClick
 }) => {
     const navigate = useNavigate();
@@ -51,6 +52,7 @@ const GameCard = ({
     };
 
     const formatDistance = (distanceValue) => {
+        console.log('formatDistance called with distanceValue:', distanceValue);
         if (distanceValue === null || distanceValue === undefined) return 'Distance N/A';
         const unit = getLargeDistanceUnit(isMetric);
         const converted = convertDistance(distanceValue, isMetric);
@@ -90,7 +92,7 @@ const GameCard = ({
                     {difficulty || 'Normal'}
                 </div>
                 <div className="creator-name" title="Created by">
-                    Created by: {creatorName}
+                    Created by: {creator_name}
                 </div>
                 {distance !== null && (
                     <div className="distance-badge">
@@ -102,6 +104,11 @@ const GameCard = ({
                     <FontAwesomeIcon icon={faFlagCheckered} />
                     {challenges.length}
                 </div>
+                {dayOnly && (
+                    <div className="day-only-badge" title="Daytime Only">
+                        <FontAwesomeIcon icon={faSun} />
+                    </div>
+                )}
             </div>
             <div className="game-info">
                 <h3>{title}</h3>

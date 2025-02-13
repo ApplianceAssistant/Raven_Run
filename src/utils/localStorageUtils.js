@@ -322,7 +322,7 @@ export const normalizeGame = (game) => {
     distance: typeof game.distance === 'number' ? game.distance : 
              typeof game.distance === 'string' ? parseFloat(game.distance) : 0,
     estimatedTime: parseInt(game.estimatedTime || game.estimated_time) || 60,
-    creator_name: game.creator_name || game.creatorName || 'Anonymous',
+    creator_name: game.creator_name || 'Anonymous',
     dayOnly: Boolean(game.dayOnly || game.day_only),
     avg_rating: typeof game.avg_rating === 'number' ? game.avg_rating :
                typeof game.avg_rating === 'string' ? parseFloat(game.avg_rating) : 0,
@@ -338,7 +338,7 @@ export const normalizeGame = (game) => {
     lastAccessed: Date.now(),
     image_url: game.image_url || '',
     image_data: game.image_data || '',
-    creatorName: game.creatorName || game.creator_name || 'Anonymous',
+    creator_name: game.creator_name || 'Anonymous',
     tags: game.tags || [],
 
   };

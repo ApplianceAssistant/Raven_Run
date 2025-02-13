@@ -37,7 +37,7 @@ export interface BaseGame {
     /** Array of game tags */
     tags?: string[];
     /** Name of the game creator */
-    creatorName?: string;
+    creator_name?: string;
 }
 
 /**
