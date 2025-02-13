@@ -15,6 +15,9 @@ const GameLobby = () => {
     const [games, setGames] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+    const [isGameChangeModalOpen, setIsGameChangeModalOpen] = useState(false);
+    const [isSameGameModalOpen, setIsSameGameModalOpen] = useState(false);
+    const [selectedGameId, setSelectedGameId] = useState(null);
     const [filters, setFilters] = useState({
         locationFilter: 'any',
         radius: null,
@@ -67,7 +70,6 @@ const GameLobby = () => {
             if (searchFilters.sort_by) {
                 params.append('sort_by', searchFilters.sort_by);
             }
-            console.log('fetching games with params', params.toString());
             const requestUrl = `${API_URL}/server/api/games/searchGames.php?${params.toString()}`;
             
             const response = await authFetch(requestUrl);
@@ -124,34 +126,65 @@ const GameLobby = () => {
     }, []);
 
     const handleGameSelect = async (gameId) => {
+        console.log('Handling game select: gameId:', gameId);
         try {
             // Clear any existing playtest state
             clearPlaytestState();
             
             // Check if there's existing progress
             const progress = getHuntProgress();
-            if (progress?.gameId === gameId) {
-                const selectedGameId = gameId;
-                const isModalOpen = true;
-                return;
+            console.log("progress", progress);
+            
+            if (progress) {
+                if (progress.gameId === gameId) {
+                    // Show modal for continuing or restarting same game
+                    setSelectedGameId(gameId);
+                    setIsSameGameModalOpen(true);
+                    return;
+                } else {
+                    // Show modal to confirm game change
+                    setSelectedGameId(gameId);
+                    setIsGameChangeModalOpen(true);
+                    return;
+                }
             }
 
-            // Download and start new game
-            const game = await downloadGame(gameId);
-            if (!game) {
-                throw new Error('Failed to download game');
-            }
-
-            navigate(`/gamedescription/${gameId}`);
+            // No existing progress, start new game
+            await startNewGame(gameId);
         } catch (error) {
             console.error('Error selecting game:', error);
             console.error('Failed to load game. Please try again.');
         }
     };
 
+    const startNewGame = async (gameId) => {
+        const game = await downloadGame(gameId);
+        if (!game) {
+            throw new Error('Failed to download game');
+        }
+        navigate(`/gamedescription/${gameId}`);
+    };
+
+    const handleContinueCurrentGame = () => {
+        const progress = getHuntProgress();
+        if (progress) {
+            navigate(`/game/${progress.gameId}/challenge/${progress.challengeIndex}`);
+        }
+        setIsGameChangeModalOpen(false);
+        setIsSameGameModalOpen(false);
+    };
+
+    const handleStartNewGame = async () => {
+        if (selectedGameId) {
+            clearHuntProgress();
+            await startNewGame(selectedGameId);
+        }
+        setIsGameChangeModalOpen(false);
+        setIsSameGameModalOpen(false);
+    };
+
     // Transform games data to match GameCard props
     const transformedGames = games.map(game => {
-        console.log('game: ', game);
         const challenges = game.challenges || [];
         const firstChallenge = challenges[0] || {};
         const totalDuration = challenges.reduce((total, challenge) => {
@@ -166,9 +199,6 @@ const GameLobby = () => {
             .join(' ')
             .slice(0, 150) + '...';
 
-        // Get challenge analysis
-        const isMetric = getUserUnitPreference();
-
         // Calculate challenge type distribution
         const challengeTypes = challenges.reduce((acc, challenge) => {
             acc[challenge.type] = (acc[challenge.type] || 0) + 1;
@@ -178,8 +208,7 @@ const GameLobby = () => {
         // Create informative tags
         const tags = [
             // Game type tags
-            'Adventure',
-            game.dayOnly ? <i key="day" className="fas fa-sun" title="Day Only"/> : <i key="day-night" className="fas fa-moon" title="Day/Night"/>,
+            game.dayOnly ? <i key="day" className="fas fa-sun" title="Day Only"/> : null,
             
             // Challenge composition
             ...Object.entries(challengeTypes).map(([type, count]) => 
@@ -230,6 +259,48 @@ const GameLobby = () => {
                 </div>
                 {isLoading && <div className="loading">Loading...</div>}
             </ScrollableContent>
+
+            <Modal
+                isOpen={isGameChangeModalOpen}
+                onClose={() => setIsGameChangeModalOpen(false)}
+                title="Game in Progress"
+                content={
+                    <p>You have a game in progress. Would you like to:</p>
+                }
+                buttons={[
+                    {
+                        label: 'Return to Current Game',
+                        onClick: handleContinueCurrentGame,
+                        className: 'btn-secondary'
+                    },
+                    {
+                        label: 'Start New Game',
+                        onClick: handleStartNewGame,
+                        className: 'btn-primary'
+                    }
+                ]}
+            />
+
+            <Modal
+                isOpen={isSameGameModalOpen}
+                onClose={() => setIsSameGameModalOpen(false)}
+                title="Continue Game"
+                content={
+                    <p>Would you like to pick up where you left off or start over?</p>
+                }
+                buttons={[
+                    {
+                        label: 'Continue Game',
+                        onClick: handleContinueCurrentGame,
+                        className: 'btn-secondary'
+                    },
+                    {
+                        label: 'Start Over',
+                        onClick: handleStartNewGame,
+                        className: 'btn-primary'
+                    }
+                ]}
+            />
         </div>
     );
 };

@@ -37,6 +37,7 @@ const GameCard = ({
     }, [id]);
 
     const handleCardClick = () => {
+        console.log('Handling card click: onclick:', onClick, 'id:', id);
         if (onClick) {
             onClick(id);
         } else {
@@ -52,7 +53,6 @@ const GameCard = ({
     };
 
     const formatDistance = (distanceValue) => {
-        console.log('formatDistance called with distanceValue:', distanceValue);
         if (distanceValue === null || distanceValue === undefined) return 'Distance N/A';
         const unit = getLargeDistanceUnit(isMetric);
         const converted = convertDistance(distanceValue, isMetric);
@@ -60,17 +60,21 @@ const GameCard = ({
     };
 
     const renderStars = (rating) => {
-        return [...Array(5)].map((_, index) => {
-            const ratingValue = index + 1;
-            const filled = ratingValue <= rating;
-            return (
-                <FontAwesomeIcon
-                    key={index}
-                    icon={faStar}
-                    className={`star-icon ${filled ? 'filled' : ''}`}
-                />
-            );
-        });
+        if (rating) {
+            return [...Array(5)].map((_, index) => {
+                const ratingValue = index + 1;
+                const filled = ratingValue <= rating;
+                return (
+                    <FontAwesomeIcon
+                        key={index}
+                        icon={faStar}
+                        className={`star-icon ${filled ? 'filled' : ''}`}
+                    />
+                );
+            });
+        } else {
+            return <div><p className="no-ratings">No ratings yet</p></div>;
+        }
     };
 
     return (
@@ -120,11 +124,11 @@ const GameCard = ({
                     {cleanText(description, { maxLength: 100, truncationSuffix: '...' })}
                 </div>
                 <div className="meta-info">
-                    <span className="duration">
-                        <FontAwesomeIcon icon={faClock} />
-                        {formatDuration(duration)}
-                    </span>
                     <div className="tags">
+                        <span className="duration">
+                            <FontAwesomeIcon icon={faClock} />
+                            {formatDuration(duration)}
+                        </span>
                         {tags.map((tag, index) =>
                             typeof tag === 'string' ? (
                                 <span key={index} className="tag">{tag}</span>

@@ -39,7 +39,7 @@ const HuntDescription = () => {
 
                 // Try to load the game (this will check local storage first)
                 const gameData = await loadGame(gameId);
-                console.warn('gameData', gameData);
+                console.log('gameData', gameData);
 
                 if (!gameData) {
                     throw new Error('Game not found');
@@ -118,11 +118,19 @@ const HuntDescription = () => {
     );
 
     if (loading) {
-        return <div>Loading game details...</div>;
+        return <div className="hunt-description">
+            <div className="hunt-header">
+            <h1>Loading game details...</h1>
+            </div>
+            </div>;
     }
 
     if (error || !game) {
-        return <div>Game not found</div>;
+        return <div className="hunt-description">
+            <div className="hunt-header">
+            <h1>Game not found</h1>
+            </div>
+            </div>;
     }
 
     const distanceDisplay = convertDistance(game.distance, true, isMetric) + ' ' + getLargeDistanceUnit(isMetric);

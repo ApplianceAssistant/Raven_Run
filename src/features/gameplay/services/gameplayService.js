@@ -64,6 +64,7 @@ export const downloadGame = async (gameId) => {
       tags: Array.isArray(game.tags) ? game.tags : [],
       dayOnly: Boolean(game.dayOnly || game.day_only),
       creator_name: game.creator_name || 'Anonymous',
+      image_url: game.image_url || '',
       startLocation: game.startLocation || {
         latitude: parseFloat(game.start_latitude || game.startLat) || 0,
         longitude: parseFloat(game.start_longitude || game.startLong) || 0
@@ -100,6 +101,7 @@ export const loadGame = async (gameId) => {
     // Check if game exists locally first
     const localGame = getDownloadedGame(gameId);
     if (localGame) {
+      console.log("return local game");
       return localGame;
     }
 
@@ -114,9 +116,9 @@ export const loadGame = async (gameId) => {
     const rawText = await response.text();
     
     // Try to parse it as JSON
-    let gameData;
+    let returnData;
     try {
-      gameData = JSON.parse(rawText);
+      returnData = JSON.parse(rawText);
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
       console.error('Failed to parse text:', rawText);
@@ -124,12 +126,12 @@ export const loadGame = async (gameId) => {
     }
     
 
-    if (gameData.status === 'error') {
-      throw new Error(gameData.message || 'Failed to fetch game data');
+    if (returnData.status === 'error') {
+      throw new Error(returnData.message || 'Failed to fetch game data');
     }
 
     // Return the game data without saving to localStorage
-    return gameData.data || gameData;
+    return returnData.game || returnData;
   } catch (error) {
     console.error('Error loading game:', error);
     throw error;

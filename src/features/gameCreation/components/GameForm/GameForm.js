@@ -121,7 +121,6 @@ const GameForm = ({
       image_data: '',
       imageDeleted: false
     };
-    console.warn('initialData:', initialData);
     setFormData(initialData);
     setOriginalData(initialData);
   }, [gameData, gameData.image_url]);

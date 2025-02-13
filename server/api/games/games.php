@@ -219,6 +219,7 @@ try {
                         g.tags,
                         g.dayOnly,
                         g.user_id,
+                        g.image_url,
                         u.username as creator_name
                     FROM games g
                     LEFT JOIN users u ON g.user_id = u.id

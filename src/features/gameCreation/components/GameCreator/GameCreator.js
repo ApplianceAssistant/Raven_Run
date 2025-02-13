@@ -35,7 +35,6 @@ const GameCreator = () => {
 
   useEffect(() => {
     const loadGames = async () => {
-      console.log('Loading games');
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
         const savedGames = await getGames();
@@ -101,7 +100,6 @@ const GameCreator = () => {
   };
 
   const handleSaveGame = async (gameData) => {
-    console.log("handleSaveGame called with gameData:", gameData);
     try {
       // Validate required fields
       const validationErrors = validateGameData(gameData);

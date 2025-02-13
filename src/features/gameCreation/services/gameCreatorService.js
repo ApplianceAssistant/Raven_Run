@@ -295,7 +295,6 @@ export const saveGame = async (gameData) => {
 };
 
 export const getGames = async () => {
-  console.log('Getting games');
   let games = getGamesFromLocalStorage() || [];
   
   try {
@@ -309,7 +308,6 @@ export const getGames = async () => {
         let jsonData;
         try {
             jsonData = JSON.parse(rawText);
-            console.log('getGames JSON data returned:', jsonData);
         } catch (parseError) {
             console.error('JSON parse error:', parseError);
             console.error('Failed to parse text:', rawText);
@@ -330,7 +328,6 @@ export const getGames = async () => {
         
         // Keep unsynced local games
         const unsynced = games.filter(localGame => {
-          console.warn('returning unsynced local game:', localGame);
           return !localGame.isSynced && localGame.gameId;
         });
         
@@ -352,7 +349,6 @@ export const getGames = async () => {
   } catch (error) {
     console.error('Error fetching games from server:', error);
   }
-  console.warn('returning filtered games:', games.filter(game => game && game.gameId));
   return games.filter(game => game && game.gameId);
 };
 
