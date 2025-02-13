@@ -134,8 +134,8 @@ const GameCreator = () => {
         challenges: mergedChallenges,
         isSynced: false,
         lastModified: new Date().toISOString(),
-        // Preserve existing image_url if not provided in gameData
-        image_url: gameData.image_url || existingGame?.image_url || ''
+        // Only preserve existing image_url if image wasn't explicitly deleted
+        image_url: gameData.imageDeleted ? '' : (gameData.image_url || existingGame?.image_url || '')
       };
       
       // Attempt to save to server first

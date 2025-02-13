@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImage, faTimes, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faImage, faTimes } from '@fortawesome/free-solid-svg-icons';
 import './ImageUpload.scss';
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -117,7 +117,6 @@ const ImageUpload = ({ onImageChange, currentImage }) => {
                             className="preview-image" 
                             onClick={() => setShowModal(true)}
                         />
-                        <FontAwesomeIcon icon={faEdit} className="edit-icon" />
                     </div>
                 </div>
             )}

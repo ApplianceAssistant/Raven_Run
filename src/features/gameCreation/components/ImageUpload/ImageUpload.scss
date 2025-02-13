@@ -153,61 +153,55 @@
 
     .image-preview-container {
         width: 100%;
-        
-        .image-preview {
-            position: relative;
-            width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+
+        .current-image-preview {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: var(--modal-bg);
             border-radius: 8px;
             overflow: hidden;
-            background: var(--input-bg);
+            padding: 1rem;
+            min-height: 0;
 
-            .preview-image {
-                width: 100%;
-                height: auto;
-                display: block;
+            img {
+                max-height: calc(70vh - 4rem);
+                width: auto;
+                max-width: 100%;
                 object-fit: contain;
-            }
-
-            .image-actions {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                display: flex;
-                gap: 1rem;
-                opacity: 0;
-                @include smooth-transition;
-                background: rgba(0, 0, 0, 0.5);
-                padding: 0.5rem;
+                margin: 0 auto;
                 border-radius: 4px;
             }
 
-            &:hover .image-actions {
-                opacity: 1;
-            }
-
-            .action-button {
-                background: var(--button-bg);
-                color: var(--button-text-color);
-                border: none;
-                width: 2.5rem;
-                height: 2.5rem;
-                border-radius: 50%;
-                cursor: pointer;
+            .image-actions {
+                margin-top: 1rem;
                 display: flex;
-                align-items: center;
                 justify-content: center;
-                @include smooth-transition;
+                gap: 1rem;
 
-                &:hover {
-                    background: var(--button-hover-bg);
-                }
+                button {
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 4px;
+                    border: none;
+                    cursor: pointer;
+                    font-weight: 500;
+                    color: white;
+                    @include smooth-transition;
 
-                &.remove {
-                    background: var(--button-bg-caution);
+                    &.remove-button {
+                        background: var(--button-bg-caution);
+                    }
+
+                    &.cancel-button {
+                        background: var(--button-bg);
+                    }
 
                     &:hover {
-                        background: darken(#e63946, 10%);
+                        opacity: 0.9;
                     }
                 }
             }

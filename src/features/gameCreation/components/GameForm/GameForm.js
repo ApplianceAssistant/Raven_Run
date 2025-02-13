@@ -32,7 +32,8 @@ const GameForm = ({
     tags: [],
     dayOnly: false,
     image_url: '',
-    image_data: ''
+    image_data: '',
+    imageDeleted: false
   });
   const [originalData, setOriginalData] = useState({
     title: '',
@@ -44,7 +45,8 @@ const GameForm = ({
     tags: [],
     dayOnly: false,
     image_url: '',
-    image_data: ''
+    image_data: '',
+    imageDeleted: false
   });
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -70,44 +72,61 @@ const GameForm = ({
   const handleImageChange = async (image_data) => {
     setImageStatus({ loading: true, error: null });
     try {
-      const response = await uploadGameImage(formData.gameId, image_data);
-      console.warn("response:", response)
-      const updatedFormData = {
-        ...formData,
-        image_url: response.image_url
-      };
-      console.log("updatedFormData:", updatedFormData);
-      setFormData(updatedFormData);
-      setImageStatus({ loading: false, error: null });
-      
-      // Save the updated game data to sync with localStorage
-      await onSave(updatedFormData);
+      if (typeof image_data === 'object' && image_data.image_url === '') {
+        // Handle image deletion
+        const updatedData = {
+          ...formData,
+          image_url: '',
+          image_data: '',
+          imageDeleted: true
+        };
+        setFormData(updatedData);
+        setOriginalData(updatedData);
+        setImageStatus({ loading: false, error: null });
+        // Save the updated game data to sync with localStorage
+        await onSave(updatedData);
+        closeImageModal();
+      } else {
+        // Handle image upload
+        const response = await uploadGameImage(formData.gameId, image_data);
+        const updatedData = {
+          ...formData,
+          image_url: response.image_url,
+          imageDeleted: false
+        };
+        setFormData(updatedData);
+        setOriginalData(updatedData);
+        setImageStatus({ loading: false, error: null });
+        // Save the updated game data to sync with localStorage
+        await onSave(updatedData);
+        closeImageModal();
+      }
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('Error handling image:', error);
       setImageStatus({ loading: false, error: error.message });
-      showError(error.message || 'Failed to upload image');
+      showError(error.message || 'Failed to process image');
     }
   };
 
   // Initialize both formData and originalData when gameData changes
   useEffect(() => {
     const initialData = {
-      ...gameData,
+      gameId: gameData.gameId || '',
       title: gameData.title || '',
       description: gameData.description || '',
-      isPublic: gameData.isPublic || false,
-      gameId: gameData.gameId || '',
+      isPublic: gameData.isPublic ?? false,
+      difficulty_level: gameData.difficulty_level || 'medium',
       challenges: gameData.challenges || [],
-      difficulty_level: gameData.difficulty || gameData.difficulty_level || 'medium',
       tags: gameData.tags || [],
       dayOnly: gameData.dayOnly || false,
       image_url: gameData.image_url || '',
-      image_data: ''
+      image_data: '',
+      imageDeleted: false
     };
     console.warn('initialData:', initialData);
     setFormData(initialData);
-    setOriginalData(JSON.parse(JSON.stringify(initialData)));
-  }, [gameData]);
+    setOriginalData(initialData);
+  }, [gameData, gameData.image_url]);
 
   useEffect(() => {
     const isValid = isValidGame(formData);
@@ -241,7 +260,7 @@ const GameForm = ({
         const newOriginalData = JSON.parse(JSON.stringify(submittedData));
         setOriginalData(newOriginalData);
         setHasChanges(false);
-        showSuccess(isEditing ? 'Yea Game updated successfully!' : 'Game created successfully!');
+        showSuccess(isEditing ? 'Game updated successfully!' : 'Game created successfully!');
       } catch (error) {
         showError(error.message || 'Failed to save game. Please try again.');
       }
@@ -291,7 +310,7 @@ const GameForm = ({
           </button>
         )}
       </div>
-      
+
       <div>
         {formData.gameId && (
           <span className="game-id-display"> <span className="label">Game ID: </span>{formData.gameId}</span>
@@ -319,41 +338,12 @@ const GameForm = ({
 
             <div className="image-section">
               {formData.image_url ? (
-                <div className="current-image">
+                <div className="current-image" onClick={openImageModal}>
                   <div className="image-container">
-                    <img 
-                      src={`${API_URL}${formData.image_url}`} 
-                      alt="Game cover" 
-                      className="cover-image"
-                    />
-                    <div className="image-overlay">
-                      <button 
-                        className="edit-button"
-                        onClick={() => setIsImageModalOpen(true)}
-                        title="Edit cover image"
-                      >
-                        <FontAwesomeIcon icon={faEdit} />
-                      </button>
-                      <button 
-                        className="remove-button"
-                        onClick={async () => {
-                          try {
-                            await deleteGameImage(formData.gameId);
-                            setFormData(prev => ({
-                              ...prev,
-                              image_url: '',
-                              image_data: ''
-                            }));
-                            showSuccess('Image removed successfully');
-                          } catch (error) {
-                            showError('Failed to remove image');
-                          }
-                        }}
-                        title="Remove cover image"
-                      >
-                        <FontAwesomeIcon icon={faTimes} />
-                      </button>
-                    </div>
+                    <img src={`${API_URL}${formData.image_url}`} alt='Game image' />
+                  </div>
+                  <div className="edit-icon">
+                    <FontAwesomeIcon icon={faEdit} />
                   </div>
                 </div>
               ) : (
@@ -365,125 +355,128 @@ const GameForm = ({
                   <span>Add Cover Image</span>
                 </button>
               )}
-            </div>
-          </div>
-
-          <div className="field-container">
-            <label htmlFor="title">Game Title:</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              placeholder="Enter game name"
-              required
-            />
-          </div>
-
-          <div className="field-container">
-            <label htmlFor="description">Description:</label>
-            <AutoExpandingTextArea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Enter game description"
-              required
-              maxHeight="50vh"
-              minHeight="60px"
-            />
-          </div>
-
-          <div className="field-container">
-            <label htmlFor="difficulty_level">Difficulty Level:</label>
-            <select
-              id="difficulty_level"
-              name="difficulty_level"
-              value={formData.difficulty_level}
-              onChange={handleInputChange}
-              className="difficulty-select"
-            >
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </div>
-
-          <div className="field-container tags-section">
-            <label>Keywords:</label>
-            <div className="tag-input-container">
-              <input
-                type="text"
-                value={newTag}
-                onChange={handleTagInputChange}
-                onKeyDown={handleTagInputKeyPress}
-                placeholder="Type keywords separated by commas or press Enter"
-                autoFocus
-                className="tag-input"
-              />
-            </div>
-
-            <div className="tags-display">
-              {formData.tags.length > 0 ? (
-                formData.tags.map((tag, index) => (
-                  <div key={index} className="tag-button">
-                    <span className="tag-text">{tag}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="remove-tag"
-                      title="Remove Tag"
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <span className="empty-tags-message">Keywords Display</span>
-              )}
-            </div>
-          </div>
-
-          <div className="field-container toggle-container">
-            <div className="label">Game Visibility:</div>
-            <ToggleSwitch
-              checked={formData.isPublic}
-              onToggle={handlePublicToggle}
-              label={formData.isPublic ? 'Public Game' : 'Private Game'}
-              name="isPublic"
-              id="public-toggle"
-            />
-          </div>
-
-          <div className="field-container toggle-container">
-            <div className="label">Day Only Mode:</div>
-            <ToggleSwitch
-              checked={formData.dayOnly}
-              onToggle={handleDayOnlyToggle}
-              label={formData.dayOnly ? 'Day Only' : 'Any Time'}
-              name="dayOnly"
-              id="day-only-toggle"
-            />
           </div>
         </div>
 
-        {isEditing && (
-          <div className="side-options">
-            <ChallengeCard
-              challengeCount={formData.challenges?.length || 0}
-              onClick={handleChallengesClick}
+        <div className="field-container">
+          <label htmlFor="title">Game Title:</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
+            placeholder="Enter game name"
+            required
+          />
+        </div>
+
+        <div className="field-container">
+          <label htmlFor="description">Description:</label>
+          <AutoExpandingTextArea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            placeholder="Enter game description"
+            required
+            maxHeight="50vh"
+            minHeight="60px"
+          />
+        </div>
+
+        <div className="field-container">
+          <label htmlFor="difficulty_level">Difficulty Level:</label>
+          <select
+            id="difficulty_level"
+            name="difficulty_level"
+            value={formData.difficulty_level}
+            onChange={handleInputChange}
+            className="difficulty-select"
+          >
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+
+        <div className="field-container tags-section">
+          <label>Keywords:</label>
+          <div className="tag-input-container">
+            <input
+              type="text"
+              value={newTag}
+              onChange={handleTagInputChange}
+              onKeyDown={handleTagInputKeyPress}
+              placeholder="Type keywords separated by commas or press Enter"
+              autoFocus
+              className="tag-input"
             />
           </div>
-        )}
-      </ScrollableContent>
-      <ImageUploadModal
-        isOpen={isImageModalOpen}
-        onClose={closeImageModal}
-        onImageChange={handleImageChange}
-        currentImage={`${API_URL}${formData.image_url}`}
-      />
+
+          <div className="tags-display">
+            {formData.tags.length > 0 ? (
+              formData.tags.map((tag, index) => (
+                <div key={index} className="tag-button">
+                  <span className="tag-text">{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(tag)}
+                    className="remove-tag"
+                    title="Remove Tag"
+                  >
+                    <FontAwesomeIcon icon={faTimes} />
+                  </button>
+                </div>
+              ))
+            ) : (
+              <span className="empty-tags-message">Keywords Display</span>
+            )}
+          </div>
+        </div>
+
+        <div className="field-container toggle-container">
+          <div className="label">Game Visibility:</div>
+          <ToggleSwitch
+            checked={formData.isPublic}
+            onToggle={handlePublicToggle}
+            label={formData.isPublic ? 'Public Game' : 'Private Game'}
+            name="isPublic"
+            id="public-toggle"
+          />
+        </div>
+
+        <div className="field-container toggle-container">
+          <div className="label">Day Only Mode:</div>
+          <ToggleSwitch
+            checked={formData.dayOnly}
+            onToggle={handleDayOnlyToggle}
+            label={formData.dayOnly ? 'Day Only' : 'Any Time'}
+            name="dayOnly"
+            id="day-only-toggle"
+          />
+        </div>
     </div>
+
+        {
+    isEditing && (
+      <div className="side-options">
+        <ChallengeCard
+          challengeCount={formData.challenges?.length || 0}
+          onClick={handleChallengesClick}
+        />
+      </div>
+    )
+  }
+      </ScrollableContent >
+  <ImageUploadModal
+    isOpen={isImageModalOpen}
+    onClose={closeImageModal}
+    onImageChange={handleImageChange}
+    currentImage={formData.image_url ? `${API_URL}${formData.image_url}` : ''}
+    gameId={formData.gameId}
+  />
+    </div >
   );
 };
 
