@@ -40,6 +40,7 @@ const GameLobby = () => {
     };
 
     const fetchGames = async (searchFilters = filters) => {
+        console.warn('fetchGames:', searchFilters)
         setIsLoading(true);
         try {
             const params = new URLSearchParams();
@@ -82,6 +83,7 @@ const GameLobby = () => {
                             game.distance * 0.621371) // km to miles
                         : null
                 }));
+                console.log('Fetched games:', processedGames)
                 setGames(processedGames);
             } else {
                 console.error('Error fetching games:', jsonData.message);
@@ -149,6 +151,7 @@ const GameLobby = () => {
 
     // Transform games data to match GameCard props
     const transformedGames = games.map(game => {
+        console.log('game: ', game);
         const challenges = game.challenges || [];
         const firstChallenge = challenges[0] || {};
         const totalDuration = challenges.reduce((total, challenge) => {
@@ -188,14 +191,16 @@ const GameLobby = () => {
             id: game.id,
             title: game.title || 'Untitled Adventure',
             description: cleanDescription || 'No description available',
-            difficulty: game.difficulty || 'medium',
+            difficulty: game.difficulty || 'normal',
             distance: game.distance || 0,
             avg_rating: parseFloat(game.avg_rating) || 0,
             ratingCount: parseInt(game.rating_count) || 0,
             duration: totalDuration,
             tags: tags,
             challenges: challenges,
-            creatorName: game.creator_name || 'Anonymous'
+            creatorName: game.creatorName || 'Anonymous',
+            isDownloaded: false,
+            image_url: game.image_url || null
         };
     });
 

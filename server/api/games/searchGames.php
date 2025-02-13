@@ -77,20 +77,24 @@ try {
 
     // Base query for public games
     $sql = "SELECT g.*, 
+            g.image_url,
             u.username as creator_name";
 
     // Only add distance calculation if location parameters are provided AND radius is set
     if ($latitude !== null && $longitude !== null && $radius !== null) {
         $sql .= ",
-            ST_Distance_Sphere(
-                point(g.start_longitude, g.start_latitude),
-                point(?, ?)
-            ) * 0.001 as distance_km";
+            ROUND(
+                ST_Distance_Sphere(
+                    point(g.start_longitude, g.start_latitude),
+                    point(?, ?)
+                ) * 0.001, 2
+            ) as distance_km";
         $params[] = $longitude;
         $params[] = $latitude;
         $types .= 'dd';
     } else {
-        $sql .= ", NULL as distance_km";
+        // Set distance to 0 instead of NULL to avoid frontend issues
+        $sql .= ", 0 as distance_km";
     }
 
     // Add relevance score calculation if search is provided
@@ -320,7 +324,8 @@ try {
             'duration' => $row['estimated_time'],
             'tags' => json_decode($row['tags'], true),
             'creatorName' => $row['creator_name'],
-            'created_at' => $row['created_at']
+            'created_at' => $row['created_at'],
+            'image_url' => $row['image_url']
         ];
         $games[] = $game;
     }

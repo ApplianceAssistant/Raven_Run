@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar, faClock, faRoute, faFlagCheckered } from '@fortawesome/free-solid-svg-icons';
 import { getDownloadedGame } from '../../../../utils/localStorageUtils';
 import { getLargeDistanceUnit, convertDistance } from '../../../../utils/unitConversion';
-import { cleanText } from '../../../../utils/utils';
+import { cleanText, API_URL } from '../../../../utils/utils';
 import './GameCard.scss';
 
-const GameCard = ({ 
-    id, 
-    title, 
-    difficulty, 
-    distance, 
-    avg_rating, 
-    ratingCount, 
-    duration, 
-    description, 
+const GameCard = ({
+    id,
+    title,
+    difficulty,
+    distance,
+    avg_rating,
+    ratingCount,
+    duration,
+    description,
     tags,
     challenges = [],
     creatorName,
     inProgress = false,
+    image_url,
     onClick
 }) => {
     const navigate = useNavigate();
@@ -48,63 +51,57 @@ const GameCard = ({
     };
 
     const formatDistance = (distanceValue) => {
-        if (distanceValue === null) return 'Distance N/A';
-        const unit = isMetric ? 'km' : 'mi';
-        return `${distanceValue.toFixed(1)} ${unit}`;
+        if (distanceValue === null || distanceValue === undefined) return 'Distance N/A';
+        const unit = getLargeDistanceUnit(isMetric);
+        const converted = convertDistance(distanceValue, isMetric);
+        return `${converted.toFixed(1)} ${unit}`;
     };
 
     const renderStars = (rating) => {
-        const stars = [];
-        const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 >= 0.5;
-        
-        // Add full stars
-        for (let i = 0; i < fullStars; i++) {
-            stars.push(<span key={`full-${i}`} className="star full" />);
-        }
-        
-        // Add half star if needed
-        if (hasHalfStar) {
-            stars.push(<span key="half" className="star half" />);
-        }
-        
-        // Add empty stars
-        const emptyStars = 5 - Math.ceil(rating);
-        for (let i = 0; i < emptyStars; i++) {
-            stars.push(<span key={`empty-${i}`} className="star empty" />);
-        }
-        
-        return <span className="stars">{stars}</span>;
+        return [...Array(5)].map((_, index) => {
+            const ratingValue = index + 1;
+            const filled = ratingValue <= rating;
+            return (
+                <FontAwesomeIcon
+                    key={index}
+                    icon={faStar}
+                    className={`star-icon ${filled ? 'filled' : ''}`}
+                />
+            );
+        });
     };
 
     return (
-        <div 
+        <div
             className={`game-card ${isDownloaded ? 'downloaded' : ''} ${inProgress ? 'in-progress' : ''}`}
             onClick={handleCardClick}
         >
             <div className="game-image">
-                <div className={`difficulty-badge ${difficulty}`}>
-                    {difficulty}
+                {image_url ? (
+                    <div
+                        className="game-thumbnail"
+                        style={{ backgroundImage: `url(${API_URL}${image_url})` }}
+                        aria-label={`Thumbnail for ${title}`}
+                    />
+                ) : (
+                    <div className="game-thumbnail-placeholder" />
+                )}
+                <div className={`difficulty-badge ${difficulty?.toLowerCase()}`}>
+                    {difficulty || 'Normal'}
                 </div>
                 <div className="creator-name" title="Created by">
                     Created by: {creatorName}
                 </div>
                 {distance !== null && (
                     <div className="distance-badge">
-                        <i className="fas fa-route"></i>
-                        {`${Math.round(convertDistance(distance || 0, true, isMetric))} ${getLargeDistanceUnit(isMetric)}`}
+                        <FontAwesomeIcon icon={faRoute} />
+                        {formatDistance(distance)}
                     </div>
                 )}
                 <div className="challenge-count">
-                    <i className="fas fa-flag-checkered"></i>
+                    <FontAwesomeIcon icon={faFlagCheckered} />
                     {challenges.length}
                 </div>
-                {isDownloaded && <span className="downloaded" title="Available Offline">📱</span>}
-                {inProgress && (
-                    <div className="progress-badge">
-                        In Progress
-                    </div>
-                )}
             </div>
             <div className="game-info">
                 <h3>{title}</h3>
@@ -117,16 +114,26 @@ const GameCard = ({
                 </div>
                 <div className="meta-info">
                     <span className="duration">
-                        <i className="far fa-clock"></i>
+                        <FontAwesomeIcon icon={faClock} />
                         {formatDuration(duration)}
                     </span>
                     <div className="tags">
-                        {tags.map((tag, index) => 
+                        {tags.map((tag, index) =>
                             typeof tag === 'string' ? (
                                 <span key={index} className="tag">{tag}</span>
                             ) : (
                                 tag // For icon elements
                             )
+                        )}
+                    </div>
+                    <div className="game-meta">
+                        {isDownloaded && (
+                            <div className="offline-indicator">Available Offline</div>
+                        )}
+                        {inProgress && (
+                            <div className="progress-badge">
+                                In Progress
+                            </div>
                         )}
                     </div>
                 </div>
