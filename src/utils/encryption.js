@@ -9,37 +9,11 @@ const xorEncryptDecrypt = (text, key) => {
 
 import { API_URL } from './utils';
 
-// Get encryption key from server
-let ENCRYPTION_KEY = 'MY_SECRET_ENCRYPTION_KEY';  // Default fallback
-let keyInitialized = false;
-let keyInitPromise = null;
+// Get encryption key from environment
+let ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY || '8dd8017e03e2167c1d284e17e0a18930645aca97de65eb15e89ec0a2bc76251f';
 
-// Function to initialize encryption key
-const initializeEncryptionKey = async () => {
-  if (keyInitPromise) return keyInitPromise;
-  
-  keyInitPromise = (async () => {
-    try {
-      const response = await fetch(`${API_URL}/server/api/auth/config.php`);
-      if (!response.ok) throw new Error('Failed to fetch encryption key');
-      
-      const data = await response.json();
-      if (data.encryptionKey) {
-        ENCRYPTION_KEY = data.encryptionKey;
-        keyInitialized = true;
-      }
-    } catch (error) {
-      console.error('Error initializing encryption key:', error);
-      // Continue with default key if fetch fails
-      keyInitialized = true;
-    }
-  })();
-
-  return keyInitPromise;
-};
-
-// Initialize the key when the module loads
-initializeEncryptionKey();
+// No need for async initialization since we're using environment variable
+const keyInitialized = true;
 
 const safeBase64Encode = (str) => {
   try {
@@ -64,6 +38,11 @@ const safeBase64Decode = (str) => {
 };
 
 export const encryptData = (data) => {
+  if (!keyInitialized) {
+    console.error('Encryption key not initialized');
+    return null;
+  }
+  
   try {
     const jsonString = JSON.stringify(data);
     const encrypted = xorEncryptDecrypt(jsonString, ENCRYPTION_KEY);
@@ -71,11 +50,16 @@ export const encryptData = (data) => {
     return base64;
   } catch (error) {
     console.error('Error encrypting data:', error);
-    return '';
+    return null;
   }
 };
 
 export const decryptData = (encryptedData) => {
+  if (!keyInitialized) {
+    console.error('Encryption key not initialized');
+    return null;
+  }
+  
   if (!encryptedData) {
     console.warn('No data to decrypt');
     return null;

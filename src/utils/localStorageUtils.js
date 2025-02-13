@@ -81,41 +81,41 @@ export const getDownloadedGame = (gameId) => {
  */
 export const saveDownloadedGame = (game) => {
   try {
-    const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
-    let downloadedGames = {};
-
-    if (storedData) {
-      // Try to parse as JSON first (for legacy unencrypted data)
-      try {
-        downloadedGames = JSON.parse(storedData);
-      } catch {
-        // If JSON parse fails, try decryption
-        try {
-          downloadedGames = decryptData(storedData) || {};
-        } catch (decryptError) {
-          console.error('Error decrypting existing games:', decryptError);
-          // Continue with empty object if both methods fail
-        }
-      }
-    }
-
     const gameId = game.gameId || game.game_id;
     if (!gameId) {
       console.error('Game ID is required');
       return false;
     }
 
-    downloadedGames[gameId] = {
+    // Always start with a fresh object for the game being saved
+    const gameToSave = {
       ...game,
       lastPlayed: new Date().toISOString()
     };
 
+    // Get existing games
+    const storedData = localStorage.getItem(DOWNLOADED_GAMES_KEY);
+    let downloadedGames = {};
+
+    if (storedData) {
+      const decrypted = decryptData(storedData);
+      if (decrypted && typeof decrypted === 'object') {
+        downloadedGames = decrypted;
+      } else {
+        console.warn('Invalid or corrupt stored data, starting fresh');
+      }
+    }
+
+    // Update games object
+    downloadedGames[gameId] = gameToSave;
+
+    // Encrypt and save
     const encryptedData = encryptData(downloadedGames);
     if (!encryptedData) {
       console.error('Failed to encrypt game data');
       return false;
     }
-    
+
     localStorage.setItem(DOWNLOADED_GAMES_KEY, encryptedData);
     return true;
   } catch (error) {

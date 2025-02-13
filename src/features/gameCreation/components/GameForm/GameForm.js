@@ -279,6 +279,9 @@ const GameForm = ({
 
   const handlePlaytest = () => {
     if (formData?.gameId) {
+      // Save game data to localStorage before starting playtest
+      const { saveDownloadedGame } = require('../../../../utils/localStorageUtils');
+      saveDownloadedGame(formData);
       setPlaytestState(formData.gameId);
       navigate(`/gamedescription/${formData.gameId}`);
     }
