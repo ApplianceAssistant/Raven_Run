@@ -88,3 +88,5 @@ desktop.ini
 dist
 .cache-loader
 
+#deprecated files
+/deprecated
