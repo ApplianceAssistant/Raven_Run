@@ -65,4 +65,17 @@ fi
 echo "Cleaning up..."
 rm -rf build
 
+# Set proper permissions
+echo "Setting permissions..."
+find . -type f -exec chmod 644 {} \;
+find . -type d -exec chmod 755 {} \;
+
+# Restart Apache to reload environment variables
+echo "Restarting Apache..."
+if command -v systemctl &> /dev/null; then
+    sudo systemctl restart apache2 || sudo service apache2 restart
+else
+    sudo service apache2 restart
+fi
+
 echo "Deployment completed successfully."
