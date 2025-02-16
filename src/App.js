@@ -63,7 +63,7 @@ function AppContent() {
 
   const logout = async () => {
     try {
-      const response = await authFetch(`${API_URL}/server/api/auth/login.php`, {
+      const response = await authFetch(`${API_URL}/server/auth/login.php`, {
         method: 'POST',
         body: JSON.stringify({
           action: 'logout',

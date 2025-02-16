@@ -1,11 +1,33 @@
 <?php
-require_once (__DIR__ . '/../../utils/db_connection.php');
-require_once __DIR__ . '/../../utils/encryption.php';
-require_once __DIR__ . '/../../utils/errorHandler.php';
+require_once __DIR__ . '/../utils/db_connection.php';
+require_once __DIR__ . '/../utils/encryption.php';
+require_once __DIR__ . '/../utils/errorHandler.php';
 require_once __DIR__ . '/auth.php';
 
-// Set content type to JSON
+// Set content type to JSON and CORS headers
 header('Content-Type: application/json');
+
+// Allow CORS for development
+$allowedOrigins = [
+    'http://localhost:5000',  // Development
+    'http://localhost:3000',  // Alternative development port
+    'https://ravenruns.com',  // Staging
+    'https://crowtours.com'   // Production
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Access-Control-Allow-Methods: POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+    header('Access-Control-Allow-Credentials: true');
+}
+
+// Handle preflight request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 // Get database connection
 $conn = getDbConnection();

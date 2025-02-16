@@ -128,12 +128,12 @@ $apiEndpoints = [
         'description' => 'User management endpoints'
     ],
     'auth' => [
-        'url' => '/auth.php',
+        'url' => '/server/auth/auth.php',
         'methods' => ['POST'],
         'description' => 'Authentication endpoint'
     ],
     'login' => [
-        'url' => '/login.php',
+        'url' => '/server/auth/login.php',
         'methods' => ['POST'],
         'description' => 'User login endpoint'
     ],

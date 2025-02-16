@@ -76,11 +76,15 @@ function CreateProfile() {
         
         // Get the correct base URL based on environment
         const env = process.env.NODE_ENV;
+        console.log('Current environment:', env);
+        console.log('Available environment variables:', process.env);
+        
         const baseUrl = env === 'production' 
-            ? 'https://crowtours.com'
+            ? process.env.REACT_APP_PRODUCTION_URL
             : env === 'staging' 
-                ? 'https://ravenruns.com'
-                : 'http://localhost:5000';
+                ? process.env.REACT_APP_STAGING_URL
+                : process.env.REACT_APP_DEVELOPMENT_URL;
+        console.log('Using base URL:', baseUrl);
 
         // Use consistent callback path for all environments
         const callbackPath = '/server/auth/google-callback.php';

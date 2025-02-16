@@ -59,7 +59,7 @@ function LogIn() {
         }
 
         try {
-            const response = await authFetch(`${API_URL}/server/api/auth/login.php`, {
+            const response = await authFetch(`${API_URL}/server/auth/login.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -107,9 +107,8 @@ function LogIn() {
 
     // Handle Google Sign-In
     const handleGoogleSignIn = () => {
-        // Generate and store state parameter for CSRF protection
+        // Generate state parameter for CSRF protection
         const state = Math.random().toString(36).substring(7);
-        sessionStorage.setItem('oauth_state', state);
         
         // Get the correct base URL based on environment
         const env = process.env.NODE_ENV;
@@ -117,10 +116,10 @@ function LogIn() {
         console.log('Available environment variables:', process.env);
         
         const baseUrl = env === 'production' 
-            ? 'https://crowtours.com'
+            ? process.env.REACT_APP_PRODUCTION_URL
             : env === 'staging' 
-                ? 'https://ravenruns.com'
-                : 'http://localhost:5000';
+                ? process.env.REACT_APP_STAGING_URL
+                : process.env.REACT_APP_DEVELOPMENT_URL;
         console.log('Using base URL:', baseUrl);
 
         // Use consistent callback path for all environments

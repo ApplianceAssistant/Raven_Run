@@ -21,7 +21,11 @@ echo "Removing development-only files..."
 rm -f start-api.bat
 
 # Install dependencies
-# npm install
+echo "Installing Node.js dependencies..."
+npm install
+
+echo "Installing PHP dependencies..."
+composer install --no-dev --optimize-autoloader
 
 # Build the React app
 npm run build

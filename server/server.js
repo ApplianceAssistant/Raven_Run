@@ -4,6 +4,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const winston = require('winston');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const userRoutes = require('../api/users');
 const dbTestRoute = require('../api/db-test');
 
@@ -84,40 +85,108 @@ app.use((req, res, next) => {
   next();
 });
 
+// Determine PHP server target based on environment
+const phpTarget = process.env.NODE_ENV === 'production'
+  ? 'https://crowtours.com'
+  : process.env.NODE_ENV === 'staging'
+    ? 'https://ravenruns.com'
+    : 'http://localhost:8000'; // Development environment
+
+logger.info({
+  message: 'PHP proxy configuration',
+  environment: process.env.NODE_ENV || 'development',
+  phpTarget,
+  timestamp: new Date().toISOString()
+});
+
+// Proxy PHP requests to Apache/PHP server
+app.use(['*.php', '/server/**/*.php'], createProxyMiddleware({
+  target: phpTarget,
+  changeOrigin: true,
+  logLevel: 'debug',
+  pathRewrite: path => {
+    // Log the path being processed
+    logger.info({
+      message: 'Processing PHP path',
+      originalPath: path,
+      environment: process.env.NODE_ENV || 'development',
+      phpTarget,
+      timestamp: new Date().toISOString()
+    });
+    return path;
+  },
+  onProxyReq: (proxyReq, req, res) => {
+    // Detailed proxy request logging
+    logger.info({
+      message: 'PHP Proxy Request Details',
+      stage: 'start',
+      originalUrl: req.url,
+      targetUrl: proxyReq.path,
+      method: req.method,
+      headers: req.headers,
+      query: req.query,
+      body: req.body,
+      timestamp: new Date().toISOString()
+    });
+
+    // Set PHP environment variables
+    proxyReq.setHeader('X-Environment', process.env.NODE_ENV || 'development');
+    proxyReq.setHeader('X-Base-URL', req.protocol + '://' + req.get('host'));
+  },
+  onProxyRes: (proxyRes, req, res) => {
+    // Log proxy response
+    logger.info({
+      message: 'PHP Proxy Response Details',
+      stage: 'response',
+      originalUrl: req.url,
+      statusCode: proxyRes.statusCode,
+      headers: proxyRes.headers,
+      timestamp: new Date().toISOString()
+    });
+  },
+  onError: (err, req, res) => {
+    // Enhanced error logging
+    logger.error({
+      message: 'PHP Proxy Error Details',
+      stage: 'error',
+      error: {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+        code: err.code
+      },
+      request: {
+        url: req.url,
+        method: req.method,
+        headers: req.headers,
+        query: req.query
+      },
+      timestamp: new Date().toISOString()
+    });
+    res.status(500).json({ error: 'PHP server error', details: err.message });
+  }
+}));
+
 // API routes
 app.use('/server/api/users', userRoutes);
-app.use('/server/api/games', gameRoutes);
 app.use('/server/api/db-test', dbTestRoute);
+
+// Add catch-all logging middleware before the static files
+app.use((req, res, next) => {
+  logger.info({
+    message: 'Incoming Request',
+    stage: 'pre-static',
+    url: req.url,
+    method: req.method,
+    headers: req.headers,
+    query: req.query,
+    timestamp: new Date().toISOString()
+  });
+  next();
+});
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '..')));
-
-// Special handling for PHP endpoints - support both old and new paths
-app.all(['/server/api/*.php'], (req, res) => {
-  // Log the PHP request
-  logger.info({
-    method: req.method,
-    url: req.url,
-    headers: req.headers,
-    body: req.body,
-  });
-  
-  // Instead of redirecting to production, serve the local PHP file
-  const phpFile = path.join(__dirname, '..', req.url);
-  logger.info(`Attempting to serve PHP file: ${phpFile}`);
-  
-  // Here we'll need to execute the PHP file
-  // For now, let's respond with a message about the configuration needed
-  res.status(500).json({
-    error: 'PHP endpoint configuration required',
-    message: 'To handle PHP files, you need to:',
-    steps: [
-      '1. Configure PHP in your development environment',
-      '2. Set up PHP-FPM or similar to handle PHP requests',
-      '3. Use a reverse proxy to forward PHP requests to your PHP handler'
-    ]
-  });
-});
 
 // Catch-all route for React app
 app.get('*', (req, res) => {

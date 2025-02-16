@@ -1,49 +1,88 @@
 <?php
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/errorHandler.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/auth-utils.php';
 
-session_start();
+// Load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+$dotenv->load();
 
-if (!isset($_GET['code'])) {
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+error_log("Google OAuth Callback - Start");
+error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
+error_log("Request URI: " . $_SERVER['REQUEST_URI']);
+error_log("Query String: " . $_SERVER['QUERY_STRING']);
+error_log("Full URL: " . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
+
+// Get state from query parameters
+$state = $_GET['state'] ?? null;
+$code = $_GET['code'] ?? null;
+
+if (!$code) {
+    error_log("Error: No authorization code provided");
     handleOAuthError('No authorization code provided');
+    exit;
 }
 
-// Verify state parameter to prevent CSRF
-if (!isset($_GET['state']) || !isset($_SESSION['oauth_state']) || $_GET['state'] !== $_SESSION['oauth_state']) {
-    handleOAuthError('Invalid state parameter');
+if (!$state) {
+    error_log("Error: No state parameter received");
+    handleOAuthError("Missing state parameter");
+    exit;
 }
 
-// Clear the state from session
-unset($_SESSION['oauth_state']);
+// Store state in session temporarily (it will be used and cleared by the OAuth process)
+$_SESSION['oauth_state'] = $state;
+
+// Debug session data
+error_log("Session Data: " . print_r($_SESSION, true));
 
 // Google OAuth configuration
 $client_id = $_ENV['GOOGLE_CLIENT_ID'];
 $client_secret = $_ENV['GOOGLE_CLIENT_SECRET'];
 
-// Load environment variables
-$env = getenv('APP_ENV') ?? 'development';
-error_log("Current environment (APP_ENV): " . $env);
-error_log("Environment variables:");
-error_log("NODE_ENV: " . getenv('NODE_ENV'));
-error_log("APP_ENV: " . getenv('APP_ENV'));
-error_log("\$_ENV contents: " . print_r($_ENV, true));
+// If base_url is not provided in headers, construct it based on environment
+$base_url = $_SERVER['HTTP_X_BASE_URL'] ?? null;
 
-$base_url = match($env) {
-    'production' => 'https://crowtours.com',
-    'staging' => 'https://ravenruns.com',
-    default => 'http://localhost:5000'
-};
+error_log("Environment Detection:");
+error_log("- X-Environment header: " . ($_SERVER['HTTP_X_ENVIRONMENT'] ?? 'not set'));
+error_log("- X-Base-URL header: " . ($_SERVER['HTTP_X_BASE_URL'] ?? 'not set'));
+error_log("- APP_ENV: " . (getenv('APP_ENV') ?? 'not set'));
+error_log("- Final environment: " . ($_ENV['APP_ENV'] ?? 'development'));
+
+// If base_url is not provided in headers, construct it based on environment
+if (!$base_url) {
+    $env = $_ENV['APP_ENV'] ?? 'development';
+    $base_url = match($env) {
+        'production' => 'https://crowtours.com',
+        'staging' => 'https://ravenruns.com',
+        default => 'http://localhost:5000'
+    };
+}
+
+error_log("Using base URL: " . $base_url);
 
 // Use consistent callback path for all environments
 $redirect_uri = $base_url . '/server/auth/google-callback.php';
 error_log("Using redirect URI: " . $redirect_uri);
 
+// Verify client ID and secret are set
+if (empty($client_id) || empty($client_secret)) {
+    error_log("Error: Missing OAuth credentials");
+    error_log("Client ID: " . ($client_id ? 'set' : 'not set'));
+    error_log("Client Secret: " . ($client_secret ? 'set' : 'not set'));
+    handleOAuthError('OAuth configuration error');
+}
+
 try {
     // Exchange authorization code for access token
     $token_url = 'https://oauth2.googleapis.com/token';
     $params = [
-        'code' => $_GET['code'],
+        'code' => $code,
         'client_id' => $client_id,
         'client_secret' => $client_secret,
         'redirect_uri' => $redirect_uri,
@@ -112,10 +151,10 @@ try {
 
         handleOAuthSuccess($token);
     } else {
-        // New user - store email in session and redirect to display name modal
+        // New user - store email in session and redirect to home page with display name modal flag
         $_SESSION['google_signup_email'] = $user_data['email'];
         $frontend_url = $base_url;
-        header("Location: $frontend_url/create-profile?needDisplayName=true&email=" . urlencode($user_data['email']));
+        header("Location: $frontend_url/?needDisplayName=true&email=" . urlencode($user_data['email']));
         exit;
     }
 

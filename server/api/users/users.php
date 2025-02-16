@@ -198,6 +198,61 @@ try {
         }
     }
 
+    function createGoogleUser($email, $username) {
+        global $conn;
+        try {
+            // Check if username already exists
+            if (!checkUnique('username', $username)['isUnique']) {
+                throw new Exception('Username already exists', 409);
+            }
+
+            // Check if email already exists
+            if (!checkUnique('email', $email)['isUnique']) {
+                throw new Exception('Email already exists', 409);
+            }
+
+            $conn->begin_transaction();
+
+            // Insert new user with NULL password since using Google OAuth
+            $stmt = $conn->prepare('INSERT INTO users (username, email, password, email_verified) VALUES (?, ?, NULL, 1)');
+            $stmt->bind_param('ss', $username, $email);
+
+            $stmt->execute();
+            $newUserId = $conn->insert_id;
+
+            // Automatically add user ID 1 as a friend
+            $stmt = $conn->prepare('INSERT INTO friend_relationships (user_id, friend_id) VALUES (?, 1)');
+            $stmt->bind_param('i', $newUserId);
+            $stmt->execute();
+
+            // Also add the reverse relationship
+            $stmt = $conn->prepare('INSERT INTO friend_relationships (user_id, friend_id) VALUES (1, ?)');
+            $stmt->bind_param('i', $newUserId);
+            $stmt->execute();
+
+            $conn->commit();
+
+            // Generate auth token
+            $token = generateAuthToken($newUserId);
+            if (!$token) {
+                $conn->rollback();
+                throw new Exception('Failed to generate auth token', 500);
+            }
+            
+            return [
+                'id' => $newUserId,
+                'username' => $username,
+                'email' => $email,
+                'token' => $token
+            ];
+        } catch (Exception $e) {
+            if ($conn->connect_error === null) {
+                $conn->rollback();
+            }
+            throw $e;
+        }
+    }
+
     function updateUser($userData)
     {
         global $conn;
@@ -332,9 +387,24 @@ try {
                 exit(0);
             }
 
-            if (isset($data['action']) && $data['action'] === 'update') {
-                $user = updateUser($data);
-                echo json_encode(['success' => true, 'user' => $user]);
+            if (isset($data['action'])) {
+                switch($data['action']) {
+                    case 'update':
+                        $user = updateUser($data);
+                        echo json_encode(['success' => true, 'user' => $user]);
+                        break;
+                    case 'google_create':
+                        if (!isset($data['email']) || !isset($data['username'])) {
+                            handleError(400, 'Email and username are required for Google user creation', __FILE__, __LINE__);
+                            exit(0);
+                        }
+                        $user = createGoogleUser($data['email'], $data['username']);
+                        echo json_encode(['success' => true, 'user' => $user]);
+                        break;
+                    default:
+                        $user = createUser($data);
+                        echo json_encode(['success' => true, 'user' => $user]);
+                }
             } else {
                 $user = createUser($data);
                 echo json_encode(['success' => true, 'user' => $user]);
