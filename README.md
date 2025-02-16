@@ -1,7 +1,7 @@
-# Raven Run - Interactive Scavenger Hunt Application
+# Crow Tours - Interactive Scavenger Hunt Application
 
 ## Project Overview
-Raven Run is a web-based scavenger hunt application that allows users to create and participate in location-based challenges and games. The application supports various challenge types including travel/location-based challenges, multiple choice questions, true/false questions, and story-based challenges.
+Crow Tours is a web-based scavenger hunt application that allows users to create and participate in location-based challenges and games. The application supports various challenge types including travel/location-based challenges, multiple choice questions, true/false questions, and story-based challenges.
 
 ## Development Conversation Guidelines
 

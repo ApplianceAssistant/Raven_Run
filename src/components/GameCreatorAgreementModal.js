@@ -6,7 +6,7 @@ const GameCreatorAgreementModal = ({ isOpen, onAgree }) => {
     <div className="legal-content">
       <section>
         <h2>Game Creator Agreement</h2>
-        <p>As a game creator on Raven Run, you agree to the following terms and responsibilities:</p>
+        <p>As a game creator on Crow Tours, you agree to the following terms and responsibilities:</p>
       </section>
 
       <section>

@@ -1,6 +1,6 @@
 # Type Definitions
 
-This directory contains TypeScript type definitions for the Raven Run application.
+This directory contains TypeScript type definitions for the Crow Tours application.
 
 ## Game Types (`games.ts`)
 

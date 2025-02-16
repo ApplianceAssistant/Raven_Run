@@ -1,6 +1,6 @@
 {
-  "name": "raven-run",
-  "version": "0.0.11",
+  "name": "crow-tours",
+  "version": "0.0.12",
   "description": "",
   "main": "index.js",
   "scripts": {

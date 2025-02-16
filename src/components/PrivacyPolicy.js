@@ -8,7 +8,7 @@ const PrivacyPolicy = ({ asModal }) => {
       
       <section>
         <h2>Introduction</h2>
-        <p>At Raven Run, we highly value and protect your personal information and privacy. This Privacy Policy explains how we collect, use, and safeguard your information while providing an enjoyable gaming experience.</p>
+        <p>At Crow Tours, we highly value and protect your personal information and privacy. This Privacy Policy explains how we collect, use, and safeguard your information while providing an enjoyable gaming experience.</p>
       </section>
 
       <section>

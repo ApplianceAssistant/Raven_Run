@@ -8,7 +8,7 @@ const TermsOfService = ({ asModal }) => {
 
       <section>
         <h2>Acceptance of Terms</h2>
-        <p>By accessing or using Raven Run, you agree to be bound by these Terms of Service. Please read them carefully before proceeding.</p>
+        <p>By accessing or using Crow Tours, you agree to be bound by these Terms of Service. Please read them carefully before proceeding.</p>
       </section>
 
       <section>
@@ -68,7 +68,7 @@ const TermsOfService = ({ asModal }) => {
         <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT ANY WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED. TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, YOU AGREE THAT:</p>
         
         <ol>
-          <li>NEITHER RAVEN RUN, ITS CREATORS, AFFILIATES, LICENSORS, PARTNERS, OR ANY OF THEIR RESPECTIVE OFFICERS, DIRECTORS, EMPLOYEES, OR AGENTS (COLLECTIVELY, THE "RELEASED PARTIES") WILL BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO:</li>
+          <li>NEITHER CROW TOURS, ITS CREATORS, AFFILIATES, LICENSORS, PARTNERS, OR ANY OF THEIR RESPECTIVE OFFICERS, DIRECTORS, EMPLOYEES, OR AGENTS (COLLECTIVELY, THE "RELEASED PARTIES") WILL BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO:</li>
           <ul>
             <li>DAMAGES FOR LOSS OF PROFITS</li>
             <li>GOODWILL</li>
