@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { checkServerConnectivity, API_URL, authFetch } from '../utils/utils.js';
 import { useMessage } from '../utils/MessageProvider';
-import NavigationOptions from './NavigationOptions';
 import LegalFooter from './LegalFooter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faGamepad, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -15,7 +14,7 @@ function LogIn() {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoggedInSuccessfully, setIsLoggedInSuccessfully] = useState(false);
     
-    const { login } = useContext(AuthContext);
+    const { user, login } = useContext(AuthContext);
     const navigate = useNavigate();
     const { showError, showSuccess } = useMessage();
 
@@ -25,11 +24,12 @@ function LogIn() {
         message: ''
     });
 
-    const navigationOptions = [
-        { label: 'Profile', route: '/profile', icon: faUser, description: 'View and edit your profile' },
-        { label: 'Find a Game', route: '/lobby', icon: faGamepad, description: 'Join an existing game' },
-        { label: 'Create', route: '/create', icon: faPlus, description: 'Create a new game' }
-    ];
+    // Check if user is already logged in and redirect if they are
+    useEffect(() => {
+        if (user) {
+            navigate('/');
+        }
+    }, [user, navigate]);
 
     useEffect(() => {
         checkServerConnectivity().then((status) => {
@@ -93,8 +93,7 @@ function LogIn() {
                 };
                 localStorage.setItem('user', JSON.stringify(userData));
                 login(userData);
-                setIsLoggedInSuccessfully(true);
-                showSuccess('Successfully logged in!');
+                navigate('/');
             } else {
                 throw new Error(data.message || 'Login failed');
             }
@@ -110,47 +109,43 @@ function LogIn() {
         <div className="auth-page-wrapper">
             <div className="content-container">
                 <h1>Welcome to Crow Tours</h1>
-                {!isLoggedInSuccessfully ? (
-                    <div className="login-form">
-                        <div className="bodyContent centered">
-                            <h1>Welcome Back, Adventurer</h1>
-                            {isLoading && <div className="loader">Loading...</div>}
-                            <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
-                                <div className="account-field">
-                                    <label htmlFor="email">Email:</label>
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="account-field">
-                                    <label htmlFor="password">Password:</label>
-                                    <input
-                                        type="password"
-                                        id="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="button-container">
-                                    <button
-                                        onClick={() => handleSubmit('login')}
-                                        disabled={!email || !password || isLoading}
-                                        className={`submit-button ${!email || !password || isLoading ? 'disabled' : ''}`}
-                                    >
-                                        Log In
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                <div className="login-form">
+                    <div className="bodyContent centered">
+                        <h1>Welcome Back, Adventurer</h1>
+                        {isLoading && <div className="loader">Loading...</div>}
+                        <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
+                            <div className="account-field">
+                                <label htmlFor="email">Email:</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="account-field">
+                                <label htmlFor="password">Password:</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="button-container">
+                                <button
+                                    onClick={() => handleSubmit('login')}
+                                    disabled={!email || !password || isLoading}
+                                    className={`submit-button ${!email || !password || isLoading ? 'disabled' : ''}`}
+                                >
+                                    Log In
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                ) : (
-                    <NavigationOptions options={navigationOptions} />
-                )}
+                </div>
             </div>
             <LegalFooter />
         </div>
