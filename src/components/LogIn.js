@@ -5,7 +5,7 @@ import { checkServerConnectivity, API_URL, authFetch } from '../utils/utils.js';
 import { useMessage } from '../utils/MessageProvider';
 import LegalFooter from './LegalFooter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faGamepad, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import '../css/Login.scss';
 
 function LogIn() {
@@ -105,6 +105,32 @@ function LogIn() {
         }
     };
 
+    // Handle Google Sign-In
+    const handleGoogleSignIn = () => {
+        // Generate and store state parameter for CSRF protection
+        const state = Math.random().toString(36).substring(7);
+        sessionStorage.setItem('oauth_state', state);
+        
+        // Get the correct base URL based on environment
+        const env = process.env.NODE_ENV;
+        const baseUrl = env === 'production' 
+            ? 'https://crowtours.com'
+            : env === 'staging' 
+                ? 'https://ravenruns.com'
+                : 'http://localhost:5000';
+
+        // Construct Google OAuth URL
+        const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+        googleAuthUrl.searchParams.append('client_id', process.env.GOOGLE_CLIENT_ID);
+        googleAuthUrl.searchParams.append('redirect_uri', `${baseUrl}/auth/google-callback.php`);
+        googleAuthUrl.searchParams.append('response_type', 'code');
+        googleAuthUrl.searchParams.append('scope', 'email profile');
+        googleAuthUrl.searchParams.append('state', state);
+
+        // Redirect to Google
+        window.location.href = googleAuthUrl.toString();
+    };
+
     return (
         <div className="auth-page-wrapper">
             <div className="content-container">
@@ -140,7 +166,16 @@ function LogIn() {
                                     disabled={!email || !password || isLoading}
                                     className={`submit-button ${!email || !password || isLoading ? 'disabled' : ''}`}
                                 >
-                                    Log In
+                                    {isLoading ? 'Logging in...' : 'Log In'}
+                                </button>
+                                <button
+                                    onClick={handleGoogleSignIn}
+                                    className="google-sign-in-button"
+                                    type="button"
+                                    disabled={isLoading}
+                                >
+                                    <FontAwesomeIcon icon={faGoogle} />
+                                    <span>Sign in with Google</span>
                                 </button>
                             </div>
                         </form>
