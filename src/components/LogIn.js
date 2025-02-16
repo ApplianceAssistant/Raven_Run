@@ -32,6 +32,49 @@ function LogIn() {
     }, [user, navigate]);
 
     useEffect(() => {
+        // Get URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        const error = params.get('error');
+
+        if (error) {
+            showError(decodeURIComponent(error));
+            return;
+        }
+
+        if (token) {
+            // Verify and decode the JWT token
+            try {
+                const tokenData = JSON.parse(atob(token.split('.')[1]));
+                const userData = {
+                    id: tokenData.data.user_id,
+                    email: tokenData.data.email,
+                    username: tokenData.data.username,
+                    token: token
+                };
+
+                if (userData.username) {
+                    // Existing user - log them in
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    login(userData);
+                    navigate('/');
+                } else {
+                    // New user - redirect to create profile
+                    navigate('/create-profile', { 
+                        state: { 
+                            email: userData.email,
+                            token: token
+                        } 
+                    });
+                }
+            } catch (error) {
+                console.error('Token parsing error:', error);
+                showError('Invalid authentication token');
+            }
+        }
+    }, [navigate, login, showError]);
+
+    useEffect(() => {
         checkServerConnectivity().then((status) => {
             setServerStatus(status);
         });

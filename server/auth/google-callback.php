@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/errorHandler.php';
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/auth-utils.php';
 
 // Load environment variables
@@ -41,34 +41,29 @@ $_SESSION['oauth_state'] = $state;
 // Debug session data
 error_log("Session Data: " . print_r($_SESSION, true));
 
-// Google OAuth configuration
-$client_id = $_ENV['GOOGLE_CLIENT_ID'];
-$client_secret = $_ENV['GOOGLE_CLIENT_SECRET'];
-
-// If base_url is not provided in headers, construct it based on environment
-$base_url = $_SERVER['HTTP_X_BASE_URL'] ?? null;
-
+// Get environment and base URL
+$env = $_ENV['APP_ENV'] ?? 'development';
 error_log("Environment Detection:");
 error_log("- X-Environment header: " . ($_SERVER['HTTP_X_ENVIRONMENT'] ?? 'not set'));
 error_log("- X-Base-URL header: " . ($_SERVER['HTTP_X_BASE_URL'] ?? 'not set'));
-error_log("- APP_ENV: " . (getenv('APP_ENV') ?? 'not set'));
-error_log("- Final environment: " . ($_ENV['APP_ENV'] ?? 'development'));
+error_log("- APP_ENV: " . $env);
+error_log("- Final environment: " . $env);
 
-// If base_url is not provided in headers, construct it based on environment
-if (!$base_url) {
-    $env = $_ENV['APP_ENV'] ?? 'development';
-    $base_url = match($env) {
-        'production' => 'https://crowtours.com',
-        'staging' => 'https://ravenruns.com',
-        default => 'http://localhost:5000'
-    };
-}
-
+$base_url = match($env) {
+    'production' => 'https://crowtours.com',
+    'staging' => 'https://ravenruns.com',
+    'development' => 'http://localhost:8000',
+    default => 'http://localhost:8000'
+};
 error_log("Using base URL: " . $base_url);
 
-// Use consistent callback path for all environments
+// Set redirect URI based on environment
 $redirect_uri = $base_url . '/server/auth/google-callback.php';
 error_log("Using redirect URI: " . $redirect_uri);
+
+// Google OAuth configuration
+$client_id = $_ENV['GOOGLE_CLIENT_ID'];
+$client_secret = $_ENV['GOOGLE_CLIENT_SECRET'];
 
 // Verify client ID and secret are set
 if (empty($client_id) || empty($client_secret)) {
@@ -79,6 +74,25 @@ if (empty($client_id) || empty($client_secret)) {
 }
 
 try {
+    // Initialize Google API client
+    $client = new Google_Client();
+    $client->setClientId($client_id);
+    $client->setClientSecret($client_secret);
+    $client->setRedirectUri($redirect_uri);
+
+    // In development, bypass SSL verification
+    if ($env === 'development') {
+        error_log("Development environment detected - bypassing SSL verification");
+        $guzzleClient = new \GuzzleHttp\Client([
+            'verify' => false,
+            'curl' => [
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false
+            ]
+        ]);
+        $client->setHttpClient($guzzleClient);
+    }
+
     // Exchange authorization code for access token
     $token_url = 'https://oauth2.googleapis.com/token';
     $params = [
@@ -89,16 +103,29 @@ try {
         'grant_type' => 'authorization_code'
     ];
 
+    // Initialize cURL session
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $token_url);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    
-    if (curl_errno($ch)) {
-        throw new Exception('Failed to get access token: ' . curl_error($ch));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+
+    // Disable SSL verification in development environment only
+    if ($env === 'development') {
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        error_log("Development environment: SSL verification disabled");
     }
+
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    
+    if ($error) {
+        error_log("cURL Error: " . $error);
+        throw new Exception("Failed to get access token: " . $error);
+    }
+
     curl_close($ch);
 
     $token_data = json_decode($response, true);
@@ -115,6 +142,14 @@ try {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Authorization: Bearer ' . $token_data['access_token']
     ]);
+
+    // Disable SSL verification in development environment only
+    if ($env === 'development') {
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        error_log("Development environment: SSL verification disabled for user info request");
+    }
+
     $user_info = curl_exec($ch);
     
     if (curl_errno($ch)) {

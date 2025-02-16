@@ -68,24 +68,24 @@ function createOrUpdateUser($email, $name, $provider) {
     }
 }
 
-function handleOAuthError($message) {
+function getFrontendUrl() {
     $env = $_ENV['APP_ENV'] ?? 'development';
-    $frontend_url = match($env) {
-        'production' => $_ENV['REACT_APP_PRODUCTION_URL'],
-        'staging' => $_ENV['REACT_APP_STAGING_URL'],
-        default => $_ENV['REACT_APP_DEVELOPMENT_URL']
+    return match($env) {
+        'production' => 'https://crowtours.com',
+        'staging' => 'https://ravenruns.com',
+        'development' => 'http://localhost:5000',
+        default => 'http://localhost:5000'
     };
-    header("Location: $frontend_url/login?error=" . urlencode($message));
+}
+
+function handleOAuthError($message) {
+    $frontend_url = getFrontendUrl();
+    header("Location: $frontend_url/log-in?error=" . urlencode($message));
     exit;
 }
 
 function handleOAuthSuccess($token) {
-    $env = $_ENV['APP_ENV'] ?? 'development';
-    $frontend_url = match($env) {
-        'production' => $_ENV['REACT_APP_PRODUCTION_URL'],
-        'staging' => $_ENV['REACT_APP_STAGING_URL'],
-        default => $_ENV['REACT_APP_DEVELOPMENT_URL']
-    };
-    header("Location: $frontend_url/login-callback?token=" . urlencode($token));
+    $frontend_url = getFrontendUrl();
+    header("Location: $frontend_url/log-in?token=" . urlencode($token));
     exit;
 }
