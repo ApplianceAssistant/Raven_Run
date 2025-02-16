@@ -33,6 +33,22 @@
   <meta property="twitter:description" content="A real world escape room that you can create for your friends" />
   <meta property="twitter:image" content="./src/images/icons/CrowTours_logo-500X500.png?v=1.1" />
   <title>Crow Tours V0.12</title>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            // Check for updates every hour
+            setInterval(() => {
+              registration.update();
+            }, 3600000);
+          })
+          .catch(error => {
+            console.log('ServiceWorker registration failed:', error);
+          });
+      });
+    }
+  </script>
 </head>
 
 <body>
