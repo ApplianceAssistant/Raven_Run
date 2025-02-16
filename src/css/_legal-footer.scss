@@ -1,0 +1,47 @@
+.legal-footer {
+  width: 100%;
+  padding: 1rem;
+  background: var(--page-bg);
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  margin-top: auto;
+
+  .legal-links {
+    a {
+      color: var(--link-color);
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .separator {
+      margin: 0 0.5rem;
+      color: var(--text-color-secondary);
+    }
+  }
+}
+
+// Page wrapper for login and create profile pages
+.auth-page-wrapper {
+  @include safe-height(100vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .content-container {
+    flex: 1;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    min-height: min-content; // Ensures content doesn't get squished
+    
+    // Add some padding at the bottom to ensure space for footer
+    padding-bottom: 4rem;
+  }
+}

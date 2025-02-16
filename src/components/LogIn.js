@@ -4,6 +4,7 @@ import { AuthContext } from '../App';
 import { checkServerConnectivity, API_URL, authFetch } from '../utils/utils.js';
 import { useMessage } from '../utils/MessageProvider';
 import NavigationOptions from './NavigationOptions';
+import LegalFooter from './LegalFooter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faGamepad, faPlus } from '@fortawesome/free-solid-svg-icons';
 import '../css/Login.scss';
@@ -105,53 +106,54 @@ function LogIn() {
         }
     };
 
-    if (isLoggedInSuccessfully) {
-        return (
-            <NavigationOptions 
-                title={`Welcome, ${JSON.parse(localStorage.getItem('user')).username}!`}
-                subtitle="What would you like to do next?"
-            />
-        );
-    }
-
     return (
-        <>
-            <div className="bodyContent centered">
-                <h1>Welcome Back, Adventurer</h1>
-                {isLoading && <div className="loader">Loading...</div>}
-                <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
-                    <div className="account-field">
-                        <label htmlFor="email">Email:</label>
-                        <input
-                            type="email"
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
+        <div className="auth-page-wrapper">
+            <div className="content-container">
+                <h1>Welcome to Crow Tours</h1>
+                {!isLoggedInSuccessfully ? (
+                    <div className="login-form">
+                        <div className="bodyContent centered">
+                            <h1>Welcome Back, Adventurer</h1>
+                            {isLoading && <div className="loader">Loading...</div>}
+                            <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
+                                <div className="account-field">
+                                    <label htmlFor="email">Email:</label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="account-field">
+                                    <label htmlFor="password">Password:</label>
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="button-container">
+                                    <button
+                                        onClick={() => handleSubmit('login')}
+                                        disabled={!email || !password || isLoading}
+                                        className={`submit-button ${!email || !password || isLoading ? 'disabled' : ''}`}
+                                    >
+                                        Log In
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <div className="account-field">
-                        <label htmlFor="password">Password:</label>
-                        <input
-                            type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="button-container">
-                        <button
-                            onClick={() => handleSubmit('login')}
-                            disabled={!email || !password || isLoading}
-                            className={`submit-button ${!email || !password || isLoading ? 'disabled' : ''}`}
-                        >
-                            Log In
-                        </button>
-                    </div>
-                </form>
+                ) : (
+                    <NavigationOptions options={navigationOptions} />
+                )}
             </div>
-        </>
+            <LegalFooter />
+        </div>
     );
 }
 

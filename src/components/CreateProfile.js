@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
-import { checkServerConnectivity, API_URL } from '../utils/utils.js';
+import { checkServerConnectivity, API_URL, authFetch } from '../utils/utils.js';
 import { useMessage } from '../utils/MessageProvider';
 import NavigationOptions from './NavigationOptions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faGamepad, faPlus } from '@fortawesome/free-solid-svg-icons';
 import '../css/Login.scss';
+import LegalFooter from './LegalFooter';
 
 function CreateProfile() {
   const [formState, setFormState] = useState({
@@ -287,11 +288,11 @@ function CreateProfile() {
   }
 
   return (
-    <>
-      <div className="bodyContent centered">
-        <h1>Welcome, Brave Adventurer</h1>
+    <div className="auth-page-wrapper">
+      <div className="content-container">
+        <h1>Create Your Profile</h1>
         {loadingStates.submission && <div className="loader">Loading...</div>}
-        <form className="accountForm" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="create-profile-form">
           <div className="account-field">
             <label htmlFor="username">Username:</label>
             <input
@@ -341,7 +342,8 @@ function CreateProfile() {
           </div>
         </form>
       </div>
-    </>
+      <LegalFooter />
+    </div>
   );
 }
 
