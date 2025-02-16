@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../../server/utils/db_connection.php';
-require_once __DIR__ . '/../../server/utils/errorHandler.php';
-require_once __DIR__ . '/../../server/auth/auth-utils.php';
+require_once __DIR__ . '/../utils/db_connection.php';
+require_once __DIR__ . '/../utils/errorHandler.php';
+require_once __DIR__ . '/auth-utils.php';
 
 session_start();
 
@@ -21,15 +21,23 @@ unset($_SESSION['oauth_state']);
 $client_id = $_ENV['GOOGLE_CLIENT_ID'];
 $client_secret = $_ENV['GOOGLE_CLIENT_SECRET'];
 
-// Determine the base URL based on environment
-$env = $_ENV['APP_ENV'] ?? 'development';
+// Load environment variables
+$env = getenv('APP_ENV') ?? 'development';
+error_log("Current environment (APP_ENV): " . $env);
+error_log("Environment variables:");
+error_log("NODE_ENV: " . getenv('NODE_ENV'));
+error_log("APP_ENV: " . getenv('APP_ENV'));
+error_log("\$_ENV contents: " . print_r($_ENV, true));
+
 $base_url = match($env) {
     'production' => 'https://crowtours.com',
     'staging' => 'https://ravenruns.com',
     default => 'http://localhost:5000'
 };
 
-$redirect_uri = $base_url . '/auth/google-callback.php';
+// Use consistent callback path for all environments
+$redirect_uri = $base_url . '/server/auth/google-callback.php';
+error_log("Using redirect URI: " . $redirect_uri);
 
 try {
     // Exchange authorization code for access token

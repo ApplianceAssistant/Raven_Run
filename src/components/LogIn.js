@@ -113,16 +113,23 @@ function LogIn() {
         
         // Get the correct base URL based on environment
         const env = process.env.NODE_ENV;
+        console.log('Current environment:', env);
+        console.log('Available environment variables:', process.env);
+        
         const baseUrl = env === 'production' 
             ? 'https://crowtours.com'
             : env === 'staging' 
                 ? 'https://ravenruns.com'
                 : 'http://localhost:5000';
+        console.log('Using base URL:', baseUrl);
+
+        // Use consistent callback path for all environments
+        const callbackPath = '/server/auth/google-callback.php';
 
         // Construct Google OAuth URL
         const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-        googleAuthUrl.searchParams.append('client_id', process.env.GOOGLE_CLIENT_ID);
-        googleAuthUrl.searchParams.append('redirect_uri', `${baseUrl}/auth/google-callback.php`);
+        googleAuthUrl.searchParams.append('client_id', process.env.REACT_APP_GOOGLE_CLIENT_ID);
+        googleAuthUrl.searchParams.append('redirect_uri', `${baseUrl}${callbackPath}`);
         googleAuthUrl.searchParams.append('response_type', 'code');
         googleAuthUrl.searchParams.append('scope', 'email profile');
         googleAuthUrl.searchParams.append('state', state);
