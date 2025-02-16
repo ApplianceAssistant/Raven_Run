@@ -25,6 +25,8 @@ import { useTheme } from './utils/ThemeContext';
 import { MessageProvider } from './utils/MessageProvider';
 import MessageDisplay from './components/MessageDisplay';
 import Documentation from './components/Documentation';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import TermsOfService from './components/TermsOfService';
 
 import './css/App.scss';
 import { setupViewport } from './utils/viewport';
@@ -169,6 +171,8 @@ function AppContent() {
               </ThemeContainer>
             </GameCreationProvider>
           } />
+          <Route path="/privacy" element={<ThemeContainer theme={theme}><PrivacyPolicy /></ThemeContainer>} />
+          <Route path="/terms" element={<ThemeContainer theme={theme}><TermsOfService /></ThemeContainer>} />
           {/* Add a catch-all route for 404s */}
           <Route path="*" element={
             <div className="content-wrapper">
