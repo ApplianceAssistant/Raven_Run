@@ -32,7 +32,12 @@ function LogIn() {
 
     // Check if user is already logged in and redirect if they are
     useEffect(() => {
-        if (user) {
+        // Get URL parameters first
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        
+        // Only redirect if there's no token and user is logged in
+        if (user && !token) {
             navigate('/');
         }
     }, [user, navigate]);
@@ -56,10 +61,15 @@ function LogIn() {
                     id: tokenData.data.user_id,
                     email: tokenData.data.email,
                     username: tokenData.data.username,
-                    token: token
+                    token: token,
+                    temporary_account: tokenData.data.temporary_account || false
                 };
-
-                if (userData.username) {
+                console.warn('userData', userData);
+                if (userData.temporary_account) {
+                    // Show update modal for temporary accounts
+                    setTempUser(userData);
+                    setShowUpdateTemp(true);
+                } else if (userData.username) {
                     // Existing user - log them in
                     localStorage.setItem('user', JSON.stringify(userData));
                     login(userData);

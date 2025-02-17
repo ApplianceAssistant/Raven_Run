@@ -181,7 +181,8 @@ try {
         $token = generateJWT([
             'user_id' => $user['id'],
             'email' => $user['email'],
-            'username' => $user['username']
+            'username' => $user['username'],
+            'temporary_account' => (bool)$user['temporary_account']
         ]);
 
         handleOAuthSuccess($token);
@@ -200,7 +201,7 @@ try {
                 throw new Exception('Failed to create temporary account');
             }
 
-            // Generate JWT token for the new user
+            // Generate JWT for new temporary user
             $token = generateJWT([
                 'user_id' => $newUser['id'],
                 'email' => $newUser['email'],
