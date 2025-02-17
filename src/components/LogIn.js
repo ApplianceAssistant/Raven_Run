@@ -8,6 +8,7 @@ import { useMessage } from '../utils/MessageProvider';
 import LegalFooter from './LegalFooter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
+import UpdateTempAccount from './UpdateTempAccount';
 import '../css/Login.scss';
 
 function LogIn() {
@@ -25,6 +26,9 @@ function LogIn() {
         isDatabaseConnected: false,
         message: ''
     });
+
+    const [showUpdateTemp, setShowUpdateTemp] = useState(false);
+    const [tempUser, setTempUser] = useState(null);
 
     // Check if user is already logged in and redirect if they are
     useEffect(() => {
@@ -133,25 +137,31 @@ function LogIn() {
                 throw new Error(errorMessage);
             }
 
-            if (data.status === 'success') {
-                const userData = {
-                    id: data.user.id,
-                    username: data.user.username,
-                    email: data.user.email,
-                    token: data.token
-                };
-                localStorage.setItem('user', JSON.stringify(userData));
-                login(userData);
-                navigate('/');
-            } else {
-                throw new Error(data.message || 'Login failed');
-            }
+            handleSuccess(data);
         } catch (error) {
             console.error('Login error:', error);
             showError(error.message || 'An error occurred during login');
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleSuccess = (data) => {
+        if (data.temporary_account) {
+            setTempUser(data);
+            setShowUpdateTemp(true);
+        } else {
+            localStorage.setItem('user', JSON.stringify(data));
+            login(data);
+            navigate('/');
+        }
+    };
+
+    const handleTempAccountUpdate = (updatedUser) => {
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        login(updatedUser);
+        setShowUpdateTemp(false);
+        navigate('/');
     };
 
     return (
@@ -200,6 +210,13 @@ function LogIn() {
                     </div>
                 </div>
             </div>
+            {showUpdateTemp && (
+                <UpdateTempAccount
+                    user={tempUser}
+                    onSuccess={handleTempAccountUpdate}
+                    onCancel={() => setShowUpdateTemp(false)}
+                />
+            )}
             <LegalFooter />
         </div>
     );

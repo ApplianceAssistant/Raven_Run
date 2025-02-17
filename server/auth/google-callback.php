@@ -186,11 +186,33 @@ try {
 
         handleOAuthSuccess($token);
     } else {
-        // New user - store email in session and redirect to home page with display name modal flag
-        $_SESSION['google_signup_email'] = $user_data['email'];
-        $frontend_url = $base_url;
-        header("Location: $frontend_url/?needDisplayName=true&email=" . urlencode($user_data['email']));
-        exit;
+        // New user - create temporary account
+        try {
+            // Generate temporary username from email
+            $email_parts = explode('@', $user_data['email']);
+            $temp_username = $email_parts[0] . '_' . bin2hex(random_bytes(4));
+            
+            // Create temporary user account
+            require_once __DIR__ . '/../api/users/users.php';
+            $newUser = createGoogleUser($user_data['email'], $temp_username);
+            
+            if (!$newUser) {
+                throw new Exception('Failed to create temporary account');
+            }
+
+            // Generate JWT token for the new user
+            $token = generateJWT([
+                'user_id' => $newUser['id'],
+                'email' => $newUser['email'],
+                'username' => $newUser['username'],
+                'temporary_account' => true
+            ]);
+
+            handleOAuthSuccess($token);
+        } catch (Exception $e) {
+            error_log("Error creating temporary account: " . $e->getMessage());
+            handleOAuthError('Failed to create account: ' . $e->getMessage());
+        }
     }
 
 } catch (Exception $e) {

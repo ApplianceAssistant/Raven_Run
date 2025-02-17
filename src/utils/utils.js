@@ -332,3 +332,9 @@ export const cleanText = (text, options = {}) => {
 
     return cleaned;
 };
+
+export const generateTempUsername = (email) => {
+    const prefix = email.split('@')[0];
+    const randomString = Math.random().toString(36).substring(2, 8);
+    return `${prefix}_${randomString}`;
+};

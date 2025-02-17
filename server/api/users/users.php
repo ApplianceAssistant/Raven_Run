@@ -40,6 +40,15 @@ if ($method === 'POST') {
     }
 }
 
+// Check if request is from Google OAuth callback
+$backtrace = debug_backtrace();
+foreach ($backtrace as $trace) {
+    if (isset($trace['file']) && strpos($trace['file'], 'google-callback.php') !== false) {
+        $skipAuth = true;
+        break;
+    }
+}
+
 if (!$skipAuth) {
     $user = authenticateUser();
     if (!$user) {
@@ -213,9 +222,13 @@ try {
 
             $conn->begin_transaction();
 
-            // Insert new user with NULL password since using Google OAuth
-            $stmt = $conn->prepare('INSERT INTO users (username, email, password, email_verified) VALUES (?, ?, NULL, 1)');
-            $stmt->bind_param('ss', $username, $email);
+            // Generate temporary password hash
+            $tempPassword = bin2hex(random_bytes(16));
+            $hashedPassword = password_hash($tempPassword, PASSWORD_DEFAULT);
+
+            // Insert new user with temporary credentials
+            $stmt = $conn->prepare('INSERT INTO users (username, email, password, email_verified, temporary_account) VALUES (?, ?, ?, 1, 1)');
+            $stmt->bind_param('sss', $username, $email, $hashedPassword);
 
             $stmt->execute();
             $newUserId = $conn->insert_id;
@@ -243,7 +256,9 @@ try {
                 'id' => $newUserId,
                 'username' => $username,
                 'email' => $email,
-                'token' => $token
+                'token' => $token,
+                'temporary_account' => true,
+                'temp_password' => $tempPassword // This will be used for initial login
             ];
         } catch (Exception $e) {
             if ($conn->connect_error === null) {
