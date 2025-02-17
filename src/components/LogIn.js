@@ -161,7 +161,7 @@ function LogIn() {
                 <div className="login-form">
                     <div className="bodyContent centered">
                         <h1>Welcome Back, Adventurer</h1>
-                        {isLoading && <div className="loader">Loading...</div>}
+                        {isLoading && <div className="loader"></div>}
                         <form className="accountForm" onSubmit={(e) => e.preventDefault()}>
                             <div className="account-field">
                                 <label htmlFor="email">Email:</label>
