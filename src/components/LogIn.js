@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { checkServerConnectivity, API_URL, authFetch } from '../utils/utils.js';
+import GoogleSignInButton from './GoogleSignInButton';
+import { initiateGoogleSignIn } from '../utils/googleAuth';
 import { useMessage } from '../utils/MessageProvider';
 import LegalFooter from './LegalFooter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,7 +15,7 @@ function LogIn() {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isLoggedInSuccessfully, setIsLoggedInSuccessfully] = useState(false);
-    
+
     const { user, login } = useContext(AuthContext);
     const navigate = useNavigate();
     const { showError, showSuccess } = useMessage();
@@ -60,11 +62,11 @@ function LogIn() {
                     navigate('/');
                 } else {
                     // New user - redirect to create profile
-                    navigate('/create-profile', { 
-                        state: { 
+                    navigate('/create-profile', {
+                        state: {
                             email: userData.email,
                             token: token
-                        } 
+                        }
                     });
                 }
             } catch (error) {
@@ -79,6 +81,10 @@ function LogIn() {
             setServerStatus(status);
         });
     }, []);
+
+    const handleGoogleSignIn = () => {
+        initiateGoogleSignIn();
+    };
 
     const handleSubmit = async (action) => {
         setIsLoading(true);
@@ -112,7 +118,7 @@ function LogIn() {
                     email,
                     password,
                 }),
-                credentials: 'include' 
+                credentials: 'include'
             });
 
             const data = await response.json();
@@ -121,7 +127,7 @@ function LogIn() {
                 if (response.status === 429) {
                     throw new Error('Too many login attempts. Please try again later.');
                 }
-                const errorMessage = data.debug_info 
+                const errorMessage = data.debug_info
                     ? `${data.message} (Debug: ${data.debug_info})`
                     : data.message || 'An error occurred';
                 throw new Error(errorMessage);
@@ -146,38 +152,6 @@ function LogIn() {
         } finally {
             setIsLoading(false);
         }
-    };
-
-    // Handle Google Sign-In
-    const handleGoogleSignIn = () => {
-        // Generate state parameter for CSRF protection
-        const state = Math.random().toString(36).substring(7);
-        
-        // Get the correct base URL based on environment
-        const env = process.env.NODE_ENV;
-        console.log('Current environment:', env);
-        console.log('Available environment variables:', process.env);
-        
-        const baseUrl = env === 'production' 
-            ? process.env.REACT_APP_PRODUCTION_URL
-            : env === 'staging' 
-                ? process.env.REACT_APP_STAGING_URL
-                : process.env.REACT_APP_DEVELOPMENT_URL;
-        console.log('Using base URL:', baseUrl);
-
-        // Use consistent callback path for all environments
-        const callbackPath = '/server/auth/google-callback.php';
-
-        // Construct Google OAuth URL
-        const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-        googleAuthUrl.searchParams.append('client_id', process.env.REACT_APP_GOOGLE_CLIENT_ID);
-        googleAuthUrl.searchParams.append('redirect_uri', `${baseUrl}${callbackPath}`);
-        googleAuthUrl.searchParams.append('response_type', 'code');
-        googleAuthUrl.searchParams.append('scope', 'email profile');
-        googleAuthUrl.searchParams.append('state', state);
-
-        // Redirect to Google
-        window.location.href = googleAuthUrl.toString();
     };
 
     return (
@@ -217,15 +191,10 @@ function LogIn() {
                                 >
                                     {isLoading ? 'Logging in...' : 'Log In'}
                                 </button>
-                                <button
+                                <GoogleSignInButton
                                     onClick={handleGoogleSignIn}
-                                    className="google-sign-in-button"
-                                    type="button"
-                                    disabled={isLoading}
-                                >
-                                    <FontAwesomeIcon icon={faGoogle} />
-                                    <span>Sign in with Google</span>
-                                </button>
+                                    isLoading={isLoading}
+                                />
                             </div>
                         </form>
                     </div>
