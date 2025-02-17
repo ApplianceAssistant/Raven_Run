@@ -30,44 +30,6 @@ function verifyJWT($token) {
     }
 }
 
-function createOrUpdateUser($email, $name, $provider) {
-    $conn = getDbConnection();
-    
-    try {
-        // Check if user exists
-        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            // Update existing user
-            $user = $result->fetch_assoc();
-            $stmt = $conn->prepare("UPDATE users SET last_login = NOW(), auth_provider = ? WHERE id = ?");
-            $stmt->bind_param("si", $provider, $user['id']);
-            $stmt->execute();
-            return $user;
-        } else {
-            // Create new user
-            $username = explode('@', $email)[0];
-            $stmt = $conn->prepare("INSERT INTO users (email, username, display_name, auth_provider, created_at) VALUES (?, ?, ?, ?, NOW())");
-            $stmt->bind_param("ssss", $email, $username, $name, $provider);
-            $stmt->execute();
-            return [
-                'id' => $conn->insert_id,
-                'email' => $email,
-                'username' => $username,
-                'display_name' => $name
-            ];
-        }
-    } catch(Exception $e) {
-        handleException($e);
-        return false;
-    } finally {
-        releaseDbConnection();
-    }
-}
-
 function getFrontendUrl() {
     $env = $_ENV['APP_ENV'] ?? 'development';
     return match($env) {
