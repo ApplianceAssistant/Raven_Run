@@ -337,6 +337,44 @@ try {
         }
     }
 
+    function updateTempAccount($userData)
+    {
+        global $conn;
+        try {
+            if (!isset($userData['user_id']) || !isset($userData['username'])) {
+                throw new Exception('User ID and username are required', 400);
+            }
+
+            // Check if username is unique (excluding current user)
+            $stmt = $conn->prepare('SELECT id FROM users WHERE username = ? AND id != ?');
+            $stmt->bind_param('si', $userData['username'], $userData['user_id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0) {
+                throw new Exception('Username already exists', 409);
+            }
+
+            // Update the user
+            $stmt = $conn->prepare('UPDATE users SET username = ?, temporary_account = 0 WHERE id = ?');
+            $stmt->bind_param('si', $userData['username'], $userData['user_id']);
+            
+            if (!$stmt->execute()) {
+                throw new Exception('Failed to update user', 500);
+            }
+
+            // Get updated user data
+            $stmt = $conn->prepare('SELECT id, email, username, temporary_account FROM users WHERE id = ?');
+            $stmt->bind_param('i', $userData['user_id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+
+            return $user;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
     switch ($method) {
         case 'GET':
             if (isset($_GET['action'])) {
@@ -404,6 +442,10 @@ try {
 
             if (isset($data['action'])) {
                 switch($data['action']) {
+                    case 'update_temp_account':
+                        $user = updateTempAccount($data);
+                        echo json_encode(['success' => true, 'user' => $user]);
+                        break;
                     case 'update':
                         $user = updateUser($data);
                         echo json_encode(['success' => true, 'user' => $user]);

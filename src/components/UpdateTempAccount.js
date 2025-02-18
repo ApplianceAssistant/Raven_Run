@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../utils/utils.js';
+import { API_URL, authFetch } from '../utils/utils.js';
 import { useMessage } from '../utils/MessageProvider';
+import debounce from 'lodash.debounce';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCrow } from '@fortawesome/free-solid-svg-icons';
 import '../css/Login.scss';
 
 function UpdateTempAccount({ user, onSuccess, onCancel }) {
     const [formState, setFormState] = useState({
-        username: { value: '', isValid: false, isUnique: false },
-        password: { value: '', isValid: false }
+        username: { value: '', isValid: false, isUnique: false }
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -19,133 +21,130 @@ function UpdateTempAccount({ user, onSuccess, onCancel }) {
         return regex.test(username);
     };
 
-    const validatePassword = (password) => {
-        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\w\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]{8,}$/;
-        return regex.test(password);
-    };
-
-    const checkUnique = async (value) => {
-        try {
-            const response = await fetch(`${API_URL}/server/api/users/users.php?action=check_unique&field=username&value=${value}`);
-            const data = await response.json();
-            return data.isUnique;
-        } catch (error) {
-            console.error('Error checking username uniqueness:', error);
-            return false;
-        }
-    };
-
-    const handleInputChange = async (field, value) => {
-        let isValid = false;
-        let isUnique = false;
-
-        if (field === 'username') {
-            isValid = validateUsername(value);
-            if (isValid) {
-                isUnique = await checkUnique(value);
+    // Create debounced check function
+    const debouncedCheckUnique = useCallback(
+        debounce(async (value) => {
+            if (!validateUsername(value)) return;
+            try {
+                const response = await authFetch(
+                    `${API_URL}/server/api/users/users.php?action=check_unique&field=username&value=${value}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${user.token}`
+                        }
+                    }
+                );
+                const data = await response.json();
+                setFormState(prev => ({
+                    username: { ...prev.username, isUnique: data.isUnique }
+                }));
+            } catch (error) {
+                console.error('Error checking trail name uniqueness:', error);
             }
-        } else if (field === 'password') {
-            isValid = validatePassword(value);
-        }
+        }, 500),
+        [user.token]
+    );
 
+    const handleInputChange = (value) => {
+        const isValid = validateUsername(value);
         setFormState(prev => ({
-            ...prev,
-            [field]: { 
-                ...prev[field], 
-                value,
-                isValid,
-                ...(field === 'username' ? { isUnique } : {})
-            }
+            username: { ...prev.username, value, isValid }
         }));
+
+        if (isValid) {
+            debouncedCheckUnique(value);
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        if (!formState.username.isValid || !formState.username.isUnique || !formState.password.isValid) {
-            showError('Please fill in all fields correctly');
+        if (!formState.username.isValid || !formState.username.isUnique) {
             return;
         }
 
         setIsLoading(true);
         try {
-            const response = await fetch(`${API_URL}/server/api/users/users.php`, {
+            const response = await authFetch(`${API_URL}/server/api/users/users.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
                 },
                 body: JSON.stringify({
-                    action: 'update',
-                    id: user.id,
-                    username: formState.username.value,
-                    password: formState.password.value,
-                    temporary_account: false
-                }),
+                    action: 'update_temp_account',
+                    user_id: user.id,
+                    username: formState.username.value
+                })
             });
 
             const data = await response.json();
-
-            if (data.status === 'success') {
-                showSuccess('Account updated successfully!');
-                onSuccess(data.user);
-            } else {
-                throw new Error(data.message || 'Failed to update account');
+            if (!data.success) {
+                throw new Error(data.message || 'Failed to update profile');
             }
+
+            showSuccess('Welcome to the trails! Your adventure begins now! 🦅');
+            
+            // Keep the existing token when updating user data
+            const updatedUser = {
+                ...user,
+                ...data.user,
+                token: user.token // Keep the existing token
+            };
+            
+            onSuccess(updatedUser);
         } catch (error) {
-            showError(error.message);
+            console.error('Update error:', error);
+            showError(error.message || 'Failed to update profile');
         } finally {
             setIsLoading(false);
         }
     };
 
+    const isFormValid = () => {
+        return formState.username.isValid && formState.username.isUnique;
+    };
+
     return (
-        <div className="modal-overlay">
-            <div className="modal-content">
-                <h2>Complete Your Profile</h2>
-                <p>Please choose a username and password for your account.</p>
-                
-                <form onSubmit={handleSubmit}>
-                    <div className="account-field">
-                        <label htmlFor="username">Username:</label>
+        <div className="modal-overlay visible">
+            <div className="modal-content visible">
+                <h2>
+                    Welcome to the Flock! <FontAwesomeIcon icon={faCrow} className="crow-icon" />
+                </h2>
+                <p className="welcome-text">Every great adventurer needs a trail name. What shall we call you?</p>
+                <form onSubmit={handleSubmit} autoComplete="off">
+                    <div className="form-group">
+                        <label htmlFor="trail-name">Trail Name:</label>
                         <input
                             type="text"
-                            id="username"
+                            id="trail-name"
+                            name="trail-name-new" // Unique name to prevent autofill
                             value={formState.username.value}
-                            onChange={(e) => handleInputChange('username', e.target.value)}
+                            onChange={(e) => handleInputChange(e.target.value)}
+                            placeholder="Create your trail name"
                             required
+                            autoComplete="off"
+                            autoFocus
                         />
                         <div className="field-guide">
-                            Username must be 3-20 characters long and can only contain letters, numbers, and underscores
+                            Your trail name must be 3-20 characters long and can only contain letters, numbers, and underscores
                         </div>
+                        {formState.username.value && !formState.username.isValid && (
+                            <div className="error">Please follow the trail name guidelines above</div>
+                        )}
+                        {formState.username.isValid && !formState.username.isUnique && (
+                            <div className="error">This trail name is already claimed by another adventurer</div>
+                        )}
                     </div>
-
-                    <div className="account-field">
-                        <label htmlFor="password">Password:</label>
-                        <input
-                            type="password"
-                            id="password"
-                            value={formState.password.value}
-                            onChange={(e) => handleInputChange('password', e.target.value)}
-                            required
-                        />
-                        <div className="field-guide">
-                            Password must be at least 8 characters long and contain uppercase, lowercase, and numbers
-                        </div>
-                    </div>
-
-                    <div className="button-container">
-                        <button
-                            type="submit"
-                            disabled={isLoading || !formState.username.isValid || !formState.username.isUnique || !formState.password.isValid}
-                        >
-                            {isLoading ? 'Updating...' : 'Update Profile'}
+                    <div className="button-group visible">
+                        <button type="button" className="secondary" onClick={onCancel}>
+                            Maybe Later
                         </button>
                         <button
-                            type="button"
-                            onClick={onCancel}
-                            disabled={isLoading}
+                            type="submit"
+                            className="primary"
+                            disabled={!isFormValid() || isLoading}
                         >
-                            Cancel
+                            {isLoading ? 'Preparing Your Pack...' : 'Hit The Trail'}
                         </button>
                     </div>
                 </form>

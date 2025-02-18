@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/errorHandler.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once (__DIR__ . '/auth.php');
 require_once __DIR__ . '/auth-utils.php';
 
 // Load environment variables
@@ -177,12 +178,20 @@ try {
         $stmt->bind_param("i", $user['id']);
         $stmt->execute();
 
-        // Generate JWT token
+        // Generate auth token and store in database
+        $authToken = generateAuthToken($user['id']);
+        handleError(000, "authToken Returend: $authToken", __FILE__, __LINE__);
+        if (!$authToken) {
+            throw new Exception('Failed to generate auth token');
+        }
+
+        // Generate JWT token with auth token
         $token = generateJWT([
             'user_id' => $user['id'],
             'email' => $user['email'],
             'username' => $user['username'],
-            'temporary_account' => (bool)$user['temporary_account']
+            'temporary_account' => (bool)$user['temporary_account'],
+            'token' => $authToken  // Include the auth token in JWT
         ]);
 
         handleOAuthSuccess($token);
@@ -201,12 +210,19 @@ try {
                 throw new Exception('Failed to create temporary account');
             }
 
-            // Generate JWT for new temporary user
+            // Generate auth token for new user
+            $authToken = generateAuthToken($newUser['id']);
+            if (!$authToken) {
+                throw new Exception('Failed to generate auth token');
+            }
+
+            // Generate JWT for new temporary user with auth token
             $token = generateJWT([
                 'user_id' => $newUser['id'],
                 'email' => $newUser['email'],
                 'username' => $newUser['username'],
-                'temporary_account' => true
+                'temporary_account' => true,
+                'token' => $authToken  // Include the auth token in JWT
             ]);
 
             handleOAuthSuccess($token);

@@ -148,7 +148,7 @@ function CreateProfile() {
         if (!fieldState.isValid) {
             switch (field) {
                 case 'username':
-                    showError('Username must be 3-20 characters long and can only contain letters, numbers, and underscores');
+                    showError('"Trail Name" must be 3-20 characters long and can only contain letters, numbers, and underscores');
                     break;
                 case 'email':
                     showError('Please enter a valid email address');
