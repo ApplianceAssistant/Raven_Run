@@ -78,9 +78,10 @@ try {
     // Base query for public games
     $sql = "SELECT g.*, 
             g.image_url,
+            g.distance as stored_distance,  
             u.username as creator_name";
 
-    // Only add distance calculation if location parameters are provided AND radius is set
+    // Add distance calculation for location-based filtering
     if ($latitude !== null && $longitude !== null && $radius !== null) {
         $sql .= ",
             ROUND(
@@ -88,13 +89,13 @@ try {
                     point(g.start_longitude, g.start_latitude),
                     point(?, ?)
                 ) * 0.001, 2
-            ) as distance_km";
+            ) as search_distance";  
         $params[] = $longitude;
         $params[] = $latitude;
         $types .= 'dd';
     } else {
         // Set distance to 0 instead of NULL to avoid frontend issues
-        $sql .= ", 0 as distance_km";
+        $sql .= ", 0 as search_distance";
     }
 
     // Add relevance score calculation if search is provided
@@ -313,13 +314,14 @@ try {
     $games = [];
     while ($row = $result->fetch_assoc()) {
         // Clean up the response data
+        error_log(print_r($row, true));
         $game = [
             'id' => $row['gameId'],
             'title' => $row['title'],
             'description' => $row['description'],
             'challenges' => json_decode($row['challenge_data'], true),
             'difficulty' => $row['difficulty_level'],
-            'distance' => $row['distance'] ? round($row['distance'], 1) : null,
+            'distance' => $row['stored_distance'],  
             'avg_rating' => $row['avg_rating'],
             'rating_count' => $row['rating_count'],
             'duration' => $row['estimated_time'],

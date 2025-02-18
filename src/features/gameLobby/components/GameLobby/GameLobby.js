@@ -79,11 +79,7 @@ const GameLobby = () => {
             if (jsonData.status === 'success') {
                 const processedGames = jsonData.data.games.map(game => ({
                     ...game,
-                    distance: game.distance !== null ? 
-                        (getUserUnitPreference() ? 
-                            game.distance : 
-                            game.distance * 0.621371) // km to miles
-                        : null
+                    distance: game.distance  // Pass the raw distance value without conversion
                 }));
                 console.log('Fetched games:', processedGames)
                 setGames(processedGames);
@@ -185,6 +181,7 @@ const GameLobby = () => {
 
     // Transform games data to match GameCard props
     const transformedGames = games.map(game => {
+        console.warn('game-', game)
         const challenges = game.challenges || [];
         const firstChallenge = challenges[0] || {};
         const totalDuration = challenges.reduce((total, challenge) => {

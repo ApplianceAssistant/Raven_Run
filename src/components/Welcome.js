@@ -9,7 +9,7 @@ function Welcome() {
     const navigate = useNavigate();
 
     return (
-        <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 80)">
+        <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 90)">
             <div className="home-welcome-container">
                 <section className="hero">
                     <h1>Welcome to CrowTours</h1>

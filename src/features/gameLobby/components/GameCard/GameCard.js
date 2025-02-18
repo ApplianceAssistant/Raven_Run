@@ -24,6 +24,7 @@ const GameCard = ({
     dayOnly = false,
     onClick
 }) => {
+    console.log('game distance: ', distance)
     const navigate = useNavigate();
     const [isDownloaded, setIsDownloaded] = useState(false);
     const [isMetric, setIsMetric] = useState(() => {
@@ -54,8 +55,13 @@ const GameCard = ({
 
     const formatDistance = (distanceValue) => {
         if (distanceValue === null || distanceValue === undefined) return 'Distance N/A';
+        // Parse distance to number if it's a string
+        const distance = typeof distanceValue === 'string' ? parseFloat(distanceValue) : distanceValue;
+        if (isNaN(distance)) return 'Distance N/A';
+        
         const unit = getLargeDistanceUnit(isMetric);
-        const converted = convertDistance(distanceValue, isMetric);
+        // Match HuntDescription's conversion logic - treat input as metric (kilometers)
+        const converted = convertDistance(distance, true, isMetric);
         return `${converted.toFixed(1)} ${unit}`;
     };
 
@@ -111,10 +117,6 @@ const GameCard = ({
             </div>
             <div className="game-info">
                 <h3>{title}</h3>
-                <div className="rating">
-                    {renderStars(avg_rating)}
-                    {ratingCount > 0 && <span className="rating-count">({ratingCount})</span>}
-                </div>
                 <div className="game-card-description">
                     {cleanText(description, { maxLength: 100, truncationSuffix: '...' })}
                 </div>
