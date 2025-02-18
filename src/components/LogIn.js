@@ -160,14 +160,12 @@ function LogIn() {
     };
 
     const handleSuccess = (data) => {
-        // Preserve the token from the current user data
-        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
         const userData = {
-            ...data,
-            token: currentUser.token // Keep the existing token
+            ...data.user,
+            token: data.token // Use the new token from the login response
         };
 
-        if (data.temporary_account) {
+        if (data.user.temporary_account) {
             setTempUser(userData);
             localStorage.setItem('user', JSON.stringify(userData));
             login(userData);
