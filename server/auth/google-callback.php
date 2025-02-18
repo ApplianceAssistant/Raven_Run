@@ -66,6 +66,8 @@ error_log("Using redirect URI: " . $redirect_uri);
 $client_id = $_ENV['GOOGLE_CLIENT_ID'];
 $client_secret = $_ENV['GOOGLE_CLIENT_SECRET'];
 
+error_log("client_id: " . $client_id);
+
 // Verify client ID and secret are set
 if (empty($client_id) || empty($client_secret)) {
     error_log("Error: Missing OAuth credentials");
