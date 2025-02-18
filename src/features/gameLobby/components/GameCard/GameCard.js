@@ -95,24 +95,19 @@ const GameCard = ({
                 <div className={`difficulty-badge ${difficulty?.toLowerCase()}`}>
                     {difficulty || 'Normal'}
                 </div>
-                <div className="creator-name" title="Created by">
+                <div className="creator-name card-header-item" title="Created by">
                     Created by: {creator_name}
                 </div>
                 {distance !== null && (
-                    <div className="distance-badge">
+                    <div className="distance-badge card-header-item">
                         <FontAwesomeIcon icon={faRoute} />
                         {formatDistance(distance)}
                     </div>
                 )}
-                <div className="challenge-count">
+                <div className="challenge-count card-header-item">
                     <FontAwesomeIcon icon={faFlagCheckered} />
                     {challenges.length}
                 </div>
-                {dayOnly && (
-                    <div className="day-only-badge" title="Daytime Only">
-                        <FontAwesomeIcon icon={faSun} />
-                    </div>
-                )}
             </div>
             <div className="game-info">
                 <h3>{title}</h3>
@@ -129,6 +124,11 @@ const GameCard = ({
                             <FontAwesomeIcon icon={faClock} />
                             {formatDuration(duration)}
                         </span>
+                        {dayOnly && (
+                            <div className="day-only-badge" title="Daytime Only">
+                                <FontAwesomeIcon icon={faSun} />
+                            </div>
+                        )}
                         {tags.map((tag, index) =>
                             typeof tag === 'string' ? (
                                 <span key={index} className="tag">{tag}</span>

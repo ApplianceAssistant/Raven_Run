@@ -5,8 +5,8 @@ ini_set('display_errors', 1);
 require_once (__DIR__ . '/../../utils/db_connection.php');
 require_once (__DIR__ . '/../../utils/encryption.php');
 require_once (__DIR__ . '/../../utils/errorHandler.php');
-require_once (__DIR__ . '/../auth/auth.php');
-require_once __DIR__ . '/../../utils/rateLimit.php';
+require_once (__DIR__ . '/../../auth/auth.php');
+require_once (__DIR__ . '/../../utils/rateLimit.php');
 require_once (__DIR__ . '/../../utils/unitConversion.php');
 
 ini_set('default_charset', 'UTF-8');

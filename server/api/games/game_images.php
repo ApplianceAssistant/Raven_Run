@@ -6,7 +6,7 @@ ini_set('display_errors', 1);
 require_once(__DIR__ . '/../../utils/db_connection.php');
 require_once(__DIR__ . '/../../utils/errorHandler.php');
 require_once(__DIR__ . '/../../utils/image_cleanup.php');
-require_once(__DIR__ . '/../auth/auth.php');
+require_once(__DIR__ . '/../../auth/auth.php');
 
 // Set content type to JSON with UTF-8
 header('Content-Type: application/json; charset=utf-8');

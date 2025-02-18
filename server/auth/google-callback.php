@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../utils/db_connection.php';
 require_once __DIR__ . '/../utils/errorHandler.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once (__DIR__ . '/auth.php');
+require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/auth-utils.php';
 
 // Load environment variables

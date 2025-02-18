@@ -6,7 +6,7 @@ ini_set('display_errors', 1);
 require_once (__DIR__ . '/../../utils/db_connection.php');
 require_once (__DIR__ . '/../../utils/encryption.php');
 require_once (__DIR__ . '/../../utils/errorHandler.php');
-require_once (__DIR__ . '/../auth/auth.php');
+require_once (__DIR__ . '/../../auth/auth.php');
 
 ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');
