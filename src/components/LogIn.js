@@ -9,12 +9,14 @@ import LegalFooter from './LegalFooter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import UpdateTempAccount from './UpdateTempAccount';
+import ForgotPassword from './ForgotPassword';
 import '../css/Login.scss';
 
 function LogIn() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [isLoggedInSuccessfully, setIsLoggedInSuccessfully] = useState(false);
 
     const { user, login } = useContext(AuthContext);
@@ -212,6 +214,13 @@ function LogIn() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
                                 />
+                                <button 
+                                    type="button" 
+                                    className="forgot-password-link"
+                                    onClick={() => setShowForgotPassword(true)}
+                                >
+                                    Forgot Password?
+                                </button>
                             </div>
                             <div className="button-container">
                                 <button
@@ -230,6 +239,11 @@ function LogIn() {
                     </div>
                 </div>
             </div>
+            {showForgotPassword && (
+                <ForgotPassword
+                    onClose={() => setShowForgotPassword(false)}
+                />
+            )}
             {showUpdateTemp && (
                 <UpdateTempAccount
                     user={tempUser}

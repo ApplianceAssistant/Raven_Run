@@ -21,11 +21,11 @@ echo "Removing development-only files..."
 rm -f start-api.bat
 
 # Install dependencies
-#echo "Installing Node.js dependencies..."
-#npm install
+echo "Installing Node.js dependencies..."
+npm install
 
-#echo "Installing PHP dependencies..."
-#composer install --no-dev --optimize-autoloader
+echo "Installing PHP dependencies..."
+composer update --no-dev --optimize-autoloader
 
 # Build the React app
 npm run build
@@ -69,17 +69,5 @@ fi
 echo "Cleaning up..."
 rm -rf build
 
-# Set proper permissions (not permited on cloudways)
-#echo "Setting permissions..."
-#find . -type f -exec chmod 644 {} \;
-#find . -type d -exec chmod 755 {} \;
-
-# Restart Apache to reload environment variables
-#echo "Restarting Apache..."
-#if command -v systemctl &> /dev/null; then
-#    sudo systemctl restart apache2 || sudo service apache2 restart
-#else
-#    sudo service apache2 restart
-#fi
 
 echo "Deployment completed successfully."

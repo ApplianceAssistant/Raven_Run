@@ -139,6 +139,18 @@
     animation: spin 1s linear infinite;
 }
 
+.forgot-password-link {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: #4285f4;
+    cursor: pointer;
+    box-shadow: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
 .modal-overlay {
     position: fixed;
     top: 0;

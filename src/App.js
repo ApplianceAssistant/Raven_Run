@@ -18,6 +18,7 @@ import LogIn from './components/LogIn';
 import Friends from './components/Friends.js';
 import Congratulations from './components/Congratulations';
 import ThankYou from './components/ThankYou.js';
+import ResetPassword from './components/ResetPassword';
 import { checkServerConnectivity, API_URL, authFetch } from './utils/utils.js';
 import HuntDescription from './components/HuntDescription';
 import ThemeContainer from './components/ThemeContainer.js';
@@ -117,6 +118,7 @@ function AppContent() {
           <Route path="/lobby" element={<ThemeContainer theme={theme}><GameLobby /></ThemeContainer>} />
           <Route path="/create-profile" element={<ThemeContainer theme={theme}><CreateProfile /></ThemeContainer>} />
           <Route path="/log-in" element={<ThemeContainer theme={theme}><LogIn /></ThemeContainer>} />
+          <Route path="/reset-password" element={<ThemeContainer theme={theme}><ResetPassword /></ThemeContainer>} />
           <Route path="/gamedescription/:gameId" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
           <Route path="/game/:gameId/challenge/:challengeIndex" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
           <Route path="/congratulations" element={<ThemeContainer theme={theme}><Congratulations /></ThemeContainer>} />
