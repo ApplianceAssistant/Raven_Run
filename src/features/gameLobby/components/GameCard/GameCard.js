@@ -92,7 +92,7 @@ const GameCard = ({
                 ) : (
                     <div className="game-thumbnail-placeholder" />
                 )}
-                <div className={`difficulty-badge ${difficulty?.toLowerCase()}`}>
+                <div className={`difficulty-badge card-header-item`}>
                     {difficulty || 'Normal'}
                 </div>
                 <div className="creator-name card-header-item" title="Created by">

@@ -255,6 +255,11 @@
             align-items: center;
             gap: 4px;
         }
+
+        .card-header-item {
+            background: var(--modal-bg);
+            opacity: 0.6;
+        }
     }
 
     .game-info {
