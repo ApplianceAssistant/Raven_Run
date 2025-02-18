@@ -288,7 +288,7 @@ function CreateProfile() {
                 {loadingStates.submission && <div className="loader"></div>}
                 <form onSubmit={handleSubmit} className="create-profile-form">
                     <div className="account-field">
-                        <label htmlFor="username">Username:</label>
+                        <label htmlFor="username">Trail Name:</label>
                         <input
                             type="text"
                             id="username"

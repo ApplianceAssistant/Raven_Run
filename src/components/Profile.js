@@ -35,7 +35,7 @@ function Profile() {
   const [hasChanges, setHasChanges] = useState(false);
 
   const fieldNameMapping = {
-    username: 'Username',
+    username: 'Trail Name',
     email: 'Email',
     phone: 'Phone',
     first_name: 'First Name',
