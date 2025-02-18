@@ -12,7 +12,6 @@ const dbTestRoute = require('../api/db-test');
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 const ENV = process.env.NODE_ENV || 'development';
 process.env.APP_ENV = ENV;
 
@@ -51,9 +50,9 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
-// CORS configuration for development
+// CORS configuration
 const corsOptions = {
-  origin: process.env[`${ENV.toUpperCase()}_CORS_ORIGINS`]?.split(',') || process.env.CORS_ORIGIN,
+  origin: process.env.CORS_ORIGIN,
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -85,12 +84,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Determine PHP server target based on environment
-const phpTarget = process.env.NODE_ENV === 'production'
-  ? 'https://crowtours.com'
-  : process.env.NODE_ENV === 'staging'
-    ? 'https://ravenruns.com'
-    : 'http://localhost:8000'; // Development environment
+// Get PHP server target from environment
+const phpTarget = process.env.REACT_APP_URL;
 
 logger.info({
   message: 'PHP proxy configuration',

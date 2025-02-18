@@ -7,8 +7,6 @@ const xorEncryptDecrypt = (text, key) => {
   return result;
 };
 
-import { API_URL } from './utils';
-
 // Get encryption key from environment
 let ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY || '8dd8017e03e2167c1d284e17e0a18930645aca97de65eb15e89ec0a2bc76251f';
 

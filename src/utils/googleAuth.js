@@ -3,14 +3,8 @@ export const initiateGoogleSignIn = () => {
     const state = Math.random().toString(36).substring(7);
     sessionStorage.setItem('oauth_state', state);
 
-    // Get the correct base URL based on environment
-    const env = process.env.NODE_ENV;
-    console.log('env:', env);
-    const baseUrl = env === 'production'
-        ? process.env.REACT_APP_PRODUCTION_URL
-        : env === 'staging'
-            ? process.env.REACT_APP_STAGING_URL
-            : process.env.REACT_APP_DEVELOPMENT_URL;
+    // Get base URL from environment
+    const baseUrl = process.env.REACT_APP_URL;
     console.log('Using base URL:', baseUrl);
 
     // Use consistent callback path for all environments
@@ -18,6 +12,7 @@ export const initiateGoogleSignIn = () => {
 
     console.log('redirect_uri:', `${baseUrl}${callbackPath}`);
     console.log('client_id:', process.env.REACT_APP_GOOGLE_CLIENT_ID);
+    
     // Construct Google OAuth URL
     const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
     googleAuthUrl.searchParams.append('client_id', process.env.REACT_APP_GOOGLE_CLIENT_ID);

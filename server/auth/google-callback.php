@@ -42,23 +42,14 @@ $_SESSION['oauth_state'] = $state;
 // Debug session data
 error_log("Session Data: " . print_r($_SESSION, true));
 
-// Get environment and base URL
 $env = $_ENV['APP_ENV'] ?? 'development';
-error_log("Environment Detection:");
-error_log("- X-Environment header: " . ($_SERVER['HTTP_X_ENVIRONMENT'] ?? 'not set'));
-error_log("- X-Base-URL header: " . ($_SERVER['HTTP_X_BASE_URL'] ?? 'not set'));
-error_log("- APP_ENV: " . $env);
-error_log("- Final environment: " . $env);
+error_log("Environment: " . $env);
 
-$base_url = match($env) {
-    'production' => 'https://crowtours.com',
-    'staging' => 'https://ravenruns.com',
-    'development' => 'http://localhost:8000',
-    default => 'http://localhost:8000'
-};
+// Get base URL from environment
+$base_url = $_ENV['REACT_APP_URL'];
 error_log("Using base URL: " . $base_url);
 
-// Set redirect URI based on environment
+// Set redirect URI
 $redirect_uri = $base_url . '/server/auth/google-callback.php';
 error_log("Using redirect URI: " . $redirect_uri);
 

@@ -186,15 +186,7 @@ releaseDbConnection();
 
 // Get the environment-specific API URL
 function getApiUrl() {
-    $env = $_ENV['NODE_ENV'] ?? 'development';
-    switch ($env) {
-        case 'production':
-            return $_ENV['REACT_APP_PRODUCTION_URL'] . '/api';
-        case 'staging':
-            return $_ENV['REACT_APP_STAGING_URL'] . '/api';
-        default:
-            return $_ENV['REACT_APP_DEVELOPMENT_URL'];
-    }
+    return $_ENV['REACT_APP_URL'] ?? 'http://localhost:8000';
 }
 
 // Output results

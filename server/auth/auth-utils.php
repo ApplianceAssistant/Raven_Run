@@ -31,13 +31,7 @@ function verifyJWT($token) {
 }
 
 function getFrontendUrl() {
-    $env = $_ENV['APP_ENV'] ?? 'development';
-    return match($env) {
-        'production' => 'https://crowtours.com',
-        'staging' => 'https://ravenruns.com',
-        'development' => 'http://localhost:5000',
-        default => 'http://localhost:5000'
-    };
+    return $_ENV['CORS_ORIGIN'] ?? 'http://localhost:5000';
 }
 
 function handleOAuthError($message) {

@@ -4,16 +4,7 @@ import axios from 'axios';
 import React from 'react'; // Import React for JSX usage
 
 const getApiUrl = () => {
-  const env = process.env.REACT_APP_NODE_ENV || process.env.NODE_ENV || 'development';
-  
-  switch (env) {
-    case 'production':
-      return `${process.env.REACT_APP_PRODUCTION_URL}`;
-    case 'staging':
-      return `${process.env.REACT_APP_STAGING_URL}`;
-    default:
-      return `${process.env.REACT_APP_DEVELOPMENT_URL}`;
-  }
+  return process.env.REACT_APP_URL;
 };
 
 export const API_URL = getApiUrl();
