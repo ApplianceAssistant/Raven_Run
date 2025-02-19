@@ -58,6 +58,41 @@
                 }
             }
 
+            .password-input-container {
+                position: relative;
+                display: flex;
+                align-items: center;
+
+                input {
+                    width: 100%;
+                }
+
+                .password-toggle {
+                    background-color: transparent;
+                    box-shadow: none;
+                    position: absolute;
+                    right: 10px;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: var(--text-color);
+                    opacity: 0.7;
+                    padding: 5px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+
+                    svg {
+                        width: 16px;
+                        height: 16px;
+                    }
+                }
+            }
+
             .button-container {
                 margin-top: 1.5rem;
 
@@ -228,6 +263,8 @@
                 box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.25);
             }
         }
+
+
 
         .field-guide {
             font-size: 0.9rem;

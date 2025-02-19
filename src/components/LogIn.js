@@ -8,6 +8,7 @@ import { useMessage } from '../utils/MessageProvider';
 import LegalFooter from './LegalFooter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import UpdateTempAccount from './UpdateTempAccount';
 import ForgotPassword from './ForgotPassword';
 import '../css/Login.scss';
@@ -15,6 +16,7 @@ import '../css/Login.scss';
 function LogIn() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [isLoggedInSuccessfully, setIsLoggedInSuccessfully] = useState(false);
@@ -204,13 +206,23 @@ function LogIn() {
                             </div>
                             <div className="account-field">
                                 <label htmlFor="password">Password:</label>
-                                <input
-                                    type="password"
-                                    id="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                />
+                                <div className="password-input-container">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        id="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        className="password-toggle"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        aria-label={showPassword ? "Hide password" : "Show password"}
+                                    >
+                                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                    </button>
+                                </div>
                                 <button 
                                     type="button" 
                                     className="forgot-password-link"

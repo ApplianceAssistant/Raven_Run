@@ -2,16 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { API_URL, authFetch } from '../utils/utils.js';
 import { useMessage } from '../utils/MessageProvider';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import '../css/ResetPassword.scss';
 
 function ResetPassword() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPasswords, setShowPasswords] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { showError, showSuccess } = useMessage();
     const token = searchParams.get('token');
+
+    const validatePassword = (password) => {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[\w\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]{8,}$/;
+        return regex.test(password);
+    };
 
     useEffect(() => {
         if (!token) {
@@ -23,6 +31,12 @@ function ResetPassword() {
         e.preventDefault();
         setIsLoading(true);
 
+        if (!validatePassword(password)) {
+            showError('Password must be at least 8 characters long and contain uppercase, lowercase, and numbers');
+            setIsLoading(false);
+            return;
+        }
+
         if (password !== confirmPassword) {
             showError('Passwords do not match');
             setIsLoading(false);
@@ -30,16 +44,13 @@ function ResetPassword() {
         }
 
         try {
-            console.log('Attempting to reset password with token:', token);
             const response = await authFetch(`${API_URL}/server/auth/password-update.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token, password })
             });
 
-            console.log('Password reset response status:', response.status);
             const data = await response.json();
-            console.log('Password reset response:', data);
 
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to reset password');
@@ -48,9 +59,7 @@ function ResetPassword() {
             showSuccess('Password has been reset successfully');
             navigate('/log-in');
         } catch (error) {
-            console.error('Password reset error:', error);
-            showError(error.message || 'An error occurred while resetting your password');
-        } finally {
+            showError('Unable to reset password. Please try again or contact support.');
             setIsLoading(false);
         }
     };
@@ -62,30 +71,45 @@ function ResetPassword() {
                     <h2>Reset Password</h2>
                     <p>Even great explorers get lost from time to time. Don't worry, we'll get you back on track!</p>
                     
-                    <form className='form-body' onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit}>
                         <div className="form-group">
                             <label htmlFor="password">New Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                minLength="8"
-                            />
+                            <div className="password-input-container">
+                                <input
+                                    type={showPasswords ? "text" : "password"}
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    minLength="8"
+                                />
+                                <button
+                                    type="button"
+                                    className="password-toggle"
+                                    onClick={() => setShowPasswords(!showPasswords)}
+                                    aria-label={showPasswords ? "Hide passwords" : "Show passwords"}
+                                >
+                                    <FontAwesomeIcon icon={showPasswords ? faEyeSlash : faEye} />
+                                </button>
+                            </div>
                         </div>
                         <div className="form-group">
                             <label htmlFor="confirmPassword">Confirm Password</label>
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
-                            />
+                            <div className="password-input-container">
+                                <input
+                                    type={showPasswords ? "text" : "password"}
+                                    id="confirmPassword"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                />
+                            </div>
                         </div>
-                        <button type="submit" disabled={isLoading}>
-                            {isLoading ? 'Resetting...' : 'Reset Password'}
+                        <p className="password-requirements">
+                            Password must be at least 8 characters long and contain uppercase, lowercase, and numbers
+                        </p>
+                        <button type="submit" className="submit-button" disabled={isLoading}>
+                            {isLoading ? 'Resetting Password...' : 'Reset Password'}
                         </button>
                     </form>
                 </div>
