@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#000",
     "theme_color": "#FFF",
-    "version": 0.16,
+    "version": 0.17,
     "icons": [
         {
             "src": "./images/icons/CrowTours_logo-72x72.png?v=1.1",
