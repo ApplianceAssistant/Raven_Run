@@ -20,13 +20,13 @@ $conn = getDbConnection();
 
 function searchUsers($query)
 {
+    global $conn;
     $query = "$query";
     $stmt = $conn->prepare('SELECT id, username FROM users WHERE username LIKE ? LIMIT 20');
     $stmt->bind_param('s', $query);
     $stmt->execute();
     $result = $stmt->get_result();
     $data = $result->fetch_all(MYSQLI_ASSOC);
-    releaseDbConnection();
     return $data;
 }
 
