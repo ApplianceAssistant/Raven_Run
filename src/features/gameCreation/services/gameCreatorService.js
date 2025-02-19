@@ -248,7 +248,7 @@ export const saveGame = async (gameData) => {
       const apiGameData = {
         ...gameData,
         is_public: gameData.isPublic,
-        difficulty: gameData.difficulty_level || 'medium',
+        difficulty_level: gameData.difficulty_level || 'medium',
         tags: gameData.tags || [],
         day_only: gameData.dayOnly || false,
         start_latitude: locationData.startLat,

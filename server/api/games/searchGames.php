@@ -62,7 +62,7 @@ $search = isset($_GET['search']) ? trim($_GET['search']) : null;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
 $sort_by = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'rating';
-$difficulty = isset($_GET['difficulty']) ? $_GET['difficulty'] : null;
+$difficulty_level = isset($_GET['difficulty_level']) ? $_GET['difficulty_level'] : null;
 $latitude = isset($_GET['latitude']) ? (float)$_GET['latitude'] : null;
 $longitude = isset($_GET['longitude']) ? (float)$_GET['longitude'] : null;
 $radius = isset($_GET['radius']) ? (float)$_GET['radius'] : null;
@@ -209,9 +209,9 @@ try {
     }
 
     // Add difficulty filter if provided
-    if ($difficulty) {
+    if ($difficulty_level) {
         $sql .= " AND g.difficulty_level = ?";
-        $params[] = $difficulty;
+        $params[] = $difficulty_level;
         $types .= 's';
     }
 
@@ -288,9 +288,9 @@ try {
     }
 
     // Add other filters to count query
-    if ($difficulty) {
+    if ($difficulty_level) {
         $count_sql .= " AND g.difficulty_level = ?";
-        $count_params[] = $difficulty;
+        $count_params[] = $difficulty_level;
         $count_types .= 's';
     }
 
@@ -320,7 +320,7 @@ try {
             'title' => $row['title'],
             'description' => $row['description'],
             'challenges' => json_decode($row['challenge_data'], true),
-            'difficulty' => $row['difficulty_level'],
+            'difficulty_level' => $row['difficulty_level'],
             'distance' => $row['stored_distance'],  
             'avg_rating' => $row['avg_rating'],
             'rating_count' => $row['rating_count'],

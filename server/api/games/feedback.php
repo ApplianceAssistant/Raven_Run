@@ -150,14 +150,6 @@ try {
                     $stmt = $conn->prepare("INSERT INTO game_ratings (gameId, userId, rating, review) VALUES (?, ?, ?, ?)");
                     $stmt->bind_param("siis", $gameId, $userId, $rating, $review);
                     $stmt->execute();
-
-                    // If a difficulty suggestion was provided, update the game's difficulty
-                    if ($suggestedDifficulty) {
-                        $updateStmt = $conn->prepare("UPDATE games SET difficulty_level = ? WHERE gameId = ?");
-                        $updateStmt->bind_param("ss", $suggestedDifficulty, $gameId);
-                        $updateStmt->execute();
-                    }
-
                     $conn->commit();
                     echo json_encode([
                         'success' => true,

@@ -157,7 +157,7 @@ try {
                             'createdAt' => $row['created_at'],
                             'updatedAt' => $row['updated_at'],
                             'userId' => $row['user_id'],
-                            'difficulty' => $row['difficulty_level'],
+                            'difficulty_level' => $row['difficulty_level'],
                             'distance' => (float)$row['distance'],
                             'estimatedTime' => (int)$row['estimated_time'],
                             'tags' => $row['tags'] !== null ? json_decode($row['tags'], true) : [],
@@ -370,7 +370,7 @@ try {
                             'createdAt' => $row['created_at'],
                             'updatedAt' => $row['updated_at'],
                             'userId' => $row['user_id'],
-                            'difficulty' => $row['difficulty_level'],
+                            'difficulty_level' => $row['difficulty_level'],
                             'distance' => (float)$row['distance'],
                             'estimatedTime' => (int)$row['estimated_time'],
                             'tags' => $row['tags'] !== null ? json_decode($row['tags'], true) : [],
@@ -425,7 +425,7 @@ try {
                 $description = $game['description'];
                 $isPublic = $game['is_public'] ? 1 : 0;
                 $challengeData = json_encode($game['challenges']);
-                $difficultyLevel = $game['difficulty'] ?? 'medium';
+                $difficulty_level = $game['difficulty_level'] ?? 'medium';
                 $tags = json_encode($game['tags'] ?? []);
                 $dayOnly = $game['day_only'] ? 1 : 0;
 
@@ -534,7 +534,7 @@ try {
                         $endLat,
                         $endLong,
                         $distance,
-                        $difficultyLevel,
+                        $difficulty_level,
                         $tags,
                         $dayOnly,
                         $gameId
@@ -560,7 +560,7 @@ try {
                         $endLat,
                         $endLong,
                         $distance,
-                        $difficultyLevel,
+                        $difficulty_level,
                         $tags,
                         $dayOnly
                     );

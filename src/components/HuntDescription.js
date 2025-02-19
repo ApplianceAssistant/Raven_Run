@@ -49,7 +49,7 @@ const HuntDescription = () => {
                 const transformedGame = {
                     ...gameData,  // Keep all original properties
                     title: gameData.title || 'Untitled Adventure',
-                    difficulty: gameData.difficulty || 'Normal',
+                    difficulty_level: gameData.difficulty_level || 'Medium',
                     distance: typeof gameData.distance === 'number' ? gameData.distance :
                         typeof gameData.distance === 'string' ? parseFloat(gameData.distance) : 0,
                     estimatedTime: parseInt(gameData.estimatedTime) || 60,
@@ -141,7 +141,7 @@ const HuntDescription = () => {
                 <h1>{game.title}</h1>
                 <div className="meta-info">
                     <p>Created by: {game.creator_name}</p>
-                    <p>Difficulty: {game.difficulty}</p>
+                    <p>Difficulty: {game.difficulty_level}</p>
                     <p>Distance: {distanceDisplay}</p>
                     <p>Estimated Time: {game.estimatedTime} minutes</p>
                 </div>

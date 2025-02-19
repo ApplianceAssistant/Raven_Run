@@ -58,7 +58,7 @@ export const downloadGame = async (gameId) => {
       challenges: Array.isArray(game.challenges) ? game.challenges : 
                  (typeof game.challenge_data === 'string' ? JSON.parse(game.challenge_data) : []),
       isPublic: game.isPublic || game.is_public || false,
-      difficulty: game.difficulty || game.difficulty_level || 'Normal',
+      difficulty_level: game.difficulty_level || game.difficulty || 'Medium',
       distance: parseFloat(game.distance) || 0,
       estimatedTime: parseInt(game.estimatedTime || game.estimated_time) || 60,
       tags: Array.isArray(game.tags) ? game.tags : [],

@@ -184,8 +184,8 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
                                             {difficultyOptions.map(diff => {
                                                 const isAny = diff === 'any';
                                                 const isActive = isAny ? 
-                                                    !filters?.difficulty || filters.difficulty === 'any' : 
-                                                    filters?.difficulty === diff;
+                                                    !filters?.difficulty_level || filters.difficulty_level === 'any' : 
+                                                    filters?.difficulty_level === diff;
                                                 
                                                 return (
                                                     <button
@@ -193,7 +193,7 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
                                                         type="button"
                                                         className={`difficulty-btn ${isActive ? 'active' : ''}`}
                                                         onClick={() => {
-                                                            handleFilterChange('difficulty', diff === 'any' ? null : diff);
+                                                            handleFilterChange('difficulty_level', diff === 'any' ? null : diff);
                                                         }}
                                                     >
                                                         {diff.charAt(0).toUpperCase() + diff.slice(1)}

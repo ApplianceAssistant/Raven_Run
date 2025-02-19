@@ -10,7 +10,7 @@ import './GameCard.scss';
 const GameCard = ({
     id,
     title,
-    difficulty,
+    difficulty_level,
     distance,
     avg_rating,
     ratingCount,
@@ -99,7 +99,7 @@ const GameCard = ({
                     <div className="game-thumbnail-placeholder" />
                 )}
                 <div className={`difficulty-badge card-header-item`}>
-                    {difficulty || 'Normal'}
+                    {difficulty_level || 'Medium'}
                 </div>
                 <div className="creator-name card-header-item" title="Created by">
                     Created by: {creator_name}

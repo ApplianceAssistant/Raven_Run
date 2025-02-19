@@ -57,7 +57,7 @@ const GameCreator = () => {
           isPublic: game.isPublic ?? false,
           gameId: game.gameId,
           challenges: game.challenges || [],
-          difficulty_level: game.difficulty || game.difficulty_level || 'medium',
+          difficulty_level: game.difficulty_level || 'medium',
           tags: game.tags || [],
           dayOnly: game.dayOnly || false
         });

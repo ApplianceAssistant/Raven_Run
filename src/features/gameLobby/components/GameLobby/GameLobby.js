@@ -23,7 +23,7 @@ const GameLobby = () => {
         radius: null,
         latitude: null,
         longitude: null,
-        difficulty: null,
+        difficulty_level: null,
         duration: 'any',
         sort_by: 'rating',
         search: ''
@@ -61,8 +61,8 @@ const GameLobby = () => {
             if (searchFilters.search) {
                 params.append('search', searchFilters.search);
             }
-            if (searchFilters.difficulty) {
-                params.append('difficulty', searchFilters.difficulty);
+            if (searchFilters.difficulty_level) {
+                params.append('difficulty_level', searchFilters.difficulty_level);
             }
             if (searchFilters.duration && searchFilters.duration !== 'any') {
                 params.append('duration', searchFilters.duration);

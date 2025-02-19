@@ -318,8 +318,7 @@ export const normalizeGame = (game) => {
     title: game.title || '',
     description: game.description || '',
     isPublic: game.isPublic ?? game.is_public ?? false,
-    difficulty: game.difficulty || game.difficulty_level || 'medium',
-    difficulty_level: game.difficulty || game.difficulty_level || 'medium',
+    difficulty_level: game.difficulty_level || 'medium',
     distance: typeof game.distance === 'number' ? game.distance : 
              typeof game.distance === 'string' ? parseFloat(game.distance) : 0,
     estimatedTime: parseInt(game.estimatedTime || game.estimated_time) || 60,
