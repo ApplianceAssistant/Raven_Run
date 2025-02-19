@@ -51,6 +51,41 @@
             }
         }
     }
+
+    .doc-navigation {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: var(--page-bg);
+        border-radius: 4px;
+
+        ul {
+            list-style: disc;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        li {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+                text-decoration: underline;
+                color: var(--button-text);
+            }
+        }
+    }
 }
 
 @media (max-width: 768px) {
