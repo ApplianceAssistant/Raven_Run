@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import '../css/App.scss';
@@ -7,6 +7,8 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
+  const navRef = useRef(null);
+  const menuToggleRef = useRef(null);
 
   const handleLogout = (e) => {
     e.preventDefault();
@@ -57,6 +59,23 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
     { game: '/profile/friends', label: 'Friends' }
   ];
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMenuOpen && 
+          navRef.current && 
+          !navRef.current.contains(event.target) &&
+          menuToggleRef.current &&
+          !menuToggleRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen, setIsMenuOpen]);
+
   return (
     <>
       <header className="header">
@@ -67,7 +86,7 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
           rel="noopener noreferrer"
           >Crow Tours <span className="versionDisplay">V0.17</span></a>
         </div>
-        <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
+        <nav ref={navRef} className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <ul>
             {menuItems.map((item, index) => (
               <li key={item.label} className={isMenuOpen ? 'open' : ''} style={{transitionDelay: `${index * 0.1}s`}}>
@@ -87,7 +106,11 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
             ))}
           </ul>
         </nav>
-        <div className={`menu-toggle ${isMenuOpen ? 'open' : ''}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <div 
+          ref={menuToggleRef}
+          className={`menu-toggle ${isMenuOpen ? 'open' : ''}`} 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
           {isMenuOpen ? '✕' : '☰'}
         </div>
       </header>
