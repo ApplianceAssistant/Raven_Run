@@ -38,16 +38,11 @@ $dotenv->load();
 
 // Initialize Postmark client with better error handling
 try {
-    // Configure Guzzle client for development environment
-    if ($_ENV['APP_ENV'] === 'development') {
-        $client = new PostmarkClient('POSTMARK_API_TEST');
-    } else {
-        $client = new PostmarkClient($_ENV['POSTMARK_API_TOKEN']);
-    }
+    $client = new PostmarkClient($_ENV['POSTMARK_API_TOKEN']);
 } catch (Exception $e) {
     error_log('Postmark client initialization error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Email service configuration error']);
+    echo json_encode(['status' => 'error', 'message' => 'Email service configuration error', 'data' => null]);
     exit;
 }
 
@@ -65,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+    echo json_encode(['status' => 'error', 'message' => 'Method not allowed', 'data' => null]);
     exit;
 }
 
@@ -75,7 +70,7 @@ $email = $data['email'] ?? '';
 
 if (empty($email)) {
     http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Email is required']);
+    echo json_encode(['status' => 'error', 'message' => 'Email is required', 'data' => null]);
     exit;
 }
 
@@ -83,7 +78,7 @@ if (empty($email)) {
 $rateLimit = new RateLimit(getDbConnection());
 if (!$rateLimit->isAllowed($email, 'password_reset', 3, 3600)) { // 3 attempts per hour
     http_response_code(429);
-    echo json_encode(['status' => 'error', 'message' => 'Too many password reset attempts. Please try again later.']);
+    echo json_encode(['status' => 'error', 'message' => 'Too many password reset attempts. Please try again later.', 'data' => null]);
     exit;
 }
 
@@ -98,7 +93,7 @@ try {
     
     if ($result->num_rows === 0) {
         // Don't reveal that the email doesn't exist
-        echo json_encode(['status' => 'success', 'message' => 'If an account exists with this email, you will receive password reset instructions.']);
+        echo json_encode(['status' => 'success', 'message' => 'If an account exists with this email, you will receive password reset instructions.', 'data' => null]);
         exit;
     }
     
@@ -118,50 +113,51 @@ try {
     // Generate the reset URL
     $resetUrl = $_ENV['REACT_APP_URL'] . "/reset-password?token=" . $token;
     
-    // Get browser and OS info
-    $userAgent = $_SERVER['HTTP_USER_AGENT'];
-    $browser = get_browser_name($userAgent);
-    $os = get_operating_system($userAgent);
-    
-    // Prepare template model
-    $templateModel = [
-        'product_name' => 'Crow Tours',
-        'name' => $username,
-        'action_url' => $resetUrl,
-        'operating_system' => $os,
-        'browser_name' => $browser,
-        'support_url' => $_ENV['REACT_APP_URL'] . '/contact',
-        'product_url' => $_ENV['REACT_APP_URL'],
-        'company_name' => 'Crow Tours',
-        'company_address' => '' // Add if needed
-    ];
-    
-    // Send the email using Postmark template
+    // Initialize Postmark client with better error handling
     try {
-        $client->sendEmailWithTemplate(
-            $fromEmail,
-            $email,
-            'password-reset', // Template alias
-            $templateModel
+        // Configure Guzzle client for development environment
+        if ($_ENV['APP_ENV'] === 'development') {
+            $client = new PostmarkClient('POSTMARK_API_TEST');
+        } else {
+            $client = new PostmarkClient($_ENV['POSTMARK_API_TOKEN']);
+        }
+
+        // Send password reset email
+        $response = $client->sendEmailWithTemplate(
+            $_ENV['POSTMARK_FROM_EMAIL'],  // From email
+            $email,                        // To email
+            $_ENV['POSTMARK_TEMPLATE_ID'], // Template ID
+            [                              // Template model
+                'product_name' => 'Crow Tours',
+                'reset_url' => $resetUrl,
+                'support_email' => $_ENV['POSTMARK_FROM_EMAIL']
+            ]
         );
-        
-        echo json_encode(['status' => 'success', 'message' => 'If an account exists with this email, you will receive password reset instructions.']);
-    } catch (\Postmark\Models\PostmarkException $e) {
-        error_log('Postmark template error: ' . $e->getMessage() . ' Template data: ' . json_encode($templateModel));
-        http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'An error occurred while sending the reset email']);
-        exit;
+
+        // Return success response
+        echo json_encode(['status' => 'success', 'message' => 'Password reset email sent successfully', 'data' => null]);
+
     } catch (Exception $e) {
+        // Log the full error for debugging
         error_log('Email sending error: ' . $e->getMessage());
+        
+        // Return a generic error message to the user
         http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'An error occurred while processing your request']);
-        exit;
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Unable to process password reset request. Please try again later.',
+            'data' => null
+        ]);
     }
     
 } catch (Exception $e) {
     error_log('Password reset error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'An error occurred while processing your request']);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Unable to process password reset request. Please try again later.',
+        'data' => null
+    ]);
 }
 
 // Helper function to get browser name

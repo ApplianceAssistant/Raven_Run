@@ -146,16 +146,13 @@ function LogIn() {
                 if (response.status === 429) {
                     throw new Error('Too many login attempts. Please try again later.');
                 }
-                const errorMessage = data.debug_info
-                    ? `${data.message} (Debug: ${data.debug_info})`
-                    : data.message || 'An error occurred';
-                throw new Error(errorMessage);
+                throw new Error('Unable to log in. Please check your credentials and try again.');
             }
 
             handleSuccess(data);
         } catch (error) {
             console.error('Login error:', error);
-            showError(error.message || 'An error occurred during login');
+            showError('Unable to log in. Please check your credentials and try again.');
         } finally {
             setIsLoading(false);
         }
