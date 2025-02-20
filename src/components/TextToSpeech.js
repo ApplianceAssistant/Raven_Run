@@ -12,6 +12,7 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   const sentencesRef = useRef([]);
   const currentSentenceIndexRef = useRef(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isPageLoaded, setIsPageLoaded] = useState(document.readyState === 'complete');
   const { getSelectedVoice, cancelSpeech } = useVoiceManagement();
 
   const extractTextFromReactElement = (element) => {
@@ -35,6 +36,18 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
     sentencesRef.current = textContent.match(/[^.!?]+[.!?]+/g) || [textContent];
     currentSentenceIndexRef.current = 0;
   }, [text]);
+
+  useEffect(() => {
+    const handleLoad = () => setIsPageLoaded(true);
+    
+    if (document.readyState === 'complete') {
+      setIsPageLoaded(true);
+    } else {
+      window.addEventListener('load', handleLoad);
+    }
+
+    return () => window.removeEventListener('load', handleLoad);
+  }, []);
 
   const speakSentence = useCallback(() => {
     if (!window.speechSynthesis) {
@@ -88,8 +101,9 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   }, [speakSentence]);
 
   useEffect(() => {
+    if (!isPageLoaded) return;
+    
     if (settings.autoSpeak && autoPlayTrigger) {
-      console.warn('speak trigger:', autoPlayTrigger);
       if (hasInteracted) {
         speak();
       } else {
@@ -100,7 +114,7 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
         }, 100);
       }
     }
-  }, [settings.autoSpeak, autoPlayTrigger, speak, hasInteracted, initializeSpeech]);
+  }, [settings.autoSpeak, autoPlayTrigger, hasInteracted, speak, initializeSpeech, isPageLoaded]);
 
   const handleSpeak = () => {
     if (isSpeaking) {
