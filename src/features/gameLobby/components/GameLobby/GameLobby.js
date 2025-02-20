@@ -26,7 +26,8 @@ const GameLobby = () => {
         difficulty_level: null,
         duration: 'any',
         sort_by: 'rating',
-        search: ''
+        search: '',
+        gameId: null
     });
 
     const handleFilterChange = (newFilters) => {
@@ -42,44 +43,69 @@ const GameLobby = () => {
         fetchGames(newFilters);
     };
 
+    const handleSearch = (searchQuery, additionalFilters = {}) => {
+        console.log('GameLobby handleSearch - searchQuery:', searchQuery, 'additionalFilters:', additionalFilters);
+        const newFilters = {
+            ...filters,
+            search: searchQuery || '',  // Ensure search is an empty string if null
+            ...additionalFilters
+        };
+        console.log('GameLobby setting new filters:', newFilters);
+        setFilters(newFilters);
+        fetchGames(newFilters);  // Immediately fetch with new filters
+    };
+
     const fetchGames = async (searchFilters = filters) => {
         setIsLoading(true);
+        console.log('GameLobby fetchGames - searchFilters:', searchFilters);
         try {
             const params = new URLSearchParams();
             
-            // Only add location params if we're using "mylocation" and have valid coordinates
-            if (searchFilters.locationFilter === 'mylocation' && 
-                searchFilters.latitude != null && 
-                searchFilters.longitude != null) {
-                params.append('latitude', searchFilters.latitude);
-                params.append('longitude', searchFilters.longitude);
-                params.append('radius', searchFilters.radius || 0);
+            // If gameId is provided, only search by gameId
+            if (searchFilters.gameId) {
+                console.log('GameLobby fetching by gameId:', searchFilters.gameId);
+                params.append('gameId', searchFilters.gameId);
+            } else {
+                // Only add location params if we're using "mylocation" and have valid coordinates
+                if (searchFilters.locationFilter === 'mylocation' && 
+                    searchFilters.latitude != null && 
+                    searchFilters.longitude != null) {
+                    params.append('latitude', searchFilters.latitude);
+                    params.append('longitude', searchFilters.longitude);
+                    params.append('radius', searchFilters.radius || 0);
+                }
+
+                // Add other filters
+                if (searchFilters.search) {
+                    params.append('search', searchFilters.search);
+                }
+                if (searchFilters.difficulty_level) {
+                    params.append('difficulty_level', searchFilters.difficulty_level);
+                }
+                if (searchFilters.duration && searchFilters.duration !== 'any') {
+                    params.append('duration', searchFilters.duration);
+                }
+                if (searchFilters.sort_by) {
+                    params.append('sort_by', searchFilters.sort_by);
+                }
             }
 
-            // Add other filters
-            if (searchFilters.search) {
-                params.append('search', searchFilters.search);
-            }
-            if (searchFilters.difficulty_level) {
-                params.append('difficulty_level', searchFilters.difficulty_level);
-            }
-            if (searchFilters.duration && searchFilters.duration !== 'any') {
-                params.append('duration', searchFilters.duration);
-            }
-            if (searchFilters.sort_by) {
-                params.append('sort_by', searchFilters.sort_by);
-            }
+            console.log('search games: ', params.toString());
             const requestUrl = `${API_URL}/server/api/games/searchGames.php?${params.toString()}`;
             
             const response = await authFetch(requestUrl);
             const rawText = await response.text();
+            console.log('Raw response text:', rawText);
             const jsonData = JSON.parse(rawText);
+            console.log('Parsed JSON data:', jsonData);
             
             if (jsonData.status === 'success') {
+                console.log('Games from response:', jsonData.data.games);
                 const processedGames = jsonData.data.games.map(game => ({
                     ...game,
                     distance: game.distance  // Pass the raw distance value without conversion
                 }));
+                console.log('Processed games:', processedGames);
                 setGames(processedGames);
             } else {
                 console.error('Error fetching games:', jsonData.message);
@@ -229,7 +255,7 @@ const GameLobby = () => {
         <div className="game-lobby">
             <div className="lobby-header">
                 <SearchBar
-                    onSearch={(search) => handleFilterChange({ search })}
+                    onSearch={handleSearch}
                     onFilterToggle={setIsFilterVisible}
                     isFilterVisible={isFilterVisible}
                     filters={filters}

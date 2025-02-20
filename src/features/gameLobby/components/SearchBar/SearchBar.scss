@@ -73,9 +73,27 @@
 
         .search-input-group {
             display: flex;
-            gap: 10px;
-            align-items: center;
+            gap: 8px;
+            width: 100%;
             
+            .search-input,
+            .game-id-input {
+                flex: 1;
+                padding: 8px 12px;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                font-size: 14px;
+                
+                &:disabled {
+                    background-color: var(--input-disabled-bg);
+                    cursor: not-allowed;
+                }
+            }
+
+            .game-id-input {
+                max-width: 150px;
+            }
+
             .search-input {
                 flex: 1;
                 padding: 10px 15px;

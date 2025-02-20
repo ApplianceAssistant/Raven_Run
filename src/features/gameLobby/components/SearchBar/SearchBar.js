@@ -4,6 +4,7 @@ import './SearchBar.scss';
 
 const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, onFilterChange, resultCount }) => {
     const [query, setQuery] = useState('');
+    const [gameId, setGameId] = useState('');
     const searchPanelRef = useRef(null);
     const isMetric = getUserUnitPreference();
     // Convert miles to km for database
@@ -22,7 +23,17 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSearch(query);
+        console.log('SearchBar handleSubmit - gameId:', gameId, 'query:', query);
+        if (gameId.trim()) {
+            // If gameId is provided, ignore other search parameters
+            const additionalFilters = { gameId: gameId.trim() };
+            console.log('SearchBar calling onSearch with additionalFilters:', additionalFilters);
+            onSearch(null, additionalFilters);
+        } else {
+            // Normal search with query and filters
+            console.log('SearchBar calling onSearch with query:', query);
+            onSearch(query, {});  // Pass empty object as additionalFilters for consistency
+        }
     };
 
     const handleFilterChange = (field, value) => {
@@ -136,6 +147,20 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Search games..."
                             className="search-input"
+                            disabled={gameId.trim().length > 0}
+                        />
+                        <input
+                            type="text"
+                            value={gameId}
+                            onChange={(e) => {
+                                setGameId(e.target.value);
+                                // Clear regular search query when gameId is entered
+                                if (e.target.value.trim()) {
+                                    setQuery('');
+                                }
+                            }}
+                            placeholder="Enter Game ID..."
+                            className="game-id-input"
                         />
                         <button type="submit" className="search-button">
                             <i className="fas fa-search"></i>
