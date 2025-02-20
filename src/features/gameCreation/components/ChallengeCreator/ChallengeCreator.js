@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faBan, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { challengeTypeConfig } from '../../../../config/challengeTypeConfig';
 import ScrollableContent from '../../../../components/ScrollableContent';
-import { getSmallDistanceUnit } from '../../../../utils/unitConversion';
+import { getSmallDistanceUnit, convertSmallDistance, feetToMeters, metersToFeet } from '../../../../utils/unitConversion';
 import AutoExpandingTextArea from '../../../../components/AutoExpandingTextArea/AutoExpandingTextArea';
 import { useMessage } from '../../../../utils/MessageProvider';
 import '../../../../css/GameCreator.scss';
@@ -424,7 +424,7 @@ const ChallengeCreator = () => {
         );
       case 'number':
         const displayValue = fieldName === 'radius'
-          ? (value === '' ? '' : Math.round(value))
+          ? (value === '' ? '' : Math.round(isMetric ? value : metersToFeet(value)))
           : value;
         return (
           <input
@@ -434,10 +434,12 @@ const ChallengeCreator = () => {
             value={displayValue}
             onChange={(e) => {
               if (fieldName === 'radius') {
-                const newValue = e.target.value === '' ? '' : Math.round(parseFloat(e.target.value));
+                const inputValue = e.target.value === '' ? '' : parseFloat(e.target.value);
+                // Convert to meters for storage if input is in feet
+                const metersValue = inputValue === '' ? '' : Math.round(isMetric ? inputValue : feetToMeters(inputValue));
                 setChallenge(prev => ({
                   ...prev,
-                  [fieldName]: newValue
+                  [fieldName]: metersValue
                 }));
               } else {
                 handleInputChange(e);
@@ -654,7 +656,11 @@ const ChallengeCreator = () => {
         return renderField(fieldName, fieldConfig);
       }
 
-      const radiusLabel = fieldName === 'radius' ? `Radius *` : fieldConfig.label || fieldName;
+      // Update the radius label to include the unit
+      const radiusLabel = fieldName === 'radius' 
+        ? `Radius (${getSmallDistanceUnit(isMetric)})` 
+        : fieldConfig.label || fieldName;
+
       return (
         <div key={fieldName} className="form-group">
           <div className="field-header">
