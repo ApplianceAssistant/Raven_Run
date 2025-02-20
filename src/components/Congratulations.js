@@ -1,5 +1,5 @@
 // src/components/Congratulations.js
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faChevronDown, faChevronUp, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
@@ -29,6 +29,10 @@ const Congratulations = () => {
     const { showError, showSuccess } = useMessage();
     
     const gameId = location.state?.fromGame;
+    const isPlaytest = useMemo(() => {
+        const playtestState = getPlaytestState();
+        return playtestState?.gameId === gameId;
+    }, [gameId]);
 
     useEffect(() => {
         setVisible(true);
@@ -37,9 +41,16 @@ const Congratulations = () => {
         }
     }, [gameId]);
 
+    const handleQuit = useCallback(() => {
+        if (isPlaytest && gameId) {
+            handlePlaytestQuit(gameId, navigate);
+        } else {
+            navigate('/');
+        }
+    }, [isPlaytest, gameId, navigate]);
+
     const fetchGameDetails = async () => {
         try {
-            const isPlaytest = getPlaytestState()?.gameId === gameId;
             const response = await authFetch(`${API_URL}/server/api/games/games.php?action=get&gameId=${gameId}${isPlaytest ? '&playtest=true' : ''}`);
             if (!response.ok) throw new Error('Failed to fetch game details');
             const data = await response.json();
@@ -182,10 +193,10 @@ const Congratulations = () => {
                         <button
                             className="submit-button"
                             onClick={handleRatingSubmit}
-                            disabled={isSubmitting || rating === 0 || getPlaytestState()}
+                            disabled={isSubmitting || rating === 0 || isPlaytest}
                         >
                             {isSubmitting ? 'Submitting...' : 
-                             getPlaytestState() ? 'Feedback unavailable for playtest' : 'Submit Feedback'}
+                             isPlaytest ? 'Feedback unavailable for playtest' : 'Submit Feedback'}
                         </button>
                     </div>
                 </div>
@@ -201,12 +212,10 @@ const Congratulations = () => {
                     >
                         Join the Flock!
                     </a>
-                    {getPlaytestState() && (
+                    {isPlaytest && (
                         <button
                             className="button-link"
-                            onClick={() => {
-                                handlePlaytestQuit(gameId, navigate);
-                            }}
+                            onClick={handleQuit}
                         >
                             <FontAwesomeIcon icon={faPenToSquare} /> Quit Playtest
                         </button>

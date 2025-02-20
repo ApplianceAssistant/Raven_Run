@@ -216,7 +216,7 @@ function GamePage() {
         }, 100);
       } else {
         clearHuntProgress();
-        navigate('/congratulations');
+        navigate('/congratulations', { state: { fromGame: gameId } });
       }
     }, 300);
   }, [challengeIndex, challenges.length, navigate, gameId]);
@@ -299,7 +299,7 @@ function GamePage() {
       } else {
         // Navigate to Congratulations page
         clearHuntProgress();
-        navigate('/congratulations');
+        navigate('/congratulations', { state: { fromGame: gameId } });
       }
     }, 500);
   };
