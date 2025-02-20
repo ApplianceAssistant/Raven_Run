@@ -3,7 +3,7 @@ import ScrollableContent from './ScrollableContent';
 import { cleanText } from '../utils/utils';
 
 export const Challenge = ({ challenge, challengeState, onStateChange, onContinue }) => {
-
+  console.log('calleneg passed: ', challenge);
   const renderChallenge = () => {
     switch (challenge.type) {
       case 'story':
