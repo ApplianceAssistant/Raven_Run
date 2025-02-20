@@ -175,9 +175,9 @@ function GamePage() {
     setChallengeState(newState);
     if (newState.isCorrect) {
       setCompletedChallenges(prev => new Set(prev).add(challengeIndex));
-      playAudio('correct').catch(error => console.error('Error playing correct audio:', error));
+      //playAudio('correct').catch(error => console.error('Error playing correct audio:', error));
     } else {
-      playAudio('wrong').catch(error => console.error('Error playing wrong audio:', error));
+      //playAudio('wrong').catch(error => console.error('Error playing wrong audio:', error));
     }
     displayFeedback(newState.isCorrect, newState.feedback);
   };
