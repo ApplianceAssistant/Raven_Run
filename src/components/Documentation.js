@@ -60,6 +60,7 @@ function Documentation() {
                     <ul>
                         <li>Access the Game Lobby through the "Find a Game" option</li>
                         <li>Use the search bar to find specific games by title or keywords</li>
+                        <li>Use the gameId search field to find specific games or access private games shared by friends</li>
                         <li>Sort games by various criteria:
                             <ul>
                                 <li>Duration</li>
@@ -102,9 +103,12 @@ function Documentation() {
                                 <li><strong>Travel Challenges:</strong> Set specific locations players must visit.</li>
                                 <ul>
                                     <li>locations are set using latitude/longitude coordinates.</li>
+                                    <li>coordinates can be copied directly from Google Maps by right-clicking a point and selecting the coordinates</li>
+                                    <li>paste copied coordinates into either lat or long field to set the challenge location</li>
                                     <li>locations can be set manually by entering coordinates or using the search feature or pressing the "Use my Location" button to use your current location</li>
                                     <li>use the "radius" field to set how close the player must be to the location for success.</li>
                                 </ul>
+                                <li><strong>Challenge Order:</strong> Reorder challenges by dragging challenge cards in the challenge list</li>
                                 <li><strong>Story Challenges:</strong> Create narrative content and interactions</li>
                                 <li><strong>Multiple Choice:</strong> Design questions with multiple options</li>
                                 <li><strong>True/False:</strong> Create simple true/false questions</li>
