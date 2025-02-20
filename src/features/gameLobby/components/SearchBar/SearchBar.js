@@ -31,8 +31,10 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
             onSearch(null, additionalFilters);
         } else {
             // Normal search with query and filters
+            // Explicitly clear gameId from filters
+            const additionalFilters = { gameId: null };
             console.log('SearchBar calling onSearch with query:', query);
-            onSearch(query, {});  // Pass empty object as additionalFilters for consistency
+            onSearch(query, additionalFilters);  // Pass additionalFilters to clear gameId
         }
     };
 
