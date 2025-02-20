@@ -787,21 +787,6 @@ const ChallengeCreator = () => {
             ))}
           </select>
         </div>
-        <div className="order-field">
-          <label htmlFor="order">Order:</label>
-          <input
-            type="number"
-            id="order"
-            name="order"
-            value={challenge.order}
-            onChange={handleInputChange}
-            min="1"
-            max="999"
-            required
-          />
-        </div>
-
-
       </div>
 
       <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 60)">

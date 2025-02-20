@@ -829,6 +829,14 @@
           gap: 10px;
           margin-bottom: 10px;
 
+          .drag-handle {
+            cursor: grab;
+            margin-right: 8px;
+            color: var(--text-color);
+            opacity: 0.6;
+            &:hover { opacity: 1; }
+          }
+
           .btn-remove {
             background: none;
             border: none;
@@ -854,6 +862,10 @@
             font-weight: bold;
             color: var(--text-color-secondary);
           }
+        }
+
+        &.is-dragging {
+          background: var(--primary-color-light);
         }
 
         &:hover {

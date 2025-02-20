@@ -1,13 +1,79 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faBan, faGripVertical } from '@fortawesome/free-solid-svg-icons';
 import { useGameCreation } from '../../context/GameCreationContext';
 import ScrollableContent from '../../../../components/ScrollableContent';
 import { saveGame } from '../../services/gameCreatorService';
 import { useMessage } from '../../../../utils/MessageProvider';
 import Modal from '../../../../components/Modal';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  arrayMove,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import '../../../../css/GameCreator.scss';
+
+const SortableItem = ({ challenge, onEdit, onDelete }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: challenge.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`challenge-item ${isDragging ? 'is-dragging' : ''}`}
+      onClick={() => onEdit(challenge)}
+      {...attributes}
+    >
+      <div className="challenge-header">
+        <div className="drag-handle" {...listeners}>
+          <FontAwesomeIcon icon={faGripVertical} />
+        </div>
+        <button
+          className="btn-remove"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(challenge);
+          }}
+          title="Delete challenge"
+        >
+          <FontAwesomeIcon icon={faBan} />
+        </button>
+        <span className="challenge-type">{challenge.type}</span>
+        <span className="challenge-order">#{challenge.order}</span>
+      </div>
+      <h3>{challenge.title}</h3>
+      <div className="challenge-preview">
+        {challenge.description && (
+          <p className="challenge-description">{challenge.description.substring(0, 100)}...</p>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const ChallengeManager = () => {
   const navigate = useNavigate();
@@ -17,6 +83,17 @@ const ChallengeManager = () => {
   const challenges = Array.isArray(game?.challenges) ? [...game.challenges].sort((a, b) => (a.order || 0) - (b.order || 0)) : [];
   const [challengeToDelete, setChallengeToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleBack = () => {
     navigate(`/create/edit/${game.gameId}`);
@@ -30,8 +107,7 @@ const ChallengeManager = () => {
     navigate(`/create/challenge/${game.gameId}/${challenge.id}`);
   };
 
-  const handleDeleteClick = (e, challenge) => {
-    e.stopPropagation(); // Prevent triggering the edit click
+  const handleDeleteClick = (challenge) => {
     setChallengeToDelete(challenge);
     setIsDeleteModalOpen(true);
   };
@@ -55,6 +131,37 @@ const ChallengeManager = () => {
     }
   };
 
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = challenges.findIndex(item => item.id === active.id);
+    const newIndex = challenges.findIndex(item => item.id === over.id);
+    
+    const updatedChallenges = arrayMove(challenges, oldIndex, newIndex);
+    
+    // Update order numbers
+    updatedChallenges.forEach((challenge, index) => {
+      challenge.order = index + 1;
+    });
+
+    const updatedGame = {
+      ...game,
+      challenges: updatedChallenges
+    };
+
+    try {
+      await saveGame(updatedGame);
+      dispatch({ type: 'SET_GAMES', payload: state.games.map(g => g.gameId === game.gameId ? updatedGame : g) });
+      dispatch({ type: 'SELECT_GAME', payload: updatedGame });
+      showSuccess('Challenge order updated successfully');
+    } catch (error) {
+      console.error('Error updating challenge order:', error);
+      showError('Failed to update challenge order. Please try again.');
+    }
+  };
+
   return (
     <>
       <button className="back-button" onClick={handleBack} title="Back to Game">
@@ -67,69 +174,53 @@ const ChallengeManager = () => {
         <button className="add-challenge-button" onClick={handleAddChallenge}>
           Add New Challenge
         </button>
+        
         <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
-          <div className="challenges-list">
-            {challenges.length > 0 ? (
-              challenges.map((challenge, index) => (
-                <div key={challenge.id} className="challenge-item" onClick={() => handleEditChallenge(challenge)}>
-                  <div className="challenge-header">
-                    <button
-                      className="btn-remove"
-                      onClick={(e) => handleDeleteClick(e, challenge)}
-                      title="Delete challenge"
-                    >
-                      <FontAwesomeIcon icon={faBan} />
-                    </button>
-                    <span className="challenge-type">{challenge.type}</span>
-                    <span className="challenge-order">#{challenge.order || index + 1}</span>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={challenges.map(c => c.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="challenges-list">
+                {challenges.length > 0 ? (
+                  challenges.map((challenge) => (
+                    <SortableItem
+                      key={challenge.id}
+                      challenge={challenge}
+                      onEdit={handleEditChallenge}
+                      onDelete={handleDeleteClick}
+                    />
+                  ))
+                ) : (
+                  <div className="no-challenges">
+                    <p>No challenges yet. Click the button above to add your first challenge!</p>
                   </div>
-                  <h3>{challenge.title}</h3>
-                  <div className="challenge-preview">
-                    {challenge.description && (
-                      <p className="challenge-description">{challenge.description.substring(0, 100)}...</p>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="no-challenges">
-                <p>No challenges yet. Click the button below to add your first challenge!</p>
+                )}
               </div>
-            )}
-          </div>
+            </SortableContext>
+          </DndContext>
         </ScrollableContent>
       </div>
 
       <Modal
         isOpen={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setChallengeToDelete(null);
-        }}
+        onClose={() => setIsDeleteModalOpen(false)}
         title="Delete Challenge"
-        content={
-          <>
-            <p>Are you sure you want to delete this challenge?</p>
-            <p>Title: {challengeToDelete?.title}</p>
-            <p>This action cannot be undone.</p>
-          </>
-        }
-        buttons={[
-          {
-            label: 'Yes, Delete',
-            onClick: handleDeleteConfirm,
-            className: 'danger'
-          },
-          {
-            label: 'Cancel',
-            onClick: () => {
-              setIsDeleteModalOpen(false);
-              setChallengeToDelete(null);
-            },
-            className: 'secondary'
-          }
-        ]}
-      />
+        onConfirm={handleDeleteConfirm}
+        confirmText="Delete"
+        confirmVariant="danger"
+      >
+        <p>Are you sure you want to delete this challenge?</p>
+        {challengeToDelete && (
+          <div className="delete-preview">
+            <strong>{challengeToDelete.title}</strong>
+          </div>
+        )}
+      </Modal>
     </>
   );
 };
