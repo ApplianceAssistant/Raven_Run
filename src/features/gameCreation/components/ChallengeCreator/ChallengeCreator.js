@@ -517,53 +517,92 @@ const ChallengeCreator = () => {
           </div>
         );
       case 'location':
+        const handleCoordinateInput = (e, field) => {
+          const input = e.target.value;
+          console.warn('coordinate input:', input);
+          
+          // Check if input contains a comma
+          if (input.includes(',')) {
+            const [lat, long] = input.split(',').map(val => val.trim());
+            const numLat = parseFloat(lat);
+            const numLong = parseFloat(long);
+            console.warn('coordinate values:', lat, long, numLat, numLong);
+            
+            // Only update if both values are valid numbers
+            if (!isNaN(numLat) && !isNaN(numLong)) {
+              // Clear the input field value first
+              e.target.value = '';
+              
+              setChallenge(prev => ({
+                ...prev,
+                [fieldName]: {
+                  ...prev[fieldName],
+                  latitude: numLat,
+                  longitude: numLong
+                }
+              }));
+              setHasChanges(true); // Trigger save prompt
+            }
+          } else {
+            // Handle single coordinate input
+            const trimmedInput = input.trim();
+            const numValue = trimmedInput === '' ? '' : parseFloat(trimmedInput);
+            
+            if (trimmedInput === '' || !isNaN(numValue)) {
+              setChallenge(prev => {
+                const newLocation = {
+                  ...prev[fieldName],
+                  [field]: numValue
+                };
+                
+                // If both coordinates are now set, trigger save prompt
+                if (newLocation.latitude !== '' && 
+                    newLocation.longitude !== '' && 
+                    !isNaN(newLocation.latitude) && 
+                    !isNaN(newLocation.longitude)) {
+                  setHasChanges(true);
+                }
+                
+                return {
+                  ...prev,
+                  [fieldName]: newLocation
+                };
+              });
+            }
+          }
+        };
+
         return (
           <div className="location-field">
-            <div className="location-inputs">
-              <div className="form-group">
+            <div className="coordinate-inputs">
+              <div className="coordinate-field">
                 <label htmlFor={`${fieldName}.latitude`}>Latitude</label>
                 <input
-                  type="number"
+                  type="text"
                   id={`${fieldName}.latitude`}
                   name={`${fieldName}.latitude`}
-                  value={value?.latitude || ''}
-                  onChange={(e) => {
-                    const numValue = e.target.value === '' ? '' : parseFloat(e.target.value);
-                    setChallenge(prev => ({
-                      ...prev,
-                      [fieldName]: {
-                        ...prev[fieldName],
-                        latitude: numValue
-                      }
-                    }));
-                  }}
-                  step="any"
-                  required={fieldConfig.required}
+                  value={value?.latitude ?? ''}
+                  onChange={(e) => handleCoordinateInput(e, 'latitude')}
+                  placeholder="Enter latitude or paste coordinates"
                 />
               </div>
-              <div className="form-group">
+              <div className="coordinate-field">
                 <label htmlFor={`${fieldName}.longitude`}>Longitude</label>
                 <input
-                  type="number"
+                  type="text"
                   id={`${fieldName}.longitude`}
                   name={`${fieldName}.longitude`}
-                  value={value?.longitude || ''}
-                  onChange={(e) => {
-                    const numValue = e.target.value === '' ? '' : parseFloat(e.target.value);
-                    setChallenge(prev => ({
-                      ...prev,
-                      [fieldName]: {
-                        ...prev[fieldName],
-                        longitude: numValue
-                      }
-                    }));
-                  }}
-                  step="any"
-                  required={fieldConfig.required}
+                  value={value?.longitude ?? ''}
+                  onChange={(e) => handleCoordinateInput(e, 'longitude')}
+                  placeholder="Enter longitude or paste coordinates"
                 />
               </div>
             </div>
-            <button type="button" onClick={handleUseMyLocation} className="use-location-button">
+            <button
+              type="button"
+              className="use-location-button"
+              onClick={handleUseMyLocation}
+            >
               Use My Location
             </button>
           </div>

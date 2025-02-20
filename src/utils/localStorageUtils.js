@@ -23,7 +23,6 @@ export const getGamesFromLocalStorage = () => {
     }
 
     const games = decryptData(encryptedGames);
-    console.warn('decrypted games:', games)
     if (!games || !Array.isArray(games)) {
       console.warn('Invalid games data format or decryption failed');
       return [];
