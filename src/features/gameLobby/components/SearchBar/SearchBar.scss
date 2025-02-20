@@ -1,3 +1,5 @@
+@import '../../../../css/variables.scss';
+
 .search-bar {
     form {
         display: flex;
@@ -232,11 +234,15 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
         .result-count {
-            color: var(--text-color-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.3s ease-in-out;
+            
+            &:hover {
+                opacity: 0.8;
+            }
         }
     }
 

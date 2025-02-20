@@ -118,6 +118,10 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
         }
     };
 
+    const handleResultCountClick = () => {
+        onFilterToggle(false);
+    };
+
     return (
         <div 
             className={`search-panel ${isFilterVisible ? 'expanded' : ''}`} 
@@ -141,7 +145,11 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
                     {isFilterVisible && (
                         <div className="filter-panel">
                             {resultCount !== undefined && (
-                                <div className="result-count">
+                                <div 
+                                    className="result-count" 
+                                    onClick={handleResultCountClick}
+                                    style={{ color: `var(${resultCount > 0 ? '--button-bg-save' : '--button-bg-caution'})` }}
+                                >
                                     {resultCount} {resultCount === 1 ? 'game' : 'games'} found
                                 </div>
                             )}

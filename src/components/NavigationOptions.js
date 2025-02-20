@@ -12,7 +12,7 @@ const defaultOptions = [
         label: 'Find a Game',
         route: '/lobby',
         icon: faSearch,
-        description: 'Join an existing game'
+        description: 'Start an adventure'
     },
     {
         id: 'create',
@@ -40,7 +40,7 @@ const defaultOptions = [
         label: 'Settings',
         route: '/profile/settings',
         icon: faGear,
-        description: 'Adjust game settings'
+        description: 'Adjust your settings'
     },
     {
         id: 'documentation',
