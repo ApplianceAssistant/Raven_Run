@@ -220,10 +220,20 @@ try {
                         g.dayOnly,
                         g.user_id,
                         g.image_url,
-                        u.username as creator_name
+                        u.username as creator_name,
+                        CASE 
+                            WHEN g.is_public = 1 THEN true
+                            WHEN g.user_id = ? THEN true
+                            WHEN fr.id IS NOT NULL THEN true
+                            ELSE false
+                        END as has_access
                     FROM games g
                     LEFT JOIN users u ON g.user_id = u.id
-                    WHERE g.gameId = ? AND (g.is_public = 1 OR (? AND g.user_id = ?))
+                    LEFT JOIN friend_relationships fr ON (
+                        fr.user_id = ? AND fr.friend_id = g.user_id
+                        OR fr.friend_id = ? AND fr.user_id = g.user_id
+                    )
+                    WHERE g.gameId = ?
                 ");
                                 
                 if (!$stmt) {
@@ -232,7 +242,7 @@ try {
                     exit;
                 }
 
-                $stmt->bind_param("sis", $gameId, $isPlaytest, $user['id']);
+                $stmt->bind_param("iiis", $user['id'], $user['id'], $user['id'], $gameId);
 
                 if (!$stmt->execute()) {
                     error_log("Failed to execute statement: " . $stmt->error);
@@ -249,6 +259,7 @@ try {
                 }
 
                 $game = $result->fetch_assoc();
+                error_log("Game found: " . print_r($game, true));
 
                 // For playtest mode, allow access if user is the game creator
                 if ($isPlaytest && $game['user_id'] === $user['id']) {
@@ -256,9 +267,10 @@ try {
                     exit;
                 }
 
-                // Otherwise check normal visibility rules
-                if ($game['is_public'] === 0 && $game['user_id'] !== $user['id']) {
-                    sendError('Game not found') ;
+                // Check access based on has_access flag
+                if (!$game['has_access']) {
+                    error_log("User does not have access to game. User ID: " . $user['id'] . ", Game creator: " . $game['user_id'] . ", Is public: " . $game['is_public']);
+                    sendError('Game not found');
                     exit;
                 }
 

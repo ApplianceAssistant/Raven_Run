@@ -43,7 +43,7 @@ const ImageUploadModal = ({ isOpen, onClose, onImageChange, currentImage, gameId
     return (
         <div className={`modal-overlay ${isOpen ? 'visible' : ''}`} onClick={handleOverlayClick}>
             <div className={`modal-content ${isOpen ? 'visible' : ''}`}>
-                <div className="modal-header">
+                <div className="image-modal-header">
                     <h2>Game Cover Image</h2>
                     <button className="close-button" onClick={handleCloseClick}>
                         <FontAwesomeIcon icon={faTimes} />

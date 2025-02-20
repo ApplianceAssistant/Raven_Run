@@ -236,6 +236,7 @@ const GameLobby = () => {
 
         return {
             id: game.id,
+            gameId: game.gameId,  // Ensure gameId is included
             title: game.title || 'Untitled Adventure',
             description: cleanDescription || 'No description available',
             difficulty: game.difficulty || 'normal',
@@ -270,7 +271,9 @@ const GameLobby = () => {
                         <GameCard 
                             key={game.id} 
                             {...game}
-                            inProgress={getHuntProgress()?.gameId === game.id}
+                            id={game.id}
+                            gameId={game.gameId}
+                            inProgress={getHuntProgress()?.gameId === game.gameId}
                             onClick={(id) => handleGameSelect(id)}
                         />
                     ))}

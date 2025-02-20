@@ -9,6 +9,7 @@ import './GameCard.scss';
 
 const GameCard = ({
     id,
+    gameId,
     title,
     difficulty_level,
     distance,
@@ -32,15 +33,15 @@ const GameCard = ({
     });
 
     useEffect(() => {
-        const downloadedGame = getDownloadedGame(id);
+        const downloadedGame = getDownloadedGame(gameId || id);
         setIsDownloaded(!!downloadedGame);
-    }, [id]);
+    }, [gameId, id]);
 
     const handleCardClick = () => {
         if (onClick) {
-            onClick(id);
+            onClick(gameId || id);
         } else {
-            navigate(`/gamedescription/${id}`);
+            navigate(`/gamedescription/${gameId || id}`);
         }
     };
 
