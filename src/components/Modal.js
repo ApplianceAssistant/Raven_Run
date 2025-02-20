@@ -60,7 +60,7 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeec
     <div className={`modal-overlay ${isVisible ? 'visible' : ''}`} onClick={handleOverlayClick}>
       <div className={`modal-content ${isVisible ? 'visible' : ''}`}>
         <div className="modal-header">
-          <h2>{title}</h2>
+          {title && <h2>{title}</h2>}
         </div>
         <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 55)">
           <div className={`modal-body ${getContentColor()}`}>

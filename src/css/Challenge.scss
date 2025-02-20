@@ -1,0 +1,101 @@
+@import '../css/variables';
+
+.challengeBody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+
+    &.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .challenge {
+        margin-bottom: 20px;
+        padding: 20px;
+        border-radius: 5px;
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+    }
+
+    .challenge-title {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .challenge-description {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        padding: 20px;
+    }
+
+    .feedback {
+        text-align: center;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        font-size: 1.2em;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        height: 0;
+        overflow: hidden;
+        max-width: 500px;
+    }
+
+    .feedback.visible {
+        opacity: 1;
+        height: auto;
+        margin-bottom: 20px;
+    }
+
+    .story-text {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        padding: 20px;
+        max-width: 500px;
+    }
+
+    .challenge-content form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+
+        label {
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 300px;
+            padding: 8px;
+            border-radius: 4px;
+            @include smooth-transition;
+
+            input[type="radio"],
+            input[type="checkbox"] {
+                margin: 0;
+                width: auto;
+            }
+        }
+    }
+}
+
+.modal-content {
+    background-color: var(--modal-bg);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    .modal-header {
+        height: auto;
+        border: none;
+        padding: 5px;
+    }
+}

@@ -29,6 +29,7 @@ import { playAudio } from '../utils/audioFeedback.js';
 import { loadGame } from '../features/gameplay/services/gameplayService.js';
 import { handlePlaytestQuit } from '../features/gameCreation/services/gameCreatorService.js';
 import { getPlaytestState } from '../utils/localStorageUtils.js';
+import'../css/Challenge.scss';
 
 function GamePage() {
   const [autoPlayTrigger, setAutoPlayTrigger] = useState(0);
@@ -332,7 +333,6 @@ function GamePage() {
     }
 
     updateModalContent({
-      title: isCorrect ? 'Correct!' : 'Incorrect',
       content: <p className={isCorrect ? 'completion-feedback' : ''}>{contentText}</p>,
       buttons: buttons,
       type: isCorrect ? 'correct' : 'incorrect',
