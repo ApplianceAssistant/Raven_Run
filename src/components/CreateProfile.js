@@ -284,61 +284,65 @@ function CreateProfile() {
     return (
         <div className="auth-page-wrapper">
             <div className="content-container">
-                <h1>Create Your Profile</h1>
-                {loadingStates.submission && <div className="loader"></div>}
-                <form onSubmit={handleSubmit} className="create-profile-form">
-                    <div className="account-field">
-                        <label htmlFor="username">Trail Name:</label>
-                        <input
-                            type="text"
-                            id="username"
-                            value={formState.username.value}
-                            onChange={(e) => handleInputChange('username', e.target.value)}
-                            onBlur={() => handleBlur('username')}
-                            required
-                        />
-                        <div className="field-guide">Username must be 3-20 characters long and can only contain letters, numbers, and underscores</div>
-                    </div>
+                <div className="login-form">
+                    <div className="bodyContent centered">
+                        <h1>Create Your Profile</h1>
+                        {loadingStates.submission && <div className="loader"></div>}
+                        <form onSubmit={handleSubmit} className="create-profile-form">
+                            <div className="account-field">
+                                <label htmlFor="username">Trail Name:</label>
+                                <input
+                                    type="text"
+                                    id="username"
+                                    value={formState.username.value}
+                                    onChange={(e) => handleInputChange('username', e.target.value)}
+                                    onBlur={() => handleBlur('username')}
+                                    required
+                                />
+                                <div className="field-guide">Username must be 3-20 characters long and can only contain letters, numbers, and underscores</div>
+                            </div>
 
-                    <div className="account-field">
-                        <label htmlFor="email">Email:</label>
-                        <input
-                            type="email"
-                            id="email"
-                            value={formState.email.value}
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            onBlur={() => handleBlur('email')}
-                            required
-                        />
-                    </div>
+                            <div className="account-field">
+                                <label htmlFor="email">Email:</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={formState.email.value}
+                                    onChange={(e) => handleInputChange('email', e.target.value)}
+                                    onBlur={() => handleBlur('email')}
+                                    required
+                                />
+                            </div>
 
-                    <div className="account-field">
-                        <label htmlFor="password">Password:</label>
-                        <input
-                            type="password"
-                            id="password"
-                            value={formState.password.value}
-                            onChange={(e) => handleInputChange('password', e.target.value)}
-                            onBlur={() => handleBlur('password')}
-                            required
-                        />
-                        <div className="field-guide">Password must be at least 8 characters long and contain uppercase, lowercase, and numbers</div>
-                    </div>
+                            <div className="account-field">
+                                <label htmlFor="password">Password:</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    value={formState.password.value}
+                                    onChange={(e) => handleInputChange('password', e.target.value)}
+                                    onBlur={() => handleBlur('password')}
+                                    required
+                                />
+                                <div className="field-guide">Password must be at least 8 characters long and contain uppercase, lowercase, and numbers</div>
+                            </div>
 
-                    <div className="button-container">
-                        <button
-                            type="submit"
-                            disabled={!isFormValid()}
-                            className={loadingStates.submission ? 'loading' : ''}
-                        >
-                            {loadingStates.submission ? 'Creating...' : 'Create Profile'}
-                        </button>
-                        <GoogleSignInButton
-                            onClick={handleGoogleSignIn}
-                            isLoading={loadingStates.submission}
-                        />
+                            <div className="button-container">
+                                <button
+                                    type="submit"
+                                    disabled={!isFormValid()}
+                                    className={loadingStates.submission ? 'loading' : ''}
+                                >
+                                    {loadingStates.submission ? 'Creating...' : 'Create Profile'}
+                                </button>
+                                <GoogleSignInButton
+                                    onClick={handleGoogleSignIn}
+                                    isLoading={loadingStates.submission}
+                                />
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
             <LegalFooter />
         </div>

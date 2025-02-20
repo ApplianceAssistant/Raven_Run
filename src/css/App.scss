@@ -204,6 +204,18 @@ h3 {
   font-family: var(--font-family-heading);
 }
 
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.2rem;
+}
+
 // Specific styles for text-like inputs and textarea
 input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="reset"]):not([type="button"]):not([type="file"]:not([type="select"])),
 textarea {

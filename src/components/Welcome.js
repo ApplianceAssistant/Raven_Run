@@ -13,7 +13,7 @@ function Welcome() {
             <div className="home-welcome-container">
                 <section className="hero">
                     <h1>Welcome to CrowTours</h1>
-                    <p className="tagline">Create, Share, and Play Amazing Scavenger Hunts</p>
+                    <p className="tagline">Create, Play, and Share Amazing Scavenger Hunts</p>
                     <div className="cta-buttons">
                         <button onClick={() => navigate('/create-profile')} className="cta-button primary">
                             Get Started

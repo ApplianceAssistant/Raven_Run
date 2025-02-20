@@ -80,9 +80,8 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
     <>
       <header className="header">
         <div className="logo">
-          <a href="https://www.facebook.com/CrowTours/"
-          target="_blank" 
-          description="Crow Tours Facebook Page" 
+          <a href="/"
+          description="Crow Tours Dashboard" 
           rel="noopener noreferrer"
           >Crow Tours <span className="versionDisplay">V0.17</span></a>
         </div>

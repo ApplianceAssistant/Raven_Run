@@ -99,7 +99,12 @@ function Documentation() {
                         </li>
                         <li>Add challenges using different types:
                             <ul>
-                                <li><strong>Travel Challenges:</strong> Set specific locations players must visit</li>
+                                <li><strong>Travel Challenges:</strong> Set specific locations players must visit.</li>
+                                <ul>
+                                    <li>locations are set using latitude/longitude coordinates.</li>
+                                    <li>locations can be set manually by entering coordinates or using the search feature or pressing the "Use my Location" button to use your current location</li>
+                                    <li>use the "radius" field to set how close the player must be to the location for success.</li>
+                                </ul>
                                 <li><strong>Story Challenges:</strong> Create narrative content and interactions</li>
                                 <li><strong>Multiple Choice:</strong> Design questions with multiple options</li>
                                 <li><strong>True/False:</strong> Create simple true/false questions</li>

@@ -188,7 +188,6 @@ function LogIn() {
     return (
         <div className="auth-page-wrapper">
             <div className="content-container">
-                <h1>Welcome to Crow Tours</h1>
                 <div className="login-form">
                     <div className="bodyContent centered">
                         <h1>Welcome Back, Adventurer</h1>
