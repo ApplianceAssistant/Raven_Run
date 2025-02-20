@@ -4,13 +4,26 @@ import { API_URL, formatPhoneNumber, compressPhoneNumber, isValidPhoneNumber, au
 import ScrollableContent from './ScrollableContent';
 import '../css/Profile.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEdit, faCog, faUserFriends } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEdit, faCog, faUserFriends, faImage, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useMessage } from '../utils/MessageProvider';
 import Settings from './Settings';
 import Friends from './Friends';
 import { useNavigate, useParams } from 'react-router-dom';
+import imageCompression from 'browser-image-compression';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB to match GameForm
+const ACCEPTED_TYPES = ['image/jpeg', 'image/png'];
+const MIN_WIDTH = 200;
+const MIN_HEIGHT = 200;
+const TARGET_SIZE_MB = 2;
+
+const COMPRESSION_OPTIONS = {
+    maxSizeMB: TARGET_SIZE_MB,
+    useWebWorker: true,
+    preserveExif: true
+};
+
+const MAX_FILE_SIZE_FOR_CROP = 5 * 1024 * 1024; // 5MB
 const CROP_SIZE = 200; // Fixed size for crop box
 
 function Profile() {
@@ -99,19 +112,80 @@ function Profile() {
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > MAX_FILE_SIZE) {
-        showError(`File size must be less than 5MB`);
+  const validateImage = (file) => {
+    return new Promise((resolve, reject) => {
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        reject('Please upload a JPG or PNG file');
         return;
       }
+
+      if (file.size > MAX_FILE_SIZE) {
+        reject('File size must be less than 4MB');
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        if (img.width < MIN_WIDTH || img.height < MIN_HEIGHT) {
+          reject(`Image must be at least ${MIN_WIDTH}x${MIN_HEIGHT} pixels`);
+          return;
+        }
+        resolve(true);
+      };
+      img.onerror = () => reject('Failed to load image');
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const compressImageIfNeeded = async (file) => {
+    try {
+      if (file.size <= TARGET_SIZE_MB * 1024 * 1024) {
+        return file;
+      }
+
+      setUploadProgress(-1); // Show indeterminate progress
+      const compressedFile = await imageCompression(file, COMPRESSION_OPTIONS);
+      setUploadProgress(0);
+      return compressedFile;
+    } catch (error) {
+      console.error('Compression failed:', error);
+      setUploadProgress(0);
+      return file;
+    }
+  };
+
+  const handleImageSelect = async (file) => {
+    try {
+      await validateImage(file);
+      const processedFile = await compressImageIfNeeded(file);
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         cropAndCenterImage(reader.result);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(processedFile);
+
+    } catch (error) {
+      showError(error.toString());
     }
+  };
+
+  const onUploadAreaClick = () => {
+    document.getElementById('profile-image-upload').click();
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleImageSelect(e.dataTransfer.files[0]);
+    }
+  };
+
+  const onDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   const cropAndCenterImage = (imageDataUrl) => {
@@ -266,27 +340,45 @@ function Profile() {
           <ScrollableContent dependencies={[activeTab]} maxHeight="calc(var(--content-vh, 1vh) * 80)">
             <div className="profile-content">
               <div className="profile-header">
-                <div className="profile-picture-container">
-                  <div className="profile-picture">
-                    {profileData.profile_picture_url || imagePreview ? (
-                      <img
-                        src={imagePreview || `${API_URL}${profileData.profile_picture_url}`}
-                        alt="Profile"
-                        className="profile-image"
+                <div 
+                  className="profile-picture-container"
+                  onClick={onUploadAreaClick}
+                  onDrop={onDrop}
+                  onDragOver={onDragOver}
+                >
+                  {uploadProgress === -1 ? (
+                    <div className="compression-indicator">
+                      <span>Optimizing image...</span>
+                    </div>
+                  ) : imagePreview ? (
+                    <>
+                      <img 
+                        src={imagePreview} 
+                        alt="Profile" 
+                        className="profile-image" 
                       />
-                    ) : (
-                      <FontAwesomeIcon icon={faUser} className="default-profile-icon" />
-                    )}
-                  </div>
-                  <button className="edit-picture-button" onClick={() => fileInputRef.current.click()}>
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
+                      <button 
+                        className="edit-picture-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setImagePreview(null);
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faEdit} />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="upload-prompt">
+                      <FontAwesomeIcon icon={faImage} className="upload-icon" />
+                      <span className="upload-text">Click or drop image here</span>
+                    </div>
+                  )}
                   <input
                     type="file"
-                    ref={fileInputRef}
+                    id="profile-image-upload"
+                    onChange={(e) => e.target.files?.[0] && handleImageSelect(e.target.files[0])}
+                    accept={ACCEPTED_TYPES.join(',')}
                     style={{ display: 'none' }}
-                    accept="image/*"
-                    onChange={handleImageChange}
                   />
                 </div>
                 <h2>{profileData.username || 'Loading...'}</h2>
