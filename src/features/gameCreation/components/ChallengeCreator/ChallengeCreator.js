@@ -573,9 +573,9 @@ const ChallengeCreator = () => {
         };
 
         return (
-          <div className="location-field">
-            <div className="coordinate-inputs">
-              <div className="coordinate-field">
+          <div className="location-container">
+            <div className="location-inputs">
+              <div className="location-field">
                 <label htmlFor={`${fieldName}.latitude`}>Latitude</label>
                 <input
                   type="text"
@@ -583,10 +583,10 @@ const ChallengeCreator = () => {
                   name={`${fieldName}.latitude`}
                   value={value?.latitude ?? ''}
                   onChange={(e) => handleCoordinateInput(e, 'latitude')}
-                  placeholder="Enter latitude or paste coordinates"
+                  placeholder="latitude or paste coordinates"
                 />
               </div>
-              <div className="coordinate-field">
+              <div className="location-field">
                 <label htmlFor={`${fieldName}.longitude`}>Longitude</label>
                 <input
                   type="text"
@@ -594,7 +594,7 @@ const ChallengeCreator = () => {
                   name={`${fieldName}.longitude`}
                   value={value?.longitude ?? ''}
                   onChange={(e) => handleCoordinateInput(e, 'longitude')}
-                  placeholder="Enter longitude or paste coordinates"
+                  placeholder="longitude or paste coordinates"
                 />
               </div>
             </div>
