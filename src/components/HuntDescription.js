@@ -39,7 +39,6 @@ const HuntDescription = () => {
 
                 // Try to load the game (this will check local storage first)
                 const gameData = await loadGame(gameId);
-                console.log('gameData', gameData);
 
                 if (!gameData) {
                     throw new Error('Game not found');
@@ -60,7 +59,6 @@ const HuntDescription = () => {
                     startLocation: gameData.startLocation || null,
                     image_url: gameData.image_url || null
                 };
-                console.warn('transformedGame', transformedGame);
                 setGame(transformedGame);
             } catch (error) {
                 console.error('Error getting game data:', error);

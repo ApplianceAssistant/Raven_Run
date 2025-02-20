@@ -101,7 +101,6 @@ export const loadGame = async (gameId) => {
     // Check if game exists locally first
     const localGame = getDownloadedGame(gameId);
     if (localGame) {
-      console.log("return local game");
       return localGame;
     }
 

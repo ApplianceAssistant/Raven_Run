@@ -519,14 +519,12 @@ const ChallengeCreator = () => {
       case 'location':
         const handleCoordinateInput = (e, field) => {
           const input = e.target.value;
-          console.warn('coordinate input:', input);
           
           // Check if input contains a comma
           if (input.includes(',')) {
             const [lat, long] = input.split(',').map(val => val.trim());
             const numLat = parseFloat(lat);
             const numLong = parseFloat(long);
-            console.warn('coordinate values:', lat, long, numLat, numLong);
             
             // Only update if both values are valid numbers
             if (!isNaN(numLat) && !isNaN(numLong)) {

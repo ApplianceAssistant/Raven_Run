@@ -24,7 +24,6 @@ const GameCard = ({
     dayOnly = false,
     onClick
 }) => {
-    console.log('game distance: ', distance)
     const navigate = useNavigate();
     const [isDownloaded, setIsDownloaded] = useState(false);
     const [isMetric, setIsMetric] = useState(() => {
@@ -38,7 +37,6 @@ const GameCard = ({
     }, [id]);
 
     const handleCardClick = () => {
-        console.log('Handling card click: onclick:', onClick, 'id:', id);
         if (onClick) {
             onClick(id);
         } else {

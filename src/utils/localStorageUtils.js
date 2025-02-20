@@ -79,7 +79,6 @@ export const getDownloadedGame = (gameId) => {
  * @param {Game} game 
  */
 export const saveDownloadedGame = (game) => {
-  console.log("saveDownloadedGame", game);
   try {
     const gameId = game.gameId || game.game_id;
     if (!gameId) {

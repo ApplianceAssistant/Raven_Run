@@ -5,13 +5,9 @@ export const initiateGoogleSignIn = () => {
 
     // Get base URL from environment
     const baseUrl = process.env.REACT_APP_URL;
-    console.log('Using base URL:', baseUrl);
 
     // Use consistent callback path for all environments
     const callbackPath = '/server/auth/google-callback.php';
-
-    console.log('redirect_uri:', `${baseUrl}${callbackPath}`);
-    console.log('client_id:', process.env.REACT_APP_GOOGLE_CLIENT_ID);
     
     // Construct Google OAuth URL
     const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');

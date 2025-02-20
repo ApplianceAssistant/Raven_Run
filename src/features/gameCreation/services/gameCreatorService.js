@@ -363,7 +363,6 @@ export const deleteGame = async (gameId) => {
  * @returns {void}
  */
 export const handlePlaytestQuit = (gameId, navigate) => {
-  console.log('Handling playtest quit:', gameId, navigate);
     const playtestState = getPlaytestState();
     if (playtestState?.gameId === gameId) {
         clearPlaytestState();

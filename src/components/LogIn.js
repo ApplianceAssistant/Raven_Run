@@ -61,7 +61,6 @@ function LogIn() {
             // Verify and decode the JWT token
             try {
                 const tokenData = JSON.parse(atob(token.split('.')[1]));
-                console.log('decoded tokenData', tokenData);
                 const userData = {
                     id: tokenData.data.user_id,
                     email: tokenData.data.email,
@@ -69,11 +68,9 @@ function LogIn() {
                     token: tokenData.data.token,
                     temporary_account: tokenData.data.temporary_account || false
                 };
-                console.warn('userData', userData);
                 if (userData.temporary_account) {
                     // Show update modal for temporary accounts
                     setTempUser(userData);
-                    console.log('set setShowUpdateTemp true');
                     localStorage.setItem('user', JSON.stringify(userData));
                     setShowUpdateTemp(true);
                 } else if (userData.username) {

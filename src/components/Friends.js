@@ -76,10 +76,8 @@ function Friends() {
             setSearchResults([]);
             return;
         }
-        console.log('search url:', `${API_URL}/server/api/users/friends.php?action=search_users&query=${searchValue}`)
         try {
             const response = await authFetch(`${API_URL}/server/api/users/friends.php?action=search_users&query=${searchValue}`);
-            console.log('response:', response)
             if (!response.ok) {
                 throw new Error('Failed to search users');
             }

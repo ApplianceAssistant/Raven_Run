@@ -77,12 +77,10 @@ function CreateProfile() {
     };
 
     const debouncedCheckUnique = debounce(async (field, value) => {
-        console.log('check unique:', field, value);
         if (!value) return;
 
         // Only check uniqueness if the field is valid
         const isValid = field === 'username' ? validateUsername(value) : validateEmail(value);
-        console.warn('isValid:', isValid);
         if (!isValid) return;
 
         setLoadingStates(prev => ({ ...prev, [field + 'Check']: true }));
@@ -92,7 +90,6 @@ function CreateProfile() {
                 ...prev,
                 [field]: { ...prev[field], isUnique }
             }));
-            console.log('isUnique:', isUnique);
             // Show warning if the field is not unique
             if (!isUnique) {
                 showWarning(`This ${field} is already in use`);

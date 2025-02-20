@@ -60,12 +60,10 @@ const GameForm = ({
   });
 
   const openImageModal = () => {
-    console.log('Opening image modal');
     setIsImageModalOpen(true);
   };
 
   const closeImageModal = () => {
-    console.log('Closing image modal');
     setIsImageModalOpen(false);
   };
 

@@ -43,7 +43,6 @@ const GameLobby = () => {
     };
 
     const fetchGames = async (searchFilters = filters) => {
-        console.warn('fetchGames:', searchFilters)
         setIsLoading(true);
         try {
             const params = new URLSearchParams();
@@ -81,7 +80,6 @@ const GameLobby = () => {
                     ...game,
                     distance: game.distance  // Pass the raw distance value without conversion
                 }));
-                console.log('Fetched games:', processedGames)
                 setGames(processedGames);
             } else {
                 console.error('Error fetching games:', jsonData.message);
@@ -122,14 +120,12 @@ const GameLobby = () => {
     }, []);
 
     const handleGameSelect = async (gameId) => {
-        console.log('Handling game select: gameId:', gameId);
         try {
             // Clear any existing playtest state
             clearPlaytestState();
             
             // Check if there's existing progress
             const progress = getHuntProgress();
-            console.log("progress", progress);
             
             if (progress) {
                 if (progress.gameId === gameId) {
@@ -181,7 +177,6 @@ const GameLobby = () => {
 
     // Transform games data to match GameCard props
     const transformedGames = games.map(game => {
-        console.warn('game-', game)
         const challenges = game.challenges || [];
         const firstChallenge = challenges[0] || {};
         const totalDuration = challenges.reduce((total, challenge) => {
