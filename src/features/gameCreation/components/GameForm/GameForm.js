@@ -48,6 +48,7 @@ const GameForm = ({
     image_data: '',
     imageDeleted: false
   });
+  const [isSaved, setIsSaved] = useState(isEditing);
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
@@ -255,6 +256,7 @@ const GameForm = ({
         const newOriginalData = JSON.parse(JSON.stringify(submittedData));
         setOriginalData(newOriginalData);
         setHasChanges(false);
+        setIsSaved(true);
         showSuccess(isEditing ? 'Game updated successfully!' : 'Game created successfully!');
       } catch (error) {
         showError(error.message || 'Failed to save game. Please try again.');
@@ -298,11 +300,12 @@ const GameForm = ({
 
       <div className="creator-header">
         <h2>{isEditing ? 'Edit Game' : 'Create New Game'}</h2>
-        {isEditing && (
+        {(isEditing || formData.gameId) && (
           <button
             className="playtest-button"
             onClick={handlePlaytest}
             title="Playtest Game"
+            disabled={!allRequiredFieldsFilled}
           >
             <FontAwesomeIcon icon={faPlay} /> Playtest
           </button>
@@ -334,152 +337,154 @@ const GameForm = ({
         <div className="main-form">
           <div className="field-container">
 
-            <div className="image-section">
-              {formData.image_url ? (
-                <div className="current-image" onClick={openImageModal}>
-                  <div className="image-container">
-                    <img src={`${API_URL}${formData.image_url}`} alt='Game image' />
-                    {imageStatus.loading && (
-                      <div className="loading-overlay">
-                        <span>Uploading...</span>
-                      </div>
-                    )}
+            {(isEditing || isSaved) && (
+              <div className="image-section">
+                {formData.image_url ? (
+                  <div className="current-image" onClick={openImageModal}>
+                    <div className="image-container">
+                      <img src={`${API_URL}${formData.image_url}`} alt='Game image' />
+                      {imageStatus.loading && (
+                        <div className="loading-overlay">
+                          <span>Uploading...</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="edit-icon">
+                      <FontAwesomeIcon icon={faEdit} />
+                    </div>
                   </div>
-                  <div className="edit-icon">
-                    <FontAwesomeIcon icon={faEdit} />
-                  </div>
-                </div>
-              ) : (
-                <button
-                  className="upload-button"
-                  onClick={() => setIsImageModalOpen(true)}
-                >
-                  <FontAwesomeIcon icon={faImage} />
-                  <span>Add Cover Image</span>
-                </button>
-              )}
+                ) : (
+                  <button
+                    className="upload-button"
+                    onClick={openImageModal}
+                  >
+                    <FontAwesomeIcon icon={faImage} />
+                    <span>Add Cover Image</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-        </div>
 
-        <div className="field-container">
-          <label htmlFor="title">Game Title:</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleInputChange}
-            placeholder="Enter game name"
-            required
-          />
-        </div>
-
-        <div className="field-container">
-          <label htmlFor="description">Description:</label>
-          <AutoExpandingTextArea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            placeholder="Enter game description"
-            required
-            maxHeight="50vh"
-            minHeight="60px"
-          />
-        </div>
-
-        <div className="field-container">
-          <label htmlFor="difficulty_level">Difficulty Level:</label>
-          <select
-            id="difficulty_level"
-            name="difficulty_level"
-            value={formData.difficulty_level}
-            onChange={handleInputChange}
-            className="difficulty-select"
-          >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-        </div>
-
-        <div className="field-container tags-section">
-          <label>Keywords:</label>
-          <div className="tag-input-container">
+          <div className="field-container">
+            <label htmlFor="title">Game Title:</label>
             <input
               type="text"
-              value={newTag}
-              onChange={handleTagInputChange}
-              onKeyDown={handleTagInputKeyPress}
-              placeholder="Type keywords separated by commas or press Enter"
-              autoFocus
-              className="tag-input"
+              id="title"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              placeholder="Enter game name"
+              required
             />
           </div>
 
-          <div className="tags-display">
-            {formData.tags.length > 0 ? (
-              formData.tags.map((tag, index) => (
-                <div key={index} className="tag-button">
-                  <span className="tag-text">{tag}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTag(tag)}
-                    className="remove-tag"
-                    title="Remove Tag"
-                  >
-                    <FontAwesomeIcon icon={faTimes} />
-                  </button>
-                </div>
-              ))
-            ) : (
-              <span className="empty-tags-message">Keywords Display</span>
-            )}
+          <div className="field-container">
+            <label htmlFor="description">Description:</label>
+            <AutoExpandingTextArea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              placeholder="Enter game description"
+              required
+              maxHeight="50vh"
+              minHeight="60px"
+            />
+          </div>
+
+          <div className="field-container">
+            <label htmlFor="difficulty_level">Difficulty Level:</label>
+            <select
+              id="difficulty_level"
+              name="difficulty_level"
+              value={formData.difficulty_level}
+              onChange={handleInputChange}
+              className="difficulty-select"
+            >
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+
+          <div className="field-container tags-section">
+            <label>Keywords:</label>
+            <div className="tag-input-container">
+              <input
+                type="text"
+                value={newTag}
+                onChange={handleTagInputChange}
+                onKeyDown={handleTagInputKeyPress}
+                placeholder="Type keywords separated by commas or press Enter"
+                autoFocus
+                className="tag-input"
+              />
+            </div>
+
+            <div className="tags-display">
+              {formData.tags.length > 0 ? (
+                formData.tags.map((tag, index) => (
+                  <div key={index} className="tag-button">
+                    <span className="tag-text">{tag}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTag(tag)}
+                      className="remove-tag"
+                      title="Remove Tag"
+                    >
+                      <FontAwesomeIcon icon={faTimes} />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <span className="empty-tags-message">Keywords Display</span>
+              )}
+            </div>
+          </div>
+
+          <div className="field-container toggle-container">
+            <div className="label">Game Visibility:</div>
+            <ToggleSwitch
+              checked={formData.isPublic}
+              onToggle={handlePublicToggle}
+              label={formData.isPublic ? 'Public Game' : 'Private Game'}
+              name="isPublic"
+              id="public-toggle"
+            />
+          </div>
+
+          <div className="field-container toggle-container">
+            <div className="label">Day Only Mode:</div>
+            <ToggleSwitch
+              checked={formData.dayOnly}
+              onToggle={handleDayOnlyToggle}
+              label={formData.dayOnly ? 'Day Only' : 'Any Time'}
+              name="dayOnly"
+              id="day-only-toggle"
+            />
           </div>
         </div>
 
-        <div className="field-container toggle-container">
-          <div className="label">Game Visibility:</div>
-          <ToggleSwitch
-            checked={formData.isPublic}
-            onToggle={handlePublicToggle}
-            label={formData.isPublic ? 'Public Game' : 'Private Game'}
-            name="isPublic"
-            id="public-toggle"
-          />
-        </div>
-
-        <div className="field-container toggle-container">
-          <div className="label">Day Only Mode:</div>
-          <ToggleSwitch
-            checked={formData.dayOnly}
-            onToggle={handleDayOnlyToggle}
-            label={formData.dayOnly ? 'Day Only' : 'Any Time'}
-            name="dayOnly"
-            id="day-only-toggle"
-          />
-        </div>
-    </div>
-
         {
-    isEditing && (
-      <div className="side-options">
-        <ChallengeCard
-          challengeCount={formData.challenges?.length || 0}
-          onClick={handleChallengesClick}
-        />
-      </div>
-    )
-  }
-      </ScrollableContent >
-  <ImageUploadModal
-    isOpen={isImageModalOpen}
-    onClose={closeImageModal}
-    onImageChange={handleImageChange}
-    currentImage={formData.image_url ? `${API_URL}${formData.image_url}` : ''}
-    gameId={formData.gameId}
-  />
-    </div >
+          isEditing && (
+            <div className="side-options">
+              <ChallengeCard
+                challengeCount={formData.challenges?.length || 0}
+                onClick={handleChallengesClick}
+              />
+            </div>
+          )
+        }
+      </ScrollableContent>
+      <ImageUploadModal
+        isOpen={isImageModalOpen}
+        onClose={closeImageModal}
+        onImageChange={handleImageChange}
+        currentImage={formData.image_url ? `${API_URL}${formData.image_url}` : ''}
+        gameId={formData.gameId}
+      />
+    </div>
   );
 };
 

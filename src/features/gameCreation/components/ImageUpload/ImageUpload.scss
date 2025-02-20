@@ -1,6 +1,6 @@
 @import '../../../../css/variables';
 
-.image-upload {
+.image-upload-container {
     width: 100%;
     
     .upload-area {
@@ -251,6 +251,20 @@
                     background: darken(#e63946, 10%);
                 }
             }
+        }
+    }
+
+    .compression-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+        
+        span {
+            color: var(--text-color);
+            font-size: 0.9rem;
         }
     }
 }

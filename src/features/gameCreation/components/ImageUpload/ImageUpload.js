@@ -1,17 +1,27 @@
 import React, { useState, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage, faTimes } from '@fortawesome/free-solid-svg-icons';
+import imageCompression from 'browser-image-compression';
 import './ImageUpload.scss';
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png'];
 const MIN_WIDTH = 600;
-const MIN_HEIGHT = 315;
+const MIN_HEIGHT = 400;
+
+// Target size for compression (2MB)
+const TARGET_SIZE_MB = 2;
+const COMPRESSION_OPTIONS = {
+    maxSizeMB: TARGET_SIZE_MB,
+    useWebWorker: true,
+    preserveExif: true
+};
 
 const ImageUpload = ({ onImageChange, currentImage }) => {
     const [dragActive, setDragActive] = useState(false);
     const [error, setError] = useState('');
     const [imageSrc, setImageSrc] = useState(currentImage || '');
+    const [isCompressing, setIsCompressing] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
     const validateImage = (file) => {
@@ -22,7 +32,7 @@ const ImageUpload = ({ onImageChange, currentImage }) => {
             }
 
             if (file.size > MAX_FILE_SIZE) {
-                reject('File size must be less than 2MB');
+                reject('File size must be less than 4MB');
                 return;
             }
 
@@ -39,18 +49,44 @@ const ImageUpload = ({ onImageChange, currentImage }) => {
         });
     };
 
-    const handleFile = async (file) => {
+    const compressImageIfNeeded = async (file) => {
+        try {
+            // If file is smaller than target size, no compression needed
+            if (file.size <= TARGET_SIZE_MB * 1024 * 1024) {
+                return file;
+            }
+
+            setIsCompressing(true);
+            const compressedFile = await imageCompression(file, COMPRESSION_OPTIONS);
+            setIsCompressing(false);
+            return compressedFile;
+        } catch (error) {
+            console.error('Compression failed:', error);
+            setIsCompressing(false);
+            // Return original file if compression fails
+            return file;
+        }
+    };
+
+    const processImage = async (file) => {
         try {
             await validateImage(file);
+            
+            // Compress image if needed
+            const processedFile = await compressImageIfNeeded(file);
+            
+            // Convert to base64
             const reader = new FileReader();
-            reader.onload = (e) => {
-                setImageSrc(e.target.result);
-                onImageChange(e.target.result);
+            reader.onloadend = () => {
+                const base64data = reader.result;
+                setImageSrc(base64data);
+                onImageChange(base64data);
                 setError('');
             };
-            reader.readAsDataURL(file);
-        } catch (err) {
-            setError(err);
+            reader.readAsDataURL(processedFile);
+        } catch (error) {
+            setError(error.toString());
+            setImageSrc('');
         }
     };
 
@@ -59,7 +95,7 @@ const ImageUpload = ({ onImageChange, currentImage }) => {
         setDragActive(false);
 
         const file = e.dataTransfer?.files?.[0];
-        if (file) handleFile(file);
+        if (file) processImage(file);
     }, []);
 
     const onDragOver = useCallback((e) => {
@@ -74,8 +110,12 @@ const ImageUpload = ({ onImageChange, currentImage }) => {
 
     const onSelectFile = (e) => {
         if (e.target.files?.[0]) {
-            handleFile(e.target.files[0]);
+            processImage(e.target.files[0]);
         }
+    };
+
+    const onUploadAreaClick = () => {
+        document.getElementById('file-upload').click();
     };
 
     const removeImage = () => {
@@ -94,19 +134,30 @@ const ImageUpload = ({ onImageChange, currentImage }) => {
                     onDrop={onDrop}
                     onDragOver={onDragOver}
                     onDragLeave={onDragLeave}
+                    onClick={onUploadAreaClick}
+                    style={{ cursor: 'pointer' }}
                 >
                     <FontAwesomeIcon icon={faImage} className="upload-icon" />
-                    <p>Drag and drop an image here or</p>
+                    <p>Drag and drop an image here or click to browse</p>
                     <input
                         type="file"
                         onChange={onSelectFile}
                         accept="image/png, image/jpeg"
                         id="file-upload"
                         className="file-input"
+                        style={{ display: 'none' }}
                     />
-                    <label htmlFor="file-upload" className="file-label">
-                        Choose a file
-                    </label>
+                    {isCompressing ? (
+                        <div className="compression-indicator">
+                            <span>Optimizing image...</span>
+                        </div>
+                    ) : (
+                        <div className="upload-prompt">
+                            <span className="file-requirements">
+                                JPG or PNG, minimum {MIN_WIDTH}x{MIN_HEIGHT}px
+                            </span>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="image-preview-container">

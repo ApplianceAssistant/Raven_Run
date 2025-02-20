@@ -93,7 +93,6 @@ const GameCreator = () => {
 
   const validateGameData = (gameData) => {
     const errors = [];
-    if (!gameData.gameId) errors.push('Game ID is required');
     if (!gameData.title?.trim()) errors.push('Game name is required');
     if (!gameData.description?.trim()) errors.push('Game description is required');
     return errors;
