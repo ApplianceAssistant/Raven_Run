@@ -7,7 +7,7 @@ function About() {
   return (
     <div className="text-content-page">
       <h1>Like to play games?</h1>
-      <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
+      <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 80)">
         <h2>Crow Tours Alpha Testing</h2>
         <p>We're excited to have you join our flock of early explorers! Your feedback is invaluable in helping us refine and improve the game.
           Please note that you may encounter unexpected behaviors or changes as we continue to develop. We appreciate your patience and input during this phase.</p>
