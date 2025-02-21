@@ -166,8 +166,18 @@ const GameForm = ({
     }
   }, [hasChanges]);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleInputChange = (nameOrEvent, directValue) => {
+    // If directValue is provided, it's a direct update
+    if (directValue !== undefined) {
+      setFormData(prev => ({
+        ...prev,
+        [nameOrEvent]: directValue
+      }));
+      return;
+    }
+
+    // Otherwise handle as a regular event
+    const { name, value, type, checked } = nameOrEvent.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
