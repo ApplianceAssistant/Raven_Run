@@ -1,0 +1,72 @@
+.ai-suggestion-container {
+  position: relative;
+  display: inline-block;
+}
+
+.ai-suggestion-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: var(--text-color);
+  opacity: 0.7;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  &.active {
+    color: var(--primary-color);
+    opacity: 1;
+  }
+}
+
+.ai-suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  min-width: 200px;
+  max-width: 400px;
+  background: var(--page-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+}
+
+.ai-suggestion-loading {
+  padding: 12px;
+  text-align: center;
+  color: var(--text-color);
+}
+
+.ai-suggestion-error {
+  padding: 12px;
+  color: var(--error-color);
+  text-align: center;
+}
+
+.ai-suggestion-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ai-suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--hover-bg);
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+  }
+}

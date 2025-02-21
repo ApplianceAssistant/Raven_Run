@@ -5,8 +5,6 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const winston = require('winston');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const userRoutes = require('../api/users');
-const dbTestRoute = require('../api/db-test');
 
 // Load environment variables from project root .env
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
@@ -57,6 +55,24 @@ const corsOptions = {
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
+
+// Debug CORS configuration
+console.log('CORS configuration:', {
+  corsOptions,
+  NODE_ENV: process.env.NODE_ENV,
+  CORS_ORIGIN: process.env.CORS_ORIGIN
+});
+
+// Debug middleware for CORS
+app.use((req, res, next) => {
+  console.log('Incoming request:', {
+    method: req.method,
+    url: req.url,
+    origin: req.headers.origin,
+    headers: req.headers
+  });
+  next();
+});
 
 // Apply CORS middleware
 app.use(cors(corsOptions));
@@ -162,9 +178,6 @@ app.use(['*.php', '/server/**/*.php'], createProxyMiddleware({
   }
 }));
 
-// API routes
-app.use('/server/api/users', userRoutes);
-app.use('/server/api/db-test', dbTestRoute);
 
 // Add catch-all logging middleware before the static files
 app.use((req, res, next) => {

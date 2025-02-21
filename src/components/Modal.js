@@ -9,38 +9,29 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeec
   const timeoutRef = useRef(null);
 
   useEffect(() => {
-    console.log('=== Modal Effect ===');
-    console.log('isOpen:', isOpen);
-    console.log('Current state:', { isVisible, shouldRender });
-    
     // Clear any existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
     if (isOpen) {
-      console.log('Opening modal');
       setShouldRender(true);
       // Use RAF to ensure DOM is ready
       requestAnimationFrame(() => {
         timeoutRef.current = setTimeout(() => {
-          console.log('Setting modal visible');
           setIsVisible(true);
           setAutoPlayTrigger(prev => prev + 1);
         }, 50);
       });
     } else {
-      console.log('Closing modal');
       setIsVisible(false);
       timeoutRef.current = setTimeout(() => {
-        console.log('Setting shouldRender false');
         setShouldRender(false);
       }, 300);
     }
 
     // Cleanup function
     return () => {
-      console.log('Cleaning up modal effect');
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -48,7 +39,6 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeec
   }, [isOpen]);
 
   if (!shouldRender) {
-    console.log('Modal not rendering - shouldRender is false');
     return null;
   }
 

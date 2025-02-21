@@ -13,6 +13,8 @@ import { useMessage } from '../../../../utils/MessageProvider';
 import { API_URL } from '../../../../utils/utils';
 import { setPlaytestState } from '../../../../utils/localStorageUtils';
 import '../../../../css/GameCreator.scss';
+import { AISuggestionButton } from '../../../../components/AISuggestionButton/AISuggestionButton';
+import '../../../../components/AISuggestionButton/AISuggestionButton.scss';
 
 const GameForm = ({
   gameData,
@@ -171,6 +173,13 @@ const GameForm = ({
       [name]: type === 'checkbox' ? checked : value
     }));
   };
+
+  const getGameContext = () => ({
+    title: formData.title,
+    description: formData.description,
+    difficulty_level: formData.difficulty_level,
+    tags: formData.tags
+  });
 
   const handleAddTag = () => {
     if (newTag.trim()) {
@@ -368,29 +377,45 @@ const GameForm = ({
 
           <div className="field-container">
             <label htmlFor="title">Game Title:</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              placeholder="Enter game name"
-              required
-            />
+            <div className="input-with-ai">
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="Enter game name"
+                required
+              />
+              <AISuggestionButton
+                field="title"
+                context={getGameContext()}
+                existingContent={formData.title}
+                onSelect={(suggestion) => handleInputChange('title', suggestion)}
+              />
+            </div>
           </div>
 
           <div className="field-container">
             <label htmlFor="description">Description:</label>
-            <AutoExpandingTextArea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Enter game description"
-              required
-              maxHeight="50vh"
-              minHeight="60px"
-            />
+            <div className="input-with-ai">
+              <AutoExpandingTextArea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Enter game description"
+                required
+                maxHeight="50vh"
+                minHeight="60px"
+              />
+              <AISuggestionButton
+                field="description"
+                context={getGameContext()}
+                existingContent={formData.description}
+                onSelect={(suggestion) => handleInputChange('description', suggestion)}
+              />
+            </div>
           </div>
 
           <div className="field-container">
@@ -411,16 +436,16 @@ const GameForm = ({
           <div className="field-container tags-section">
             <label>Keywords:</label>
             <div className="tag-input-container">
-              <input
-                type="text"
-                value={newTag}
-                onChange={handleTagInputChange}
-                onKeyDown={handleTagInputKeyPress}
+                <input
+                  type="text"
+                  value={newTag}
+                  onChange={handleTagInputChange}
+                  onKeyDown={handleTagInputKeyPress}
                 placeholder="Type keywords separated by commas or press Enter"
                 autoFocus
                 className="tag-input"
-              />
-            </div>
+                />
+              </div>
 
             <div className="tags-display">
               {formData.tags.length > 0 ? (
