@@ -479,9 +479,11 @@ const ChallengeCreator = () => {
           </div>
         );
       case 'number':
+        // For radius field, handle unit conversion
         const displayValue = fieldName === 'radius'
-          ? (value === '' ? '' : Math.round(isMetric ? value : metersToFeet(value)))
+          ? (value === '' ? '' : (isMetric ? value : Math.round(metersToFeet(value))))
           : value;
+
         return (
           <input
             type="number"
@@ -490,12 +492,22 @@ const ChallengeCreator = () => {
             value={displayValue}
             onChange={(e) => {
               if (fieldName === 'radius') {
-                const inputValue = e.target.value === '' ? '' : parseFloat(e.target.value);
-                // Convert to meters for storage if input is in feet
-                const metersValue = inputValue === '' ? '' : Math.round(isMetric ? inputValue : feetToMeters(inputValue));
+                const inputValue = e.target.value;
+                
+                // Store empty value as is
+                if (inputValue === '') {
+                  setChallenge(prev => ({ ...prev, [fieldName]: '' }));
+                  return;
+                }
+
+                // Convert if not metric, otherwise store as is
+                const valueToStore = isMetric 
+                  ? parseFloat(inputValue)
+                  : feetToMeters(parseFloat(inputValue));
+
                 setChallenge(prev => ({
                   ...prev,
-                  [fieldName]: metersValue
+                  [fieldName]: valueToStore
                 }));
               } else {
                 handleInputChange(e);
@@ -852,7 +864,7 @@ const ChallengeCreator = () => {
         </div>
       </div>
 
-      <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 60)">
+      <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
         {/* Dynamic Fields - Only show if type is selected */}
         {challenge.type && renderFields(Object.entries(challengeTypeConfig[challenge.type]).filter(([fieldName]) => fieldName !== 'order'))}
       </ScrollableContent>
