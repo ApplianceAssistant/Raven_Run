@@ -4,6 +4,7 @@ import { faTimes, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import ScrollableContent from '../ScrollableContent';
 import MessageDisplay from '../MessageDisplay';
 import { useMessage } from '../../utils/MessageProvider';
+import { useAIAssist } from '../../hooks/useAIAssist';
 import { MessageTypes } from '../../utils/MessageProvider';
 import './AIPromptModal.scss';
 
@@ -51,6 +52,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   field,
 }) => {
   const { showError, clearMessage } = useMessage();
+  const { loading, error, suggestions, getSuggestions } = useAIAssist({ onSuggestionSelect: onSelect });
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
   const [isInputSectionExpanded, setIsInputSectionExpanded] = useState(() => {
@@ -119,7 +121,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
     return missingFields;
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     const missingFields = validateInputs();
     
     if (missingFields.length > 0) {
@@ -128,7 +130,18 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
     }
 
     clearMessage();
-    // TODO: Add AI generation logic here
+    
+    const request = {
+      field,
+      context: {
+        writingStyle: writingStyle === 'custom' ? customWritingStyle : writingStyle,
+        gameGenre: gameGenre === 'custom' ? customGameGenre : gameGenre,
+        tone: tone === 'custom' ? customTone : tone,
+        additionalContext: context
+      }
+    };
+
+    await getSuggestions(request);
   };
 
   if (!shouldRender) return null;
@@ -144,9 +157,17 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   };
 
   return (
-    <div className={`ai-prompt-modal-overlay ${isVisible ? 'visible' : ''}`} onClick={handleOverlayClick}>
-      <div className={`ai-prompt-modal ${isVisible ? 'visible' : ''}`}>
-        <button className="close-button" onClick={onClose}>
+    <div 
+      className={`ai-prompt-modal-overlay ${isVisible ? 'visible' : ''}`} 
+      onClick={handleOverlayClick}
+    >
+      <div 
+        className={`ai-prompt-modal ${isVisible ? 'visible' : ''}`}
+      >
+        <button 
+          className="close-button" 
+          onClick={onClose}
+        >
           <FontAwesomeIcon icon={faTimes} />
         </button>
         
@@ -155,9 +176,16 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
         </div>
 
         <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
-          <div className={`modal-content ${isVisible ? 'visible' : ''}`}>
-            <div className={`input-section ${isInputSectionExpanded ? 'expanded' : 'collapsed'}`}>
-              <div className="section-header" onClick={toggleInputSection}>
+          <div 
+            className={`modal-content ${isVisible ? 'visible' : ''}`}
+          >
+            <div 
+              className={`input-section ${isInputSectionExpanded ? 'expanded' : 'collapsed'}`}
+            >
+              <div 
+                className="section-header" 
+                onClick={toggleInputSection}
+              >
                 <h3>AI Style Settings</h3>
                 <FontAwesomeIcon 
                   icon={faChevronDown} 
@@ -249,15 +277,46 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
               </div>
             </div>
 
-            <button className="generate-button" onClick={handleGenerate}>
-              Generate Suggestions
-            </button>
-
-            {/* Placeholder for suggestions */}
-            <div className="placeholder-content">
+            {/* Suggestions section */}
+            <div className="suggestions-section">
+              {loading && (
+                <div className="loading-spinner">
+                  Generating suggestions...
+                </div>
+              )}
+              
+              {error && (
+                <div className="error-message">
+                  {error}
+                </div>
+              )}
+              
+              {!loading && !error && suggestions.length > 0 && (
+                <div className="suggestions-list">
+                  {suggestions.map((suggestion, index) => (
+                    <div 
+                      key={index} 
+                      className="suggestion-item"
+                      onClick={() => onSelect?.(suggestion)}
+                    >
+                      {suggestion}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+
+            <button 
+              className="generate-button"
+              onClick={handleGenerate}
+              disabled={loading}
+            >
+              {loading ? 'Generating...' : 'Generate'}
+            </button>
           </div>
         </ScrollableContent>
+        <div className="modal-footer">
+        </div>
       </div>
     </div>
   );
