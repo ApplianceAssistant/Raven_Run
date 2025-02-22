@@ -133,14 +133,14 @@ const ChallengeManager = () => {
 
   const handleDragEnd = async (event) => {
     const { active, over } = event;
-    
+
     if (!over || active.id === over.id) return;
 
     const oldIndex = challenges.findIndex(item => item.id === active.id);
     const newIndex = challenges.findIndex(item => item.id === over.id);
-    
+
     const updatedChallenges = arrayMove(challenges, oldIndex, newIndex);
-    
+
     // Update order numbers
     updatedChallenges.forEach((challenge, index) => {
       challenge.order = index + 1;
@@ -174,7 +174,7 @@ const ChallengeManager = () => {
         <button className="add-challenge-button" onClick={handleAddChallenge}>
           Add New Challenge
         </button>
-        
+
         <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
           <DndContext
             sensors={sensors}
@@ -208,19 +208,34 @@ const ChallengeManager = () => {
 
       <Modal
         isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setChallengeToDelete(null);
+        }}
         title="Delete Challenge"
-        onConfirm={handleDeleteConfirm}
-        confirmText="Delete"
-        confirmVariant="danger"
-      >
-        <p>Are you sure you want to delete this challenge?</p>
-        {challengeToDelete && (
-          <div className="delete-preview">
-            <strong>{challengeToDelete.title}</strong>
-          </div>
-        )}
-      </Modal>
+        content={
+          <>
+            <p>Are you sure you want to delete this challenge?</p>
+            <p>Title: {challengeToDelete?.title}</p>
+            <p>This action cannot be undone.</p>
+          </>
+        }
+        buttons={[
+          {
+            label: 'Yes, Delete',
+            onClick: handleDeleteConfirm,
+            className: 'danger'
+          },
+          {
+            label: 'Cancel',
+            onClick: () => {
+              setIsDeleteModalOpen(false);
+              setChallengeToDelete(null);
+            },
+            className: 'secondary'
+          }
+        ]}
+      />
     </>
   );
 };

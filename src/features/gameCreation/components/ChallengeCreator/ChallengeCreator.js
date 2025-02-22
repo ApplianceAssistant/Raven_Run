@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faBan, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faBan, faPlusCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { challengeTypeConfig } from '../../../../config/challengeTypeConfig';
 import ScrollableContent from '../../../../components/ScrollableContent';
 import { getSmallDistanceUnit, convertSmallDistance, feetToMeters, metersToFeet } from '../../../../utils/unitConversion';
@@ -161,9 +161,37 @@ const ChallengeCreator = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = (nameOrEvent, directValue) => {
+    clearMessage();
 
+    // If directValue is provided, it's a direct update
+    if (directValue !== undefined) {
+      const name = nameOrEvent;
+      
+      // Handle nested fields for direct updates
+      if (name.includes('.')) {
+        const [parent, child] = name.split('.');
+        setChallenge(prev => ({
+          ...prev,
+          [parent]: {
+            ...prev[parent],
+            [child]: directValue
+          }
+        }));
+        return;
+      }
+
+      setChallenge(prev => ({
+        ...prev,
+        [name]: directValue
+      }));
+      return;
+    }
+
+    // Otherwise handle as a regular event
+    const { name, value, type, checked } = nameOrEvent.target;
+    
+    // Special handling for type field
     if (name === 'type') {
       // Initialize default values for the selected challenge type
       const defaultValues = {
@@ -196,12 +224,23 @@ const ChallengeCreator = () => {
           [child]: value
         }
       }));
-    } else {
+      return;
+    }
+
+    // Handle checkbox fields
+    if (type === 'checkbox') {
       setChallenge(prev => ({
         ...prev,
-        [name]: value
+        [name]: checked
       }));
+      return;
     }
+
+    // Handle all other fields
+    setChallenge(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const addIncorrectFeedback = () => {
@@ -390,39 +429,54 @@ const ChallengeCreator = () => {
     switch (fieldConfig.type) {
       case 'text':
         return (
-          <input
-            type="text"
-            id={fieldName}
-            name={fieldName}
-            value={value || ''}
-            onChange={handleInputChange}
-            onBlur={() => {
-              if (!value && fieldConfig.required) {
-                showWarning(`${fieldConfig.label || fieldName} is required`);
-              }
-            }}
-            required={fieldConfig.required}
-            placeholder={`Enter ${fieldConfig.label || fieldName}`}
-          />
+          <div className="input-with-ai">
+            <input
+              type="text"
+              id={fieldName}
+              name={fieldName}
+              value={value || ''}
+              onChange={handleInputChange}
+              onBlur={() => {
+                if (!value && fieldConfig.required) {
+                  showWarning(`${fieldConfig.label || fieldName} is required`);
+                }
+              }}
+              required={fieldConfig.required}
+              placeholder={fieldConfig.placeholder || `Enter ${fieldConfig.label || fieldName}`}
+            />
+            <AISuggestionButton
+              field={fieldName}
+              context={getChallengeContext()}
+              existingContent={value || ''}
+              onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
+            />
+          </div>
         );
       case 'textarea':
-        // Regular textarea handling for all fields including completionFeedback
         return (
-          <AutoExpandingTextArea
-            id={fieldName}
-            name={fieldName}
-            value={value || ''}
-            onChange={handleInputChange}
-            onBlur={() => {
-              if (!value && fieldConfig.required) {
-                showWarning(`${fieldConfig.label || fieldName} is required`);
-              }
-            }}
-            required={fieldConfig.required}
-            placeholder={`Enter ${fieldConfig.label || fieldName}`}
-            maxHeight="50vh"
-            minHeight="60px"
-          />
+          <div className="input-with-ai">
+            <AutoExpandingTextArea
+              id={fieldName}
+              name={fieldName}
+              value={value || ''}
+              onChange={(e) => handleInputChange(e)}
+              onBlur={() => {
+                if (!value && fieldConfig.required) {
+                  showWarning(`${fieldConfig.label || fieldName} is required`);
+                }
+              }}
+              required={fieldConfig.required}
+              placeholder={fieldConfig.placeholder || `Enter ${fieldConfig.label || fieldName}`}
+              maxHeight="50vh"
+              minHeight="60px"
+            />
+            <AISuggestionButton
+              field={fieldName}
+              context={getChallengeContext()}
+              existingContent={value || ''}
+              onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
+            />
+          </div>
         );
       case 'number':
         const displayValue = fieldName === 'radius'
@@ -802,140 +856,6 @@ const ChallengeCreator = () => {
         {/* Dynamic Fields - Only show if type is selected */}
         {challenge.type && renderFields(Object.entries(challengeTypeConfig[challenge.type]).filter(([fieldName]) => fieldName !== 'order'))}
       </ScrollableContent>
-
-      <div className="field-container">
-        <label htmlFor="description">Description:</label>
-        <div className="input-with-ai">
-          <AutoExpandingTextArea
-            id="description"
-            value={challenge.description || ''}
-            onChange={(e) => handleInputChange('description', e.target.value)}
-            placeholder="Enter challenge description"
-            required
-          />
-          <AISuggestionButton
-            field="description"
-            context={getChallengeContext()}
-            existingContent={challenge.description}
-            onSelect={(suggestion) => handleInputChange('description', suggestion)}
-          />
-        </div>
-      </div>
-
-      {/* Hints Section */}
-      <div className="field-container">
-        <div className="hints-header">
-          <label>Hints:</label>
-          <button
-            type="button"
-            className="add-hint-button"
-            onClick={() => handleAddHint('')}
-          >
-            <FontAwesomeIcon icon={faPlusCircle} /> Add Hint
-          </button>
-          <AISuggestionButton
-            field="hints"
-            context={getChallengeContext()}
-            existingContent={challenge.hints?.join('\n')}
-            onSelect={(suggestions) => {
-              const newHints = suggestions.split('\n').filter(hint => hint.trim());
-              setChallenge(prev => ({
-                ...prev,
-                hints: [...(prev.hints || []), ...newHints]
-              }));
-              setHasChanges(true);
-            }}
-          />
-        </div>
-        {challenge.hints?.map((hint, index) => (
-          <div key={index} className="hint-input-container">
-            <AutoExpandingTextArea
-              value={hint}
-              onChange={(e) => handleHintChange(index, e.target.value)}
-              placeholder={`Hint ${index + 1}`}
-            />
-            <button
-              type="button"
-              className="remove-hint-button"
-              onClick={() => handleRemoveHint(index)}
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* Feedback Section for non-travel challenges */}
-      {challenge.type !== 'travel' && (
-        <div className="field-container">
-          <label>Feedback:</label>
-          <div className="feedback-section">
-            <div className="feedback-field">
-              <label htmlFor="correctFeedback">Correct Answer Feedback:</label>
-              <div className="input-with-ai">
-                <AutoExpandingTextArea
-                  id="correctFeedback"
-                  value={challenge.feedbackTexts?.correct || ''}
-                  onChange={(e) => handleFeedbackChange('correct', e.target.value)}
-                  placeholder="Enter feedback for correct answers"
-                />
-                <AISuggestionButton
-                  field="feedback"
-                  context={{
-                    ...getChallengeContext(),
-                    feedbackType: 'correct'
-                  }}
-                  existingContent={challenge.feedbackTexts?.correct}
-                  onSelect={(suggestion) => handleFeedbackChange('correct', suggestion)}
-                />
-              </div>
-            </div>
-            
-            <div className="feedback-field">
-              <label htmlFor="incorrectFeedback">Incorrect Answer Feedback:</label>
-              <div className="input-with-ai">
-                <AutoExpandingTextArea
-                  id="incorrectFeedback"
-                  value={challenge.feedbackTexts?.incorrect?.[0] || ''}
-                  onChange={(e) => handleFeedbackChange('incorrect', e.target.value)}
-                  placeholder="Enter feedback for incorrect answers"
-                />
-                <AISuggestionButton
-                  field="feedback"
-                  context={{
-                    ...getChallengeContext(),
-                    feedbackType: 'incorrect'
-                  }}
-                  existingContent={challenge.feedbackTexts?.incorrect?.[0]}
-                  onSelect={(suggestion) => handleFeedbackChange('incorrect', suggestion)}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Question field for quiz-type challenges */}
-      {['quiz', 'multipleChoice', 'trueFalse'].includes(challenge.type) && (
-        <div className="field-container">
-          <label htmlFor="question">Question:</label>
-          <div className="input-with-ai">
-            <AutoExpandingTextArea
-              id="question"
-              value={challenge.question || ''}
-              onChange={(e) => handleInputChange('question', e.target.value)}
-              placeholder="Enter your question"
-              required
-            />
-            <AISuggestionButton
-              field="question"
-              context={getChallengeContext()}
-              existingContent={challenge.question}
-              onSelect={(suggestion) => handleInputChange('question', suggestion)}
-            />
-          </div>
-        </div>
-      )}
     </form>
   );
 };
