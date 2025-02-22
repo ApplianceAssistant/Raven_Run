@@ -1,3 +1,5 @@
+@import '../../css/variables';
+
 .ai-suggestion-container {
   position: relative;
   display: inline-block;
@@ -10,7 +12,7 @@
   padding: 8px;
   color: var(--text-color);
   opacity: 0.7;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease-in-out;
 
   &:hover {
     opacity: 1;
@@ -24,27 +26,38 @@
 }
 
 .ai-suggestions-dropdown {
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1000;
-  min-width: 200px;
-  max-width: 400px;
-  background: var(--page-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease-in-out;
+
+  .suggestions-content {
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    background: var(--modal-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px var(--shadow);
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 .ai-suggestion-loading {
-  padding: 12px;
+  padding: 24px;
   text-align: center;
   color: var(--text-color);
 }
 
 .ai-suggestion-error {
-  padding: 12px;
+  padding: 24px;
   color: var(--error-color);
   text-align: center;
 }
@@ -53,14 +66,23 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 300px;
   overflow-y: auto;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
+  background-color: var(--modal-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 4px 16px var(--shadow);
 }
 
 .ai-suggestion-item {
-  padding: 8px 12px;
+  padding: 16px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease-in-out;
+  font-size: 1rem;
+  line-height: 1.5;
 
   &:hover {
     background-color: var(--hover-bg);
