@@ -15,17 +15,43 @@ interface UseAIAssistReturn {
   clearSuggestions: () => void;
 }
 
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 1000; // 1 second
+
 export const useAIAssist = ({ onSuggestionSelect }: UseAIAssistProps = {}): UseAIAssistReturn => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
+  const getSuggestionsWithRetry = async (
+    request: AIAssistRequest, 
+    retryCount = 0,
+    delay = INITIAL_RETRY_DELAY
+  ): Promise<AIAssistResponse> => {
+    try {
+      const response = await anthropicService.getAISuggestions(request);
+      return response;
+    } catch (err) {
+      if (err.response?.data?.error?.type === 'overloaded_error' && retryCount < MAX_RETRIES) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return getSuggestionsWithRetry(request, retryCount + 1, delay * 2);
+      }
+      throw err;
+    }
+  };
+
   const getSuggestions = useCallback(async (request: AIAssistRequest): Promise<void> => {
     setLoading(true);
     setError(null);
     
+    console.log('AI Request:', {
+      field: request.field,
+      context: request.context,
+      existingContent: request.existingContent
+    });
+    
     try {
-      const response: AIAssistResponse = await anthropicService.getAISuggestions(request);
+      const response = await getSuggestionsWithRetry(request);
       
       if (response.success) {
         setSuggestions(response.suggestions);
@@ -34,7 +60,7 @@ export const useAIAssist = ({ onSuggestionSelect }: UseAIAssistProps = {}): UseA
         setSuggestions([]);
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(err.message || 'An unexpected error occurred');
       setSuggestions([]);
     } finally {
       setLoading(false);
