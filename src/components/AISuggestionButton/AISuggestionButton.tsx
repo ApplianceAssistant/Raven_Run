@@ -39,7 +39,8 @@ export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     setIsModalOpen(true);
   };
 
@@ -48,6 +49,7 @@ export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
       <button 
         className={`ai-suggestion-button ${className}`}
         onClick={handleClick}
+        type="button"
         title="Get AI suggestions"
       >
         <FontAwesomeIcon icon={faMagicWandSparkles} />

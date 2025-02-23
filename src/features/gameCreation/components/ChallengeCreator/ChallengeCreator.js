@@ -23,11 +23,27 @@ const ChallengeCreator = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [originalChallenge, setOriginalChallenge] = useState(null);
-
   const [isMetric, setIsMetric] = useState(() => {
     const savedUnitSystem = localStorage.getItem('unitSystem');
     return savedUnitSystem ? JSON.parse(savedUnitSystem) : false;
   });
+  const [gameSettings, setGameSettings] = useState(null);
+
+  const onSettingsChange = (newSettings) => {
+    setGameSettings(newSettings);
+    
+    // Update game in local storage
+    const games = getGamesFromLocalStorage();
+    const game = games.find(g => g.gameId === gameId);
+    if (game) {
+      game.gameSettings = newSettings;
+      localStorage.setItem('games', JSON.stringify(games));
+      
+      // Update context
+      dispatch({ type: 'SET_GAMES', payload: games });
+      dispatch({ type: 'SELECT_GAME', payload: game });
+    }
+  };
 
   // Initialize challenge state with minimal values for new challenges
   const [challenge, setChallenge] = useState({
@@ -54,6 +70,17 @@ const ChallengeCreator = () => {
       return () => clearTimeout(timer);
     }
   }, [hasChanges]);
+
+  useEffect(() => {
+    const loadGame = () => {
+      const games = getGamesFromLocalStorage();
+      const game = games.find(g => g.gameId === gameId);
+      if (game) {
+        setGameSettings(game.gameSettings);
+      }
+    };
+    loadGame();
+  }, [gameId]);
 
   // Load existing challenge if editing
   useEffect(() => {
