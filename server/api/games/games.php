@@ -98,6 +98,9 @@ try {
                         g.rating_count,
                         g.start_latitude,
                         g.start_longitude,
+                        g.end_latitude,
+                        g.end_longitude,
+                        g.game_settings,
                         u.username as creator_name
                     FROM games g
                     LEFT JOIN users u ON g.user_id = u.id
@@ -147,6 +150,15 @@ try {
                             }
                         }
                         
+                        // Parse game settings
+                        if (isset($row['game_settings']) && !empty($row['game_settings'])) {
+                            $gameSettings = json_decode($row['game_settings'], true);
+                            error_log("Game settings found for game " . $row['gameId'] . ": " . $row['game_settings']);
+                        } else {
+                            $gameSettings = null;
+                            error_log("No game settings found for game " . $row['gameId']);
+                        }
+                        
                         // Format the game data
                         $games[] = [
                             'id' => $row['gameId'],
@@ -168,6 +180,11 @@ try {
                                 'latitude' => (float)$row['start_latitude'],
                                 'longitude' => (float)$row['start_longitude']
                             ],
+                            'endLocation' => [
+                                'latitude' => (float)$row['end_latitude'],
+                                'longitude' => (float)$row['end_longitude']
+                            ],
+                            'gameSettings' => $gameSettings,
                             'creator_name' => $row['creator_name']
                         ];
                     } catch (Exception $e) {
@@ -220,6 +237,7 @@ try {
                         g.dayOnly,
                         g.user_id,
                         g.image_url,
+                        g.game_settings,
                         u.username as creator_name,
                         CASE 
                             WHEN g.is_public = 1 THEN true
@@ -312,7 +330,8 @@ try {
                         start_longitude,
                         end_latitude,
                         end_longitude,
-                        image_url
+                        image_url,
+                        game_settings
                     FROM games 
                     WHERE user_id = ?
                 ");
@@ -356,6 +375,15 @@ try {
                     try {
                         error_log("Processing game ID: " . $row['gameId']);
                         
+                        // Parse game settings
+                        if (isset($row['game_settings']) && !empty($row['game_settings'])) {
+                            $gameSettings = json_decode($row['game_settings'], true);
+                            error_log("Game settings found for game " . $row['gameId'] . ": " . $row['game_settings']);
+                        } else {
+                            $gameSettings = null;
+                            error_log("No game settings found for game " . $row['gameId']);
+                        }
+                        
                         // Convert radius values in challenges to display units
                         $challenge_data = $row['challenge_data'];
                         error_log("Processing challenge data: " . substr($challenge_data, 0, 100) . "...");
@@ -397,7 +425,8 @@ try {
                                 'latitude' => (float)$row['end_latitude'],
                                 'longitude' => (float)$row['end_longitude']
                             ],
-                            'image_url' => $row['image_url']
+                            'image_url' => $row['image_url'],
+                            'gameSettings' => $gameSettings
                         ];
                     } catch (Exception $e) {
                         error_log("Error processing game " . $row['gameId'] . ": " . $e->getMessage());
@@ -432,6 +461,8 @@ try {
 
             if ($action === 'save_game') {
                 $game = $data['game'];
+                error_log("Saving game data: " . json_encode($game));
+                
                 $gameId = $game['gameId'];
                 $title = $game['title'];
                 $description = $game['description'];
@@ -440,7 +471,16 @@ try {
                 $difficulty_level = $game['difficulty_level'] ?? 'medium';
                 $tags = json_encode($game['tags'] ?? []);
                 $dayOnly = $game['day_only'] ? 1 : 0;
-
+                
+                // Handle game settings
+                if (isset($game['game_settings']) && !empty($game['game_settings'])) {
+                    $gameSettings = json_encode($game['game_settings']);
+                    error_log("Game settings to save: " . $gameSettings);
+                } else {
+                    $gameSettings = null;
+                    error_log("No game settings to save");
+                }
+                
                 // Initialize location variables
                 $startLat = null;
                 $startLong = null;
@@ -533,10 +573,12 @@ try {
                             distance = ?,
                             difficulty_level = ?,
                             tags = ?,
-                            dayOnly = ?
+                            dayOnly = ?,
+                            game_settings = ?
                         WHERE gameId = ?"
                     );
-                    $stmt->bind_param("ssisdddddssis", 
+                    error_log("Binding parameters for UPDATE. game_settings: " . ($gameSettings ?? 'null'));
+                    $stmt->bind_param("ssisddddssssss", 
                         $title, 
                         $description, 
                         $isPublic, 
@@ -549,6 +591,7 @@ try {
                         $difficulty_level,
                         $tags,
                         $dayOnly,
+                        $gameSettings,
                         $gameId
                     );
                 } else {
@@ -557,15 +600,16 @@ try {
                         "INSERT INTO games 
                         (gameId, user_id, title, description, is_public, challenge_data, 
                          start_latitude, start_longitude, end_latitude, end_longitude, distance,
-                         difficulty_level, tags, dayOnly) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                         difficulty_level, tags, dayOnly, game_settings) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     );
-                    $stmt->bind_param("ssssisddddssis", 
+                    error_log("Binding parameters for INSERT. game_settings: " . ($gameSettings ?? 'null'));
+                    $stmt->bind_param("ssssisddddsssss", 
                         $gameId, 
                         $user['id'], 
-                        $title, 
-                        $description, 
-                        $isPublic, 
+                        $title,
+                        $description,
+                        $isPublic,
                         $challengeData,
                         $startLat,
                         $startLong,
@@ -574,11 +618,21 @@ try {
                         $distance,
                         $difficulty_level,
                         $tags,
-                        $dayOnly
+                        $dayOnly,
+                        $gameSettings
                     );
                 }
 
                 if ($stmt->execute()) {
+                    error_log("Game saved successfully. Game ID: " . $gameId);
+                    
+                    // Get the saved game data to verify
+                    $verifyStmt = $conn->prepare("SELECT * FROM games WHERE gameId = ?");
+                    $verifyStmt->bind_param("s", $gameId);
+                    $verifyStmt->execute();
+                    $result = $verifyStmt->get_result();
+                    $savedGame = $result->fetch_assoc();
+                    error_log("Saved game data: " . json_encode($savedGame));
                     
                     // Clear any previous output
                     if (ob_get_length()) ob_clean();

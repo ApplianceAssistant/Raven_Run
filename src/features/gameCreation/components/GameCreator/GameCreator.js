@@ -25,7 +25,8 @@ const GameCreator = () => {
     challenges: [],
     difficulty_level: 'medium',
     tags: [],
-    dayOnly: false
+    dayOnly: false,
+    gameSettings: {}
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [gameToDelete, setGameToDelete] = useState(null);
@@ -59,7 +60,8 @@ const GameCreator = () => {
           challenges: game.challenges || [],
           difficulty_level: game.difficulty_level || 'medium',
           tags: game.tags || [],
-          dayOnly: game.dayOnly || false
+          dayOnly: game.dayOnly || false,
+          gameSettings: game.gameSettings || {}
         });
       } else {
         navigate('/create');
@@ -83,7 +85,8 @@ const GameCreator = () => {
       challenges: [],
       difficulty_level: 'medium',
       tags: [],
-      dayOnly: false
+      dayOnly: false,
+      gameSettings: {}
     };
     
     setNewGameData(newGame);
@@ -99,6 +102,7 @@ const GameCreator = () => {
   };
 
   const handleSaveGame = async (gameData) => {
+    console.log('Saving game:', gameData);
     try {
       // Validate required fields
       const validationErrors = validateGameData(gameData);
@@ -131,6 +135,8 @@ const GameCreator = () => {
         challenges: mergedChallenges,
         isSynced: false,
         lastModified: new Date().toISOString(),
+        // Preserve gameSettings
+        gameSettings: gameData.gameSettings || existingGame?.gameSettings || {},
         // Only preserve existing image_url if image wasn't explicitly deleted
         image_url: gameData.imageDeleted ? '' : (gameData.image_url || existingGame?.image_url || '')
       };
@@ -139,6 +145,7 @@ const GameCreator = () => {
       let savedGame;
       try {
         savedGame = await saveGame(newGame);
+        console.warn('game saved to server:', savedGame);
         newGame.isSynced = true;
         // Ensure we preserve the image_url from server response
         if (savedGame.image_url) {

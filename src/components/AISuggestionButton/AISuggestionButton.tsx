@@ -7,26 +7,35 @@ import AIPromptModal from '../AIPromptModal/AIPromptModal';
 import './AISuggestionButton.scss';
 
 interface AISuggestionButtonProps {
-  field: AIAssistRequest['field'];
-  context: {
-    title?: string;
-    description?: string;
-    difficulty_level?: string;
-    tags?: string[];
-    type?: string;
-    feedbackType?: string;
-  };
-  existingContent?: string;
+  field: string;
+  context?: string;
   onSelect: (suggestion: string) => void;
   className?: string;
+  gameSettings?: {
+    writingStyle: string;
+    gameGenre: string;
+    tone: string;
+    customWritingStyle?: string;
+    customGameGenre?: string;
+    customTone?: string;
+  };
+  onSettingsChange?: (settings: {
+    writingStyle: string;
+    gameGenre: string;
+    tone: string;
+    customWritingStyle?: string;
+    customGameGenre?: string;
+    customTone?: string;
+  }) => void;
 }
 
 export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
   field,
   context,
-  existingContent,
   onSelect,
   className = '',
+  gameSettings,
+  onSettingsChange
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -49,6 +58,8 @@ export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
         onClose={() => setIsModalOpen(false)}
         onSelect={onSelect}
         field={field}
+        gameSettings={gameSettings}
+        onSettingsChange={onSettingsChange}
       />
     </>
   );

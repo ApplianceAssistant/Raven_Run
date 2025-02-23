@@ -245,12 +245,24 @@ export const saveGame = async (gameData) => {
       // Calculate location data
       const locationData = calculateGameLocationData(gameData.challenges);
 
+      // Convert gameSettings to snake_case for API
+      const gameSettings = gameData.gameSettings || {};
+      const apiGameSettings = {
+        writing_style: gameSettings.writingStyle || 'default',
+        game_genre: gameSettings.gameGenre || 'default',
+        tone: gameSettings.tone || 'default',
+        custom_writing_style: gameSettings.customWritingStyle || '',
+        custom_game_genre: gameSettings.customGameGenre || '',
+        custom_tone: gameSettings.customTone || ''
+      };
+
       const apiGameData = {
         ...gameData,
         is_public: gameData.isPublic,
         difficulty_level: gameData.difficulty_level || 'medium',
         tags: gameData.tags || [],
         day_only: gameData.dayOnly || false,
+        game_settings: apiGameSettings,
         start_latitude: locationData.startLat,
         start_longitude: locationData.startLong,
         end_latitude: locationData.endLat,

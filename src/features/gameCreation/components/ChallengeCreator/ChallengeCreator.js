@@ -449,6 +449,8 @@ const ChallengeCreator = () => {
               context={getChallengeContext()}
               existingContent={value || ''}
               onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
+              onSettingsChange={onSettingsChange}
+              gameSettings={gameSettings}
             />
           </div>
         );
@@ -475,6 +477,8 @@ const ChallengeCreator = () => {
               context={getChallengeContext()}
               existingContent={value || ''}
               onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
+              onSettingsChange={onSettingsChange}
+              gameSettings={gameSettings}
             />
           </div>
         );

@@ -35,7 +35,8 @@ const GameForm = ({
     dayOnly: false,
     image_url: '',
     image_data: '',
-    imageDeleted: false
+    imageDeleted: false,
+    gameSettings: {}
   });
   const [originalData, setOriginalData] = useState({
     title: '',
@@ -48,7 +49,8 @@ const GameForm = ({
     dayOnly: false,
     image_url: '',
     image_data: '',
-    imageDeleted: false
+    imageDeleted: false,
+    gameSettings: {}
   });
   const [isSaved, setIsSaved] = useState(isEditing);
   const [allRequiredFieldsFilled, setAllRequiredFieldsFilled] = useState(false);
@@ -109,22 +111,59 @@ const GameForm = ({
 
   // Initialize both formData and originalData when gameData changes
   useEffect(() => {
-    const initialData = {
-      gameId: gameData.gameId || '',
-      title: gameData.title || '',
-      description: gameData.description || '',
-      isPublic: gameData.isPublic ?? false,
-      difficulty_level: gameData.difficulty_level || 'medium',
-      challenges: gameData.challenges || [],
-      tags: gameData.tags || [],
-      dayOnly: gameData.dayOnly || false,
-      image_url: gameData.image_url || '',
-      image_data: '',
-      imageDeleted: false
-    };
-    setFormData(initialData);
-    setOriginalData(initialData);
-  }, [gameData, gameData.image_url]);
+    if (gameData) {
+      console.log('[GameForm] Initial game data:', gameData);
+      let normalizedGameSettings = null;
+      
+      // Handle game settings from either gameSettings (client) or game_settings (server)
+      const rawSettings = gameData.gameSettings || gameData.game_settings;
+      
+      if (rawSettings && rawSettings !== "0") {
+        try {
+          let settings;
+          if (typeof rawSettings === 'string') {
+            settings = JSON.parse(rawSettings);
+          } else if (typeof rawSettings === 'object') {
+            settings = rawSettings;
+          }
+          
+          if (settings) {
+            normalizedGameSettings = {
+              writingStyle: settings.writing_style || settings.writingStyle || 'default',
+              gameGenre: settings.game_genre || settings.gameGenre || 'default',
+              tone: settings.tone || 'default',
+              customWritingStyle: settings.custom_writing_style || settings.customWritingStyle || '',
+              customGameGenre: settings.custom_game_genre || settings.customGameGenre || '',
+              customTone: settings.custom_tone || settings.customTone || ''
+            };
+            console.log('[GameForm] Normalized game settings:', normalizedGameSettings);
+          }
+        } catch (e) {
+          console.error('[GameForm] Error parsing game settings:', e);
+        }
+      } else {
+        console.log('[GameForm] No game settings found or settings is "0"');
+      }
+
+      const initialData = {
+        title: gameData.title || '',
+        description: gameData.description || '',
+        isPublic: gameData.is_public || gameData.isPublic || false,
+        gameId: gameData.gameId || '',
+        challenges: gameData.challenges || [],
+        difficulty_level: gameData.difficulty_level || 'medium',
+        dayOnly: gameData.dayOnly || false,
+        tags: gameData.tags || [],
+        image_url: gameData.image_url || '',
+        image_data: '',
+        imageDeleted: false,
+        gameSettings: normalizedGameSettings
+      };
+      console.log('[GameForm] Initialized form data:', initialData);
+      setFormData(initialData);
+      setOriginalData(initialData);
+    }
+  }, [gameData]);
 
   useEffect(() => {
     const isValid = isValidGame(formData);
@@ -265,6 +304,7 @@ const GameForm = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('[GameForm] Submitting form data:', formData);
     if (isValidGame(formData)) {
       try {
         const submittedData = {
@@ -309,6 +349,49 @@ const GameForm = ({
     // Reset form data to original state
     setFormData(JSON.parse(JSON.stringify(originalData)));
     setHasChanges(false);
+  };
+
+  const handleGameSettingsChange = async (settings) => {
+    console.log('[GameForm] Received game settings:', settings);
+    
+    // Clean up settings for comparison
+    const cleanSettings = {
+      writingStyle: settings.writingStyle || 'default',
+      gameGenre: settings.gameGenre || 'default',
+      tone: settings.tone || 'default',
+      customWritingStyle: settings.customWritingStyle || '',
+      customGameGenre: settings.customGameGenre || '',
+      customTone: settings.customTone || ''
+    };
+    
+    // Compare with current settings
+    const currentSettings = JSON.stringify(formData.gameSettings || {});
+    const newSettings = JSON.stringify(cleanSettings);
+    
+    if (currentSettings !== newSettings) {
+      try {
+        const updatedFormData = {
+          ...formData,
+          gameSettings: cleanSettings
+        };
+        console.log('[GameForm] Updated form data:', updatedFormData);
+        
+        // Update form state
+        setFormData(updatedFormData);
+        
+        // Auto-save the game
+        if (onSave) {
+          console.log('[GameForm] Auto-saving game with new settings...');
+          await onSave(updatedFormData);
+          showSuccess('Game settings saved successfully');
+        }
+      } catch (error) {
+        console.error('[GameForm] Error saving game settings:', error);
+        showError('Failed to save game settings');
+      }
+    } else {
+      console.log('[GameForm] Settings unchanged, skipping save');
+    }
   };
 
   return (
@@ -402,6 +485,8 @@ const GameForm = ({
                 context={getGameContext()}
                 existingContent={formData.title}
                 onSelect={(suggestion) => handleInputChange('title', suggestion)}
+                onSettingsChange={handleGameSettingsChange}
+                gameSettings={formData.gameSettings}
               />
             </div>
           </div>
@@ -424,6 +509,8 @@ const GameForm = ({
                 context={getGameContext()}
                 existingContent={formData.description}
                 onSelect={(suggestion) => handleInputChange('description', suggestion)}
+                onSettingsChange={handleGameSettingsChange}
+                gameSettings={formData.gameSettings}
               />
             </div>
           </div>

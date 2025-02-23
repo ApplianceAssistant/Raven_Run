@@ -310,6 +310,21 @@ export const normalizeGame = (game) => {
   // Normalize each challenge
   challenges = challenges.map(challenge => normalizeChallenge(challenge));
 
+  // Handle game settings
+  let gameSettings = {};
+  if (game.gameSettings) {
+    gameSettings = game.gameSettings;
+  } else if (game.game_settings) {
+    gameSettings = {
+      writingStyle: game.game_settings.writingStyle || game.game_settings.writing_style || 'default',
+      gameGenre: game.game_settings.gameGenre || game.game_settings.game_genre || 'default',
+      tone: game.game_settings.tone || 'default',
+      customWritingStyle: game.game_settings.customWritingStyle || game.game_settings.custom_writing_style || '',
+      customGameGenre: game.game_settings.customGameGenre || game.game_settings.custom_game_genre || '',
+      customTone: game.game_settings.customTone || game.game_settings.custom_tone || ''
+    };
+  }
+
   return {
     ...game,  // Keep all original properties
     gameId: game.gameId || game.game_id || game.id || '',
@@ -338,7 +353,7 @@ export const normalizeGame = (game) => {
     image_data: game.image_data || '',
     creator_name: game.creator_name || 'Anonymous',
     tags: game.tags || [],
-
+    gameSettings: gameSettings
   };
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import ScrollableContent from '../ScrollableContent';
@@ -13,6 +13,22 @@ interface AIPromptModalProps {
   onClose: () => void;
   onSelect: (suggestion: string) => void;
   field: string;
+  gameSettings?: {
+    writingStyle: string;
+    gameGenre: string;
+    tone: string;
+    customWritingStyle?: string;
+    customGameGenre?: string;
+    customTone?: string;
+  };
+  onSettingsChange?: (settings: {
+    writingStyle: string;
+    gameGenre: string;
+    tone: string;
+    customWritingStyle?: string;
+    customGameGenre?: string;
+    customTone?: string;
+  }) => void;
 }
 
 const MAX_CONTEXT_LENGTH = 500;
@@ -50,6 +66,8 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   onClose,
   onSelect,
   field,
+  gameSettings,
+  onSettingsChange,
 }) => {
   const { showError, clearMessage } = useMessage();
   const { loading, error, suggestions, getSuggestions, selectSuggestion } = useAIAssist({ onSuggestionSelect: onSelect });
@@ -59,14 +77,15 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : true;
   });
+  const lastSettings = useRef<any>(null);
   
   // Input states
-  const [writingStyle, setWritingStyle] = useState('default');
-  const [customWritingStyle, setCustomWritingStyle] = useState('');
-  const [gameGenre, setGameGenre] = useState('default');
-  const [customGameGenre, setCustomGameGenre] = useState('');
-  const [tone, setTone] = useState('default');
-  const [customTone, setCustomTone] = useState('');
+  const [writingStyle, setWritingStyle] = useState(gameSettings?.writingStyle || 'default');
+  const [customWritingStyle, setCustomWritingStyle] = useState(gameSettings?.customWritingStyle || '');
+  const [gameGenre, setGameGenre] = useState(gameSettings?.gameGenre || 'default');
+  const [customGameGenre, setCustomGameGenre] = useState(gameSettings?.customGameGenre || '');
+  const [tone, setTone] = useState(gameSettings?.tone || 'default');
+  const [customTone, setCustomTone] = useState(gameSettings?.customTone || '');
   const [context, setContext] = useState('');
 
   useEffect(() => {
@@ -89,6 +108,121 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
       return () => clearTimeout(timeout);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (gameSettings) {
+      setWritingStyle(gameSettings.writingStyle || 'default');
+      setCustomWritingStyle(gameSettings.customWritingStyle || '');
+      setGameGenre(gameSettings.gameGenre || 'default');
+      setCustomGameGenre(gameSettings.customGameGenre || '');
+      setTone(gameSettings.tone || 'default');
+      setCustomTone(gameSettings.customTone || '');
+    }
+  }, [gameSettings]);
+
+  const updateSettings = (newSettings: any) => {
+    if (onSettingsChange && newSettings.writingStyle !== 'default') {
+      // Clean up undefined values
+      const cleanSettings = {
+        writingStyle: newSettings.writingStyle,
+        gameGenre: newSettings.gameGenre,
+        tone: newSettings.tone,
+        customWritingStyle: newSettings.customWritingStyle || '',
+        customGameGenre: newSettings.customGameGenre || '',
+        customTone: newSettings.customTone || ''
+      };
+
+      console.log('[AIPromptModal] Current settings:', cleanSettings);
+      const currentSettings = JSON.stringify(cleanSettings);
+      const prevSettings = JSON.stringify(lastSettings.current || {});
+      
+      if (currentSettings !== prevSettings) {
+        console.log('[AIPromptModal] Settings changed, updating...');
+        lastSettings.current = cleanSettings;
+        onSettingsChange(cleanSettings);
+      } else {
+        console.log('[AIPromptModal] Settings unchanged, skipping update');
+      }
+    }
+  };
+
+  const handleCustomWritingStyleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[AIPromptModal] Custom writing style changed:', e.target.value);
+    setCustomWritingStyle(e.target.value);
+    updateSettings({
+      writingStyle,
+      gameGenre,
+      tone,
+      customWritingStyle: e.target.value,
+      customGameGenre,
+      customTone
+    });
+  };
+
+  const handleCustomGameGenreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[AIPromptModal] Custom game genre changed:', e.target.value);
+    setCustomGameGenre(e.target.value);
+    updateSettings({
+      writingStyle,
+      gameGenre,
+      tone,
+      customWritingStyle,
+      customGameGenre: e.target.value,
+      customTone
+    });
+  };
+
+  const handleCustomToneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[AIPromptModal] Custom tone changed:', e.target.value);
+    setCustomTone(e.target.value);
+    updateSettings({
+      writingStyle,
+      gameGenre,
+      tone,
+      customWritingStyle,
+      customGameGenre,
+      customTone: e.target.value
+    });
+  };
+
+  const handleWritingStyleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log('[AIPromptModal] Writing style changed:', e.target.value);
+    setWritingStyle(e.target.value);
+    updateSettings({
+      writingStyle: e.target.value,
+      gameGenre,
+      tone,
+      customWritingStyle,
+      customGameGenre,
+      customTone
+    });
+  };
+
+  const handleGameGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log('[AIPromptModal] Game genre changed:', e.target.value);
+    setGameGenre(e.target.value);
+    updateSettings({
+      writingStyle,
+      gameGenre: e.target.value,
+      tone,
+      customWritingStyle,
+      customGameGenre,
+      customTone
+    });
+  };
+
+  const handleToneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    console.log('[AIPromptModal] Tone changed:', e.target.value);
+    setTone(e.target.value);
+    updateSettings({
+      writingStyle,
+      gameGenre,
+      tone: e.target.value,
+      customWritingStyle,
+      customGameGenre,
+      customTone
+    });
+  };
 
   const validateInputs = () => {
     const missingFields = [];
@@ -140,6 +274,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
         additionalContext: context
       }
     };
+    
 
     await getSuggestions(request);
   };
@@ -198,7 +333,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
                   <label>Writing Style</label>
                   <select 
                     value={writingStyle}
-                    onChange={(e) => setWritingStyle(e.target.value)}
+                    onChange={handleWritingStyleChange}
                   >
                     {WRITING_STYLES.map(style => (
                       <option key={style.value} value={style.value}>
@@ -210,8 +345,8 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
                     <input
                       type="text"
                       value={customWritingStyle}
-                      onChange={(e) => setCustomWritingStyle(e.target.value)}
-                      placeholder="Enter custom style..."
+                      onChange={handleCustomWritingStyleChange}
+                      placeholder="Enter custom writing style"
                     />
                   )}
                 </div>
@@ -220,7 +355,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
                   <label>Game Genre</label>
                   <select 
                     value={gameGenre}
-                    onChange={(e) => setGameGenre(e.target.value)}
+                    onChange={handleGameGenreChange}
                   >
                     {GAME_GENRES.map(genre => (
                       <option key={genre.value} value={genre.value}>
@@ -232,8 +367,8 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
                     <input
                       type="text"
                       value={customGameGenre}
-                      onChange={(e) => setCustomGameGenre(e.target.value)}
-                      placeholder="Enter custom genre..."
+                      onChange={handleCustomGameGenreChange}
+                      placeholder="Enter custom game genre"
                     />
                   )}
                 </div>
@@ -242,7 +377,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
                   <label>Tone</label>
                   <select 
                     value={tone}
-                    onChange={(e) => setTone(e.target.value)}
+                    onChange={handleToneChange}
                   >
                     {TONES.map(t => (
                       <option key={t.value} value={t.value}>
@@ -254,8 +389,8 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
                     <input
                       type="text"
                       value={customTone}
-                      onChange={(e) => setCustomTone(e.target.value)}
-                      placeholder="Enter custom tone..."
+                      onChange={handleCustomToneChange}
+                      placeholder="Enter custom tone"
                     />
                   )}
                 </div>
