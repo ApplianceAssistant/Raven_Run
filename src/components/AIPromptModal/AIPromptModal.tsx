@@ -52,7 +52,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   field,
 }) => {
   const { showError, clearMessage } = useMessage();
-  const { loading, error, suggestions, getSuggestions } = useAIAssist({ onSuggestionSelect: onSelect });
+  const { loading, error, suggestions, getSuggestions, selectSuggestion } = useAIAssist({ onSuggestionSelect: onSelect });
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
   const [isInputSectionExpanded, setIsInputSectionExpanded] = useState(() => {
@@ -297,7 +297,10 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
                     <div 
                       key={index} 
                       className="suggestion-item"
-                      onClick={() => onSelect?.(suggestion)}
+                      onClick={() => {
+                        selectSuggestion(suggestion);
+                        onClose();
+                      }}
                     >
                       {suggestion}
                     </div>
