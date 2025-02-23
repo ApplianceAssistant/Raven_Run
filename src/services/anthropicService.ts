@@ -36,69 +36,34 @@ class AnthropicService {
         request
       );
       
-      console.log('Anthropic API response:', {
-        status: response.data.status,
-        data: response.data.data,
-        message: response.data.message
-      });
+      console.log('Anthropic API response:', response.data);
 
-      if (response.data.status === 'success' && response.data.data) {
+      if (response.data.status === 'success' && Array.isArray(response.data.data?.suggestions)) {
         return {
           success: true,
           suggestions: response.data.data.suggestions
         };
-      } else {
+      }
+      
+      // If we get here, the response wasn't successful or didn't have suggestions
+      throw new Error(response.data.message || 'Failed to get suggestions');
+    } catch (error) {
+      console.error('Error in getAISuggestions:', error);
+      
+      // Handle axios error responses
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
         return {
           success: false,
           suggestions: [],
-          error: response.data.message || 'Failed to get suggestions'
+          error: error.response.data.message
         };
       }
-    } catch (err) {
-      console.error('Anthropic API error:', {
-        status: err.response?.status,
-        error: err.response?.data?.error,
-        message: err.message
-      });
-
-      const errorResponse = err.response?.data?.error;
-      let errorMessage = 'An unexpected error occurred';
       
-      if (errorResponse) {
-        switch (errorResponse.type) {
-          case 'invalid_request_error':
-            errorMessage = 'There was an issue with the request format. Please try again.';
-            break;
-          case 'authentication_error':
-            errorMessage = 'Authentication failed. Please contact support.';
-            break;
-          case 'permission_error':
-            errorMessage = 'Permission denied. Please contact support.';
-            break;
-          case 'not_found_error':
-            errorMessage = 'The requested AI model was not found. Please try again later.';
-            break;
-          case 'request_too_large':
-            errorMessage = 'The request was too large. Please reduce the input size.';
-            break;
-          case 'rate_limit_error':
-            errorMessage = 'Rate limit exceeded. Please try again in a few minutes.';
-            break;
-          case 'overloaded_error':
-            errorMessage = 'The AI service is temporarily busy. Please try again in a moment.';
-            break;
-          case 'api_error':
-            errorMessage = 'The AI service encountered an error. Please try again later.';
-            break;
-          default:
-            errorMessage = errorResponse.message || 'Failed to get suggestions';
-        }
-      }
-
+      // Handle other errors
       return {
         success: false,
         suggestions: [],
-        error: errorMessage
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       };
     }
   }

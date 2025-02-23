@@ -94,41 +94,62 @@ try {
             debug_log("Context:", $context);
             debug_log("Existing content:", $existingContent);
 
-            // Build the base context
-            $baseContext = "You are helping create content for a location-based game. ";
-            if (isset($context['title'])) {
-                $baseContext .= "The game is called \"{$context['title']}\". ";
-            }
-            if (isset($context['description'])) {
-                $baseContext .= "Game description: \"{$context['description']}\". ";
-            }
-            if (isset($context['difficulty_level'])) {
-                $baseContext .= "Difficulty level: {$context['difficulty_level']}. ";
-            }
-
-            // Get prompt based on field
-            $prompts = [
-                'title' => $baseContext . "Please suggest a creative and engaging title for this game.",
-                'description' => $baseContext . "Please write an engaging description that explains what this game is about.",
-                'hints' => $baseContext . "Please suggest helpful but not too obvious hints for this challenge.",
-                'feedback' => $baseContext . "Please suggest encouraging " . ($context['feedbackType'] ?? '') . " feedback messages.",
-                'question' => $baseContext . "Please suggest an engaging question related to this location or challenge.",
-                'tags' => $baseContext . "Please suggest relevant tags for this game based on its content and theme."
+            // Define response limits based on field type
+            $responseLimits = [
+                'shortList' => ['count' => 10, 'fields' => ['title', 'clue', 'hint', 'location_name']],
+                'mediumList' => ['count' => 4, 'fields' => ['feedback', 'challenge_prompt', 'quest_objective']],
+                'longForm' => ['count' => 2, 'fields' => ['description', 'story', 'narrative']]
             ];
 
-            $prompt = $prompts[$data['field']];
-            if ($existingContent) {
-                $prompt .= " Current content to improve: \"$existingContent\"";
+            // Determine response limit based on field
+            $responseType = 'shortList'; // default
+            foreach ($responseLimits as $type => $config) {
+                if (in_array($data['field'], $config['fields'])) {
+                    $responseType = $type;
+                    break;
+                }
             }
+            $responseCount = $responseLimits[$responseType]['count'];
+
+            // Build context object
+            $contextObj = [
+                'style' => [
+                    'writing' => $context['writingStyle'] ?? 'default',
+                    'genre' => $context['gameGenre'] ?? 'default',
+                    'tone' => $context['tone'] ?? 'default'
+                ],
+                'gameState' => [
+                    'title' => $context['title'] ?? null,
+                    'description' => $context['description'] ?? null,
+                    'additionalContext' => $context['additionalContext'] ?? null
+                ],
+                'request' => [
+                    'type' => $responseType,
+                    'field' => $data['field'],
+                    'count' => $responseCount
+                ]
+            ];
+
+            // Generate structured prompt
+            $systemPrompt = "You are a creative writing assistant helping to generate content for a location-based game.";
+            $prompt = "Generate {$responseCount} suggestions based on the following context. Return them in this JSON format: [{\"content\": \"suggestion text\"}]. Do not include reasoning or thematic links.\n\n" . json_encode($contextObj, JSON_PRETTY_PRINT);
+
             debug_log("Generated prompt:", $prompt);
 
             // Prepare Anthropic API request
+            $messages = [
+                [
+                    'role' => 'user',
+                    'content' => "Generate {$responseCount} suggestions based on the following context. Return them in this JSON format: [{\"content\": \"suggestion text\"}]. Do not include reasoning or thematic links.\n\n" . json_encode($contextObj, JSON_PRETTY_PRINT)
+                ]
+            ];
+
             $requestData = [
                 'model' => 'claude-3-haiku-20240307',
-                'max_tokens' => 1000,
-                'messages' => [
-                    ['role' => 'user', 'content' => $prompt]
-                ]
+                'messages' => $messages,
+                'max_tokens' => 1500,
+                'temperature' => 0.7,
+                'system' => 'You are a creative writing assistant helping to generate content for a location-based game.'
             ];
             debug_log("Anthropic API request data:", $requestData);
 
@@ -196,32 +217,41 @@ try {
             $anthropicResponse = json_decode($response, true);
             debug_log("Decoded Anthropic response:", $anthropicResponse);
             
-            if (!$anthropicResponse || !isset($anthropicResponse['content'][0]['text'])) {
-                throw new Exception('Invalid response from AI service: ' . json_last_error_msg());
+            // Process Anthropic response to extract suggestions
+            if ($anthropicResponse && isset($anthropicResponse['content'][0]['text'])) {
+                try {
+                    $decodedResponse = json_decode($anthropicResponse['content'][0]['text'], true);
+                    
+                    if (!is_array($decodedResponse)) {
+                        throw new Exception("Failed to parse AI response as JSON array");
+                    }
+
+                    // Extract just the content from each suggestion
+                    $suggestions = array_map(function($item) {
+                        return isset($item['content']) ? $item['content'] : null;
+                    }, $decodedResponse);
+
+                    // Filter out any null values
+                    $suggestions = array_filter($suggestions);
+
+                    if (empty($suggestions)) {
+                        throw new Exception("No valid suggestions found in AI response");
+                    }
+
+                    echo json_encode([
+                        'status' => 'success',
+                        'data' => ['suggestions' => array_values($suggestions)],
+                        'message' => 'Successfully generated suggestions'
+                    ]);
+                    debug_log("Request completed successfully");
+                    exit;
+                } catch (Exception $e) {
+                    debug_log("Error parsing AI response:", $e->getMessage());
+                    throw new Exception("Failed to process AI response: " . $e->getMessage());
+                }
             }
-
-            // Process suggestions
-            $suggestions = array_slice(
-                array_filter(
-                    array_map(
-                        'trim',
-                        explode("\n", $anthropicResponse['content'][0]['text'])
-                    ),
-                    function($line) { return !empty($line); }
-                ),
-                0,
-                3
-            );
-            debug_log("Processed suggestions:", $suggestions);
-
-            echo json_encode([
-                'status' => 'success',
-                'data' => [
-                    'suggestions' => $suggestions
-                ],
-                'message' => 'Successfully generated suggestions'
-            ]);
-            debug_log("Request completed successfully");
+            
+            throw new Exception('AI service returned an invalid or empty response. Please try again.');
             break;
 
         default:
