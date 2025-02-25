@@ -301,8 +301,9 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
         className={`ai-prompt-modal ${isVisible ? 'visible' : ''}`}
       >
         <button 
-          className="close-button" 
+          className="close-button"
           onClick={onClose}
+          type="button"
         >
           <FontAwesomeIcon icon={faTimes} />
         </button>
