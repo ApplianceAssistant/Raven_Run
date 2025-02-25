@@ -27,13 +27,6 @@
  * @property {string} title - Challenge title
  */
 
-export const GameTypes = {
-  TRAVEL: 'travel',
-  RIDDLE: 'riddle',
-  PHOTO: 'photo',
-  TRIVIA: 'trivia'
-};
-
 export const GameDifficulties = {
   EASY: 'easy',
   MEDIUM: 'medium',

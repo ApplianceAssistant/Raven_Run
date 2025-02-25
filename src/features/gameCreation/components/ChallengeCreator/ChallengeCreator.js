@@ -15,11 +15,10 @@ import { useGameCreation } from '../../context/GameCreationContext';
 import { AISuggestionButton } from '../../../../components/AISuggestionButton/AISuggestionButton';
 import '../../../../components/AISuggestionButton/AISuggestionButton.scss';
 
-const ChallengeCreator = () => {
+const ChallengeCreator = ({ gameData, onSave }) => {
   const navigate = useNavigate();
   const { gameId, challengeId } = useParams();
   const { showError, showSuccess, showWarning, clearMessage } = useMessage();
-  const { dispatch } = useGameCreation();
   const [isEditing, setIsEditing] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [originalChallenge, setOriginalChallenge] = useState(null);
@@ -27,21 +26,56 @@ const ChallengeCreator = () => {
     const savedUnitSystem = localStorage.getItem('unitSystem');
     return savedUnitSystem ? JSON.parse(savedUnitSystem) : false;
   });
-  const [gameSettings, setGameSettings] = useState(null);
+
+  // Normalize function for game settings
+  const normalizeGameSettings = (settings = {}) => {
+    console.log('[ChallengeCreator] Normalizing settings:', settings);
+    return {
+      writingStyle: settings.writing_style || settings.writingStyle || 'default',
+      gameGenre: settings.game_genre || settings.gameGenre || 'default',
+      tone: settings.tone || 'default',
+      customWritingStyle: settings.custom_writing_style || settings.customWritingStyle || '',
+      customGameGenre: settings.custom_game_genre || settings.customGameGenre || '',
+      customTone: settings.custom_tone || settings.customTone || ''
+    };
+  };
+
+  // Initialize gameSettings from props
+  const [gameSettings, setGameSettings] = useState(() => {
+    console.log('[ChallengeCreator] Initializing gameSettings from props:', gameData?.gameSettings);
+    return normalizeGameSettings(gameData?.gameSettings);
+  });
+
+  // Update gameSettings when props change
+  useEffect(() => {
+    console.log('[ChallengeCreator] gameData changed:', gameData?.gameSettings);
+    if (gameData?.gameSettings) {
+      const normalizedSettings = normalizeGameSettings(gameData.gameSettings);
+      console.log('[ChallengeCreator] Updating gameSettings to:', normalizedSettings);
+      setGameSettings(normalizedSettings);
+    }
+  }, [gameData]);
 
   const onSettingsChange = (newSettings) => {
-    setGameSettings(newSettings);
+    console.log('[ChallengeCreator] Received new settings:', newSettings);
+    const cleanSettings = normalizeGameSettings(newSettings);
     
-    // Update game in local storage
-    const games = getGamesFromLocalStorage();
-    const game = games.find(g => g.gameId === gameId);
-    if (game) {
-      game.gameSettings = newSettings;
-      localStorage.setItem('games', JSON.stringify(games));
+    // Compare with current settings to avoid unnecessary updates
+    const currentSettings = JSON.stringify(gameSettings);
+    const updatedSettings = JSON.stringify(cleanSettings);
+
+    if (currentSettings !== updatedSettings) {
+      console.log('[ChallengeCreator] Settings changed, updating game');
+      setGameSettings(cleanSettings);
       
-      // Update context
-      dispatch({ type: 'SET_GAMES', payload: games });
-      dispatch({ type: 'SELECT_GAME', payload: game });
+      // Update through parent component
+      if (gameData && onSave) {
+        const updatedGame = {
+          ...gameData,
+          gameSettings: cleanSettings
+        };
+        onSave(updatedGame);
+      }
     }
   };
 
@@ -73,24 +107,28 @@ const ChallengeCreator = () => {
 
   useEffect(() => {
     const loadGame = () => {
-      const games = getGamesFromLocalStorage();
-      const game = games.find(g => g.gameId === gameId);
-      if (game) {
-        setGameSettings(game.gameSettings);
+      if (gameData) {
+        console.log('game:', gameData);
+        // Normalize loaded settings
+        const loadedSettings = gameData.gameSettings || {};
+        console.warn('loadedSettings:', loadedSettings);
+        
+        // Create the new settings object
+        const newSettings = normalizeGameSettings(loadedSettings);
+        
+        console.warn('[ChallengeCreator] Setting new game settings:', newSettings);
+        setGameSettings(newSettings);
       }
     };
     loadGame();
-  }, [gameId]);
+  }, [gameData]);
 
   // Load existing challenge if editing
   useEffect(() => {
-    const games = getGamesFromLocalStorage();
-    const game = games.find(g => g.gameId === gameId);
-
-    if (challengeId && game) {
+    if (challengeId && gameData) {
       // Convert challengeId to number since IDs in the data are numbers
       const numericChallengeId = parseInt(challengeId, 10);
-      const existingChallenge = game.challenges.find(c => c.id === numericChallengeId);
+      const existingChallenge = gameData.challenges.find(c => c.id === numericChallengeId);
 
       if (existingChallenge) {
         // Create merged challenge with all required fields
@@ -121,10 +159,10 @@ const ChallengeCreator = () => {
         setOriginalChallenge(mergedChallenge);
         setIsEditing(true);
       }
-    } else if (game) {
+    } else if (gameData) {
       // Set next available order for new challenges
-      const maxOrder = game.challenges?.length > 0
-        ? Math.max(...game.challenges.map(c => c.order || 0), 0)
+      const maxOrder = gameData.challenges?.length > 0
+        ? Math.max(...gameData.challenges.map(c => c.order || 0), 0)
         : 0;
       setChallenge(prev => ({
 
@@ -132,7 +170,7 @@ const ChallengeCreator = () => {
         order: maxOrder + 1  // Set order to next available number
       }));
     }
-  }, [gameId, challengeId]);
+  }, [gameId, challengeId, gameData]);
 
   // Track changes and validate required fields
   useEffect(() => {
@@ -396,43 +434,33 @@ const ChallengeCreator = () => {
     }
 
     try {
-      const games = getGamesFromLocalStorage();
-      const game = games.find(g => g.gameId === gameId);
+      if (gameData && onSave) {
+        let updatedGame = { ...gameData };
 
-      if (!game) {
-        showError('Game not found');
-        return;
-      }
-
-      let updatedGame = { ...game };
-
-      // If editing, update existing challenge
-      if (isEditing) {
-        const challengeIndex = game.challenges.findIndex(c => c.id === parseInt(challengeId, 10));
-        if (challengeIndex !== -1) {
-          updatedGame.challenges[challengeIndex] = {
+        // If editing, update existing challenge
+        if (isEditing) {
+          const challengeIndex = gameData.challenges.findIndex(c => c.id === parseInt(challengeId, 10));
+          if (challengeIndex !== -1) {
+            updatedGame.challenges[challengeIndex] = {
+              ...challenge,
+              id: parseInt(challengeId, 10) // Keep original ID
+            };
+          }
+        } else {
+          // For new challenges
+          const newChallenge = {
             ...challenge,
-            id: parseInt(challengeId, 10) // Keep original ID
+            id: Date.now() // Only set new ID for new challenges
           };
+          updatedGame.challenges = [...(updatedGame.challenges || []), newChallenge];
         }
-      } else {
-        // For new challenges
-        const newChallenge = {
-          ...challenge,
-          id: Date.now() // Only set new ID for new challenges
-        };
-        updatedGame.challenges = [...(updatedGame.challenges || []), newChallenge];
+
+        // Update through parent component
+        onSave(updatedGame);
+
+        showSuccess('Challenge saved successfully!');
+        navigate(`/create/edit/${gameId}/challenges`);
       }
-
-      // Save to local storage
-      await saveGame(updatedGame);
-
-      // Update context
-      dispatch({ type: 'SET_GAMES', payload: games.map(g => g.gameId === gameId ? updatedGame : g) });
-      dispatch({ type: 'SELECT_GAME', payload: updatedGame });
-
-      showSuccess('Challenge saved successfully!');
-      navigate(`/create/edit/${gameId}/challenges`);
     } catch (error) {
       console.error('Save challenge error:', error); // Log full error for debugging
       showError('Failed to save challenge. Please try again.'); // User-friendly message

@@ -121,7 +121,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   }, [gameSettings]);
 
   const updateSettings = (newSettings: any) => {
-    if (onSettingsChange && newSettings.writingStyle !== 'default') {
+    if (onSettingsChange) {
       // Clean up undefined values
       const cleanSettings = {
         writingStyle: newSettings.writingStyle,
@@ -135,7 +135,8 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
       console.log('[AIPromptModal] Current settings:', cleanSettings);
       const currentSettings = JSON.stringify(cleanSettings);
       const prevSettings = JSON.stringify(lastSettings.current || {});
-      
+      console.warn('[AIPromptModal] Current settings:', currentSettings);
+      console.warn('[AIPromptModal] Previous settings:', prevSettings);
       if (currentSettings !== prevSettings) {
         console.log('[AIPromptModal] Settings changed, updating...');
         lastSettings.current = cleanSettings;

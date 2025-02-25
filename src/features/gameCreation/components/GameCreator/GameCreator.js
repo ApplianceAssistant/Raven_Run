@@ -210,6 +210,21 @@ const GameCreator = () => {
     }
   };
 
+  const handleGameUpdate = async (updatedGame) => {
+    console.log('[GameCreator] Handling game update:', updatedGame);
+    try {
+      await saveGame(updatedGame);
+      dispatch({ type: 'SELECT_GAME', payload: updatedGame });
+      const updatedGames = games.map(g => 
+        g.gameId === updatedGame.gameId ? updatedGame : g
+      );
+      dispatch({ type: 'SET_GAMES', payload: updatedGames });
+      console.log('[GameCreator] Game updated successfully');
+    } catch (error) {
+      console.error('[GameCreator] Error updating game:', error);
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -235,7 +250,10 @@ const GameCreator = () => {
           />
         </>
       ) : isChallengeCreatorRoute ? (
-        <ChallengeCreator />
+        <ChallengeCreator
+          gameData={selectedGame}
+          onSave={handleGameUpdate}
+        />
       ) : isChallengesRoute ? (
         <ChallengeManager />
       ) : location.pathname === '/create/new' ? (
