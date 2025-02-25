@@ -365,7 +365,29 @@ export const getGames = async () => {
 };
 
 export const deleteGame = async (gameId) => {
-  await deleteGameFromLocalStorage(gameId);
+  try {
+    // Delete from server first
+    const isConnected = (await checkServerConnectivity()).isConnected;
+    if (isConnected) {
+      const response = await authFetch(`${API_URL}/server/api/games/games.php`, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'delete_game',
+          gameId: gameId
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete game from server');
+      }
+    }
+
+    // Then delete from local storage
+    await deleteGameFromLocalStorage(gameId);
+  } catch (error) {
+    console.error('[deleteGame] Error:', error);
+    throw error;
+  }
 };
 
 /**
