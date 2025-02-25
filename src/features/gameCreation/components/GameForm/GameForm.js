@@ -356,12 +356,12 @@ const GameForm = ({
     
     // Clean up settings for comparison
     const cleanSettings = {
-      writingStyle: settings.writingStyle || 'default',
-      gameGenre: settings.gameGenre || 'default',
+      writingStyle: settings.writing_style || settings.writingStyle || 'default',
+      gameGenre: settings.game_genre || settings.gameGenre || 'default',
       tone: settings.tone || 'default',
-      customWritingStyle: settings.customWritingStyle || '',
-      customGameGenre: settings.customGameGenre || '',
-      customTone: settings.customTone || ''
+      customWritingStyle: settings.custom_writing_style || settings.customWritingStyle || '',
+      customGameGenre: settings.custom_game_genre || settings.customGameGenre || '',
+      customTone: settings.custom_tone || settings.customTone || ''
     };
     
     // Compare with current settings
@@ -375,22 +375,17 @@ const GameForm = ({
           gameSettings: cleanSettings
         };
         console.log('[GameForm] Updated form data:', updatedFormData);
-        
-        // Update form state
         setFormData(updatedFormData);
+        setHasChanges(true);
         
-        // Auto-save the game
-        if (onSave) {
-          console.log('[GameForm] Auto-saving game with new settings...');
+        // If autosave is enabled, save the changes
+        if (isSaved) {
           await onSave(updatedFormData);
-          showSuccess('Game settings saved successfully');
         }
       } catch (error) {
-        console.error('[GameForm] Error saving game settings:', error);
-        showError('Failed to save game settings');
+        console.error('[GameForm] Error updating game settings:', error);
+        showError('Failed to update game settings');
       }
-    } else {
-      console.log('[GameForm] Settings unchanged, skipping save');
     }
   };
 
