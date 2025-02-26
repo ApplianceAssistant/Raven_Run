@@ -56,14 +56,7 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
-// Debug CORS configuration
-console.log('CORS configuration:', {
-  corsOptions,
-  NODE_ENV: process.env.NODE_ENV,
-  CORS_ORIGIN: process.env.CORS_ORIGIN
-});
-
-// Debug middleware for CORS
+/* Debug middleware for CORS
 app.use((req, res, next) => {
   console.log('Incoming request:', {
     method: req.method,
@@ -72,7 +65,7 @@ app.use((req, res, next) => {
     headers: req.headers
   });
   next();
-});
+}); */
 
 // Apply CORS middleware
 app.use(cors(corsOptions));

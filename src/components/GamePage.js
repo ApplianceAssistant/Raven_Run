@@ -83,19 +83,9 @@ function GamePage() {
   }, [currentChallenge, userLocation, challengeIndex, isLocationReached, completedChallenges]);
 
   useEffect(() => {
-    console.log('=== GamePage Effect Start ===');
-    console.log('Current state:', {
-      isModalOpen,
-      modalContent,
-      challenges: challenges.length,
-      challengeIndex,
-      gameId,
-      urlChallengeIndex
-    });
 
     const loadGameData = async () => {
       try {
-        console.log('Loading game data for gameId:', gameId);
         // Load game from downloaded games or download it
         const gameData = await loadGame(gameId);
         if (!gameData) {
@@ -106,8 +96,6 @@ function GamePage() {
 
         // Check if game has any challenges
         if (!gameData.challenges || gameData.challenges.length === 0) {
-          console.warn('Game has no challenges:', gameId);
-          console.log('Setting modal content and opening modal');
           setModalContent({
             title: 'No Challenges Available',
             content: 'This game does not have any challenges yet.',
@@ -115,7 +103,6 @@ function GamePage() {
               {
                 label: 'Return to Game Lobby',
                 onClick: () => {
-                  console.log('Modal button clicked - navigating to lobby');
                   navigate('/lobby');
                 },
                 className: 'button primary'
@@ -124,11 +111,9 @@ function GamePage() {
             type: 'warning'
           });
           setIsModalOpen(true);
-          console.log('Modal state set, returning early');
           return;
         }
 
-        console.log('Game has challenges:', gameData.challenges.length);
         // Get progress
         const progress = getHuntProgress();
         const requestedIndex = parseInt(urlChallengeIndex, 10) || 0;

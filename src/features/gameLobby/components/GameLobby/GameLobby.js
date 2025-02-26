@@ -44,26 +44,22 @@ const GameLobby = () => {
     };
 
     const handleSearch = (searchQuery, additionalFilters = {}) => {
-        console.log('GameLobby handleSearch - searchQuery:', searchQuery, 'additionalFilters:', additionalFilters);
         const newFilters = {
             ...filters,
             search: searchQuery || '',  // Ensure search is an empty string if null
             ...additionalFilters
         };
-        console.log('GameLobby setting new filters:', newFilters);
         setFilters(newFilters);
         fetchGames(newFilters);  // Immediately fetch with new filters
     };
 
     const fetchGames = async (searchFilters = filters) => {
         setIsLoading(true);
-        console.log('GameLobby fetchGames - searchFilters:', searchFilters);
         try {
             const params = new URLSearchParams();
             
             // If gameId is provided, only search by gameId
             if (searchFilters.gameId) {
-                console.log('GameLobby fetching by gameId:', searchFilters.gameId);
                 params.append('gameId', searchFilters.gameId);
             } else {
                 // Only add location params if we're using "mylocation" and have valid coordinates
@@ -90,22 +86,17 @@ const GameLobby = () => {
                 }
             }
 
-            console.log('search games: ', params.toString());
             const requestUrl = `${API_URL}/server/api/games/searchGames.php?${params.toString()}`;
             
             const response = await authFetch(requestUrl);
             const rawText = await response.text();
-            console.log('Raw response text:', rawText);
             const jsonData = JSON.parse(rawText);
-            console.log('Parsed JSON data:', jsonData);
             
             if (jsonData.status === 'success') {
-                console.log('Games from response:', jsonData.data.games);
                 const processedGames = jsonData.data.games.map(game => ({
                     ...game,
                     distance: game.distance  // Pass the raw distance value without conversion
                 }));
-                console.log('Processed games:', processedGames);
                 setGames(processedGames);
             } else {
                 console.error('Error fetching games:', jsonData.message);

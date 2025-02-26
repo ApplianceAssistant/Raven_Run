@@ -23,17 +23,14 @@ const SearchBar = ({ onSearch, onFilterToggle, isFilterVisible, filters = {}, on
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('SearchBar handleSubmit - gameId:', gameId, 'query:', query);
         if (gameId.trim()) {
             // If gameId is provided, ignore other search parameters
             const additionalFilters = { gameId: gameId.trim() };
-            console.log('SearchBar calling onSearch with additionalFilters:', additionalFilters);
             onSearch(null, additionalFilters);
         } else {
             // Normal search with query and filters
             // Explicitly clear gameId from filters
             const additionalFilters = { gameId: null };
-            console.log('SearchBar calling onSearch with query:', query);
             onSearch(query, additionalFilters);  // Pass additionalFilters to clear gameId
         }
     };
