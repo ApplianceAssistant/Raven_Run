@@ -75,7 +75,17 @@ try {
             }
 
             // Validate field value
-            $allowedFields = ['title', 'description', 'hints', 'feedback', 'question', 'tags'];
+            $allowedFields = [
+                'title',
+                'description',
+                'hints',
+                'feedback',
+                'question',
+                'tags',
+                'completionFeedback',
+                'feedbackTexts',
+                'correctAnswer'
+            ];
             if (!in_array($data['field'], $allowedFields)) {
                 throw new Exception('Invalid field value: ' . $data['field']);
             }
