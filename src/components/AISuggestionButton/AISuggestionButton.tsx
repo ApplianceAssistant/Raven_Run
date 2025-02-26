@@ -6,35 +6,43 @@ import { AIAssistRequest } from '../../types/anthropic.types';
 import AIPromptModal from '../AIPromptModal/AIPromptModal';
 import './AISuggestionButton.scss';
 
+interface Challenge {
+  title: string;
+  description: string;
+  difficulty?: string;
+}
+
+interface GameSettings {
+  writingStyle: string;
+  gameGenre: string;
+  tone: string;
+  customWritingStyle?: string;
+  customGameGenre?: string;
+  customTone?: string;
+}
+
+interface GameObject {
+  title?: string;
+  description?: string;
+  challenges?: Challenge[];
+  tags?: string[];
+  difficulty_level?: string;
+  estimatedTime?: string;
+  gameSettings: GameSettings;
+  [key: string]: any;
+}
+
 interface AISuggestionButtonProps {
-  field: string;
-  context?: string;
   onSelect: (suggestion: string) => void;
   className?: string;
-  gameSettings?: {
-    writingStyle: string;
-    gameGenre: string;
-    tone: string;
-    customWritingStyle?: string;
-    customGameGenre?: string;
-    customTone?: string;
-  };
-  onSettingsChange?: (settings: {
-    writingStyle: string;
-    gameGenre: string;
-    tone: string;
-    customWritingStyle?: string;
-    customGameGenre?: string;
-    customTone?: string;
-  }) => void;
+  gameObject?: GameObject;
+  onSettingsChange?: (gameObject: GameObject) => void;
 }
 
 export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
-  field,
-  context,
   onSelect,
   className = '',
-  gameSettings,
+  gameObject,
   onSettingsChange
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -42,6 +50,16 @@ export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsModalOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSettingsChange = (updatedGameObject: GameObject) => {
+    if (onSettingsChange) {
+      onSettingsChange(updatedGameObject);
+    }
   };
 
   return (
@@ -57,11 +75,10 @@ export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
 
       <AIPromptModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleClose}
         onSelect={onSelect}
-        field={field}
-        gameSettings={gameSettings}
-        onSettingsChange={onSettingsChange}
+        gameObject={gameObject}
+        onSettingsChange={handleSettingsChange}
       />
     </>
   );

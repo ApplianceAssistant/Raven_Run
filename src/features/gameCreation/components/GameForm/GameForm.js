@@ -347,8 +347,8 @@ const GameForm = ({
     setHasChanges(false);
   };
 
-  const handleGameSettingsChange = async (settings) => {
-    console.log('[GameForm] Received game settings:', settings);
+  const handleGameSettingsChange = async (gameObject) => {
+    const settings = gameObject.gameSettings;
     
     // Clean up settings for comparison
     const cleanSettings = {
@@ -370,6 +370,7 @@ const GameForm = ({
           ...formData,
           gameSettings: cleanSettings
         };
+        console.log('[GameForm] Updated form data:', updatedFormData);
         setFormData(updatedFormData);
         setHasChanges(true);
         
@@ -476,7 +477,7 @@ const GameForm = ({
                 existingContent={formData.title}
                 onSelect={(suggestion) => handleInputChange('title', suggestion)}
                 onSettingsChange={handleGameSettingsChange}
-                gameSettings={formData.gameSettings}
+                gameObject={formData}
               />
             </div>
           </div>
@@ -500,7 +501,7 @@ const GameForm = ({
                 existingContent={formData.description}
                 onSelect={(suggestion) => handleInputChange('description', suggestion)}
                 onSettingsChange={handleGameSettingsChange}
-                gameSettings={formData.gameSettings}
+                gameObject={formData}
               />
             </div>
           </div>

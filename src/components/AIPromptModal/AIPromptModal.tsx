@@ -6,32 +6,40 @@ import MessageDisplay from '../MessageDisplay';
 import { useMessage } from '../../utils/MessageProvider';
 import { useAIAssist } from '../../hooks/useAIAssist';
 import { MessageTypes } from '../../utils/MessageProvider';
+import { AIAssistRequest } from '../../types/anthropic.types';
 import './AIPromptModal.scss';
+
+interface GameSettings {
+  writingStyle: string;
+  gameGenre: string;
+  tone: string;
+  customWritingStyle?: string;
+  customGameGenre?: string;
+  customTone?: string;
+}
+
+interface GameObject {
+  title?: string;
+  description?: string;
+  challenges?: Array<{
+    title: string;
+    description: string;
+    difficulty?: string;
+  }>;
+  tags?: string[];
+  difficulty?: string;
+  estimatedTime?: string;
+  gameSettings: GameSettings;
+  [key: string]: any;
+}
 
 interface AIPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (suggestion: string) => void;
   field: string;
-  gameSettings?: {
-    writingStyle: string;
-    gameGenre: string;
-    tone: string;
-    customWritingStyle?: string;
-    customGameGenre?: string;
-    customTone?: string;
-    title?: string;
-    description?: string;
-    challenges?: string[];
-  };
-  onSettingsChange?: (settings: {
-    writingStyle: string;
-    gameGenre: string;
-    tone: string;
-    customWritingStyle?: string;
-    customGameGenre?: string;
-    customTone?: string;
-  }) => void;
+  gameObject?: GameObject;
+  onSettingsChange?: (settings: GameObject) => void;
 }
 
 const MAX_CONTEXT_LENGTH = 500;
@@ -69,9 +77,10 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   onClose,
   onSelect,
   field,
-  gameSettings,
+  gameObject,
   onSettingsChange,
 }) => {
+  console.warn('[AIPromptModal] gameObject:', gameObject);
   const { showError, clearMessage } = useMessage();
   const { loading, error, suggestions, getSuggestions, selectSuggestion } = useAIAssist({ onSuggestionSelect: onSelect });
   const [isVisible, setIsVisible] = useState(false);
@@ -81,14 +90,24 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
     return stored ? JSON.parse(stored) : true;
   });
   const lastSettings = useRef<any>(null);
-  
+
+  // Extract settings from gameSettings object
+  const extractedSettings = gameObject?.gameSettings || {
+    writingStyle: 'default',
+    gameGenre: 'default',
+    tone: 'default',
+    customWritingStyle: '',
+    customGameGenre: '',
+    customTone: ''
+  };
+
   // Input states
-  const [writingStyle, setWritingStyle] = useState(gameSettings?.writingStyle || 'default');
-  const [customWritingStyle, setCustomWritingStyle] = useState(gameSettings?.customWritingStyle || '');
-  const [gameGenre, setGameGenre] = useState(gameSettings?.gameGenre || 'default');
-  const [customGameGenre, setCustomGameGenre] = useState(gameSettings?.customGameGenre || '');
-  const [tone, setTone] = useState(gameSettings?.tone || 'default');
-  const [customTone, setCustomTone] = useState(gameSettings?.customTone || '');
+  const [writingStyle, setWritingStyle] = useState(extractedSettings.writingStyle || 'default');
+  const [customWritingStyle, setCustomWritingStyle] = useState(extractedSettings.customWritingStyle || '');
+  const [gameGenre, setGameGenre] = useState(extractedSettings.gameGenre || 'default');
+  const [customGameGenre, setCustomGameGenre] = useState(extractedSettings.customGameGenre || '');
+  const [tone, setTone] = useState(extractedSettings.tone || 'default');
+  const [customTone, setCustomTone] = useState(extractedSettings.customTone || '');
   const [context, setContext] = useState('');
 
   useEffect(() => {
@@ -113,45 +132,45 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (gameSettings) {
-      setWritingStyle(gameSettings.writingStyle || 'default');
-      setCustomWritingStyle(gameSettings.customWritingStyle || '');
-      setGameGenre(gameSettings.gameGenre || 'default');
-      setCustomGameGenre(gameSettings.customGameGenre || '');
-      setTone(gameSettings.tone || 'default');
-      setCustomTone(gameSettings.customTone || '');
+    if (gameObject?.gameSettings) {
+      setWritingStyle(gameObject.gameSettings?.writingStyle || 'default');
+      setCustomWritingStyle(gameObject.gameSettings?.customWritingStyle || '');
+      setGameGenre(gameObject.gameSettings?.gameGenre || 'default');
+      setCustomGameGenre(gameObject.gameSettings?.customGameGenre || '');
+      setTone(gameObject.gameSettings?.tone || 'default');
+      setCustomTone(gameObject.gameSettings?.customTone || '');
     }
-  }, [gameSettings]);
+  }, [gameObject?.gameSettings]);
 
   const updateSettings = (newSettings: any) => {
-    if (onSettingsChange) {
-      // Clean up undefined values
-      const cleanSettings = {
+    if (onSettingsChange && gameObject) {
+      // Convert camelCase to snake_case for storage
+      const cleanSettings: GameSettings = {
         writingStyle: newSettings.writingStyle,
         gameGenre: newSettings.gameGenre,
         tone: newSettings.tone,
-        customWritingStyle: newSettings.customWritingStyle || '',
-        customGameGenre: newSettings.customGameGenre || '',
-        customTone: newSettings.customTone || ''
+        customWritingStyle: newSettings.writingStyle === 'custom' ? newSettings.customWritingStyle : '',
+        customGameGenre: newSettings.gameGenre === 'custom' ? newSettings.customGameGenre : '',
+        customTone: newSettings.tone === 'custom' ? newSettings.customTone : ''
       };
 
-      console.log('[AIPromptModal] Current settings:', cleanSettings);
       const currentSettings = JSON.stringify(cleanSettings);
-      const prevSettings = JSON.stringify(lastSettings.current || {});
-      console.warn('[AIPromptModal] Current settings:', currentSettings);
-      console.warn('[AIPromptModal] Previous settings:', prevSettings);
+      const prevSettings = JSON.stringify(lastSettings.current);
+
       if (currentSettings !== prevSettings) {
-        console.log('[AIPromptModal] Settings changed, updating...');
         lastSettings.current = cleanSettings;
-        onSettingsChange(cleanSettings);
-      } else {
-        console.log('[AIPromptModal] Settings unchanged, skipping update');
+        // Create a new game object with updated settings
+        const updatedGameObject = {
+          ...gameObject,
+          gameSettings: cleanSettings
+        };
+        console.log('[AIPromptModal] Updated game object:', updatedGameObject);
+        onSettingsChange(updatedGameObject);
       }
     }
   };
 
   const handleCustomWritingStyleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('[AIPromptModal] Custom writing style changed:', e.target.value);
     setCustomWritingStyle(e.target.value);
     updateSettings({
       writingStyle,
@@ -164,7 +183,6 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   };
 
   const handleCustomGameGenreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('[AIPromptModal] Custom game genre changed:', e.target.value);
     setCustomGameGenre(e.target.value);
     updateSettings({
       writingStyle,
@@ -228,64 +246,76 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
     });
   };
 
-  const validateInputs = () => {
-    const missingFields = [];
+  const generateContext = () => {
+    if (!gameObject) return '';
 
-    if (writingStyle === 'default') {
-      missingFields.push('Writing Style');
-    }
-    if (writingStyle === 'custom' && !customWritingStyle.trim()) {
-      missingFields.push('Custom Writing Style');
-    }
+    const contextParts = [];
 
-    if (gameGenre === 'default') {
-      missingFields.push('Game Genre');
-    }
-    if (gameGenre === 'custom' && !customGameGenre.trim()) {
-      missingFields.push('Custom Game Genre');
+    if (gameObject.title) {
+      contextParts.push(`Game Title: ${gameObject.title}`);
     }
 
-    if (tone === 'default') {
-      missingFields.push('Tone');
-    }
-    if (tone === 'custom' && !customTone.trim()) {
-      missingFields.push('Custom Tone');
+    if (gameObject.description) {
+      contextParts.push(`Game Description: ${gameObject.description}`);
     }
 
-    if (!context.trim()) {
-      missingFields.push('Context Description');
+    if (gameObject?.difficulty) {
+      contextParts.push(`Difficulty Level: ${gameObject.difficulty}`);
     }
 
-    return missingFields;
+    if (gameObject?.estimatedTime) {
+      contextParts.push(`Estimated Time: ${gameObject.estimatedTime}`);
+    }
+
+    if (gameObject?.tags?.length) {
+      contextParts.push(`Tags: ${gameObject.tags.join(', ')}`);
+    }
+
+    if (gameObject.challenges?.length) {
+      contextParts.push(`Existing Challenges:\n${gameObject.challenges.map(challenge => 
+        `- ${challenge.title}${challenge.difficulty ? ` (${challenge.difficulty})` : ''}: ${challenge.description}`
+      ).join('\n')}`);
+    }
+
+    const writingStyleText = gameObject.gameSettings?.writingStyle === 'custom' ? gameObject.gameSettings?.customWritingStyle : gameObject.gameSettings?.writingStyle;
+    const genreText = gameObject.gameSettings?.gameGenre === 'custom' ? gameObject.gameSettings?.customGameGenre : gameObject.gameSettings?.gameGenre;
+    const toneText = gameObject.gameSettings?.tone === 'custom' ? gameObject.gameSettings?.customTone : gameObject.gameSettings?.tone;
+
+    contextParts.push(`Writing Style: ${writingStyleText}`);
+    contextParts.push(`Game Genre: ${genreText}`);
+    contextParts.push(`Tone: ${toneText}`);
+
+    return contextParts.filter(part => part && part !== 'default').join('\n\n');
   };
 
-  const handleGenerate = async () => {
-    const missingFields = validateInputs();
-    
-    if (missingFields.length > 0) {
-      showError(`Please fill in the following fields: ${missingFields.join(', ')}`);
-      return;
-    }
-
+  const handleGetSuggestions = async () => {
     clearMessage();
+    const generatedContext = generateContext();
     
-    const request = {
-      field,
-      context: {
-        writingStyle: writingStyle === 'custom' ? customWritingStyle : writingStyle,
-        gameGenre: gameGenre === 'custom' ? customGameGenre : gameGenre,
-        tone: tone === 'custom' ? customTone : tone,
-        additionalContext: context,
-        gameContext: {
-          title: gameSettings?.title || '',
-          description: gameSettings?.description || ''
-        },
-        existingChallenges: gameSettings?.challenges || []
-      }
-    };
-    
-
-    await getSuggestions(request);
+    try {
+      const request: AIAssistRequest = {
+        field,
+        context: {
+          writingStyle,
+          gameGenre,
+          tone,
+          additionalContext: generatedContext,
+          gameContext: {
+            title: gameObject?.title,
+            description: gameObject?.description
+          },
+          existingChallenges: gameObject?.challenges?.map(c => ({
+            type: 'challenge',
+            title: c.title,
+            content: c.description
+          })) || []
+        }
+      };
+      
+      await getSuggestions(request);
+    } catch (error) {
+      showError('Failed to get AI suggestions. Please try again.');
+    }
   };
 
   if (!shouldRender) return null;
@@ -456,7 +486,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
 
             <button 
               className="generate-button"
-              onClick={handleGenerate}
+              onClick={handleGetSuggestions}
               disabled={loading}
             >
               {loading ? 'Generating...' : 'Generate'}

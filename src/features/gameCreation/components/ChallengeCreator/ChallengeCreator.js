@@ -29,7 +29,6 @@ const ChallengeCreator = ({ gameData, onSave }) => {
 
   // Normalize function for game settings
   const normalizeGameSettings = (settings = {}) => {
-    console.log('[ChallengeCreator] Normalizing settings:', settings);
     return {
       writingStyle: settings.writing_style || settings.writingStyle || 'default',
       gameGenre: settings.game_genre || settings.gameGenre || 'default',
@@ -42,22 +41,18 @@ const ChallengeCreator = ({ gameData, onSave }) => {
 
   // Initialize gameSettings from props
   const [gameSettings, setGameSettings] = useState(() => {
-    console.log('[ChallengeCreator] Initializing gameSettings from props:', gameData?.gameSettings);
     return normalizeGameSettings(gameData?.gameSettings);
   });
 
   // Update gameSettings when props change
   useEffect(() => {
-    console.log('[ChallengeCreator] gameData changed:', gameData?.gameSettings);
     if (gameData?.gameSettings) {
       const normalizedSettings = normalizeGameSettings(gameData.gameSettings);
-      console.log('[ChallengeCreator] Updating gameSettings to:', normalizedSettings);
       setGameSettings(normalizedSettings);
     }
   }, [gameData]);
 
   const onSettingsChange = (newSettings) => {
-    console.log('[ChallengeCreator] Received new settings:', newSettings);
     const cleanSettings = normalizeGameSettings(newSettings);
     
     // Compare with current settings to avoid unnecessary updates
@@ -65,7 +60,6 @@ const ChallengeCreator = ({ gameData, onSave }) => {
     const updatedSettings = JSON.stringify(cleanSettings);
 
     if (currentSettings !== updatedSettings) {
-      console.log('[ChallengeCreator] Settings changed, updating game');
       setGameSettings(cleanSettings);
       
       // Update through parent component
@@ -501,11 +495,10 @@ const ChallengeCreator = ({ gameData, onSave }) => {
             />
             <AISuggestionButton
               field={fieldName}
-              context={getChallengeContext()}
+              gameObject={gameData}
               existingContent={value || ''}
               onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
               onSettingsChange={onSettingsChange}
-              gameSettings={gameSettings}
             />
           </div>
         );
@@ -529,11 +522,10 @@ const ChallengeCreator = ({ gameData, onSave }) => {
             />
             <AISuggestionButton
               field={fieldName}
-              context={getChallengeContext()}
+              gameObject={gameData}
               existingContent={value || ''}
               onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
               onSettingsChange={onSettingsChange}
-              gameSettings={gameSettings}
             />
           </div>
         );
