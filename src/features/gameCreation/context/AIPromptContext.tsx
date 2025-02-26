@@ -8,6 +8,11 @@ export const FIELD_RESPONSE_CONFIG = {
     description: 'Brief, engaging title'
   },
   description: {
+    game: {
+      wordCount: { min: 150, max: 300 },
+      style: 'long',
+      description: 'Brief, engaging description for the game'
+    },
     story: {
       wordCount: { min: 150, max: 300 },
       style: 'long',

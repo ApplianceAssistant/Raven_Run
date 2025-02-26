@@ -248,12 +248,12 @@ export const saveGame = async (gameData) => {
       // Convert gameSettings to snake_case for API
       const gameSettings = gameData.gameSettings || {};
       const apiGameSettings = {
-        writing_style: gameSettings.writingStyle || gameSettings.writing_style || 'default',
-        game_genre: gameSettings.gameGenre || gameSettings.game_genre || 'default',
+        writingStyle: gameSettings.writingStyle || gameSettings.writing_style || 'default',
+        gameGenre: gameSettings.gameGenre || gameSettings.game_genre || 'default',
         tone: gameSettings.tone || gameSettings.tone || 'default',
-        custom_writing_style: gameSettings.customWritingStyle || gameSettings.custom_writing_style || '',
-        custom_game_genre: gameSettings.customGameGenre || gameSettings.custom_game_genre || '',
-        custom_tone: gameSettings.customTone || gameSettings.custom_tone || ''
+        customWritingStyle: gameSettings.customWritingStyle || gameSettings.custom_writing_style || '',
+        customGameGenre: gameSettings.customGameGenre || gameSettings.custom_game_genre || '',
+        customTone: gameSettings.customTone || gameSettings.custom_tone || ''
       };
 
       const apiGameData = {

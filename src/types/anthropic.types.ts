@@ -26,6 +26,7 @@ export interface GameContext {
 
 export interface AIAssistRequest {
   field: string;
+  scope: 'game' | 'challenge';
   context: {
     writingStyle?: string;
     gameGenre?: string;

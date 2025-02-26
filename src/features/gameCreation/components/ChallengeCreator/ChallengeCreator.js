@@ -16,6 +16,7 @@ import { AISuggestionButton } from '../../../../components/AISuggestionButton/AI
 import '../../../../components/AISuggestionButton/AISuggestionButton.scss';
 
 const ChallengeCreator = ({ gameData, onSave }) => {
+  console.warn('[ChallengeCreator] gameData:', gameData);
   const navigate = useNavigate();
   const { gameId, challengeId } = useParams();
   const { showError, showSuccess, showWarning, clearMessage } = useMessage();
@@ -49,6 +50,7 @@ const ChallengeCreator = ({ gameData, onSave }) => {
     if (gameData?.gameSettings) {
       const normalizedSettings = normalizeGameSettings(gameData.gameSettings);
       setGameSettings(normalizedSettings);
+      gameData.gameSettings = normalizedSettings;
     }
   }, [gameData]);
 
