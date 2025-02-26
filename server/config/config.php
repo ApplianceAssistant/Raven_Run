@@ -13,7 +13,7 @@ if (file_exists($envFile)) {
     foreach ($lines as $line) {
         if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
             list($key, $value) = explode('=', $line, 2);
-            putenv(trim($key) . "=" . trim($value));
+            $_ENV[trim($key)] = trim($value);
         }
     }
 }
@@ -22,5 +22,5 @@ header('Content-Type: application/json');
 
 // Return just the encryption key
 echo json_encode([
-    'encryptionKey' => getenv('ENCRYPTION_KEY') ?: 'MY_SECRET_ENCRYPTION_KEY'
+    'encryptionKey' => $_ENV['ENCRYPTION_KEY'] ?: 'MY_SECRET_ENCRYPTION_KEY'
 ]);

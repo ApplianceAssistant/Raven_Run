@@ -46,7 +46,7 @@ if (file_exists($envFile)) {
     foreach ($lines as $line) {
         if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
             list($key, $value) = explode('=', $line, 2);
-            putenv(trim($key) . "=" . trim($value));
+            $_ENV[trim($key)] = trim($value);
         }
     }
 } else {
@@ -91,7 +91,7 @@ try {
             }
 
             // Get Anthropic API key
-            $anthropicKey = getenv('ANTHROPIC_API_KEY');
+            $anthropicKey = $_ENV['ANTHROPIC_API_KEY'];
             debug_log("Checking Anthropic API key - " . (empty($anthropicKey) ? "Not found" : "Found"));
             
             if (!$anthropicKey) {
