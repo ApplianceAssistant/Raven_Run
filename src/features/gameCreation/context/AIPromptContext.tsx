@@ -93,6 +93,37 @@ export interface AIPromptContext {
 }
 
 export function compactifyChallenge(challenge: Challenge): CompactChallenge {
+  const key_elements: any = {};
+
+  if (challenge.type === 'travel' && challenge.targetLocation) {
+    key_elements.location = {
+      latitude: challenge.targetLocation.latitude,
+      longitude: challenge.targetLocation.longitude,
+      displayName: challenge.title
+    };
+    if (challenge.completionFeedback) {
+      key_elements.completionFeedback = challenge.completionFeedback;
+    }
+  }
+
+  if (challenge.hints) {
+    key_elements.hints = challenge.hints;
+  }
+
+  if (challenge.feedbackTexts) {
+    key_elements.feedbackTexts = challenge.feedbackTexts;
+  }
+
+  if (challenge.type === 'multipleChoice' || challenge.type === 'trueFalse' || challenge.type === 'textInput') {
+    key_elements.correctAnswer = challenge.type === 'trueFalse' 
+      ? Boolean(challenge.correctAnswer)
+      : challenge.correctAnswer;
+  }
+
+  if (challenge.type === 'multipleChoice' && challenge.options) {
+    key_elements.options = challenge.options;
+  }
+
   return {
     id: challenge.id,
     type: challenge.type,
@@ -101,24 +132,7 @@ export function compactifyChallenge(challenge: Challenge): CompactChallenge {
       ? challenge.description ?? ''
       : challenge.question ?? '',
     order: challenge.order,
-    key_elements: {
-      ...(challenge.type === 'travel' && {
-        location: {
-          displayName: challenge.title
-        },
-        completionFeedback: challenge.completionFeedback
-      }),
-      ...(challenge.hints && { hints: challenge.hints }),
-      ...(challenge.feedbackTexts && { feedbackTexts: challenge.feedbackTexts }),
-      ...((challenge.type === 'multipleChoice' || challenge.type === 'trueFalse' || challenge.type === 'textInput') && {
-        correctAnswer: challenge.type === 'trueFalse' 
-          ? Boolean(challenge.correctAnswer)
-          : challenge.correctAnswer
-      }),
-      ...(challenge.type === 'multipleChoice' && challenge.options && {
-        options: challenge.options
-      })
-    }
+    key_elements
   };
 }
 
@@ -139,13 +153,31 @@ export function buildAIPromptContext(
   // Get field-specific response configuration
   const responseConfig = getResponseConfig(field, challengeType);
 
+  // Format the response config based on field type
+  let formattedResponseConfig;
+  
+  if (field === 'description' && (challengeType === 'story' || challengeType === 'travel')) {
+    const config = responseConfig as typeof FIELD_RESPONSE_CONFIG['description'][typeof challengeType];
+    formattedResponseConfig = config;
+  } else if (field === 'feedbackTexts') {
+    const config = responseConfig as typeof FIELD_RESPONSE_CONFIG['feedbackTexts'];
+    formattedResponseConfig = {
+      wordCount: config.correct.wordCount,
+      style: config.correct.style,
+      description: config.correct.description
+    };
+  } else {
+    const config = responseConfig as typeof FIELD_RESPONSE_CONFIG['title'];
+    formattedResponseConfig = config;
+  }
+
   return {
     field,
     challengeType,
     gameContext,
     existingChallenges: sortedChallenges,
     creatorInput,
-    responseExpectations: responseConfig
+    responseExpectations: formattedResponseConfig
   };
 }
 

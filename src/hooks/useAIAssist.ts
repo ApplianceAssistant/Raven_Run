@@ -15,6 +15,18 @@ interface UseAIAssistReturn {
   clearSuggestions: () => void;
 }
 
+interface AnthropicError {
+  response?: {
+    data?: {
+      error?: {
+        type?: string;
+        message?: string;
+      };
+    };
+  };
+  message?: string;
+}
+
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000; // 1 second
 
@@ -32,11 +44,12 @@ export const useAIAssist = ({ onSuggestionSelect }: UseAIAssistProps = {}): UseA
       const response = await anthropicService.getAISuggestions(request);
       return response;
     } catch (err) {
-      if (err.response?.data?.error?.type === 'overloaded_error' && retryCount < MAX_RETRIES) {
+      const error = err as AnthropicError;
+      if (error.response?.data?.error?.type === 'overloaded_error' && retryCount < MAX_RETRIES) {
         await new Promise(resolve => setTimeout(resolve, delay));
         return getSuggestionsWithRetry(request, retryCount + 1, delay * 2);
       }
-      throw err;
+      throw error;
     }
   };
 
@@ -60,7 +73,8 @@ export const useAIAssist = ({ onSuggestionSelect }: UseAIAssistProps = {}): UseA
         setSuggestions([]);
       }
     } catch (err) {
-      setError(err.message || 'An unexpected error occurred');
+      const error = err as AnthropicError;
+      setError(error.message || 'An unexpected error occurred');
       setSuggestions([]);
     } finally {
       setLoading(false);

@@ -9,6 +9,14 @@ import { MessageTypes } from '../../utils/MessageProvider';
 import { AIAssistRequest } from '../../types/anthropic.types';
 import './AIPromptModal.scss';
 
+interface MessageContextType {
+  showError: (text: string) => void;
+  showSuccess: (text: string) => void;
+  showWarning: (text: string) => void;
+  showInfo: (text: string) => void;
+  clearMessage: () => void;
+}
+
 interface GameSettings {
   writingStyle: string;
   gameGenre: string;
@@ -37,7 +45,7 @@ interface AIPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (suggestion: string) => void;
-  field: string;
+  field?: string;
   gameObject?: GameObject;
   onSettingsChange?: (settings: GameObject) => void;
 }
@@ -72,16 +80,16 @@ const TONES = [
   { value: 'custom', label: 'Custom' }
 ];
 
-export const AIPromptModal: React.FC<AIPromptModalProps> = ({
+const AIPromptModal: React.FC<AIPromptModalProps> = ({
   isOpen,
   onClose,
   onSelect,
   field,
   gameObject,
-  onSettingsChange,
+  onSettingsChange
 }) => {
   console.warn('[AIPromptModal] gameObject:', gameObject);
-  const { showError, clearMessage } = useMessage();
+  const { showError, clearMessage } = useMessage() as MessageContextType;
   const { loading, error, suggestions, getSuggestions, selectSuggestion } = useAIAssist({ onSuggestionSelect: onSelect });
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
@@ -289,20 +297,22 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   };
 
   const handleGetSuggestions = async () => {
+    if (!field) return; // Early return if field is not provided
+    
     clearMessage();
     const generatedContext = generateContext();
     
     try {
       const request: AIAssistRequest = {
-        field,
+        field: field,
         context: {
-          writingStyle,
-          gameGenre,
-          tone,
+          writingStyle: writingStyle || 'default',
+          gameGenre: gameGenre || 'default',
+          tone: tone || 'default',
           additionalContext: generatedContext,
           gameContext: {
-            title: gameObject?.title,
-            description: gameObject?.description
+            title: gameObject?.title || '',
+            description: gameObject?.description || ''
           },
           existingChallenges: gameObject?.challenges?.map(c => ({
             type: 'challenge',

@@ -37,13 +37,15 @@ interface AISuggestionButtonProps {
   className?: string;
   gameObject?: GameObject;
   onSettingsChange?: (gameObject: GameObject) => void;
+  field?: string;
 }
 
 export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
   onSelect,
   className = '',
   gameObject,
-  onSettingsChange
+  onSettingsChange,
+  field
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -79,6 +81,7 @@ export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
         onSelect={onSelect}
         gameObject={gameObject}
         onSettingsChange={handleSettingsChange}
+        field={field}
       />
     </>
   );
