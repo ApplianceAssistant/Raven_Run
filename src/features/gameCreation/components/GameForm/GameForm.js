@@ -136,13 +136,10 @@ const GameForm = ({
               customGameGenre: settings.custom_game_genre || settings.customGameGenre || '',
               customTone: settings.custom_tone || settings.customTone || ''
             };
-            console.log('[GameForm] Normalized game settings:', normalizedGameSettings);
           }
         } catch (e) {
           console.error('[GameForm] Error parsing game settings:', e);
         }
-      } else {
-        console.log('[GameForm] No game settings found or settings is "0"');
       }
 
       const initialData = {
@@ -304,7 +301,6 @@ const GameForm = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('[GameForm] Submitting form data:', formData);
     if (isValidGame(formData)) {
       try {
         const submittedData = {
@@ -374,7 +370,6 @@ const GameForm = ({
           ...formData,
           gameSettings: cleanSettings
         };
-        console.log('[GameForm] Updated form data:', updatedFormData);
         setFormData(updatedFormData);
         setHasChanges(true);
         

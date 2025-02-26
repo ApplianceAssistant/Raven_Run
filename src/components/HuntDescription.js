@@ -136,7 +136,6 @@ const HuntDescription = () => {
     return (
         <div className="hunt-description">
             <div className="hunt-header">
-                <h1>{game.title}</h1>
                 <div className="meta-info">
                     <p>Created by: {game.creator_name}</p>
                     <p>Difficulty: {game.difficulty_level}</p>
@@ -151,6 +150,7 @@ const HuntDescription = () => {
                             <img src={`${API_URL}${game.image_url}`} alt={game.title} />
                         </div>
                     )}
+                    <h1>{game.title}</h1>
                     <div className="description">
                         {cleanText(game.description, { asJsx: true })}
                     </div>
