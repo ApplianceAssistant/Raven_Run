@@ -30,10 +30,22 @@ export interface AIAssistRequest {
     writingStyle?: string;
     gameGenre?: string;
     tone?: string;
-    title?: string;
-    description?: string;
     additionalContext?: string;
-    [key: string]: any;
+    gameContext?: {
+      title?: string;
+      description?: string;
+    };
+    existingChallenges?: Array<{
+      type: string;
+      title: string;
+      content: string;
+    }>;
+    challengeType?: string;
+    responseExpectations?: {
+      wordCount: { min: number; max: number };
+      style: string;
+      description: string;
+    };
   };
   existingContent?: string;
 }

@@ -20,6 +20,9 @@ interface AIPromptModalProps {
     customWritingStyle?: string;
     customGameGenre?: string;
     customTone?: string;
+    title?: string;
+    description?: string;
+    challenges?: string[];
   };
   onSettingsChange?: (settings: {
     writingStyle: string;
@@ -272,7 +275,12 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
         writingStyle: writingStyle === 'custom' ? customWritingStyle : writingStyle,
         gameGenre: gameGenre === 'custom' ? customGameGenre : gameGenre,
         tone: tone === 'custom' ? customTone : tone,
-        additionalContext: context
+        additionalContext: context,
+        gameContext: {
+          title: gameSettings?.title || '',
+          description: gameSettings?.description || ''
+        },
+        existingChallenges: gameSettings?.challenges || []
       }
     };
     

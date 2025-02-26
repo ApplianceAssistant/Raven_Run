@@ -33,7 +33,20 @@ class AnthropicService {
     try {
       const response = await axios.post<APIResponse<{ suggestions: string[] }>>(
         this.baseUrl,
-        request
+        {
+          field: request.field,
+          context: {
+            writingStyle: request.context.writingStyle,
+            gameGenre: request.context.gameGenre,
+            tone: request.context.tone,
+            additionalContext: request.context.additionalContext,
+            gameContext: request.context.gameContext || {},
+            challengeType: request.context.challengeType,
+            existingChallenges: request.context.existingChallenges || [],
+            responseExpectations: request.context.responseExpectations
+          },
+          existingContent: request.existingContent
+        }
       );
       
       console.log('Anthropic API response:', response.data);
