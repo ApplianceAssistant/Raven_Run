@@ -12,7 +12,6 @@
 
 #uploaded files
 /permanent_uploads
-
 # Environment files
 .env
 .env.local
@@ -41,6 +40,9 @@
 .env.test
 .env.production.local
 
+# ssl cert
+*.pem
+
 # IDE and editor files
 .vscode/
 .idea/
@@ -53,7 +55,7 @@
 *.suo
 *.cache
 *.log
-*.sql
+# *.sql
 *.dat
 *.sublime-project
 *.sublime-workspace
