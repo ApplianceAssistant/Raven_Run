@@ -50,6 +50,7 @@ interface AIPromptModalProps {
   scope?: 'game' | 'challenge';
   gameObject?: GameObject;
   onSettingsChange?: (settings: GameObject) => void;
+  challengeType?: string;
 }
 
 const MAX_CONTEXT_LENGTH = 500;
@@ -82,16 +83,25 @@ const TONES = [
   { value: 'custom', label: 'Custom' }
 ];
 
-const AIPromptModal: React.FC<AIPromptModalProps> = ({
+export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   isOpen,
   onClose,
   onSelect,
   field,
   scope = 'game',
   gameObject,
-  onSettingsChange
+  onSettingsChange,
+  challengeType
 }) => {
-  console.warn('[AIPromptModal] gameObject:', gameObject);
+  // Log when modal opens
+  useEffect(() => {
+    console.log('[AIPromptModal] Opened with props:', {
+      field,
+      scope,
+      challengeType
+    });
+  }, [field, scope, challengeType]);
+
   const { showError, clearMessage } = useMessage() as MessageContextType;
   const { loading, error, suggestions, getSuggestions, selectSuggestion } = useAIAssist({ onSuggestionSelect: onSelect });
   const [isVisible, setIsVisible] = useState(false);
@@ -266,6 +276,9 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({
       const getResponseExpectations = (field: string, scope: 'game' | 'challenge') => {
         const config = FIELD_RESPONSE_CONFIG[field as keyof typeof FIELD_RESPONSE_CONFIG];
         
+        console.log('[getResponseExpectations] Input:', { field, scope, gameObject, challengeType });
+        console.log('[getResponseExpectations] Config:', config);
+        
         if (!config) {
           console.warn(`No response config found for field: ${field}, using defaults`);
           return {
@@ -277,16 +290,23 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({
         
         // Handle nested configurations
         if ('game' in config) {
+          console.log('[getResponseExpectations] Handling game/challenge config');
           // Handle description field with game/story/travel types
           if (scope === 'game') {
+            console.log('[getResponseExpectations] Using game config:', config.game);
             return config.game;
-          } else if (scope === 'challenge' && gameObject?.challengeType) {
-            // Try to use specific challenge type config, fallback to story if not found
-            return config[gameObject.challengeType as keyof typeof config] || config.story;
+          } else if (scope === 'challenge' && challengeType) {
+            const challengeConfig = config[challengeType as keyof typeof config] || config.story;
+            console.log('[getResponseExpectations] Using challenge config:', { 
+              challengeType,
+              config: challengeConfig 
+            });
+            return challengeConfig;
           }
-          // Default to game config if no valid challenge type
+          console.log('[getResponseExpectations] Falling back to game config:', config.game);
           return config.game;
         } else if ('correct' in config) {
+          console.log('[getResponseExpectations] Using feedback config:', config.correct);
           // Handle feedbackTexts field with correct/incorrect types
           return {
             wordCount: config.correct.wordCount,
@@ -294,6 +314,7 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({
             description: config.correct.description
           };
         } else if ('wordCount' in config) {
+          console.log('[getResponseExpectations] Using simple field config:', config);
           // Handle simple fields
           return config;
         }
@@ -326,12 +347,16 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({
             type: 'challenge',
             title: c.title,
             content: c.description,
-            difficulty: c.difficulty || ''
+            difficulty: c.difficulty || 'medium'
           })) || [],
-          responseExpectations: getResponseExpectations(field, scope),
-          ...getFieldLimits(field)
+          responseExpectations: getResponseExpectations(field, scope as 'game' | 'challenge'),
+          ...getFieldLimits(field),
+          scope: scope,
+          challengeType: scope === 'challenge' ? challengeType : undefined
         }
       };
+      
+      console.log('[handleGetSuggestions] Final request:', request);
       
       await getSuggestions(request);
     } catch (error) {

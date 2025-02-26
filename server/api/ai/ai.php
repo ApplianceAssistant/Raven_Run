@@ -217,36 +217,29 @@ try {
                 throw new Exception('Invalid response format from Anthropic API');
             }
 
-            // Extract and parse the suggestions
-            $text = $responseData['content'][0]['text'];
+            // Extract and parse the suggestions from the text field
+            $text = trim($responseData['content'][0]['text']);
+            $suggestions = json_decode($text, true);
             
-            // Find the JSON array in the response
-            if (preg_match('/\[.*\]/s', $text, $matches)) {
-                $suggestionsJson = $matches[0];
-                $suggestions = json_decode($suggestionsJson, true);
-                
-                if (!is_array($suggestions)) {
-                    throw new Exception('Failed to parse AI response as JSON array');
-                }
-
-                // Ensure we have the correct number of suggestions
-                $suggestions = array_slice($suggestions, 0, $responseCount);
-
-                echo json_encode([
-                    'status' => 'success',
-                    'data' => [
-                        'suggestions' => array_map(
-                            function($item) { 
-                                return isset($item['content']) ? $item['content'] : strval($item); 
-                            },
-                            $suggestions
-                        )
-                    ],
-                    'message' => 'Successfully generated suggestions'
-                ]);
-            } else {
-                throw new Exception('Failed to find JSON array in AI response');
+            if (!is_array($suggestions)) {
+                throw new Exception('Failed to parse AI response as JSON array');
             }
+
+            // Ensure we have the correct number of suggestions
+            $suggestions = array_slice($suggestions, 0, $responseCount);
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'suggestions' => array_map(
+                        function($item) { 
+                            return isset($item['content']) ? $item['content'] : strval($item); 
+                        },
+                        $suggestions
+                    )
+                ],
+                'message' => 'Successfully generated suggestions'
+            ]);
 
             curl_close($ch);
 

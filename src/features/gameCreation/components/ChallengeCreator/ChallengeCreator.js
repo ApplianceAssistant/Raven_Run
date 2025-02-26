@@ -16,7 +16,6 @@ import { AISuggestionButton } from '../../../../components/AISuggestionButton/AI
 import '../../../../components/AISuggestionButton/AISuggestionButton.scss';
 
 const ChallengeCreator = ({ gameData, onSave }) => {
-  console.warn('[ChallengeCreator] gameData:', gameData);
   const navigate = useNavigate();
   const { gameId, challengeId } = useParams();
   const { showError, showSuccess, showWarning, clearMessage } = useMessage();
@@ -104,15 +103,12 @@ const ChallengeCreator = ({ gameData, onSave }) => {
   useEffect(() => {
     const loadGame = () => {
       if (gameData) {
-        console.log('game:', gameData);
         // Normalize loaded settings
         const loadedSettings = gameData.gameSettings || {};
-        console.warn('loadedSettings:', loadedSettings);
         
         // Create the new settings object
         const newSettings = normalizeGameSettings(loadedSettings);
         
-        console.warn('[ChallengeCreator] Setting new game settings:', newSettings);
         setGameSettings(newSettings);
       }
     };
@@ -223,6 +219,7 @@ const ChallengeCreator = ({ gameData, onSave }) => {
   };
 
   const handleInputChange = (nameOrEvent, directValue) => {
+    console.log('[handleInputChange] Updating field:', nameOrEvent, 'to value:', directValue);
     clearMessage();
 
     // If directValue is provided, it's a direct update
@@ -254,6 +251,7 @@ const ChallengeCreator = ({ gameData, onSave }) => {
     
     // Special handling for type field
     if (name === 'type') {
+      console.log('[handleInputChange] Updating challenge type to:', value);
       // Initialize default values for the selected challenge type
       const defaultValues = {
         id: challenge.id,
@@ -501,6 +499,7 @@ const ChallengeCreator = ({ gameData, onSave }) => {
               onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
               onSettingsChange={onSettingsChange}
               scope="challenge"
+              challengeType={challenge.type}
             />
           </div>
         );
@@ -528,6 +527,7 @@ const ChallengeCreator = ({ gameData, onSave }) => {
               onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
               onSettingsChange={onSettingsChange}
               scope="challenge"
+              challengeType={challenge.type}
             />
           </div>
         );
@@ -873,6 +873,37 @@ const ChallengeCreator = ({ gameData, onSave }) => {
 
   const typeConfig = challengeTypeConfig[challenge.type] || {};
   const hasHintsField = typeConfig.hints !== undefined;
+
+  const renderAIField = (fieldName) => {
+    console.log('[renderAIField] Rendering AI field:', fieldName, 'with challenge type:', challenge.type);
+    
+    if (fieldName === 'feedbackTexts') {
+      return (
+        <div className="input-with-ai">
+          <AISuggestionButton
+            field={fieldName}
+            gameObject={gameData}
+            onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
+            onSettingsChange={onSettingsChange}
+            scope="challenge"
+            challengeType={challenge.type}
+          />
+        </div>
+      );
+    }
+    return (
+      <div className="input-with-ai">
+        <AISuggestionButton
+          field={fieldName}
+          gameObject={gameData}
+          onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
+          onSettingsChange={onSettingsChange}
+          scope="challenge"
+          challengeType={challenge.type}
+        />
+      </div>
+    );
+  };
 
   return (
     <form onSubmit={handleSubmit} className="creator-form">

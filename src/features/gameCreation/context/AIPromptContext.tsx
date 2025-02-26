@@ -19,7 +19,7 @@ export const FIELD_RESPONSE_CONFIG = {
       description: 'Two to three paragraphs that set mood and tell a story'
     },
     travel: {
-      wordCount: { min: 100, max: 200 },
+      wordCount: { min: 150, max: 300 },
       style: 'long',
       description: 'Detailed location clue that may include riddles or descriptive text'
     }

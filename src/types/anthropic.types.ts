@@ -26,33 +26,36 @@ export interface GameContext {
 export interface AIAssistRequest {
   field: string;
   scope: 'game' | 'challenge';
-  context: {
-    writingStyle?: string;
-    gameGenre?: string;
-    tone?: string;
-    additionalContext?: string;
-    gameContext?: {
-      title?: string;
-      description?: string;
-      difficulty?: string;
-      estimatedTime?: string;
-      tags?: string[];
-    };
-    existingChallenges?: Array<{
-      type: string;
-      title: string;
-      content: string;
-      difficulty?: string;
-    }>;
-    challengeType?: string;
-    responseExpectations: {
-      wordCount: { min: number; max: number };
-      style: string;
-      description: string;
-    };
-    tokenLimits: number;
-    responseCount: number;
+  context: AIAssistContext;
+}
+
+export interface AIAssistContext {
+  writingStyle?: string;
+  gameGenre?: string;
+  tone?: string;
+  additionalContext?: string;
+  gameContext?: {
+    title?: string;
+    description?: string;
+    difficulty?: string;
+    estimatedTime?: string | number;
+    tags?: string[];
   };
+  existingChallenges?: Array<{
+    type: string;
+    title: string;
+    content: string;
+    difficulty: string;
+  }>;
+  responseExpectations: {
+    wordCount: { min: number; max: number };
+    style: string;
+    description: string;
+  };
+  tokenLimits: number;
+  responseCount: number;
+  scope?: 'game' | 'challenge';
+  challengeType?: string;
 }
 
 export interface AIAssistResponse {

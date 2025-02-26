@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
 import { useAIAssist } from '../../hooks/useAIAssist';
@@ -39,6 +39,7 @@ interface AISuggestionButtonProps {
   onSettingsChange?: (gameObject: GameObject) => void;
   field?: string;
   scope?: 'game' | 'challenge';
+  challengeType?: string;
 }
 
 export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
@@ -47,9 +48,18 @@ export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
   gameObject,
   onSettingsChange,
   field,
-  scope = 'game'
+  scope = 'game',
+  challengeType
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    console.log('[AISuggestionButton] Props updated:', {
+      field,
+      scope,
+      challengeType
+    });
+  }, [field, scope, challengeType]);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -85,6 +95,7 @@ export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
         onSettingsChange={handleSettingsChange}
         field={field}
         scope={scope}
+        challengeType={challengeType}
       />
     </>
   );
