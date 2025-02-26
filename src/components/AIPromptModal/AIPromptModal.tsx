@@ -7,6 +7,7 @@ import { useMessage } from '../../utils/MessageProvider';
 import { useAIAssist } from '../../hooks/useAIAssist';
 import { MessageTypes } from '../../utils/MessageProvider';
 import { AIAssistRequest } from '../../types/anthropic.types';
+import { FIELD_RESPONSE_CONFIG, FIELD_LIMITS, getFieldLimits } from '../../features/gameCreation/context/AIPromptContext';
 import './AIPromptModal.scss';
 
 interface MessageContextType {
@@ -261,6 +262,51 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({
     
     clearMessage();    
     try {
+      // Get the appropriate response expectations based on field and scope
+      const getResponseExpectations = (field: string, scope: 'game' | 'challenge') => {
+        const config = FIELD_RESPONSE_CONFIG[field as keyof typeof FIELD_RESPONSE_CONFIG];
+        
+        if (!config) {
+          console.warn(`No response config found for field: ${field}, using defaults`);
+          return {
+            wordCount: { min: 3, max: 10 },
+            style: 'short',
+            description: 'Default response expectations'
+          };
+        }
+        
+        // Handle nested configurations
+        if ('game' in config) {
+          // Handle description field with game/story/travel types
+          if (scope === 'game') {
+            return config.game;
+          } else if (scope === 'challenge' && gameObject?.challengeType) {
+            // Try to use specific challenge type config, fallback to story if not found
+            return config[gameObject.challengeType as keyof typeof config] || config.story;
+          }
+          // Default to game config if no valid challenge type
+          return config.game;
+        } else if ('correct' in config) {
+          // Handle feedbackTexts field with correct/incorrect types
+          return {
+            wordCount: config.correct.wordCount,
+            style: config.correct.style,
+            description: config.correct.description
+          };
+        } else if ('wordCount' in config) {
+          // Handle simple fields
+          return config;
+        }
+        
+        // Fallback with warning
+        console.warn(`Unexpected config structure for field: ${field}, using defaults`);
+        return {
+          wordCount: { min: 3, max: 10 },
+          style: 'short',
+          description: 'Default response expectations'
+        };
+      };
+
       const request: AIAssistRequest = {
         field: field,
         scope: scope,
@@ -281,7 +327,9 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({
             title: c.title,
             content: c.description,
             difficulty: c.difficulty || ''
-          })) || []
+          })) || [],
+          responseExpectations: getResponseExpectations(field, scope),
+          ...getFieldLimits(field)
         }
       };
       

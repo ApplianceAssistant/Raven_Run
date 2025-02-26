@@ -474,7 +474,6 @@ const GameForm = ({
               <AISuggestionButton
                 field="title"
                 context={getGameContext()}
-                existingContent={formData.title}
                 onSelect={(suggestion) => handleInputChange('title', suggestion)}
                 onSettingsChange={handleGameSettingsChange}
                 gameObject={formData}
@@ -499,7 +498,6 @@ const GameForm = ({
               <AISuggestionButton
                 field="description"
                 context={getGameContext()}
-                existingContent={formData.description}
                 onSelect={(suggestion) => handleInputChange('description', suggestion)}
                 onSettingsChange={handleGameSettingsChange}
                 gameObject={formData}

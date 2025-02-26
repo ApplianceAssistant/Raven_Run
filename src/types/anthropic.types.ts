@@ -7,7 +7,6 @@ export interface AnthropicResponse {
 export interface AIAssistOptions {
   gameContext?: GameContext;
   challengeType?: string;
-  existingContent?: string;
   temperature?: number;
 }
 
@@ -46,13 +45,14 @@ export interface AIAssistRequest {
       difficulty?: string;
     }>;
     challengeType?: string;
-    responseExpectations?: {
+    responseExpectations: {
       wordCount: { min: number; max: number };
       style: string;
       description: string;
     };
+    tokenLimits: number;
+    responseCount: number;
   };
-  existingContent?: string;
 }
 
 export interface AIAssistResponse {

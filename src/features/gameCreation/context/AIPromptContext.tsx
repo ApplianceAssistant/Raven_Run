@@ -10,7 +10,7 @@ export const FIELD_RESPONSE_CONFIG = {
   description: {
     game: {
       wordCount: { min: 150, max: 300 },
-      style: 'long',
+      style: 'medium',
       description: 'Brief, engaging description for the game'
     },
     story: {
@@ -20,7 +20,7 @@ export const FIELD_RESPONSE_CONFIG = {
     },
     travel: {
       wordCount: { min: 100, max: 200 },
-      style: 'medium',
+      style: 'long',
       description: 'Detailed location clue that may include riddles or descriptive text'
     }
   },
@@ -53,6 +53,38 @@ export const FIELD_RESPONSE_CONFIG = {
     style: 'medium',
     description: 'Rewarding feedback upon reaching the location'
   }
+};
+
+// Define token limits and response counts for different field types
+export const FIELD_LIMITS = {
+  title: {
+    tokenLimit: 300,
+    responseCount: 5
+  },
+  description: {
+    tokenLimit: 1000,
+    responseCount: 3
+  },
+  question: {
+    tokenLimit: 300,
+    responseCount: 5
+  },
+  hints: {
+    tokenLimit: 300,
+    responseCount: 3
+  },
+  feedbackTexts: {
+    tokenLimit: 300,
+    responseCount: 3
+  }
+};
+
+export const getFieldLimits = (field: string): { tokenLimits: number; responseCount: number } => {
+  const limits = FIELD_LIMITS[field as keyof typeof FIELD_LIMITS] || FIELD_LIMITS.title;
+  return {
+    tokenLimits: limits.tokenLimit,
+    responseCount: limits.responseCount
+  };
 };
 
 export interface CompactChallenge {

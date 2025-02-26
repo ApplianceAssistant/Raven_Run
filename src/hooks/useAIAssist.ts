@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { anthropicService } from '../services/anthropicService';
 import { AIAssistRequest, AIAssistResponse } from '../types/anthropic.types';
+import { getFieldLimits } from '../features/gameCreation/context/AIPromptContext';
 
 interface UseAIAssistProps {
   onSuggestionSelect?: (suggestion: string) => void;
@@ -57,14 +58,24 @@ export const useAIAssist = ({ onSuggestionSelect }: UseAIAssistProps = {}): UseA
     setLoading(true);
     setError(null);
     
+    // Get field limits and add them to the request context
+    const { tokenLimits, responseCount } = getFieldLimits(request.field);
+    const enrichedRequest = {
+      ...request,
+      context: {
+        ...request.context,
+        tokenLimits,
+        responseCount
+      }
+    };
+    
     console.log('AI Request:', {
-      field: request.field,
-      context: request.context,
-      existingContent: request.existingContent
+      field: enrichedRequest.field,
+      context: enrichedRequest.context
     });
     
     try {
-      const response = await getSuggestionsWithRetry(request);
+      const response = await getSuggestionsWithRetry(enrichedRequest);
       
       if (response.success) {
         setSuggestions(response.suggestions);

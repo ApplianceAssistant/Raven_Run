@@ -498,7 +498,6 @@ const ChallengeCreator = ({ gameData, onSave }) => {
             <AISuggestionButton
               field={fieldName}
               gameObject={gameData}
-              existingContent={value || ''}
               onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
               onSettingsChange={onSettingsChange}
               scope="challenge"
@@ -526,7 +525,6 @@ const ChallengeCreator = ({ gameData, onSave }) => {
             <AISuggestionButton
               field={fieldName}
               gameObject={gameData}
-              existingContent={value || ''}
               onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
               onSettingsChange={onSettingsChange}
               scope="challenge"

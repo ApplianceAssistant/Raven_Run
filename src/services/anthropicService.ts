@@ -25,6 +25,10 @@ class AnthropicService {
   }
 
   public async getAISuggestions(request: AIAssistRequest): Promise<AIAssistResponse> {
+    if (!request.context.responseExpectations) {
+      throw new Error('Response expectations are required for AI suggestions');
+    }
+
     console.log('Making Anthropic API request:', {
       url: this.baseUrl,
       request
@@ -43,9 +47,10 @@ class AnthropicService {
             gameContext: request.context.gameContext || {},
             challengeType: request.context.challengeType,
             existingChallenges: request.context.existingChallenges || [],
-            responseExpectations: request.context.responseExpectations
-          },
-          existingContent: request.existingContent
+            responseExpectations: request.context.responseExpectations,
+            tokenLimits: request.context.tokenLimits,
+            responseCount: request.context.responseCount
+          }
         }
       );
       

@@ -90,39 +90,23 @@ try {
 
             // Prepare the context for the prompt
             $context = isset($data['context']) ? $data['context'] : [];
-            $existingContent = isset($data['existingContent']) ? $data['existingContent'] : '';
-            debug_log("Context:", $context);
-            debug_log("Existing content:", $existingContent);
 
             // Get response expectations from context
             $responseExpectations = isset($context['responseExpectations']) ? $context['responseExpectations'] : null;
-            $challengeType = isset($context['challengeType']) ? $context['challengeType'] : null;
-            
-            // Determine response type based on field and response expectations
-            $responseType = 'shortList'; // default
-            if (in_array($data['field'], ['description', 'story', 'narrative'])) {
-                $responseType = 'longForm';
-            } elseif (in_array($data['field'], ['feedback', 'challenge_prompt', 'quest_objective'])) {
-                $responseType = 'mediumList';
+            if (!$responseExpectations) {
+                throw new Exception('Response expectations are required');
             }
 
-            // Get response limit based on type
-            $responseLimits = [
-                'shortList' => ['count' => 5, 'fields' => ['title', 'clue', 'hint', 'location_name']],
-                'mediumList' => ['count' => 3, 'fields' => ['feedback', 'challenge_prompt', 'quest_objective']],
-                'longForm' => ['count' => 2, 'fields' => ['description', 'story', 'narrative']]
-            ];
-            $responseCount = $responseLimits[$responseType]['count'];
+            // Validate required context parameters
+            if (!isset($context['tokenLimits'])) {
+                throw new Exception('Token limits are required in context');
+            }
+            if (!isset($context['responseCount'])) {
+                throw new Exception('Response count is required in context');
+            }
 
-            // Define token limits based on response type
-            $tokenLimits = [
-                'shortList' => 300,  // For titles, hints, etc.
-                'mediumList' => 600, // For feedback, prompts
-                'longForm' => 1000   // For descriptions, stories
-            ];
-
-            // Get token limit based on response type
-            $maxTokens = $tokenLimits[$responseType];
+            $maxTokens = $context['tokenLimits'];
+            $responseCount = $context['responseCount'];
 
             // Build context object
             $contextObj = [
@@ -137,41 +121,19 @@ try {
                     'additionalContext' => $context['additionalContext'] ?? null
                 ],
                 'request' => [
-                    'type' => $responseType,
                     'field' => $data['field'],
-                    'count' => $responseCount
+                    'scope' => $data['scope'] ?? 'game',
+                    'responseExpectations' => $responseExpectations
                 ]
             ];
 
-            // Add format requirements to prompt
+            // Simple base prompt
             $promptBase = "You are assisting with creating content for an interactive game. ";
             
-            if ($challengeType) {
-                $promptBase .= "This is for a {$challengeType} type challenge. ";
-            }
-
             if ($responseExpectations) {
                 $promptBase .= "The response should be {$responseExpectations['style']} style, ";
                 $promptBase .= "between {$responseExpectations['wordCount']['min']} and {$responseExpectations['wordCount']['max']} words. ";
                 $promptBase .= "Purpose: {$responseExpectations['description']}. ";
-            }
-
-            // Add existing challenges context if available
-            if (isset($context['existingChallenges']) && !empty($context['existingChallenges'])) {
-                $promptBase .= "\n\nPrevious challenges in this game:\n";
-                foreach ($context['existingChallenges'] as $challenge) {
-                    $promptBase .= "- {$challenge['type']} challenge: {$challenge['title']}\n";
-                    $promptBase .= "  Content: {$challenge['content']}\n";
-                }
-            }
-
-            // Add specific word count requirements for different types of descriptions
-            if ($data['field'] === 'description') {
-                $promptBase .= "\nThis is a game description that should be between 15-50 words long, providing an engaging overview of what players will find or experience.\n";
-            } elseif ($data['field'] === 'story') {
-                $promptBase .= "\nThis is a story-type challenge description that should be a detailed narrative block (50-100 words) telling an engaging story.\n";
-            } elseif ($data['field'] === 'travel') {
-                $promptBase .= "\nThis is a travel-type challenge description that should be a riddle or medium-length text (20-40 words) guiding players to a location.\n";
             }
 
             $promptBase .= "\nPlease return exactly {$responseCount} suggestions in this JSON format: [{\"content\": \"suggestion text\"}].\n";
