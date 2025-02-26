@@ -499,6 +499,7 @@ const ChallengeCreator = ({ gameData, onSave }) => {
               existingContent={value || ''}
               onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
               onSettingsChange={onSettingsChange}
+              scope="challenge"
             />
           </div>
         );
@@ -526,6 +527,7 @@ const ChallengeCreator = ({ gameData, onSave }) => {
               existingContent={value || ''}
               onSelect={(suggestion) => handleInputChange(fieldName, suggestion)}
               onSettingsChange={onSettingsChange}
+              scope="challenge"
             />
           </div>
         );

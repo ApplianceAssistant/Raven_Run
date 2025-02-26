@@ -478,6 +478,7 @@ const GameForm = ({
                 onSelect={(suggestion) => handleInputChange('title', suggestion)}
                 onSettingsChange={handleGameSettingsChange}
                 gameObject={formData}
+                scope="game"
               />
             </div>
           </div>
@@ -502,6 +503,7 @@ const GameForm = ({
                 onSelect={(suggestion) => handleInputChange('description', suggestion)}
                 onSettingsChange={handleGameSettingsChange}
                 gameObject={formData}
+                scope="game"
               />
             </div>
           </div>

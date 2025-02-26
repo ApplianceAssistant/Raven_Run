@@ -132,8 +132,8 @@ try {
                     'tone' => $context['tone'] ?? ''
                 ],
                 'gameState' => [
-                    'title' => $data['field'] === 'title' ? null : ($context['gameContext']['title'] ?? null),
-                    'description' => $data['field'] === 'description' ? null : ($context['gameContext']['description'] ?? null),
+                    'title' => ($data['scope'] ?? 'game') === 'game' && $data['field'] === 'title' ? null : ($context['gameContext']['title'] ?? null),
+                    'description' => ($data['scope'] ?? 'game') === 'game' && $data['field'] === 'description' ? null : ($context['gameContext']['description'] ?? null),
                     'additionalContext' => $context['additionalContext'] ?? null
                 ],
                 'request' => [

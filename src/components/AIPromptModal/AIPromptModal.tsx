@@ -46,6 +46,7 @@ interface AIPromptModalProps {
   onClose: () => void;
   onSelect: (suggestion: string) => void;
   field?: string;
+  scope?: 'game' | 'challenge';
   gameObject?: GameObject;
   onSettingsChange?: (settings: GameObject) => void;
 }
@@ -85,6 +86,7 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({
   onClose,
   onSelect,
   field,
+  scope = 'game',
   gameObject,
   onSettingsChange
 }) => {
@@ -261,6 +263,7 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({
     try {
       const request: AIAssistRequest = {
         field: field,
+        scope: scope,
         context: {
           writingStyle: writingStyle === 'custom' ? customWritingStyle : writingStyle || 'default',
           gameGenre: gameGenre === 'custom' ? customGameGenre : gameGenre || 'default',
