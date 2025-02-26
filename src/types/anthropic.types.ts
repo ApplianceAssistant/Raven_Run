@@ -34,11 +34,15 @@ export interface AIAssistRequest {
     gameContext?: {
       title?: string;
       description?: string;
+      difficulty?: string;
+      estimatedTime?: string;
+      tags?: string[];
     };
     existingChallenges?: Array<{
       type: string;
       title: string;
       content: string;
+      difficulty?: string;
     }>;
     challengeType?: string;
     responseExpectations?: {

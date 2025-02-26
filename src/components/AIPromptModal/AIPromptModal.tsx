@@ -254,70 +254,30 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({
     });
   };
 
-  const generateContext = () => {
-    if (!gameObject) return '';
-
-    const contextParts = [];
-
-    if (gameObject.title) {
-      contextParts.push(`Game Title: ${gameObject.title}`);
-    }
-
-    if (gameObject.description) {
-      contextParts.push(`Game Description: ${gameObject.description}`);
-    }
-
-    if (gameObject?.difficulty) {
-      contextParts.push(`Difficulty Level: ${gameObject.difficulty}`);
-    }
-
-    if (gameObject?.estimatedTime) {
-      contextParts.push(`Estimated Time: ${gameObject.estimatedTime}`);
-    }
-
-    if (gameObject?.tags?.length) {
-      contextParts.push(`Tags: ${gameObject.tags.join(', ')}`);
-    }
-
-    if (gameObject.challenges?.length) {
-      contextParts.push(`Existing Challenges:\n${gameObject.challenges.map(challenge => 
-        `- ${challenge.title}${challenge.difficulty ? ` (${challenge.difficulty})` : ''}: ${challenge.description}`
-      ).join('\n')}`);
-    }
-
-    const writingStyleText = gameObject.gameSettings?.writingStyle === 'custom' ? gameObject.gameSettings?.customWritingStyle : gameObject.gameSettings?.writingStyle;
-    const genreText = gameObject.gameSettings?.gameGenre === 'custom' ? gameObject.gameSettings?.customGameGenre : gameObject.gameSettings?.gameGenre;
-    const toneText = gameObject.gameSettings?.tone === 'custom' ? gameObject.gameSettings?.customTone : gameObject.gameSettings?.tone;
-
-    contextParts.push(`Writing Style: ${writingStyleText}`);
-    contextParts.push(`Game Genre: ${genreText}`);
-    contextParts.push(`Tone: ${toneText}`);
-
-    return contextParts.filter(part => part && part !== 'default').join('\n\n');
-  };
-
   const handleGetSuggestions = async () => {
     if (!field) return; // Early return if field is not provided
     
-    clearMessage();
-    const generatedContext = generateContext();
-    
+    clearMessage();    
     try {
       const request: AIAssistRequest = {
         field: field,
         context: {
-          writingStyle: writingStyle || 'default',
-          gameGenre: gameGenre || 'default',
-          tone: tone || 'default',
-          additionalContext: generatedContext,
+          writingStyle: writingStyle === 'custom' ? customWritingStyle : writingStyle || 'default',
+          gameGenre: gameGenre === 'custom' ? customGameGenre : gameGenre || 'default',
+          tone: tone === 'custom' ? customTone : tone || 'default',
+          additionalContext: context,
           gameContext: {
             title: gameObject?.title || '',
-            description: gameObject?.description || ''
+            description: gameObject?.description || '',
+            difficulty: gameObject?.difficulty || '',
+            estimatedTime: gameObject?.estimatedTime || '',
+            tags: gameObject?.tags || []
           },
           existingChallenges: gameObject?.challenges?.map(c => ({
             type: 'challenge',
             title: c.title,
-            content: c.description
+            content: c.description,
+            difficulty: c.difficulty || ''
           })) || []
         }
       };
