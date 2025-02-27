@@ -103,7 +103,8 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
     mapId: 'raven_run_map',
     // Disable default UI for custom styling
     disableDefaultUI: true,
-    backgroundColor: '#f5f5f5'
+    backgroundColor: '#f5f5f5',
+    clickableIcons: false
   };
 
   // Track resize of container and update map dimensions
@@ -166,12 +167,26 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
     return defaultCenter;
   };
 
-  const onMapLoad = (map: google.maps.Map) => {
-    if (!isScriptFullyLoaded) return;
+  const onMapLoad = async (map: google.maps.Map) => {
+    
+    if (!isScriptFullyLoaded) {
+      // Wait for script to be fully loaded
+      await new Promise<void>((resolve) => {
+        const checkLoaded = () => {
+          if (isScriptFullyLoaded) {
+            resolve();
+          } else {
+            setTimeout(checkLoaded, 100);
+          }
+        };
+        checkLoaded();
+      });
+    }
     
     mapRef.current = map;
     
     if (challenges.length > 0) {
+      
       if (challenges.length > 1) {
         fitBoundsWithPadding();
       } else {
@@ -180,21 +195,41 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
       }
     }
 
-    challenges.forEach((challenge, index) => {
-      createAdvancedMarker(challenge, index);
-    });
+    try {
+      const { AdvancedMarkerElement } = await window.google?.maps?.importLibrary("marker") as google.maps.MarkerLibrary;
+      
+      for (let i = 0; i < challenges.length; i++) {
+        await createAdvancedMarker(challenges[i], i, AdvancedMarkerElement);
+        
+        // After each marker is created, log the total number of visible markers
+        const visibleMarkers = Array.from(document.getElementsByClassName('challenge-map__marker'))
+          .filter(el => {
+            const style = window.getComputedStyle(el);
+            return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+          });
+      }
+    } catch (error) {
+      console.error('Error importing marker library:', error);
+      setError('Failed to initialize map markers');
+    }
   };
 
-  const createAdvancedMarker = async (challenge: Challenge, index: number) => {
-    if (!mapRef.current) return;
+  const createAdvancedMarker = async (
+    challenge: Challenge, 
+    index: number,
+    AdvancedMarkerElement: typeof google.maps.marker.AdvancedMarkerElement
+  ) => {
+    if (!mapRef.current) {
+      console.error('Map reference missing when creating marker', index);
+      return;
+    }
 
     try {
-      // Wait for the marker library to be ready
-      const { AdvancedMarkerElement } = await window.google?.maps?.importLibrary("marker") as google.maps.MarkerLibrary;
-
       // Create marker content
       const markerContent = document.createElement('div');
       markerContent.className = 'challenge-map__marker';
+      markerContent.style.zIndex = '1000'; // Ensure marker is above other elements
+      markerContent.style.position = 'relative'; // Explicit positioning
       markerContent.innerHTML = `
         <div class="challenge-map__marker-inner" style="
           background-color: #4A90E2;
@@ -209,18 +244,30 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
           font-family: var(--font-family);
           font-size: 14px;
           cursor: pointer;
+          position: relative;
+          z-index: 1000;
         ">
           ${index + 1}
         </div>
       `;
 
-      // Create advanced marker
+      // Create advanced marker with explicit options
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: challenge.location,
         content: markerContent,
-        title: challenge.title
+        title: challenge.title,
+        collisionBehavior: google.maps.CollisionBehavior.REQUIRED_AND_HIDES_OPTIONAL,
+        zIndex: index === 0 ? 1000 : 100 // Give first marker higher z-index
       });
+
+      // Force marker to be visible
+      const markerElement = marker.element;
+      if (markerElement) {
+        markerElement.style.visibility = 'visible';
+        markerElement.style.display = 'block';
+        markerElement.style.opacity = '1';
+      }
 
       // Create info window for this marker
       const infoWindow = new google.maps.InfoWindow({
@@ -255,15 +302,11 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
       });
 
       // Store marker reference
-      markersRef.current.set(challenge.id, marker);
+      markersRef.current.set(challenge.id, marker);     
     } catch (error) {
-      console.error('Error creating advanced marker:', error);
+      console.error(`Error creating advanced marker ${index + 1}:`, error);
       setError('Failed to create map markers');
     }
-  };
-
-  const handleMarkerClick = (challenge: Challenge) => {
-    setSelectedChallenge(challenge);
   };
 
   const handleEditClick = (challengeId: string) => {
