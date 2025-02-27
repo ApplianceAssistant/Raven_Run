@@ -349,7 +349,14 @@ try {
             // Return the suggestions
             $returnData = [
                 'status' => 'success',
-                'data' => $suggestions,
+                'data' => [
+                    'suggestions' => array_map(
+                        function($item) { 
+                            return isset($item['content']) ? $item['content'] : strval($item); 
+                        },
+                        $suggestions
+                    )
+                ],
                 'message' => 'Successfully generated suggestions'
             ];
 
@@ -358,15 +365,11 @@ try {
                 'data_structure' => [
                     'has_status' => isset($returnData['status']),
                     'has_data' => isset($returnData['data']),
-                    'data_type' => gettype($returnData['data']),
-                    'is_data_array' => is_array($returnData['data']),
-                    'first_suggestion_keys' => is_array($suggestions) && !empty($suggestions) ? 
-                        array_keys(reset($suggestions)) : 'no suggestions'
-                ],
-                'first_suggestion_preview' => is_array($suggestions) && !empty($suggestions) ? 
-                    array_map(function($value) {
-                        return is_string($value) ? substr($value, 0, 50) . (strlen($value) > 50 ? '...' : '') : gettype($value);
-                    }, reset($suggestions)) : 'no suggestions'
+                    'has_suggestions' => isset($returnData['data']['suggestions']),
+                    'suggestions_count' => isset($returnData['data']['suggestions']) ? count($returnData['data']['suggestions']) : 0,
+                    'first_suggestion' => isset($returnData['data']['suggestions'][0]) ? 
+                        substr($returnData['data']['suggestions'][0], 0, 50) . '...' : 'none'
+                ]
             ]);
 
             echo json_encode($returnData);
