@@ -259,6 +259,9 @@ try {
             debug_log("AI Response Text (first 100 chars):", substr($aiResponse, 0, 100));
 
             // Try to parse the AI response as JSON
+            $aiResponse = preg_replace('/[\x00-\x1F\x7F]/', '', $aiResponse); // Remove control characters
+            debug_log("Sanitized Response Text (first 100 chars):", substr($aiResponse, 0, 100));
+
             $suggestions = json_decode($aiResponse, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 debug_log("Failed to parse AI response as JSON:", [
@@ -271,15 +274,46 @@ try {
                 ]);
                 
                 // Try to extract JSON from the response if it's wrapped in text
-                if (preg_match('/\{.*\}/s', $aiResponse, $matches) || preg_match('/\[.*\]/s', $aiResponse, $matches)) {
+                if (preg_match('/\[.*\]/s', $aiResponse, $matches)) {
                     $extractedJson = $matches[0];
-                    debug_log("Attempting to parse extracted JSON structure");
+                    debug_log("Attempting to parse extracted JSON array");
+                    // Clean the extracted JSON
+                    $extractedJson = preg_replace('/[\x00-\x1F\x7F]/', ' ', $extractedJson);
+                    $extractedJson = preg_replace('/\s+/', ' ', $extractedJson);
+                    
+                    debug_log("Cleaned JSON structure (first 100 chars):", substr($extractedJson, 0, 100));
                     $suggestions = json_decode($extractedJson, true);
+                    
+                    if (json_last_error() !== JSON_ERROR_NONE) {
+                        debug_log("Failed to parse cleaned JSON:", json_last_error_msg());
+                        
+                        // Last resort: try to manually fix common JSON issues
+                        $extractedJson = str_replace(["\n", "\r"], "", $extractedJson);
+                        $extractedJson = preg_replace('/(["\]}])(\s+)(["\[{])/', '$1,$3', $extractedJson);
+                        debug_log("Manual JSON fix attempt (first 100 chars):", substr($extractedJson, 0, 100));
+                        $suggestions = json_decode($extractedJson, true);
+                    }
                 }
                 
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     throw new Exception('Failed to parse AI response as JSON');
                 }
+            }
+
+            // Additional validation for story description
+            if ($data['field'] === 'description' || $data['field'] === 'story') {
+                $suggestions = array_map(function($item) {
+                    if (is_array($item) && isset($item['content'])) {
+                        $item['content'] = str_replace(["\r", "\n"], " ", $item['content']);
+                        $item['content'] = preg_replace('/\s+/', ' ', $item['content']);
+                        $item['content'] = trim($item['content']);
+                    } elseif (is_string($item)) {
+                        $item = str_replace(["\r", "\n"], " ", $item);
+                        $item = preg_replace('/\s+/', ' ', $item);
+                        $item = trim($item);
+                    }
+                    return $item;
+                }, $suggestions);
             }
 
             // Ensure we have the correct number of suggestions
