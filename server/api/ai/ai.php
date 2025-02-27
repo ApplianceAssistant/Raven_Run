@@ -246,98 +246,52 @@ try {
                 'json_error_msg' => json_last_error_msg()
             ]);
 
+            // Extract the content from Anthropic response
             if (!isset($responseData['content'][0]['text'])) {
-                debug_log("Invalid response structure:", [
-                    'has_content' => isset($responseData['content']),
-                    'content_type' => isset($responseData['content']) ? gettype($responseData['content']) : 'not set',
-                    'first_level_keys' => is_array($responseData) ? array_keys($responseData) : 'not an array'
-                ]);
                 throw new Exception('Invalid response format from Anthropic API');
             }
 
             $aiResponse = $responseData['content'][0]['text'];
             debug_log("AI Response Text (first 100 chars):", substr($aiResponse, 0, 100));
 
-            // Try to parse the AI response as JSON
-            $aiResponse = preg_replace('/[\x00-\x1F\x7F]/', '', $aiResponse); // Remove control characters
-            debug_log("Sanitized Response Text (first 100 chars):", substr($aiResponse, 0, 100));
-
-            // Check for and fix potential quote issues
-            if (strpos($aiResponse, '"') !== false) {
-                debug_log("Response contains quotes - checking for escape issues");
-                // Find all content values and properly escape their quotes
-                $aiResponse = preg_replace_callback('/"content":\s*"(.*?)"(?=\s*[,}])/s', function($matches) {
-                    $content = $matches[1];
-                    // Escape quotes within content
-                    $content = str_replace('"', '\\"', $content);
-                    // Unescape already escaped quotes to prevent double escaping
-                    $content = str_replace('\\\\"', '\\"', $content);
-                    return '"content": "' . $content . '"';
-                }, $aiResponse);
-                debug_log("After quote fixing (first 100 chars):", substr($aiResponse, 0, 100));
+            // Extract the array structure
+            if (!preg_match('/\[(.*)\]/s', $aiResponse, $matches)) {
+                throw new Exception('Invalid response format - expected array structure');
             }
+            
+            // Process each suggestion individually
+            $items = explode('},{', trim($matches[1], '{}'));
+            $suggestions = [];
+            
+            foreach ($items as $item) {
+                // Clean up the item
+                $item = trim($item);
+                if (empty($item)) continue;
+                
+                // Extract content value using a more flexible pattern
+                if (preg_match('/"content"\s*:\s*"((?:[^"\\\\]|\\\\.)*)"/s', $item, $contentMatch)) {
+                    $content = $contentMatch[1];
+                    // Let PHP handle the JSON encoding
+                    $suggestions[] = ['content' => $content];
+                }
+            }
+            
+            debug_log("Processed suggestions:", [
+                'count' => count($suggestions),
+                'first_item' => isset($suggestions[0]) ? substr(json_encode($suggestions[0]), 0, 100) : 'none'
+            ]);
 
-            $suggestions = json_decode($aiResponse, true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                debug_log("Failed to parse AI response as JSON:", [
-                    'error' => json_last_error_msg(),
-                    'text_length' => strlen($aiResponse),
-                    'first_char' => substr($aiResponse, 0, 1),
-                    'last_char' => substr($aiResponse, -1),
-                    'contains_curly_braces' => strpos($aiResponse, '{') !== false && strpos($aiResponse, '}') !== false,
-                    'contains_square_brackets' => strpos($aiResponse, '[') !== false && strpos($aiResponse, ']') !== false,
-                    'quote_count' => substr_count($aiResponse, '"'),
-                    'last_json_error' => json_last_error(),
-                    'sample_content' => preg_match('/"content":\s*"(.*?)"/', $aiResponse, $m) ? substr($m[1], 0, 50) : 'no match'
-                ]);
-                
-                // Try to extract JSON from the response if it's wrapped in text
-                if (preg_match('/\[.*\]/s', $aiResponse, $matches)) {
-                    $extractedJson = $matches[0];
-                    debug_log("Attempting to parse extracted JSON array");
-                    
-                    // Clean and normalize the JSON structure
-                    $extractedJson = preg_replace('/[\x00-\x1F\x7F]/', ' ', $extractedJson);
-                    $extractedJson = preg_replace('/\s+/', ' ', $extractedJson);
-                    $extractedJson = str_replace(["\n", "\r"], "", $extractedJson);
-                    
-                    // Fix potential quote and comma issues
-                    $extractedJson = preg_replace('/(["\]}])(\s+)(["\[{])/', '$1,$3', $extractedJson);
-                    $extractedJson = preg_replace('/"([^"]*?)\\\\?"([^"]*?)"/', '"$1\\"$2"', $extractedJson);
-                    
-                    debug_log("Final JSON attempt:", [
-                        'structure' => substr($extractedJson, 0, 100),
-                        'valid_json_structure' => (
-                            substr($extractedJson, 0, 1) === '[' && 
-                            substr($extractedJson, -1) === ']' &&
-                            substr_count($extractedJson, '{') === substr_count($extractedJson, '}')
-                        )
-                    ]);
-                    
-                    $suggestions = json_decode($extractedJson, true);
-                }
-                
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    debug_log("All JSON parsing attempts failed:", [
-                        'original_length' => strlen($aiResponse),
-                        'final_length' => isset($extractedJson) ? strlen($extractedJson) : 'not attempted',
-                        'final_error' => json_last_error_msg()
-                    ]);
-                    throw new Exception('Failed to parse AI response as JSON');
-                }
+            if (empty($suggestions)) {
+                throw new Exception('No valid suggestions found in AI response');
             }
 
             // Additional validation for story description
             if ($data['field'] === 'description' || $data['field'] === 'story') {
                 $suggestions = array_map(function($item) {
-                    if (is_array($item) && isset($item['content'])) {
+                    if (isset($item['content'])) {
                         $item['content'] = str_replace(["\r", "\n"], " ", $item['content']);
                         $item['content'] = preg_replace('/\s+/', ' ', $item['content']);
                         $item['content'] = trim($item['content']);
-                    } elseif (is_string($item)) {
-                        $item = str_replace(["\r", "\n"], " ", $item);
-                        $item = preg_replace('/\s+/', ' ', $item);
-                        $item = trim($item);
                     }
                     return $item;
                 }, $suggestions);
@@ -346,30 +300,25 @@ try {
             // Ensure we have the correct number of suggestions
             $suggestions = array_slice($suggestions, 0, $responseCount);
 
-            // Return the suggestions
+            // Map suggestions to the expected format
+            $formattedSuggestions = array_map(function($item) {
+                return isset($item['content']) ? $item['content'] : '';
+            }, $suggestions);
+
+            // Return in standard API format
             $returnData = [
                 'status' => 'success',
                 'data' => [
-                    'suggestions' => array_map(
-                        function($item) { 
-                            return isset($item['content']) ? $item['content'] : strval($item); 
-                        },
-                        $suggestions
-                    )
+                    'suggestions' => $formattedSuggestions
                 ],
                 'message' => 'Successfully generated suggestions'
             ];
 
-            debug_log("Returning AI Suggestions:", [
-                'suggestion_count' => is_array($suggestions) ? count($suggestions) : 'not an array',
-                'data_structure' => [
-                    'has_status' => isset($returnData['status']),
-                    'has_data' => isset($returnData['data']),
-                    'has_suggestions' => isset($returnData['data']['suggestions']),
-                    'suggestions_count' => isset($returnData['data']['suggestions']) ? count($returnData['data']['suggestions']) : 0,
-                    'first_suggestion' => isset($returnData['data']['suggestions'][0]) ? 
-                        substr($returnData['data']['suggestions'][0], 0, 50) . '...' : 'none'
-                ]
+            debug_log("Returning formatted response:", [
+                'suggestion_count' => count($formattedSuggestions),
+                'response_structure' => array_keys($returnData),
+                'first_suggestion_preview' => isset($formattedSuggestions[0]) ? 
+                    substr($formattedSuggestions[0], 0, 50) . '...' : 'none'
             ]);
 
             echo json_encode($returnData);
