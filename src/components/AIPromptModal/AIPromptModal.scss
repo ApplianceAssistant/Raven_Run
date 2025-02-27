@@ -54,10 +54,9 @@
   }
 
   .modal-header {
-    margin-bottom: 20px;
-
+    margin-bottom: 5px;
     h2 {
-      margin: 0 0 10px 0;
+      margin: 0 0 5px 0;
       color: var(--text-color);
     }
   }
@@ -177,27 +176,48 @@
   }
 
   .suggestions-section {
-    margin-top: 1rem;
-    padding: 1rem;
+    margin-top: .5rem;
+    padding: .5rem;
     border-radius: var(--border-radius);
     background: var(--modal-bg);
 
     .loading-spinner {
       text-align: center;
-      padding: 1rem;
-      color: var(--text-color-secondary);
+      padding: .5rem;
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+
+      span {
+        font-size: 0.9rem;
+      }
+
+      svg {
+        font-size: 1.5rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     }
 
     .error-message {
       color: var(--error-color);
-      padding: 1rem;
+      padding: .5rem;
       text-align: center;
     }
 
     .suggestions-list {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: .5rem;
 
       .suggestion-item {
         padding: 1rem;
@@ -217,8 +237,7 @@
   .modal-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 1rem;
-    padding: 1rem;
-    border-top: 1px solid var(--border-color);
-  }
+    gap: .5rem;
+    padding: .5rem;
+  } 
 }

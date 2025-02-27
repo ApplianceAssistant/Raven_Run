@@ -59,7 +59,6 @@ export const decryptData = (encryptedData) => {
   }
   
   if (!encryptedData) {
-    console.warn('No data to decrypt');
     return null;
   }
   

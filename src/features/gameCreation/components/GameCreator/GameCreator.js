@@ -102,7 +102,6 @@ const GameCreator = () => {
   };
 
   const handleSaveGame = async (gameData) => {
-    console.log('Saving game:', gameData);
     try {
       // Validate required fields
       const validationErrors = validateGameData(gameData);
@@ -145,7 +144,6 @@ const GameCreator = () => {
       let savedGame;
       try {
         savedGame = await saveGame(newGame);
-        console.warn('game saved to server:', savedGame);
         newGame.isSynced = true;
         // Ensure we preserve the image_url from server response
         if (savedGame.image_url) {
@@ -211,7 +209,6 @@ const GameCreator = () => {
   };
 
   const handleGameUpdate = async (updatedGame) => {
-    console.log('[GameCreator] Handling game update:', updatedGame);
     try {
       await saveGame(updatedGame);
       dispatch({ type: 'SELECT_GAME', payload: updatedGame });
@@ -219,7 +216,6 @@ const GameCreator = () => {
         g.gameId === updatedGame.gameId ? updatedGame : g
       );
       dispatch({ type: 'SET_GAMES', payload: updatedGames });
-      console.log('[GameCreator] Game updated successfully');
     } catch (error) {
       console.error('[GameCreator] Error updating game:', error);
     }

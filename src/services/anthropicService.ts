@@ -28,11 +28,6 @@ class AnthropicService {
     if (!request.context.responseExpectations) {
       throw new Error('Response expectations are required for AI suggestions');
     }
-
-    console.log('Making Anthropic API request:', {
-      url: this.baseUrl,
-      request
-    });
     
     try {
       const response = await axios.post<APIResponse<{ suggestions: string[] }>>(
@@ -54,8 +49,6 @@ class AnthropicService {
         }
       );
       
-      console.log('Anthropic API response:', response.data);
-
       if (response.data.status === 'success' && Array.isArray(response.data.data?.suggestions)) {
         return {
           success: true,

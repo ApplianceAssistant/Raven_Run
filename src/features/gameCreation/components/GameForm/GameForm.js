@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faPlay, faInfoCircle, faPlusCircle, faTimes, faImage, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faPlay, faTimes, faImage, faEdit } from '@fortawesome/free-solid-svg-icons';
 import ToggleSwitch from '../../../../components/ToggleSwitch';
 import AutoExpandingTextArea from '../../../../components/AutoExpandingTextArea/AutoExpandingTextArea';
 import ChallengeCard from '../ChallengeCard/ChallengeCard';
 import ScrollableContent from '../../../../components/ScrollableContent';
 import ImageUploadModal from '../ImageUploadModal/ImageUploadModal';
 import { isValidGame } from '../../services/gameCreatorService';
-import { uploadGameImage, deleteGameImage } from '../../services/gameCreatorService';
+import { uploadGameImage } from '../../services/gameCreatorService';
 import { useMessage } from '../../../../utils/MessageProvider';
 import { API_URL } from '../../../../utils/utils';
 import { setPlaytestState } from '../../../../utils/localStorageUtils';
@@ -112,7 +112,6 @@ const GameForm = ({
   // Initialize both formData and originalData when gameData changes
   useEffect(() => {
     if (gameData) {
-      console.log('[GameForm] Initial game data:', gameData);
       let normalizedGameSettings = null;
       
       // Handle game settings from either gameSettings (client) or game_settings (server)
@@ -156,7 +155,6 @@ const GameForm = ({
         imageDeleted: false,
         gameSettings: normalizedGameSettings
       };
-      console.log('[GameForm] Initialized form data:', initialData);
       setFormData(initialData);
       setOriginalData(initialData);
     }
@@ -370,7 +368,6 @@ const GameForm = ({
           ...formData,
           gameSettings: cleanSettings
         };
-        console.log('[GameForm] Updated form data:', updatedFormData);
         setFormData(updatedFormData);
         setHasChanges(true);
         

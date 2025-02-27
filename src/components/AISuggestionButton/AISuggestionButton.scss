@@ -6,11 +6,10 @@
 }
 
 .ai-suggestion-button {
-  background: none;
   border: none;
   cursor: pointer;
   padding: 8px;
-  color: var(--text-color);
+  color: var(--button-text-color);
   opacity: 0.7;
   transition: all 0.3s ease-in-out;
 
@@ -20,7 +19,6 @@
   }
 
   &.active {
-    color: var(--primary-color);
     opacity: 1;
   }
 }

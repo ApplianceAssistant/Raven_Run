@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faChevronDown, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import ScrollableContent from '../ScrollableContent';
-import MessageDisplay from '../MessageDisplay';
 import { useMessage } from '../../utils/MessageProvider';
 import { useAIAssist } from '../../hooks/useAIAssist';
-import { MessageTypes } from '../../utils/MessageProvider';
 import { AIAssistRequest } from '../../types/anthropic.types';
-import { FIELD_RESPONSE_CONFIG, FIELD_LIMITS, getFieldLimits } from '../../features/gameCreation/context/AIPromptContext';
+import { FIELD_RESPONSE_CONFIG, getFieldLimits } from '../../features/gameCreation/context/AIPromptContext';
 import './AIPromptModal.scss';
 
 interface MessageContextType {
@@ -93,14 +91,6 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   onSettingsChange,
   challengeType
 }) => {
-  // Log when modal opens
-  useEffect(() => {
-    console.log('[AIPromptModal] Opened with props:', {
-      field,
-      scope,
-      challengeType
-    });
-  }, [field, scope, challengeType]);
 
   const { showError, clearMessage } = useMessage() as MessageContextType;
   const { loading, error, suggestions, getSuggestions, selectSuggestion } = useAIAssist({ onSuggestionSelect: onSelect });
@@ -141,6 +131,10 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setIsVisible(true);
+          // Check if all settings are set and collapse input section
+          if (writingStyle !== 'default' && gameGenre !== 'default' && tone !== 'default') {
+            setIsInputSectionExpanded(false);
+          }
         });
       });
     } else {
@@ -150,7 +144,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
       }, 300);
       return () => clearTimeout(timeout);
     }
-  }, [isOpen]);
+  }, [isOpen, writingStyle, gameGenre, tone]);
 
   useEffect(() => {
     if (gameObject?.gameSettings) {
@@ -185,7 +179,6 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
           ...gameObject,
           gameSettings: cleanSettings
         };
-        console.log('[AIPromptModal] Updated game object:', updatedGameObject);
         onSettingsChange(updatedGameObject);
       }
     }
@@ -216,7 +209,6 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   };
 
   const handleCustomToneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('[AIPromptModal] Custom tone changed:', e.target.value);
     setCustomTone(e.target.value);
     updateSettings({
       writingStyle,
@@ -229,7 +221,6 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   };
 
   const handleWritingStyleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log('[AIPromptModal] Writing style changed:', e.target.value);
     setWritingStyle(e.target.value);
     updateSettings({
       writingStyle: e.target.value,
@@ -242,7 +233,6 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   };
 
   const handleGameGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log('[AIPromptModal] Game genre changed:', e.target.value);
     setGameGenre(e.target.value);
     updateSettings({
       writingStyle,
@@ -255,7 +245,6 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   };
 
   const handleToneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log('[AIPromptModal] Tone changed:', e.target.value);
     setTone(e.target.value);
     updateSettings({
       writingStyle,
@@ -269,16 +258,16 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
 
   const handleGetSuggestions = async () => {
     if (!field) return; // Early return if field is not provided
+
+    // Collapse input section when generating
+    setIsInputSectionExpanded(false);
     
-    clearMessage();    
+    clearMessage();
     try {
       // Get the appropriate response expectations based on field and scope
       const getResponseExpectations = (field: string, scope: 'game' | 'challenge') => {
         const config = FIELD_RESPONSE_CONFIG[field as keyof typeof FIELD_RESPONSE_CONFIG];
-        
-        console.log('[getResponseExpectations] Input:', { field, scope, gameObject, challengeType });
-        console.log('[getResponseExpectations] Config:', config);
-        
+
         if (!config) {
           console.warn(`No response config found for field: ${field}, using defaults`);
           return {
@@ -287,26 +276,18 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
             description: 'Default response expectations'
           };
         }
-        
+
         // Handle nested configurations
         if ('game' in config) {
-          console.log('[getResponseExpectations] Handling game/challenge config');
           // Handle description field with game/story/travel types
           if (scope === 'game') {
-            console.log('[getResponseExpectations] Using game config:', config.game);
             return config.game;
           } else if (scope === 'challenge' && challengeType) {
             const challengeConfig = config[challengeType as keyof typeof config] || config.story;
-            console.log('[getResponseExpectations] Using challenge config:', { 
-              challengeType,
-              config: challengeConfig 
-            });
             return challengeConfig;
           }
-          console.log('[getResponseExpectations] Falling back to game config:', config.game);
           return config.game;
         } else if ('correct' in config) {
-          console.log('[getResponseExpectations] Using feedback config:', config.correct);
           // Handle feedbackTexts field with correct/incorrect types
           return {
             wordCount: config.correct.wordCount,
@@ -314,11 +295,10 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
             description: config.correct.description
           };
         } else if ('wordCount' in config) {
-          console.log('[getResponseExpectations] Using simple field config:', config);
           // Handle simple fields
           return config;
         }
-        
+
         // Fallback with warning
         console.warn(`Unexpected config structure for field: ${field}, using defaults`);
         return {
@@ -355,9 +335,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
           challengeType: scope === 'challenge' ? challengeType : undefined
         }
       };
-      
-      console.log('[handleGetSuggestions] Final request:', request);
-      
+
       await getSuggestions(request);
     } catch (error) {
       showError('Failed to get AI suggestions. Please try again.');
@@ -377,47 +355,47 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
   };
 
   return (
-    <div 
-      className={`ai-prompt-modal-overlay ${isVisible ? 'visible' : ''}`} 
+    <div
+      className={`ai-prompt-modal-overlay ${isVisible ? 'visible' : ''}`}
       onClick={handleOverlayClick}
     >
-      <div 
+      <div
         className={`ai-prompt-modal ${isVisible ? 'visible' : ''}`}
       >
-        <button 
+        <button
           className="close-button"
           onClick={onClose}
           type="button"
         >
           <FontAwesomeIcon icon={faTimes} />
         </button>
-        
+
         <div className="modal-header">
           <h2>AI Suggestions for {field}</h2>
         </div>
 
         <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
-          <div 
+          <div
             className={`modal-content ${isVisible ? 'visible' : ''}`}
           >
-            <div 
+            <div
               className={`input-section ${isInputSectionExpanded ? 'expanded' : 'collapsed'}`}
             >
-              <div 
-                className="section-header" 
+              <div
+                className="section-header"
                 onClick={toggleInputSection}
               >
                 <h3>AI Style Settings</h3>
-                <FontAwesomeIcon 
-                  icon={faChevronDown} 
+                <FontAwesomeIcon
+                  icon={faChevronDown}
                   className={`toggle-icon ${isInputSectionExpanded ? 'rotated' : ''}`}
                 />
               </div>
-              
+
               <div className="input-grid">
                 <div className="input-group">
                   <label>Writing Style</label>
-                  <select 
+                  <select
                     value={writingStyle}
                     onChange={handleWritingStyleChange}
                   >
@@ -439,7 +417,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
 
                 <div className="input-group">
                   <label>Game Genre</label>
-                  <select 
+                  <select
                     value={gameGenre}
                     onChange={handleGameGenreChange}
                   >
@@ -461,7 +439,7 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
 
                 <div className="input-group">
                   <label>Tone</label>
-                  <select 
+                  <select
                     value={tone}
                     onChange={handleToneChange}
                   >
@@ -502,21 +480,22 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
             <div className="suggestions-section">
               {loading && (
                 <div className="loading-spinner">
-                  Generating suggestions...
+                  <span>Loading suggestions...</span>
+                  <FontAwesomeIcon icon={faSpinner} spin />
                 </div>
               )}
-              
+
               {error && (
                 <div className="error-message">
                   {error}
                 </div>
               )}
-              
+
               {!loading && !error && suggestions.length > 0 && (
                 <div className="suggestions-list">
                   {suggestions.map((suggestion, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className="suggestion-item"
                       onClick={() => {
                         selectSuggestion(suggestion);
@@ -529,17 +508,16 @@ export const AIPromptModal: React.FC<AIPromptModalProps> = ({
                 </div>
               )}
             </div>
-
-            <button 
-              className="generate-button"
-              onClick={handleGetSuggestions}
-              disabled={loading}
-            >
-              {loading ? 'Generating...' : 'Generate'}
-            </button>
           </div>
         </ScrollableContent>
         <div className="modal-footer">
+          <button
+            className="generate-button"
+            onClick={handleGetSuggestions}
+            disabled={loading}
+          >
+            {loading ? 'Generating...' : 'Generate'}
+          </button>
         </div>
       </div>
     </div>

@@ -69,11 +69,6 @@ export const useAIAssist = ({ onSuggestionSelect }: UseAIAssistProps = {}): UseA
       }
     };
     
-    console.log('AI Request:', {
-      field: enrichedRequest.field,
-      context: enrichedRequest.context
-    });
-    
     try {
       const response = await getSuggestionsWithRetry(enrichedRequest);
       

@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import BackgroundController from '../utils/backgroundController';
 import themesConfig, { noThemeElementPages } from '../config/themesConfig';
-import { animatePirateFlag, animateSeaSurface  } from '../effects/PirateElements';
+import { animateSeaSurface } from '../effects/PirateElements';
 
 /**
  * ThemeContainer component
@@ -19,14 +19,6 @@ const ThemeContainer = ({ children, theme }) => {
       window.speechSynthesis.cancel();
     }
   }, [location]);
-  // Dynamically import the theme's SCSS file
-  useEffect(() => {
-    if (style) {
-      style().then(() => {
-        console.log(`Loaded styles for ${theme}`);
-      });
-    }
-  }, [theme]);
 
   // Initialize Canvas animation if the theme requires a Canvas
   useEffect(() => {

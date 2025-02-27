@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
-import { useAIAssist } from '../../hooks/useAIAssist';
-import { AIAssistRequest } from '../../types/anthropic.types';
 import AIPromptModal from '../AIPromptModal/AIPromptModal';
 import './AISuggestionButton.scss';
 
@@ -52,14 +50,6 @@ export const AISuggestionButton: React.FC<AISuggestionButtonProps> = ({
   challengeType
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
-  useEffect(() => {
-    console.log('[AISuggestionButton] Props updated:', {
-      field,
-      scope,
-      challengeType
-    });
-  }, [field, scope, challengeType]);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
