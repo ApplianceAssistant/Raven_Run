@@ -3,13 +3,13 @@
 .challenge-map-page {
   padding: 2rem;
   max-width: 700px;
-  margin: 0 auto;
 
   .challenge-map-header {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
 
     h2 {
       margin: 0;

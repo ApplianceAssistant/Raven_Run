@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
-import { GoogleMap, MarkerF } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, Libraries } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
 import './ChallengeMap.scss';
 
@@ -24,31 +24,24 @@ interface ChallengeMapProps {
   isLoading?: boolean;
 }
 
+// Libraries we need to load
+const libraries: Libraries = ['marker'];
+
 // Extend window interface
 declare global {
   interface Window {
     handleChallengeEdit?: (challengeId: string, gameId: string) => void;
+    google?: {
+      maps?: {
+        importLibrary?: (name: string) => Promise<any>;
+        MarkerLibrary?: any;
+      };
+    };
   }
 }
 
-// Custom map styling to match app theme
-const mapStyles = [
-  {
-    featureType: 'all',
-    elementType: 'all',
-    stylers: [{ saturation: -30 }]
-  },
-  {
-    featureType: 'poi',
-    elementType: 'labels',
-    stylers: [{ visibility: 'off' }]
-  },
-  {
-    featureType: 'transit',
-    elementType: 'labels',
-    stylers: [{ visibility: 'off' }]
-  }
-];
+// Singleton to track script loading
+let isScriptFullyLoaded = false;
 
 const ChallengeMap: React.FC<ChallengeMapProps> = ({
   challenges,
@@ -62,10 +55,58 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
   const mapRef = useRef<google.maps.Map | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [mapDimensions, setMapDimensions] = useState({ width: '100%', height: '400px' });
+  const markersRef = useRef<Map<string, any>>(new Map());
+  const [mapDimensions, setMapDimensions] = useState({ width: '100%', height: '100%' });
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mapsLoaded, setMapsLoaded] = useState(false);
 
+  // Load the required libraries
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
+    libraries,
+    mapIds: ['raven_run_map'],
+    preventGoogleFontsLoading: true
+  });
+
+  // Check if script is fully loaded
+  useEffect(() => {
+    if (isLoaded && !isScriptFullyLoaded) {
+      const checkScriptLoaded = () => {
+        if (window.google?.maps?.importLibrary != null) {
+          isScriptFullyLoaded = true;
+          setMapsLoaded(true);
+        } else {
+          setTimeout(checkScriptLoaded, 100);
+        }
+      };
+      checkScriptLoaded();
+    }
+  }, [isLoaded]);
+
+  // Cleanup function to reset script loading state
+  useEffect(() => {
+    return () => {
+      isScriptFullyLoaded = false;
+    };
+  }, []);
+
+  // Map options that stay constant
+  const mapOptions = {
+    fullscreenControl: false,
+    streetViewControl: false,
+    mapTypeControl: false,
+    zoomControlOptions: {
+      position: 8 // google.maps.ControlPosition.RIGHT_TOP
+    },
+    // Required for Advanced Markers
+    mapId: 'raven_run_map',
+    // Disable default UI for custom styling
+    disableDefaultUI: true,
+    backgroundColor: '#f5f5f5'
+  };
+
+  // Track resize of container and update map dimensions
   useLayoutEffect(() => {
     const updateMapSize = () => {
       if (containerRef.current?.parentElement) {
@@ -126,17 +167,68 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
   };
 
   const onMapLoad = (map: google.maps.Map) => {
+    if (!isScriptFullyLoaded) return;
+    
     mapRef.current = map;
     
     if (challenges.length > 0) {
-      // If we have multiple challenges, fit bounds
       if (challenges.length > 1) {
         fitBoundsWithPadding();
       } else {
-        // For single challenge, center and zoom
         map.setCenter(challenges[0].location);
-        map.setZoom(15); // Closer zoom for single location
+        map.setZoom(15);
       }
+    }
+
+    challenges.forEach((challenge, index) => {
+      createAdvancedMarker(challenge, index);
+    });
+  };
+
+  const createAdvancedMarker = async (challenge: Challenge, index: number) => {
+    if (!mapRef.current) return;
+
+    try {
+      // Wait for the marker library to be ready
+      const { AdvancedMarkerElement } = await window.google?.maps?.importLibrary("marker") as google.maps.MarkerLibrary;
+
+      // Create marker content
+      const markerContent = document.createElement('div');
+      markerContent.className = 'challenge-map__marker';
+      markerContent.innerHTML = `
+        <div class="challenge-map__marker-inner" style="
+          background-color: #4A90E2;
+          color: #FFFFFF;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid #FFFFFF;
+          font-family: var(--font-family);
+          font-size: 14px;
+        ">
+          ${index + 1}
+        </div>
+      `;
+
+      // Create advanced marker
+      const marker = new AdvancedMarkerElement({
+        map: mapRef.current,
+        position: challenge.location,
+        content: markerContent,
+        title: challenge.title
+      });
+
+      // Add click listener using the new event type
+      marker.addEventListener('gmp-click', () => handleMarkerClick(challenge));
+
+      // Store marker reference
+      markersRef.current.set(challenge.id, marker);
+    } catch (error) {
+      console.error('Error creating advanced marker:', error);
+      setError('Failed to create map markers');
     }
   };
 
@@ -151,6 +243,8 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
 
   // Create info window instance
   useEffect(() => {
+    if (!isLoaded) return;
+    
     infoWindowRef.current = new google.maps.InfoWindow({
       pixelOffset: new google.maps.Size(0, -30)
     });
@@ -160,7 +254,7 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
         infoWindowRef.current.close();
       }
     };
-  }, []);
+  }, [isLoaded]);
 
   // Update info window content when selected challenge changes
   useEffect(() => {
@@ -191,44 +285,52 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
   useEffect(() => {
     if (!game?.gameId) return;
 
-    window.handleChallengeEdit = (challengeId: string, gameId: string) => {
+    const handleEdit = (challengeId: string, gameId: string) => {
       handleEditClick(challengeId);
     };
 
+    window.handleChallengeEdit = handleEdit;
+
     return () => {
-      window.handleChallengeEdit = undefined;
+      if ('handleChallengeEdit' in window) {
+        window.handleChallengeEdit = undefined;
+      }
     };
-  }, [handleEditClick, game?.gameId]);
+  }, [game?.gameId, handleEditClick]);
 
-  // Custom marker icon configuration
-  const getMarkerOptions = (index: number) => ({
-    animation: google.maps.Animation.DROP,
-    label: {
-      text: (index + 1).toString(),
-      className: 'challenge-map__marker',
-      color: '#FFFFFF',
-      fontSize: '14px',
-      fontFamily: 'var(--font-family)'
-    },
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 14,
-      fillColor: '#4A90E2',
-      fillOpacity: 1,
-      strokeWeight: 2,
-      strokeColor: '#FFFFFF'
-    }
-  });
+  // Cleanup markers and map references on unmount
+  useEffect(() => {
+    return () => {
+      // Clean up markers
+      markersRef.current.forEach(marker => {
+        if (marker) {
+          marker.map = null;
+        }
+      });
+      markersRef.current.clear();
 
-  if (error) {
+      // Clean up map reference
+      if (mapRef.current) {
+        mapRef.current = null;
+      }
+
+      // Clean up info window
+      if (infoWindowRef.current) {
+        infoWindowRef.current.close();
+        infoWindowRef.current = null;
+      }
+    };
+  }, []);
+
+  if (loadError) {
     return (
       <div className="challenge-map challenge-map--error">
-        <p>Error loading map: {error}</p>
+        <p>Error loading Google Maps: {loadError.message}</p>
       </div>
     );
   }
 
-  if (isLoading || !game?.gameId) {
+  if (!isLoaded || isLoading || !game?.gameId) {
     return (
       <div className="challenge-map challenge-map--loading">
         <p>Loading map...</p>
@@ -238,32 +340,17 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
 
   return (
     <div className="challenge-map" ref={containerRef}>
-      <GoogleMap
-        mapContainerStyle={mapDimensions}
-        center={getInitialCenter()}
-        zoom={defaultZoom}
-        onLoad={onMapLoad}
-        options={{
-          styles: mapStyles,
-          fullscreenControl: false,
-          streetViewControl: false,
-          mapTypeControl: false,
-          zoomControlOptions: {
-            position: google.maps.ControlPosition.RIGHT_TOP
-          }
-        }}
-      >
-        {challenges.map((challenge, index) => (
-          <MarkerF
-            key={challenge.id}
-            position={challenge.location}
-            {...getMarkerOptions(index)}
-            onClick={() => handleMarkerClick(challenge)}
-          />
-        ))}
-      </GoogleMap>
+      {isLoaded && mapsLoaded && (
+        <GoogleMap
+          mapContainerStyle={mapDimensions}
+          center={getInitialCenter()}
+          zoom={defaultZoom}
+          onLoad={onMapLoad}
+          options={mapOptions}
+        />
+      )}
     </div>
   );
 };
 
-export default ChallengeMap;
+export default React.memo(ChallengeMap);
