@@ -190,9 +190,13 @@ try {
                 CURLOPT_POSTFIELDS => json_encode($requestData),
                 CURLOPT_VERBOSE => true,
                 CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_SSL_VERIFYHOST => 2,
-                CURLOPT_CAINFO => __DIR__ . '/../../config/cacert.pem'
+                CURLOPT_SSL_VERIFYHOST => 2
             ];
+
+            // Only use custom cacert.pem in development
+            if ($_ENV['APP_ENV'] === 'development') {
+                $curlOptions[CURLOPT_CAINFO] = __DIR__ . '/../../config/cacert.pem';
+            }
             
             // Debug cURL options (excluding sensitive data)
             $debugOptions = $curlOptions;
