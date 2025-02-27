@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
-import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, MarkerF, InfoWindow } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
 import './ChallengeMap.scss';
 
@@ -103,10 +103,26 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
     mapRef.current.fitBounds(bounds, 50);
   };
 
+  // Get initial center from first challenge or default to NYC
+  const getInitialCenter = (): google.maps.LatLngLiteral => {
+    if (challenges.length > 0) {
+      return challenges[0].location;
+    }
+    return defaultCenter;
+  };
+
   const onMapLoad = (map: google.maps.Map) => {
     mapRef.current = map;
+    
     if (challenges.length > 0) {
-      fitBoundsWithPadding();
+      // If we have multiple challenges, fit bounds
+      if (challenges.length > 1) {
+        fitBoundsWithPadding();
+      } else {
+        // For single challenge, center and zoom
+        map.setCenter(challenges[0].location);
+        map.setZoom(15); // Closer zoom for single location
+      }
     }
   };
 
@@ -117,6 +133,26 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
   const handleEditClick = (challengeId: string) => {
     navigate(`/challenges/${challengeId}/edit`);
   };
+
+  // Custom marker icon configuration
+  const getMarkerOptions = (index: number) => ({
+    animation: google.maps.Animation.DROP,
+    label: {
+      text: (index + 1).toString(),
+      className: 'challenge-map__marker',
+      color: '#FFFFFF',
+      fontSize: '14px',
+      fontFamily: 'var(--font-family)'
+    },
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 14,
+      fillColor: '#4A90E2',
+      fillOpacity: 1,
+      strokeWeight: 2,
+      strokeColor: '#FFFFFF'
+    }
+  });
 
   if (error) {
     return (
@@ -138,7 +174,7 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
     <div className="challenge-map" ref={containerRef}>
       <GoogleMap
         mapContainerStyle={mapDimensions}
-        center={defaultCenter}
+        center={getInitialCenter()}
         zoom={defaultZoom}
         onLoad={onMapLoad}
         options={{
@@ -152,15 +188,11 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
         }}
       >
         {challenges.map((challenge, index) => (
-          <Marker
+          <MarkerF
             key={challenge.id}
             position={challenge.location}
+            {...getMarkerOptions(index)}
             onClick={() => handleMarkerClick(challenge)}
-            animation={google.maps.Animation.DROP}
-            label={{
-              text: (index + 1).toString(),
-              className: 'challenge-map__marker'
-            }}
           />
         ))}
 
