@@ -252,18 +252,35 @@ try {
             }
 
             $aiResponse = $responseData['content'][0]['text'];
-            debug_log("AI Response Text (first 100 chars):", substr($aiResponse, 0, 100));
+            debug_log("AI Response Text:", $aiResponse);
+
+            // Clean and sanitize the response
+            $aiResponse = preg_replace('/[\x00-\x1F\x7F]/', '', $aiResponse);
+            
+            debug_log("Cleaned AI Response Text:", $aiResponse);
 
             // Extract the array structure
             if (!preg_match('/\[(.*)\]/s', $aiResponse, $matches)) {
                 throw new Exception('Invalid response format - expected array structure');
             }
             
-            // Process each suggestion individually
-            $items = explode('},{', trim($matches[1], '{}'));
+            // Process each suggestion individually by splitting on "},{"
+            $items = preg_split('/},\s*{/', trim($matches[1], '{}'));
+            
+            debug_log("Array items:", $items);
+            
             $suggestions = [];
             
-            foreach ($items as $item) {
+            foreach ($items as $index => $item) {
+                // Add back the curly braces that were removed by the split
+                if ($index === 0) {
+                    $item = $item . '}';
+                } else if ($index === count($items) - 1) {
+                    $item = '{' . $item;
+                } else {
+                    $item = '{' . $item . '}';
+                }
+                
                 // Clean up the item
                 $item = trim($item);
                 if (empty($item)) continue;
@@ -271,7 +288,10 @@ try {
                 // Extract content value using a more flexible pattern
                 if (preg_match('/"content"\s*:\s*"((?:[^"\\\\]|\\\\.)*)"/s', $item, $contentMatch)) {
                     $content = $contentMatch[1];
-                    // Let PHP handle the JSON encoding
+                    // Clean special characters and normalize whitespace
+                    $content = str_replace(["\r", "\n"], " ", $content);
+                    $content = preg_replace('/\s+/', ' ', $content);
+                    $content = trim($content);
                     $suggestions[] = ['content' => $content];
                 }
             }
@@ -285,6 +305,7 @@ try {
                 throw new Exception('No valid suggestions found in AI response');
             }
 
+            debug_log("Valid suggestions:", $suggestions);
             // Additional validation for story description
             if ($data['field'] === 'description' || $data['field'] === 'story') {
                 $suggestions = array_map(function($item) {
@@ -297,14 +318,13 @@ try {
                 }, $suggestions);
             }
 
-            // Ensure we have the correct number of suggestions
-            $suggestions = array_slice($suggestions, 0, $responseCount);
-
-            // Map suggestions to the expected format
+            debug_log("Valid suggestions after validation:", $suggestions);
+            // Map suggestions to the expected format and ensure we get all of them
             $formattedSuggestions = array_map(function($item) {
                 return isset($item['content']) ? $item['content'] : '';
             }, $suggestions);
 
+            debug_log("Formatted suggestions:", $formattedSuggestions);
             // Return in standard API format
             $returnData = [
                 'status' => 'success',
