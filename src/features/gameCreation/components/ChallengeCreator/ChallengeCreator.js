@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faBan, faPlusCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faBan, faPlusCircle, faTimes, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { challengeTypeConfig } from '../../../../config/challengeTypeConfig';
 import ScrollableContent from '../../../../components/ScrollableContent';
 import { getSmallDistanceUnit, convertSmallDistance, feetToMeters, metersToFeet } from '../../../../utils/unitConversion';
@@ -13,6 +13,7 @@ import { getGamesFromLocalStorage } from '../../../../utils/localStorageUtils';
 import { saveGame } from '../../../gameCreation/services/gameCreatorService';
 import { useGameCreation } from '../../context/GameCreationContext';
 import { AISuggestionButton } from '../../../../components/AISuggestionButton/AISuggestionButton';
+import LocationPickerModal from '../LocationPickerModal/LocationPickerModal';
 import '../../../../components/AISuggestionButton/AISuggestionButton.scss';
 
 const ChallengeCreator = ({ gameData, onSave }) => {
@@ -22,6 +23,7 @@ const ChallengeCreator = ({ gameData, onSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [originalChallenge, setOriginalChallenge] = useState(null);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isMetric, setIsMetric] = useState(() => {
     const savedUnitSystem = localStorage.getItem('unitSystem');
     return savedUnitSystem ? JSON.parse(savedUnitSystem) : false;
@@ -636,93 +638,81 @@ const ChallengeCreator = ({ gameData, onSave }) => {
           </div>
         );
       case 'location':
-        const handleCoordinateInput = (e, field) => {
-          const input = e.target.value;
+        const handleCoordinateInput = (e, coord) => {
+          const newLocation = {
+            ...value,
+            [coord]: e.target.value
+          };
           
-          // Check if input contains a comma
-          if (input.includes(',')) {
-            const [lat, long] = input.split(',').map(val => val.trim());
-            const numLat = parseFloat(lat);
-            const numLong = parseFloat(long);
-            
-            // Only update if both values are valid numbers
-            if (!isNaN(numLat) && !isNaN(numLong)) {
-              // Clear the input field value first
-              e.target.value = '';
-              
-              setChallenge(prev => ({
-                ...prev,
-                [fieldName]: {
-                  ...prev[fieldName],
-                  latitude: numLat,
-                  longitude: numLong
-                }
-              }));
-              setHasChanges(true); // Trigger save prompt
-            }
-          } else {
-            // Handle single coordinate input
-            const trimmedInput = input.trim();
-            const numValue = trimmedInput === '' ? '' : parseFloat(trimmedInput);
-            
-            if (trimmedInput === '' || !isNaN(numValue)) {
-              setChallenge(prev => {
-                const newLocation = {
-                  ...prev[fieldName],
-                  [field]: numValue
-                };
-                
-                // If both coordinates are now set, trigger save prompt
-                if (newLocation.latitude !== '' && 
-                    newLocation.longitude !== '' && 
-                    !isNaN(newLocation.latitude) && 
-                    !isNaN(newLocation.longitude)) {
-                  setHasChanges(true);
-                }
-                
-                return {
-                  ...prev,
-                  [fieldName]: newLocation
-                };
-              });
-            }
+          if (newLocation.latitude !== '' && 
+              newLocation.longitude !== '' && 
+              !isNaN(newLocation.latitude) && 
+              !isNaN(newLocation.longitude)) {
+            handleInputChange('targetLocation', newLocation);
           }
         };
 
         return (
-          <div className="location-container">
-            <div className="location-inputs">
-              <div className="location-field">
-                <label htmlFor={`${fieldName}.latitude`}>Latitude</label>
-                <input
-                  type="text"
-                  id={`${fieldName}.latitude`}
-                  name={`${fieldName}.latitude`}
-                  value={value?.latitude ?? ''}
-                  onChange={(e) => handleCoordinateInput(e, 'latitude')}
-                  placeholder="latitude or paste coordinates"
-                />
+          <>
+            <div className="location-container">
+              <div className="location-inputs">
+                <div className="location-field">
+                  <label>Latitude</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={challenge.targetLocation?.latitude || ''}
+                    onChange={(e) => handleCoordinateInput(e, 'latitude')}
+                    placeholder="Enter latitude"
+                  />
+                </div>
+                <div className="location-field">
+                  <label>Longitude</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={challenge.targetLocation?.longitude || ''}
+                    onChange={(e) => handleCoordinateInput(e, 'longitude')}
+                    placeholder="Enter longitude"
+                  />
+                </div>
               </div>
-              <div className="location-field">
-                <label htmlFor={`${fieldName}.longitude`}>Longitude</label>
-                <input
-                  type="text"
-                  id={`${fieldName}.longitude`}
-                  name={`${fieldName}.longitude`}
-                  value={value?.longitude ?? ''}
-                  onChange={(e) => handleCoordinateInput(e, 'longitude')}
-                  placeholder="longitude or paste coordinates"
-                />
+              <div className="location-buttons">
+                <button
+                  className="use-location-button"
+                  onClick={handleUseMyLocation}
+                >
+                  Use My Location
+                </button>
+                <button
+                  type="button"
+                  className="pick-location-button"
+                  onClick={() => setShowLocationPicker(true)}
+                >
+                  <FontAwesomeIcon icon={faMapMarkerAlt} /> Pick on Map
+                </button>
               </div>
             </div>
-            <button
-              type="button"
-              className="use-location-button"
-              onClick={handleUseMyLocation}
-            >
-              Use My Location
-            </button>
-          </div>
+
+            <LocationPickerModal
+              isOpen={showLocationPicker}
+              onClose={() => setShowLocationPicker(false)}
+              onSave={(location) => {
+                setChallenge(prev => ({
+                  ...prev,
+                  targetLocation: { 
+                    latitude: location.latitude.toString(), 
+                    longitude: location.longitude.toString() 
+                  }
+                }));
+                setShowLocationPicker(false);
+              }}
+              initialLocation={challenge.targetLocation?.latitude ? {
+                lat: parseFloat(challenge.targetLocation.latitude),
+                lng: parseFloat(challenge.targetLocation.longitude)
+              } : null}
+            />
+          </>
         );
       case 'feedback':
         // Only render feedback fields for non-travel challenges
@@ -850,7 +840,7 @@ const ChallengeCreator = ({ gameData, onSave }) => {
                     }
                   }
                 }}
-                title={`Add ${fieldConfig.label || fieldName}`}
+                title={`Add ${fieldConfig.label}`}
               >
                 <FontAwesomeIcon icon={faPlusCircle} />
               </button>

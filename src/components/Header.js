@@ -83,7 +83,7 @@ function Header({ isMenuOpen, setIsMenuOpen }) {
           <a href="/"
           description="Crow Tours Dashboard" 
           rel="noopener noreferrer"
-          >Crow Tours <span className="versionDisplay">V0.19</span></a>
+          >Crow Tours <span className="versionDisplay">V1.0</span></a>
         </div>
         <nav ref={navRef} className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
           <ul>

@@ -9,6 +9,21 @@
     gap: unset;
   }
 
+  .input-with-ai {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+
+    input, textarea {
+      flex: 1;
+    }
+
+    .ai-suggestion-button {
+      margin-top: 4px;
+    }
+  }
+  
   .field-container {
     display: flex;
     flex-direction: column;
@@ -96,20 +111,7 @@
       }
     }
 
-    .input-with-ai {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      width: 100%;
-
-      input, textarea {
-        flex: 1;
-      }
-
-      .ai-suggestion-button {
-        margin-top: 4px;
-      }
-    }
+    
 
     &.toggle-container {
       display: flex;
@@ -531,36 +533,92 @@
   }
 
   .location-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
+    margin-bottom: 1rem;
 
     .location-inputs {
       display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      flex-wrap: wrap;
       gap: 1rem;
-      width: 100%;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
 
-      .location-field {
-        flex-direction: column;
-        gap: 0.5rem;
-        flex: 1;
-        min-width: 200px;
-        label {
-          font-weight: 500;
-        }
+    .location-field {
+      flex: 1;
+      min-width: 200px;
+      
+      label {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--text-color);
+      }
 
-        input {
-          width: 100%;
-        }
+      input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background-color: var(--input-bg);
+        color: var(--text-color);
       }
     }
 
-    .use-location-button {
-      align-self: center;
+    .location-buttons {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-family: var(--font-family);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        @include smooth-transition;
+
+        &.use-location-button {
+          background-color: var(--button-bg);
+          color: var(--button-text-color);
+
+          &:hover {
+            background-color: var(--button-hover-bg);
+          }
+        }
+
+        &.pick-location-button {
+          background-color: var(--button-bg-save);
+          color: var(--button-text-color);
+
+          &:hover {
+            background-color: var(--button-hover-bg);
+          }
+
+          svg {
+            font-size: 16px;
+          }
+        }
+      }
+    }
+  }
+
+  .focus-field {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+
+    textarea {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .ai-suggestion-button {
+      margin-top: 0;
     }
   }
 
