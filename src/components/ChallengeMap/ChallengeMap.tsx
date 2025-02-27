@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
-import { GoogleMap, MarkerF, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, MarkerF } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
 import './ChallengeMap.scss';
 
@@ -47,6 +47,7 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
   const navigate = useNavigate();
   const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
+  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [mapDimensions, setMapDimensions] = useState({ width: '100%', height: '400px' });
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
@@ -132,7 +133,57 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
 
   const handleEditClick = (challengeId: string) => {
     navigate(`/challenges/${challengeId}/edit`);
+    navigate(`/create/challenge/${game.gameId}/${challengeId}`);
   };
+
+  // Create info window instance
+  useEffect(() => {
+    infoWindowRef.current = new google.maps.InfoWindow({
+      pixelOffset: new google.maps.Size(0, -30)
+    });
+
+    return () => {
+      if (infoWindowRef.current) {
+        infoWindowRef.current.close();
+      }
+    };
+  }, []);
+
+  // Update info window content when selected challenge changes
+  useEffect(() => {
+    if (selectedChallenge && infoWindowRef.current && mapRef.current) {
+      const content = `
+        <div class="challenge-map__info-window">
+          <h3 class="challenge-map__info-window-title">
+            ${selectedChallenge.title}
+          </h3>
+          <button
+            class="challenge-map__info-window-edit"
+            onclick="window.handleChallengeEdit('${selectedChallenge.id}')"
+          >
+            Edit Challenge
+          </button>
+        </div>
+      `;
+
+      infoWindowRef.current.setContent(content);
+      infoWindowRef.current.setPosition(selectedChallenge.location);
+      infoWindowRef.current.open(mapRef.current);
+    } else if (infoWindowRef.current) {
+      infoWindowRef.current.close();
+    }
+  }, [selectedChallenge]);
+
+  // Add global handler for edit button click
+  useEffect(() => {
+    window.handleChallengeEdit = (challengeId: string) => {
+      handleEditClick(challengeId);
+    };
+
+    return () => {
+      delete window.handleChallengeEdit;
+    };
+  }, []);
 
   // Custom marker icon configuration
   const getMarkerOptions = (index: number) => ({
@@ -195,25 +246,6 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
             onClick={() => handleMarkerClick(challenge)}
           />
         ))}
-
-        {selectedChallenge && (
-          <InfoWindow
-            position={selectedChallenge.location}
-            onCloseClick={() => setSelectedChallenge(null)}
-          >
-            <div className="challenge-map__info-window">
-              <h3 className="challenge-map__info-window-title">
-                {selectedChallenge.title}
-              </h3>
-              <button
-                className="challenge-map__info-window-edit"
-                onClick={() => handleEditClick(selectedChallenge.id)}
-              >
-                Edit Challenge
-              </button>
-            </div>
-          </InfoWindow>
-        )}
       </GoogleMap>
     </div>
   );
