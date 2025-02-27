@@ -175,7 +175,8 @@ try {
             // Initialize cURL
             $ch = curl_init('https://api.anthropic.com/v1/messages');
             if ($ch === false) {
-                throw new Exception('Failed to initialize cURL');
+                debug_log("Failed to initialize cURL");
+                throw new Exception("An error occurred while processing your request. Please try again later.");
             }
 
             // Set cURL options
@@ -219,43 +220,95 @@ try {
             debug_log("cURL verbose output:", $verboseLog);
             fclose($verbose);
 
-            // Process the response
+            // Check for cURL errors
             if ($response === false) {
-                throw new Exception('Failed to get response from Anthropic API: ' . curl_error($ch));
+                $error = curl_error($ch);
+                debug_log("cURL Error: " . $error);
+                curl_close($ch);
+                throw new Exception("Unable to connect to the AI service. Please try again later.");
+            }
+            
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($httpCode !== 200) {
+                debug_log("API Error - HTTP Code: " . $httpCode . ", Response: " . $response);
+                throw new Exception("The AI service is temporarily unavailable. Please try again in a few minutes.");
             }
 
+            // Parse the response
             $responseData = json_decode($response, true);
-            debug_log("Decoded Anthropic response:", $responseData);
+            debug_log("Raw API Response:", [
+                'length' => strlen($response),
+                'first_100_chars' => substr($response, 0, 100),
+                'last_100_chars' => substr($response, -100),
+                'json_error' => json_last_error(),
+                'json_error_msg' => json_last_error_msg()
+            ]);
 
             if (!isset($responseData['content'][0]['text'])) {
+                debug_log("Invalid response structure:", [
+                    'has_content' => isset($responseData['content']),
+                    'content_type' => isset($responseData['content']) ? gettype($responseData['content']) : 'not set',
+                    'first_level_keys' => is_array($responseData) ? array_keys($responseData) : 'not an array'
+                ]);
                 throw new Exception('Invalid response format from Anthropic API');
             }
 
-            // Extract and parse the suggestions from the text field
-            $text = trim($responseData['content'][0]['text']);
-            $suggestions = json_decode($text, true);
-            
-            if (!is_array($suggestions)) {
-                throw new Exception('Failed to parse AI response as JSON array');
+            $aiResponse = $responseData['content'][0]['text'];
+            debug_log("AI Response Text (first 100 chars):", substr($aiResponse, 0, 100));
+
+            // Try to parse the AI response as JSON
+            $suggestions = json_decode($aiResponse, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                debug_log("Failed to parse AI response as JSON:", [
+                    'error' => json_last_error_msg(),
+                    'text_length' => strlen($aiResponse),
+                    'first_char' => substr($aiResponse, 0, 1),
+                    'last_char' => substr($aiResponse, -1),
+                    'contains_curly_braces' => strpos($aiResponse, '{') !== false && strpos($aiResponse, '}') !== false,
+                    'contains_square_brackets' => strpos($aiResponse, '[') !== false && strpos($aiResponse, ']') !== false
+                ]);
+                
+                // Try to extract JSON from the response if it's wrapped in text
+                if (preg_match('/\{.*\}/s', $aiResponse, $matches) || preg_match('/\[.*\]/s', $aiResponse, $matches)) {
+                    $extractedJson = $matches[0];
+                    debug_log("Attempting to parse extracted JSON structure");
+                    $suggestions = json_decode($extractedJson, true);
+                }
+                
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new Exception('Failed to parse AI response as JSON');
+                }
             }
 
             // Ensure we have the correct number of suggestions
             $suggestions = array_slice($suggestions, 0, $responseCount);
 
-            echo json_encode([
+            // Return the suggestions
+            $returnData = [
                 'status' => 'success',
-                'data' => [
-                    'suggestions' => array_map(
-                        function($item) { 
-                            return isset($item['content']) ? $item['content'] : strval($item); 
-                        },
-                        $suggestions
-                    )
-                ],
+                'data' => $suggestions,
                 'message' => 'Successfully generated suggestions'
+            ];
+
+            debug_log("Returning AI Suggestions:", [
+                'suggestion_count' => is_array($suggestions) ? count($suggestions) : 'not an array',
+                'data_structure' => [
+                    'has_status' => isset($returnData['status']),
+                    'has_data' => isset($returnData['data']),
+                    'data_type' => gettype($returnData['data']),
+                    'is_data_array' => is_array($returnData['data']),
+                    'first_suggestion_keys' => is_array($suggestions) && !empty($suggestions) ? 
+                        array_keys(reset($suggestions)) : 'no suggestions'
+                ],
+                'first_suggestion_preview' => is_array($suggestions) && !empty($suggestions) ? 
+                    array_map(function($value) {
+                        return is_string($value) ? substr($value, 0, 50) . (strlen($value) > 50 ? '...' : '') : gettype($value);
+                    }, reset($suggestions)) : 'no suggestions'
             ]);
 
-            curl_close($ch);
+            echo json_encode($returnData);
 
             break;
 
