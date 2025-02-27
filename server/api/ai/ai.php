@@ -262,6 +262,21 @@ try {
             $aiResponse = preg_replace('/[\x00-\x1F\x7F]/', '', $aiResponse); // Remove control characters
             debug_log("Sanitized Response Text (first 100 chars):", substr($aiResponse, 0, 100));
 
+            // Check for and fix potential quote issues
+            if (strpos($aiResponse, '"') !== false) {
+                debug_log("Response contains quotes - checking for escape issues");
+                // Find all content values and properly escape their quotes
+                $aiResponse = preg_replace_callback('/"content":\s*"(.*?)"(?=\s*[,}])/s', function($matches) {
+                    $content = $matches[1];
+                    // Escape quotes within content
+                    $content = str_replace('"', '\\"', $content);
+                    // Unescape already escaped quotes to prevent double escaping
+                    $content = str_replace('\\\\"', '\\"', $content);
+                    return '"content": "' . $content . '"';
+                }, $aiResponse);
+                debug_log("After quote fixing (first 100 chars):", substr($aiResponse, 0, 100));
+            }
+
             $suggestions = json_decode($aiResponse, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 debug_log("Failed to parse AI response as JSON:", [
@@ -270,32 +285,44 @@ try {
                     'first_char' => substr($aiResponse, 0, 1),
                     'last_char' => substr($aiResponse, -1),
                     'contains_curly_braces' => strpos($aiResponse, '{') !== false && strpos($aiResponse, '}') !== false,
-                    'contains_square_brackets' => strpos($aiResponse, '[') !== false && strpos($aiResponse, ']') !== false
+                    'contains_square_brackets' => strpos($aiResponse, '[') !== false && strpos($aiResponse, ']') !== false,
+                    'quote_count' => substr_count($aiResponse, '"'),
+                    'last_json_error' => json_last_error(),
+                    'sample_content' => preg_match('/"content":\s*"(.*?)"/', $aiResponse, $m) ? substr($m[1], 0, 50) : 'no match'
                 ]);
                 
                 // Try to extract JSON from the response if it's wrapped in text
                 if (preg_match('/\[.*\]/s', $aiResponse, $matches)) {
                     $extractedJson = $matches[0];
                     debug_log("Attempting to parse extracted JSON array");
-                    // Clean the extracted JSON
+                    
+                    // Clean and normalize the JSON structure
                     $extractedJson = preg_replace('/[\x00-\x1F\x7F]/', ' ', $extractedJson);
                     $extractedJson = preg_replace('/\s+/', ' ', $extractedJson);
+                    $extractedJson = str_replace(["\n", "\r"], "", $extractedJson);
                     
-                    debug_log("Cleaned JSON structure (first 100 chars):", substr($extractedJson, 0, 100));
+                    // Fix potential quote and comma issues
+                    $extractedJson = preg_replace('/(["\]}])(\s+)(["\[{])/', '$1,$3', $extractedJson);
+                    $extractedJson = preg_replace('/"([^"]*?)\\\\?"([^"]*?)"/', '"$1\\"$2"', $extractedJson);
+                    
+                    debug_log("Final JSON attempt:", [
+                        'structure' => substr($extractedJson, 0, 100),
+                        'valid_json_structure' => (
+                            substr($extractedJson, 0, 1) === '[' && 
+                            substr($extractedJson, -1) === ']' &&
+                            substr_count($extractedJson, '{') === substr_count($extractedJson, '}')
+                        )
+                    ]);
+                    
                     $suggestions = json_decode($extractedJson, true);
-                    
-                    if (json_last_error() !== JSON_ERROR_NONE) {
-                        debug_log("Failed to parse cleaned JSON:", json_last_error_msg());
-                        
-                        // Last resort: try to manually fix common JSON issues
-                        $extractedJson = str_replace(["\n", "\r"], "", $extractedJson);
-                        $extractedJson = preg_replace('/(["\]}])(\s+)(["\[{])/', '$1,$3', $extractedJson);
-                        debug_log("Manual JSON fix attempt (first 100 chars):", substr($extractedJson, 0, 100));
-                        $suggestions = json_decode($extractedJson, true);
-                    }
                 }
                 
                 if (json_last_error() !== JSON_ERROR_NONE) {
+                    debug_log("All JSON parsing attempts failed:", [
+                        'original_length' => strlen($aiResponse),
+                        'final_length' => isset($extractedJson) ? strlen($extractedJson) : 'not attempted',
+                        'final_error' => json_last_error_msg()
+                    ]);
                     throw new Exception('Failed to parse AI response as JSON');
                 }
             }
