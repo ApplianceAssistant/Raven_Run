@@ -23,7 +23,7 @@
       margin-top: 4px;
     }
   }
-  
+
   .field-container {
     display: flex;
     flex-direction: column;
@@ -642,10 +642,6 @@
         overflow: hidden;
         animation: slideDown .3s ease-in-out forwards;
 
-        &.sliding-up {
-          animation: slideUp .3s ease-in-out forwards;
-        }
-
         button {
           min-width: 120px;
         }
@@ -1183,20 +1179,6 @@
     opacity: 1;
     transform: translateY(0);
     max-height: 50px;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-    max-height: 50px;
-  }
-
-  to {
-    opacity: 0;
-    transform: translateY(-20px);
-    max-height: 0;
   }
 }
 

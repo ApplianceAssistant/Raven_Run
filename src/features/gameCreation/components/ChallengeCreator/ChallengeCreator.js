@@ -85,20 +85,9 @@ const ChallengeCreator = ({ gameData, onSave }) => {
 
   const [showHints, setShowHints] = useState(false);
 
-  const [showButtons, setShowButtons] = useState(false);
-  const [isAnimatingOut, setIsAnimatingOut] = useState(false);
-
   useEffect(() => {
     if (hasChanges) {
-      setShowButtons(true);
-      setIsAnimatingOut(false);
-    } else if (showButtons) { // Only animate out if buttons were showing
-      setIsAnimatingOut(true);
-      const timer = setTimeout(() => {
-        setShowButtons(false);
-        setIsAnimatingOut(false);
-      }, 300);
-      return () => clearTimeout(timer);
+      setShowHints(true);
     }
   }, [hasChanges]);
 
@@ -869,19 +858,21 @@ const ChallengeCreator = ({ gameData, onSave }) => {
       </button>
       <div className="creator-header">
         <h2>{isEditing ? 'Edit Challenge' : 'Create New Challenge'}</h2>
-        {/* Save/Cancel Buttons - Always visible for new challenges */}
-        <div className={`button-container ${(!isEditing || showButtons) ? '' : 'sliding-up'}`}>
-          <button
-            type="submit"
-            className="save-button"
-            disabled={validateFields().length > 0}
-          >
-            {isEditing ? 'Save Changes' : 'Create Challenge'}
-          </button>
-          <button type="button" className="cancel-button" onClick={handleCancel}>
-            Cancel
-          </button>
-        </div>
+        {/* Save/Cancel Buttons */}
+        {(isEditing || challenge.type) && (
+          <div className="button-container">
+            <button
+              type="submit"
+              className="save-button"
+              disabled={isEditing ? !hasChanges : validateFields().length > 0}
+            >
+              {isEditing ? 'Save Changes' : 'Create Challenge'}
+            </button>
+            <button type="button" className="cancel-button" onClick={handleCancel}>
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Challenge Type and Order */}
