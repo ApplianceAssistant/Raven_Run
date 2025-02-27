@@ -1,0 +1,81 @@
+@import '../../css/variables';
+
+.challenge-map {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--page-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+
+  &--loading,
+  &--error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    background-color: var(--page-bg);
+    color: var(--text-color);
+    font-family: var(--font-family);
+  }
+
+  &--error {
+    color: var(--error-color);
+  }
+
+  &__container {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__marker {
+    background: var(--button-bg);
+    color: var(--text-color);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    @include smooth-transition;
+
+    &:hover {
+      transform: scale(1.1);
+      background: var(--button-hover-bg, var(--button-bg));
+    }
+  }
+
+  &__info-window {
+    padding: 12px;
+    min-width: 200px;
+    
+    &-title {
+      font-family: var(--font-family);
+      color: var(--text-color);
+      margin-bottom: 12px;
+      font-size: 1.1em;
+    }
+
+    &-edit {
+      background: var(--button-bg);
+      color: var(--text-color);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--font-family);
+      width: 100%;
+      @include smooth-transition;
+
+      &:hover {
+        background: var(--button-hover-bg, var(--button-bg));
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+}

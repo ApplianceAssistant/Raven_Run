@@ -13,6 +13,7 @@ import GamePage from './components/GamePage';
 import Settings from './components/Settings';
 import { GameCreationProvider } from './features/gameCreation/context/GameCreationContext';
 import Create from './features/gameCreation/components/GameCreator/GameCreator';
+import ChallengeMapPage from './features/gameCreation/components/ChallengeMapPage';
 import Header from './components/Header';
 import LogIn from './components/LogIn';
 import Friends from './components/Friends.js';
@@ -28,6 +29,7 @@ import MessageDisplay from './components/MessageDisplay';
 import Documentation from './components/Documentation';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
+import GoogleMapsProvider from './components/GoogleMapsProvider';
 
 import './css/App.scss';
 import { setupViewport } from './utils/viewport';
@@ -109,82 +111,91 @@ function AppContent() {
       <Header isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
       <MessageDisplay />
       <div className="main-content">
-        <Routes>
-          <Route path="/thank_you" element={<ThemeContainer theme={theme}><ThankYou /></ThemeContainer>} />
-          <Route path="/" element={<ThemeContainer theme={theme}><Home /></ThemeContainer>} />
-          <Route path="/about" element={<ThemeContainer theme={theme}><About /></ThemeContainer>} />
-          <Route path="/contact" element={<ThemeContainer theme={theme}><Contact /></ThemeContainer>} />
-          <Route path="/game/:gameId" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
-          <Route path="/lobby" element={<ThemeContainer theme={theme}><GameLobby /></ThemeContainer>} />
-          <Route path="/create-profile" element={<ThemeContainer theme={theme}><CreateProfile /></ThemeContainer>} />
-          <Route path="/log-in" element={<ThemeContainer theme={theme}><LogIn /></ThemeContainer>} />
-          <Route path="/reset-password" element={<ThemeContainer theme={theme}><ResetPassword /></ThemeContainer>} />
-          <Route path="/gamedescription/:gameId" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
-          <Route path="/game/:gameId/challenge/:challengeIndex" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
-          <Route path="/congratulations" element={<ThemeContainer theme={theme}><Congratulations /></ThemeContainer>} />
-          <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
-          <Route path="/profile/:tab" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
-          <Route path="/documentation" element={<ThemeContainer theme={theme}><Documentation /></ThemeContainer>} />
-          {authContextValue.isAuthenticated && (
-            <>
-              <Route path="/hunt-description" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
-              <Route path="/thankyou" element={<ThemeContainer theme={theme}><ThankYou /></ThemeContainer>} />
-            </>
-          )}
-          <Route path="/create" element={
-            <GameCreationProvider>
-              <ThemeContainer theme={theme}>
-                <Create />
-              </ThemeContainer>
-            </GameCreationProvider>
-          } />
-          <Route path="/create/new" element={
-            <GameCreationProvider>
-              <ThemeContainer theme={theme}>
-                <Create />
-              </ThemeContainer>
-            </GameCreationProvider>
-          } />
-          <Route path="/create/edit/:gameId" element={
-            <GameCreationProvider>
-              <ThemeContainer theme={theme}>
-                <Create />
-              </ThemeContainer>
-            </GameCreationProvider>
-          } />
-          <Route path="/create/edit/:gameId/challenges" element={
-            <GameCreationProvider>
-              <ThemeContainer theme={theme}>
-                <Create />
-              </ThemeContainer>
-            </GameCreationProvider>
-          } />
-          <Route path="/create/challenge/:gameId" element={
-            <GameCreationProvider>
-              <ThemeContainer theme={theme}>
-                <Create />
-              </ThemeContainer>
-            </GameCreationProvider>
-          } />
-          <Route path="/create/challenge/:gameId/:challengeId" element={
-            <GameCreationProvider>
-              <ThemeContainer theme={theme}>
-                <Create />
-              </ThemeContainer>
-            </GameCreationProvider>
-          } />
-          <Route path="/privacy" element={<ThemeContainer theme={theme}><PrivacyPolicy /></ThemeContainer>} />
-          <Route path="/terms" element={<ThemeContainer theme={theme}><TermsOfService /></ThemeContainer>} />
-          {/* Add a catch-all route for 404s */}
-          <Route path="*" element={
-            <div className="content-wrapper">
-              <div className="bodyContent">
-                <h1>404 - Page Not Found</h1>
-                <p>The page you're looking for doesn't exist.</p>
+        <GoogleMapsProvider>
+          <Routes>
+            <Route path="/thank_you" element={<ThemeContainer theme={theme}><ThankYou /></ThemeContainer>} />
+            <Route path="/" element={<ThemeContainer theme={theme}><Home /></ThemeContainer>} />
+            <Route path="/about" element={<ThemeContainer theme={theme}><About /></ThemeContainer>} />
+            <Route path="/contact" element={<ThemeContainer theme={theme}><Contact /></ThemeContainer>} />
+            <Route path="/game/:gameId" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
+            <Route path="/lobby" element={<ThemeContainer theme={theme}><GameLobby /></ThemeContainer>} />
+            <Route path="/create-profile" element={<ThemeContainer theme={theme}><CreateProfile /></ThemeContainer>} />
+            <Route path="/log-in" element={<ThemeContainer theme={theme}><LogIn /></ThemeContainer>} />
+            <Route path="/reset-password" element={<ThemeContainer theme={theme}><ResetPassword /></ThemeContainer>} />
+            <Route path="/gamedescription/:gameId" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
+            <Route path="/game/:gameId/challenge/:challengeIndex" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
+            <Route path="/congratulations" element={<ThemeContainer theme={theme}><Congratulations /></ThemeContainer>} />
+            <Route path="/profile" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
+            <Route path="/profile/:tab" element={<ThemeContainer theme={theme}><Profile /></ThemeContainer>} />
+            <Route path="/documentation" element={<ThemeContainer theme={theme}><Documentation /></ThemeContainer>} />
+            {authContextValue.isAuthenticated && (
+              <>
+                <Route path="/hunt-description" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
+                <Route path="/thankyou" element={<ThemeContainer theme={theme}><ThankYou /></ThemeContainer>} />
+              </>
+            )}
+            <Route path="/create" element={
+              <GameCreationProvider>
+                <ThemeContainer theme={theme}>
+                  <Create />
+                </ThemeContainer>
+              </GameCreationProvider>
+            } />
+            <Route path="/challenge-map" element={
+              <GameCreationProvider>
+                <ThemeContainer theme={theme}>
+                  <ChallengeMapPage />
+                </ThemeContainer>
+              </GameCreationProvider>
+            } />
+            <Route path="/create/new" element={
+              <GameCreationProvider>
+                <ThemeContainer theme={theme}>
+                  <Create />
+                </ThemeContainer>
+              </GameCreationProvider>
+            } />
+            <Route path="/create/edit/:gameId" element={
+              <GameCreationProvider>
+                <ThemeContainer theme={theme}>
+                  <Create />
+                </ThemeContainer>
+              </GameCreationProvider>
+            } />
+            <Route path="/create/edit/:gameId/challenges" element={
+              <GameCreationProvider>
+                <ThemeContainer theme={theme}>
+                  <Create />
+                </ThemeContainer>
+              </GameCreationProvider>
+            } />
+            <Route path="/create/challenge/:gameId" element={
+              <GameCreationProvider>
+                <ThemeContainer theme={theme}>
+                  <Create />
+                </ThemeContainer>
+              </GameCreationProvider>
+            } />
+            <Route path="/create/challenge/:gameId/:challengeId" element={
+              <GameCreationProvider>
+                <ThemeContainer theme={theme}>
+                  <Create />
+                </ThemeContainer>
+              </GameCreationProvider>
+            } />
+            <Route path="/privacy" element={<ThemeContainer theme={theme}><PrivacyPolicy /></ThemeContainer>} />
+            <Route path="/terms" element={<ThemeContainer theme={theme}><TermsOfService /></ThemeContainer>} />
+            {/* Add a catch-all route for 404s */}
+            <Route path="*" element={
+              <div className="content-wrapper">
+                <div className="bodyContent">
+                  <h1>404 - Page Not Found</h1>
+                  <p>The page you're looking for doesn't exist.</p>
+                </div>
               </div>
-            </div>
-          } />
-        </Routes>
+            } />
+          </Routes>
+        </GoogleMapsProvider>
       </div>
     </AuthContext.Provider>
   );

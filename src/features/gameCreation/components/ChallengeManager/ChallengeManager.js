@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faBan, faGripVertical } from '@fortawesome/free-solid-svg-icons';
@@ -78,12 +78,12 @@ const SortableItem = ({ challenge, onEdit, onDelete }) => {
 const ChallengeManager = () => {
   const navigate = useNavigate();
   const { state, dispatch } = useGameCreation();
-  const { showError, showSuccess } = useMessage();
+  const { showError, showSuccess, showMessage } = useMessage();
   const game = state.selectedGame;
   const challenges = Array.isArray(game?.challenges) ? [...game.challenges].sort((a, b) => (a.order || 0) - (b.order || 0)) : [];
   const [challengeToDelete, setChallengeToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
+  console.warn('game:', game);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -162,6 +162,16 @@ const ChallengeManager = () => {
     }
   };
 
+  const hasLocationChallenges = game?.challenges?.some(challenge => challenge.targetLocation?.latitude && challenge.targetLocation?.longitude);
+
+  const handleMapClick = () => {
+    if (!hasLocationChallenges) {
+      showMessage('Create at least 1 travel challenge with a location to unlock mapping.');
+      return;
+    }
+    navigate('/challenge-map', { state: { challenges: game.challenges } });
+  };
+
   return (
     <>
       <button className="back-button" onClick={handleBack} title="Back to Game">
@@ -170,10 +180,18 @@ const ChallengeManager = () => {
       <div className="challenge-manager">
         <div className="challenge-manager-header">
           <h2>Challenges for {game?.title || 'Game'}</h2>
+          <div className="challenge-manager-actions">
+            <button className="add-challenge-button" onClick={handleAddChallenge}>
+              Add New
+            </button>
+            <button 
+              className={`map-challenges-button ${!hasLocationChallenges ? 'disabled' : ''}`}
+              onClick={handleMapClick}
+            >
+              Map
+            </button>
+          </div>
         </div>
-        <button className="add-challenge-button" onClick={handleAddChallenge}>
-          Add New Challenge
-        </button>
 
         <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
           <DndContext
