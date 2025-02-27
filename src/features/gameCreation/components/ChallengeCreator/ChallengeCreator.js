@@ -898,7 +898,7 @@ const ChallengeCreator = ({ gameData, onSave }) => {
             <option value="">Select a type</option>
             {Object.keys(challengeTypeConfig).map(type => (
               <option key={type} value={type}>
-                {challengeTypeConfig[type].label || type}
+                {challengeTypeConfig[type].label}
               </option>
             ))}
           </select>

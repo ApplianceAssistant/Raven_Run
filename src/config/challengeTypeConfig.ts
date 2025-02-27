@@ -17,8 +17,12 @@ type AllPossibleFields = {
   order: FieldConfig;
 };
 
+type ChallengeConfig = Partial<AllPossibleFields> & {
+  label: string;
+};
+
 type ChallengeTypeConfig = {
-  [K in Challenge['type']]: Partial<AllPossibleFields>;
+  [K in Challenge['type']]: ChallengeConfig;
 };
 
 export const challengeTypeConfig: ChallengeTypeConfig = {
@@ -27,6 +31,7 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
     description: { required: true, type: 'textarea', label: 'Story Text' },
     repeatable: { required: false, type: 'boolean', label: 'Repeatable' },
     order: { required: true, type: 'number', label: 'Challenge Order' },
+    label: 'Story'
   },
   multipleChoice: {
     title: { required: true, type: 'text', label: 'Title' },
@@ -36,6 +41,7 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
     hints: { required: false, type: 'array', label: 'Hints' },
     feedbackTexts: { required: false, type: 'feedback', label: 'Challenge Feedback' },
     order: { required: true, type: 'number', label: 'Challenge Order' },
+    label: 'Multiple Choice'
   },
   trueFalse: {
     title: { required: true, type: 'text', label: 'Title' },
@@ -44,6 +50,7 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
     hints: { required: false, type: 'array', label: 'Hints' },
     feedbackTexts: { required: false, type: 'feedback', label: 'Challenge Feedback' },
     order: { required: true, type: 'number', label: 'Challenge Order' },
+    label: 'True/False'
   },
   textInput: {
     title: { required: true, type: 'text', label: 'Title' },
@@ -52,14 +59,15 @@ export const challengeTypeConfig: ChallengeTypeConfig = {
     hints: { required: false, type: 'array', label: 'Hints' },
     feedbackTexts: { required: false, type: 'feedback', label: 'Challenge Feedback' },
     order: { required: true, type: 'number', label: 'Challenge Order' },
+    label: 'Text Input'
   },
   travel: {
     title: { required: true, type: 'text', label: 'Title' },
     description: { required: true, type: 'textarea', label: 'Description' },
     targetLocation: { required: true, type: 'location', label: 'Target Location' },
-    radius: { required: true, type: 'number', label: 'Completion Radius' },
     completionFeedback: { required: true, type: 'textarea', label: 'Completion Feedback' },
     hints: { required: false, type: 'array', label: 'Hints' },
     order: { required: true, type: 'number', label: 'Challenge Order' },
-  },
+    label: 'Travel'
+  }
 };
