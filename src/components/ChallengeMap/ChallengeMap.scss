@@ -1,25 +1,29 @@
 @import '../../css/variables';
 
 .challenge-map {
+  height: 100%;
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
-  background-color: var(--page-bg);
+  background-color: var(--modal-bg);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
 
-  &--loading,
-  &--error {
+  &--loading {
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 400px;
-    background-color: var(--page-bg);
+    background-color: var(--modal-bg);
     color: var(--text-color);
     font-family: var(--font-family);
   }
 
   &--error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
     color: var(--error-color);
   }
 
@@ -48,30 +52,62 @@
   }
 }
 
-// Override default Google Maps InfoWindow styles
-.gm-style .gm-style-iw-c {
-  padding: 0 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-}
+// Google Maps Info Window Styling
+.gm-style {
+  .gm-style-iw {
+    padding: 0 !important;
+    background-color: var(--modal-bg) !important;
+    border-radius: var(--border-radius) !important;
+    max-width: 300px !important;
+    
+    &-c {
+      top: 0 !important;
+      
+      h3 {
+        color: var(--text-color);
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        font-weight: 600;
+        font-family: var(--font-family);
+      }
 
-.gm-style .gm-style-iw-d {
-  overflow: hidden !important;
-  padding: 0 !important;
-}
+      button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-family: var(--font-family);
+        font-size: 14px;
+        width: 100%;
+        transition: background-color 0.2s ease;
 
-.gm-style .gm-style-iw-t::after {
-  background: var(--page-bg) !important;
-}
+        &:hover {
+          background-color: var(--primary-color-hover);
+        }
+      }
+    }
 
-.gm-style-iw-tc::after {
-  background: var(--page-bg) !important;
+    &-t::after {
+      background: var(--modal-bg) !important;
+    }
+
+    &-d {
+      overflow: hidden !important;
+      padding: 0 !important;
+    }
+  }
 }
 
 .challenge-map__info-window {
   padding: 12px;
   min-width: 200px;
-  
+  background: var(--modal-bg);
+  color: var(--text-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
   &-title {
     margin-bottom: 12px;
     font-size: 1.3em;

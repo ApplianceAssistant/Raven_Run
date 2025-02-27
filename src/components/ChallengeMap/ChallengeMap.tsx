@@ -208,6 +208,7 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
           border: 2px solid #FFFFFF;
           font-family: var(--font-family);
           font-size: 14px;
+          cursor: pointer;
         ">
           ${index + 1}
         </div>
@@ -221,8 +222,37 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
         title: challenge.title
       });
 
-      // Add click listener using the new event type
-      marker.addEventListener('gmp-click', () => handleMarkerClick(challenge));
+      // Create info window for this marker
+      const infoWindow = new google.maps.InfoWindow({
+        content: `
+          <div style="padding: 16px;">
+            <h3>${challenge.title}</h3>
+            <button onclick="window.handleChallengeEdit('${challenge.id}', '${game?.gameId}')">
+              Edit Challenge
+            </button>
+          </div>
+        `,
+        pixelOffset: new google.maps.Size(0, -30),
+        disableAutoPan: false
+      });
+
+      // Add click listener
+      marker.addEventListener('click', () => {
+        // Close any open info windows
+        if (infoWindowRef.current) {
+          infoWindowRef.current.close();
+        }
+        
+        // Open this marker's info window
+        infoWindow.open({
+          map: mapRef.current,
+          anchor: marker,
+          shouldFocus: false
+        });
+        
+        // Store reference to current info window
+        infoWindowRef.current = infoWindow;
+      });
 
       // Store marker reference
       markersRef.current.set(challenge.id, marker);
@@ -240,46 +270,6 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
     if (!game?.gameId) return;
     navigate(`/create/challenge/${game.gameId}/${challengeId}`);
   };
-
-  // Create info window instance
-  useEffect(() => {
-    if (!isLoaded) return;
-    
-    infoWindowRef.current = new google.maps.InfoWindow({
-      pixelOffset: new google.maps.Size(0, -30)
-    });
-
-    return () => {
-      if (infoWindowRef.current) {
-        infoWindowRef.current.close();
-      }
-    };
-  }, [isLoaded]);
-
-  // Update info window content when selected challenge changes
-  useEffect(() => {
-    if (selectedChallenge && infoWindowRef.current && mapRef.current && game?.gameId) {
-      const content = `
-        <div class="challenge-map__info-window">
-          <h3 class="challenge-map__info-window-title">
-            ${selectedChallenge.title}
-          </h3>
-          <button
-            class="challenge-map__info-window-edit"
-            onclick="window.handleChallengeEdit && window.handleChallengeEdit('${selectedChallenge.id}', '${game.gameId}')"
-          >
-            Edit Challenge
-          </button>
-        </div>
-      `;
-
-      infoWindowRef.current.setContent(content);
-      infoWindowRef.current.setPosition(selectedChallenge.location);
-      infoWindowRef.current.open(mapRef.current);
-    } else if (infoWindowRef.current) {
-      infoWindowRef.current.close();
-    }
-  }, [selectedChallenge, game?.gameId]);
 
   // Add global handler for edit button click
   useEffect(() => {
