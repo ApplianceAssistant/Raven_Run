@@ -169,7 +169,12 @@ const ChallengeManager = () => {
       showMessage('Create at least 1 travel challenge with a location to unlock mapping.');
       return;
     }
-    navigate('/challenge-map', { state: { challenges: game.challenges } });
+    navigate('/challenge-map', { 
+      state: { 
+        challenges: game.challenges,
+        gameId: game.gameId 
+      } 
+    });
   };
 
   return (

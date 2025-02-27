@@ -46,36 +46,46 @@
       background: var(--button-hover-bg, var(--button-bg));
     }
   }
+}
 
-  &__info-window {
-    padding: 12px;
-    min-width: 200px;
-    
-    &-title {
-      font-family: var(--font-family);
-      color: var(--text-color);
-      margin-bottom: 12px;
-      font-size: 1.1em;
+// Override default Google Maps InfoWindow styles
+.gm-style .gm-style-iw-c {
+  padding: 0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.gm-style .gm-style-iw-d {
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.gm-style .gm-style-iw-t::after {
+  background: var(--page-bg) !important;
+}
+
+.gm-style-iw-tc::after {
+  background: var(--page-bg) !important;
+}
+
+.challenge-map__info-window {
+  padding: 12px;
+  min-width: 200px;
+  
+  &-title {
+    margin-bottom: 12px;
+    font-size: 1.3em;
+  }
+
+  &-edit {
+    @include smooth-transition;
+
+    &:hover {
+      background: var(--button-hover-bg, var(--button-bg));
     }
 
-    &-edit {
-      background: var(--button-bg);
-      color: var(--text-color);
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: var(--font-family);
-      width: 100%;
-      @include smooth-transition;
-
-      &:hover {
-        background: var(--button-hover-bg, var(--button-bg));
-      }
-
-      &:active {
-        transform: scale(0.98);
-      }
+    &:active {
+      transform: scale(0.98);
     }
   }
 }

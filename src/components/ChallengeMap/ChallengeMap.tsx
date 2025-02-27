@@ -12,11 +12,23 @@ interface Challenge {
   };
 }
 
+interface Game {
+  gameId: string;
+}
+
 interface ChallengeMapProps {
   challenges: Challenge[];
+  game: Game;
   defaultCenter?: google.maps.LatLngLiteral;
   defaultZoom?: number;
   isLoading?: boolean;
+}
+
+// Extend window interface
+declare global {
+  interface Window {
+    handleChallengeEdit?: (challengeId: string, gameId: string) => void;
+  }
 }
 
 // Custom map styling to match app theme
@@ -40,6 +52,7 @@ const mapStyles = [
 
 const ChallengeMap: React.FC<ChallengeMapProps> = ({
   challenges,
+  game,
   defaultCenter = { lat: 40.7128, lng: -74.0060 },
   defaultZoom = 12,
   isLoading = false
@@ -132,7 +145,7 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
   };
 
   const handleEditClick = (challengeId: string) => {
-    navigate(`/challenges/${challengeId}/edit`);
+    if (!game?.gameId) return;
     navigate(`/create/challenge/${game.gameId}/${challengeId}`);
   };
 
@@ -151,7 +164,7 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
 
   // Update info window content when selected challenge changes
   useEffect(() => {
-    if (selectedChallenge && infoWindowRef.current && mapRef.current) {
+    if (selectedChallenge && infoWindowRef.current && mapRef.current && game?.gameId) {
       const content = `
         <div class="challenge-map__info-window">
           <h3 class="challenge-map__info-window-title">
@@ -159,7 +172,7 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
           </h3>
           <button
             class="challenge-map__info-window-edit"
-            onclick="window.handleChallengeEdit('${selectedChallenge.id}')"
+            onclick="window.handleChallengeEdit && window.handleChallengeEdit('${selectedChallenge.id}', '${game.gameId}')"
           >
             Edit Challenge
           </button>
@@ -172,18 +185,20 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
     } else if (infoWindowRef.current) {
       infoWindowRef.current.close();
     }
-  }, [selectedChallenge]);
+  }, [selectedChallenge, game?.gameId]);
 
   // Add global handler for edit button click
   useEffect(() => {
-    window.handleChallengeEdit = (challengeId: string) => {
+    if (!game?.gameId) return;
+
+    window.handleChallengeEdit = (challengeId: string, gameId: string) => {
       handleEditClick(challengeId);
     };
 
     return () => {
-      delete window.handleChallengeEdit;
+      window.handleChallengeEdit = undefined;
     };
-  }, []);
+  }, [handleEditClick, game?.gameId]);
 
   // Custom marker icon configuration
   const getMarkerOptions = (index: number) => ({
@@ -213,7 +228,7 @@ const ChallengeMap: React.FC<ChallengeMapProps> = ({
     );
   }
 
-  if (isLoading) {
+  if (isLoading || !game?.gameId) {
     return (
       <div className="challenge-map challenge-map--loading">
         <p>Loading map...</p>
