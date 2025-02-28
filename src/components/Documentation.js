@@ -1,6 +1,8 @@
 import React from 'react';
 import ScrollableContent from './ScrollableContent';
 import '../css/Documentation.scss';
+import { faGripVertical,faWandMagicSparkles, faMapLocationDot, faGamepad, faGear, faCircleQuestion, faLock, faSun, faScroll, faDragon, faKeyboard, faListCheck, faCheck, faRocket } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function Documentation() {
     const handleNavClick = (e) => {
@@ -22,11 +24,11 @@ function Documentation() {
                 
                 <nav className="doc-navigation">
                     <ul>
-                        <li><a href="#getting-started" onClick={handleNavClick}>Getting Started</a></li>
-                        <li><a href="#playing-games" onClick={handleNavClick}>Playing Games</a></li>
-                        <li><a href="#creating-games" onClick={handleNavClick}>Creating Games</a></li>
-                        <li><a href="#settings-and-preferences" onClick={handleNavClick}>Settings and Preferences</a></li>
-                        <li><a href="#troubleshooting" onClick={handleNavClick}>Troubleshooting</a></li>
+                        <li><a href="#getting-started" onClick={handleNavClick}><FontAwesomeIcon icon={faRocket} /> Getting Started</a></li>
+                        <li><a href="#playing-games" onClick={handleNavClick}><FontAwesomeIcon icon={faGamepad} /> Playing Games</a></li>
+                        <li><a href="#creating-games" onClick={handleNavClick}><FontAwesomeIcon icon={faDragon} /> Creating Games</a></li>
+                        <li><a href="#settings-and-preferences" onClick={handleNavClick}><FontAwesomeIcon icon={faGear} /> Settings and Preferences</a></li>
+                        <li><a href="#troubleshooting" onClick={handleNavClick}><FontAwesomeIcon icon={faCircleQuestion} /> Troubleshooting</a></li>
                     </ul>
                 </nav>
                 
@@ -94,25 +96,39 @@ function Documentation() {
                                 <li>Title and description</li>
                                 <li>Difficulty level</li>
                                 <li>Keywords for searchability</li>
-                                <li>Privacy setting (private/public)</li>
-                                <li>Day-Only mode setting for locations only accessible during daylight</li>
+                                <li><FontAwesomeIcon icon={faLock} /> Privacy setting (private/public)</li>
+                                <li><FontAwesomeIcon icon={faSun} /> Day-Only mode setting for locations only accessible during daylight</li>
                             </ul>
                         </li>
                         <li>Add challenges using different types:
                             <ul>
-                                <li><strong>Travel Challenges:</strong> Set specific locations players must visit.</li>
-                                <ul>
-                                    <li>locations are set using latitude/longitude coordinates.</li>
-                                    <li>coordinates can be copied directly from Google Maps by right-clicking a point and selecting the coordinates</li>
-                                    <li>paste copied coordinates into either lat or long field to set the challenge location</li>
-                                    <li>locations can be set manually by entering coordinates or using the search feature or pressing the "Use my Location" button to use your current location</li>
-                                    <li>use the "radius" field to set how close the player must be to the location for success.</li>
-                                </ul>
-                                <li><strong>Challenge Order:</strong> Reorder challenges by dragging challenge cards in the challenge list</li>
-                                <li><strong>Story Challenges:</strong> Create narrative content and interactions</li>
-                                <li><strong>Multiple Choice:</strong> Design questions with multiple options</li>
-                                <li><strong>True/False:</strong> Create simple true/false questions</li>
-                                <li><strong>Text Input:</strong> Create questions where players must type the correct answer</li>
+                                <li><strong><FontAwesomeIcon icon={faMapLocationDot} /> Location Challenge:</strong>
+                                    <ul>
+                                        <li>locations are set using latitude/longitude coordinates.</li>
+                                        <li>coordinates can be copied directly from Google Maps by right-clicking a point and selecting the coordinates</li>
+                                        <li>paste copied coordinates into either lat or long field to set the challenge location</li>
+                                        <li>locations can also be set manually by entering coordinates, dropping a pin using the map tool, or pressing the "Use my Location" button to use your current location</li>
+                                        <li>use the "radius" field to set how close the player must be to the location for success.</li>
+                                    </ul>
+                                </li>
+                                <li><strong><FontAwesomeIcon icon={faGripVertical} /> Challenge Order:</strong> Reorder challenges by dragging challenge cards in the challenge list</li>
+                                <li><strong><FontAwesomeIcon icon={faScroll} /> Story Challenges:</strong> Create narrative content to build mood and atmosphere</li>
+                                <li><strong><FontAwesomeIcon icon={faListCheck} /> Multiple Choice:</strong> Design questions with multiple options</li>
+                                <li><strong><FontAwesomeIcon icon={faCheck} /> True/False:</strong> Create simple true/false questions</li>
+                                <li><strong><FontAwesomeIcon icon={faKeyboard} /> Text Input:</strong> Create questions where players must type the correct answer</li>
+                            </ul>
+                        </li>
+                        <li><FontAwesomeIcon icon={faWandMagicSparkles} /> AI Writing Assistance:
+                            <ul>
+                                <li>Select writing style, genre, and tone to set the context</li>
+                                <li>Enter additional prompts to guide the AI's content generation</li>
+                                <li>Use AI assistance to generate or enhance:
+                                    <ul>
+                                        <li>Game titles</li>
+                                        <li>Game descriptions</li>
+                                        <li>Challenge content</li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                     </ul>
@@ -147,8 +163,8 @@ function Documentation() {
                     <ul>
                         <li>Theme preferences:
                             <ul>
+                                <li>Choose a theme</li>
                                 <li>Toggle between Light and Dark mode</li>
-                                <li>Adjust display settings</li>
                             </ul>
                         </li>
                         <li>Measurement preferences:
