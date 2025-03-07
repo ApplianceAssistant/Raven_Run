@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ScrollableContent from './ScrollableContent';
 import TextToSpeech from './TextToSpeech';
 
@@ -6,21 +6,41 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeec
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
   const [autoPlayTrigger, setAutoPlayTrigger] = useState(0);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
     if (isOpen) {
       setShouldRender(true);
-      setTimeout(() => {
-        setIsVisible(true);
-        setAutoPlayTrigger(prev => prev + 1);
-      }, 50);
+      // Use RAF to ensure DOM is ready
+      requestAnimationFrame(() => {
+        timeoutRef.current = setTimeout(() => {
+          setIsVisible(true);
+          setAutoPlayTrigger(prev => prev + 1);
+        }, 50);
+      });
     } else {
       setIsVisible(false);
-      setTimeout(() => setShouldRender(false), 300);
+      timeoutRef.current = setTimeout(() => {
+        setShouldRender(false);
+      }, 300);
     }
+
+    // Cleanup function
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [isOpen]);
 
-  if (!shouldRender) return null;
+  if (!shouldRender) {
+    return null;
+  }
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -60,9 +80,9 @@ const Modal = ({ isOpen, onClose, title, content, buttons, type, showTextToSpeec
     <div className={`modal-overlay ${isVisible ? 'visible' : ''}`} onClick={handleOverlayClick}>
       <div className={`modal-content ${isVisible ? 'visible' : ''}`}>
         <div className="modal-header">
-          <h2>{title}</h2>
+          {title && <h2>{title}</h2>}
         </div>
-        <ScrollableContent maxHeight="60vh">
+        <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 55)">
           <div className={`modal-body ${getContentColor()}`}>
             {content}
           </div>

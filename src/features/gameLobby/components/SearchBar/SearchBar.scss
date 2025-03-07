@@ -1,0 +1,294 @@
+@import '../../../../css/variables.scss';
+
+.search-bar {
+    form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 2px solid var(--border-color);
+        border-radius: 5px;
+        font-size: 1rem;
+        background: var(--input-bg);
+        color: var(--text-color);
+        min-width: 200px;
+
+        &:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+    }
+
+    button {
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    }
+
+    .filter-toggle-button {
+        background-color: var(--button-bg);
+    }
+}
+
+.search-panel {
+    position: fixed;
+    top: calc(var(--header-height) - 40px);
+    left: 0;
+    right: 0;
+    background: var(--modal-bg);
+    border-radius: 0 0 15px 15px;
+    box-shadow: 6px 4px 5px var(--shadow);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    transition: transform 0.3s ease-in-out;
+    transform: translateY(-100%);
+    z-index: 90;
+
+    &.expanded {
+        transform: translateY(0);
+    }
+
+    .search-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 20px 0; // Removed bottom padding
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            
+            .search-input,
+            .game-id-input {
+                flex: 1;
+                padding: 8px 12px;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                font-size: 14px;
+                
+                &:disabled {
+                    background-color: var(--input-disabled-bg);
+                    cursor: not-allowed;
+                }
+            }
+
+            .game-id-input {
+                max-width: 150px;
+            }
+
+            .search-input {
+                flex: 1;
+                padding: 10px 15px;
+                border: 1px solid var(--border-color);
+                border-radius: 5px;
+                font-size: 1rem;
+                background: var(--input-bg);
+                color: var(--text-color);
+                min-width: 200px;
+
+                &:focus {
+                    outline: none;
+                    border-color: var(--accent-color);
+                }
+            }
+
+            .search-button {
+                border: none;
+                padding: 10px 15px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                
+                i {
+                    font-size: 1.2rem;
+                }
+
+                &:hover {
+                    transform: translateY(-2px);
+                }
+            }
+        }
+
+        .filter-content {
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-bottom: 20px;
+
+            .filter-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                
+                > div {
+                    flex: 1 1 300px; // Allow wrapping at 300px min-width
+                    min-width: 0; // Prevent flex items from overflowing
+                }
+
+                @media (max-width: 767px) {
+                    > div {
+                        flex: 1 1 100%; // Full width on mobile
+                    }
+                }
+
+                label {
+                    display: block;
+                    margin-bottom: 8px;
+                    color: var(--text-color);
+                }
+
+                input, select {
+                    width: 100%;
+                    padding: 8px 12px;
+                    border: 1px solid var(--border-color);
+                    border-radius: 5px;
+                    background: var(--input-bg);
+                    color: var(--text-color);
+                    font-size: 1rem;
+
+                    &:focus {
+                        outline: none;
+                        border-color: var(--accent-color);
+                    }
+                }
+
+                .location-filter {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    align-items: flex-start;
+
+                    select {
+                        flex: 1;
+                        min-width: 140px;
+                        padding: 8px 12px;
+                        border: 1px solid var(--border-color);
+                        border-radius: 5px;
+                        background: var(--input-bg);
+                        color: var(--text-color);
+                        font-size: 1rem;
+                        height: 40px; // Fixed height for alignment
+                        
+                        &.location-filter {
+                            flex: 2;
+                            min-width: 160px;
+                        }
+                        
+                        &.radius-select {
+                            flex: 1;
+                            min-width: 140px;
+                        }
+
+                        &:focus {
+                            outline: none;
+                            border-color: var(--accent-color);
+                        }
+                    }
+                }
+
+                .difficulty-filter {
+                    .difficulty-options {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                        margin-top: 0.5rem;
+                        justify-content: center;
+
+                        .difficulty-btn {
+                            flex: 0 1 auto; // Don't grow, allow shrinking, auto-basis
+                            min-width: 80px; // Minimum width for buttons
+                            padding: 8px 16px;
+                            border: 1px solid var(--border-color);
+                            border-radius: 5px;
+                            background: var(--button-bg);
+                            color: var(--text-color);
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            text-align: center;
+                            white-space: nowrap;
+
+                            &:hover {
+                                background: var(--button-bg-hover);
+                            }
+
+                            &.active {
+                                background: var(--button-bg-save);
+                                color: var(--text-color-inverse);
+                                border-color: var(--button-bg-save);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .filter-panel {
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0 0 8px 8px;
+        padding: 1rem;
+        margin-top: -1px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        .result-count {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.3s ease-in-out;
+            
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+    }
+
+    .panel-tab {
+        position: absolute;
+        bottom: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--modal-bg);
+        padding: 8px 20px;
+        border-radius: 0 0 10px 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 6px 4px 15px var(--shadow);
+        border: 1px solid var(--border-color);
+        border-top: none;
+        transition: all 0.3s ease;
+
+        i {
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .tab-text {
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+    }
+}

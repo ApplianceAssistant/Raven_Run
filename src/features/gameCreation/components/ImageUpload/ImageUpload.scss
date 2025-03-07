@@ -1,0 +1,270 @@
+@import '../../../../css/variables';
+
+.image-upload-container {
+    width: 100%;
+    
+    .upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &.drag-active {
+            border-color: var(--primary-color);
+            background-color: var(--hover-bg);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin: 0.5rem 0;
+            color: var(--text-color);
+        }
+
+        .file-requirements {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            margin-top: 1rem;
+        }
+    }
+
+    .image-preview {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--modal-bg);
+        padding: 1rem;
+
+        img {
+            display: block;
+            max-width: 100%;
+            border-radius: 4px;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: flex-end;
+            align-items: center;
+
+            button {
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-size: 0.875rem;
+
+                &.save-crop-button {
+                    background: var(--button-bg-save);
+                    border: none;
+
+                    &:disabled {
+                        opacity: 0.5;
+                        cursor: not-allowed;
+                    }
+                }
+
+                &.clear-button {
+                    background: var(--button-bg-caution);
+                    border: 1px solid var(--border-color);
+                    color: var(--text-color);
+
+                    svg {
+                        margin-right: 0.5rem;
+                    }
+                }
+            }
+        }
+
+        .error-message {
+            color: var(--error-color);
+            margin-top: 1rem;
+            text-align: center;
+        }
+    }
+}
+
+.image-upload-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+
+    .error-message {
+        color: var(--button-bg-caution);
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        background: var(--input-bg);
+        cursor: pointer;
+        @include smooth-transition;
+
+        &.drag-active {
+            border-color: var(--button-bg);
+            background: var(--modal-bg);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--text-color-secondary);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin: 1rem 0;
+            color: var(--text-color-secondary);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--button-bg);
+            color: var(--button-text-color);
+            border-radius: 4px;
+            cursor: pointer;
+            @include smooth-transition;
+
+            &:hover {
+                background: var(--button-hover-bg);
+            }
+        }
+    }
+
+    .image-preview-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+
+        .current-image-preview {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: var(--modal-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 1rem;
+            min-height: 0;
+
+            img {
+                max-height: calc(70vh - 4rem);
+                width: auto;
+                max-width: 100%;
+                object-fit: contain;
+                margin: 0 auto;
+                border-radius: 4px;
+            }
+
+            .image-actions {
+                margin-top: 1rem;
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+
+                button {
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 4px;
+                    border: none;
+                    cursor: pointer;
+                    font-weight: 500;
+                    color: white;
+                    @include smooth-transition;
+
+                    &.remove-button {
+                        background: var(--button-bg-caution);
+                    }
+
+                    &.cancel-button {
+                        background: var(--button-bg);
+                    }
+
+                    &:hover {
+                        opacity: 0.9;
+                    }
+                }
+            }
+        }
+    }
+
+    .fullsize-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+
+        .fullsize-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90vh;
+
+            img {
+                max-width: 100%;
+                max-height: 90vh;
+                object-fit: contain;
+            }
+
+            .close-button {
+                position: absolute;
+                top: -2rem;
+                right: -2rem;
+                background: var(--button-bg-caution);
+                color: var(--button-text-color);
+                border: none;
+                width: 2.5rem;
+                height: 2.5rem;
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                @include smooth-transition;
+
+                &:hover {
+                    background: darken(#e63946, 10%);
+                }
+            }
+        }
+    }
+
+    .compression-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+        
+        span {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+    }
+}

@@ -23,8 +23,11 @@ export const metersToFeet = (meters) => {
   };
   
   export const convertDistance = (distance, fromMetric, toMetric) => {
-    if (fromMetric === toMetric) return distance;
-    return fromMetric ? kilometersToMiles(distance) : milesToKilometers(distance);
+    if (fromMetric === toMetric) {
+      return Number(distance.toFixed(1));
+    }
+    const converted = fromMetric ? kilometersToMiles(distance) : milesToKilometers(distance);
+    return Number(converted.toFixed(1));
   };
   
   export const convertSmallDistance = (distance, fromMetric, toMetric) => {

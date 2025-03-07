@@ -6,10 +6,10 @@ const audioFiles = {
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-const loadAudioBuffer = (url) => {
-    return fetch(url)
-        .then(response => response.arrayBuffer())
-        .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer));
+const loadAudioBuffer = async (url) => {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    return await audioContext.decodeAudioData(arrayBuffer);
 };
 
 const audioInstances = {};
@@ -66,4 +66,4 @@ export const playAudio = async (type) => {
   };
 
 // Preload audio files
-Object.keys(audioFiles).forEach(type => loadAudio(type).catch(error => console.warn(`Failed to preload ${type}:`, error)));
+Object.keys(audioFiles).forEach(type => loadAudio(type).catch(error => console.error(`Failed to preload ${type}:`, error)));

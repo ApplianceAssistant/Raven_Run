@@ -1,0 +1,98 @@
+.documentation-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    color: var(--text-color);
+
+    h1 {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: var(--text-color);
+    }
+
+    .doc-section {
+        margin-bottom: 3rem;
+        padding: 1.5rem;
+        background: var(--modal-bg);
+        border-radius: 10px;
+        box-shadow: 0 2px 8px var(--shadow);
+
+        h2 {
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            color: var(--text-color);
+            margin: 1.5rem 0 1rem;
+        }
+
+        ul {
+            text-align: left;
+            list-style-type: none;
+            padding-left: 1.5rem;
+
+            li {
+                margin-bottom: 0.8rem;
+                position: relative;
+
+                &:before {
+                    content: "•";
+                    color: var(--accent-color);
+                    position: absolute;
+                    left: -1.2rem;
+                }
+
+                strong {
+                    color: var(--accent-color);
+                }
+            }
+        }
+    }
+
+    .doc-navigation {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        border-radius: 4px;
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        li {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+
+            &:hover {
+                text-decoration: underline;
+                color: var(--button-text);
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .documentation-container {
+        padding: 1rem;
+
+        .doc-section {
+            padding: 1rem;
+        }
+    }
+}

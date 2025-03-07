@@ -1,11 +1,52 @@
 // src/utils/utils.js
 
 import axios from 'axios';
+import React from 'react'; // Import React for JSX usage
 
-export const API_URL = process.env.NODE_ENV === 'production'
-  ? 'https://crowtours.com/api'
-  : 'http://localhost:5000/api';
+const getApiUrl = () => {
+  return process.env.REACT_APP_URL;
+};
 
+export const API_URL = getApiUrl();
+
+// Configure axios defaults
+axios.defaults.baseURL = API_URL;  // Revert back to original configuration
+axios.defaults.withCredentials = true; // Enable CORS credentials
+
+// Get salt from environment variables
+const SALT = process.env.REACT_APP_SALT;
+if (!SALT) {
+  throw new Error('Security configuration error: SALT not found in environment');
+}
+
+/**
+ * Hash a password using SHA-256 and return a base64 string
+ * Note: This is for initial hashing only. The server will apply additional hashing.
+ * @param {string} password - The password to hash
+ * @returns {Promise<string>} The hashed password
+ */
+export async function hashPassword(password) {
+  try {
+    if (!password) {
+      throw new Error('Password is required');
+    }
+
+    // Convert password string to bytes
+    const encoder = new TextEncoder();
+    const passwordData = encoder.encode(password + SALT);
+
+    // Hash the password using SHA-256
+    const hashBuffer = await crypto.subtle.digest('SHA-256', passwordData);
+
+    // Convert hash to hex string
+    return Array.from(new Uint8Array(hashBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  } catch (error) {
+    console.error('Password hashing failed:', error);
+    throw new Error('Password processing failed');
+  }
+}
 
 //function to detect the need for content scrolling
 export function handleScroll(contentWrapper, contentHeader, bodyContent, scrollIndicator) {
@@ -90,31 +131,55 @@ export const handleError = (error, context) => {
 
 export const authFetch = async (url, options = {}) => {
   const user = JSON.parse(localStorage.getItem('user'));
-  const headers = {
+  
+  // Create a new headers object
+  const headers = new Headers({
       'Content-Type': 'application/json',
-      ...options.headers,
-  };
+      ...(options.headers || {})
+  });
 
-  if (user && user.token) {
-      headers['Authorization'] = `Bearer ${user.token}`;
+  // Add authorization header if user has a token
+  if (user?.token) {
+      headers.set('Authorization', `Bearer ${user.token}`);
   }
 
   try {
       const response = await fetch(url, {
           ...options,
           headers,
+          credentials: 'include', // Always include credentials
       });
 
+      // Check for and handle token refresh
+      const newToken = response.headers.get('X-New-Token');
+      if (newToken && user) {
+          const updatedUser = { ...user, token: newToken };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+
+      // Handle different response statuses
       if (response.status === 401) {
-          console.error('Unauthorized access, user might need to log in again');
-          // Clear user data and logout
-          localStorage.removeItem('user');
-          window.location.reload();
+          console.error('Unauthorized access detected');
+          // Only clear user data if we're not already on the login page
+          if (!window.location.pathname.includes('/log-in')) {
+              localStorage.removeItem('user');
+              window.location.href = '/log-in';
+          }
+          throw new Error('Unauthorized access');
+      }
+
+      if (!response.ok) {
+          console.error(`HTTP error! status: ${response.status}`);
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       return response;
   } catch (error) {
-      console.error('Fetch error:', error);
+      console.error('Fetch error:', error.message);
+      // Add request details to the error
+      error.requestUrl = url;
+      error.requestOptions = { ...options, headers: Object.fromEntries(headers.entries()) };
       throw error;
   }
 };
@@ -122,7 +187,8 @@ export const authFetch = async (url, options = {}) => {
 // Function to check server connectivity and measure response time
 export const checkServerConnectivity = async () => {
   try {
-    const response = await axios.get(`${API_URL}/db-test.php`);
+    const start = Date.now();
+    const response = await axios.get(`${API_URL}/server/tests/healthcheck.php`);
     if (response.data && response.data.status === 'success') {
       return {
         isConnected: true,
@@ -173,3 +239,93 @@ export function getUserUnitPreference() {
   const savedUnitSystem = localStorage.getItem('unitSystem');
   return savedUnitSystem ? JSON.parse(savedUnitSystem) : false; // Default to false (imperial) if not set
 }
+
+/**
+ * Formats a phone number as user types, showing partial formatting
+ * @param {string} phone - Raw phone number
+ * @returns {string} Formatted phone number
+ */
+export function formatPhoneNumber(phone) {
+    if (!phone) return '';
+    
+    // Remove all non-digit characters
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Format based on length
+    if (cleaned.length <= 3) {
+        return cleaned;
+    } else if (cleaned.length <= 6) {
+        return `(${cleaned.slice(0,3)}) ${cleaned.slice(3)}`;
+    } else {
+        return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}${cleaned.length > 6 ? '-' + cleaned.slice(6, 10) : ''}`;
+    }
+}
+
+/**
+ * Compresses a phone number to just digits
+ * @param {string} phone - Phone number in any format
+ * @returns {string} Compressed phone number (just digits) or empty string if invalid
+ */
+export function compressPhoneNumber(phone) {
+    if (!phone) return '';
+    const cleaned = phone.replace(/\D/g, '');
+    return cleaned.length === 10 ? cleaned : '';
+}
+
+/**
+ * Validates if a phone number has exactly 10 digits
+ * @param {string} phone - Phone number to validate
+ * @returns {boolean} True if valid 10-digit number
+ */
+export function isValidPhoneNumber(phone) {
+    if (!phone) return false;
+    const cleaned = phone.replace(/\D/g, '');
+    return cleaned.length === 10;
+}
+
+/**
+ * Cleans and formats text content, handling newlines and optional truncation
+ * @param {string} text - The text to clean and format
+ * @param {Object} options - Configuration options
+ * @param {boolean} [options.asJsx=false] - If true, returns JSX with <br/> tags instead of \n
+ * @param {number} [options.maxLength] - Optional maximum length before truncation
+ * @param {string} [options.truncationSuffix='...'] - String to append when truncating
+ * @returns {string|JSX.Element} Cleaned text, either as string or JSX
+ */
+export const cleanText = (text, options = {}) => {
+    const {
+        asJsx = false,
+        maxLength,
+        truncationSuffix = '...'
+    } = options;
+
+    if (!text) return '';
+
+    // Split on newlines and clean each line
+    let lines = text.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+
+    // Join lines based on output format
+    let cleaned = asJsx 
+        ? lines.map((line, i) => (
+            <React.Fragment key={i}>
+                {line}
+                {i < lines.length - 1 && <br />}
+            </React.Fragment>
+          ))
+        : lines.join('\n');
+
+    // Handle truncation if maxLength is specified
+    if (maxLength && typeof cleaned === 'string' && cleaned.length > maxLength) {
+        cleaned = cleaned.substring(0, maxLength).trim() + truncationSuffix;
+    }
+
+    return cleaned;
+};
+
+export const generateTempUsername = (email) => {
+    const prefix = email.split('@')[0];
+    const randomString = Math.random().toString(36).substring(2, 8);
+    return `${prefix}_${randomString}`;
+};

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import ScrollableContent from './ScrollableContent';
+import { cleanText } from '../utils/utils';
 
 export const Challenge = ({ challenge, challengeState, onStateChange, onContinue }) => {
-
-
   const renderChallenge = () => {
     switch (challenge.type) {
       case 'story':
@@ -30,23 +29,12 @@ export const Challenge = ({ challenge, challengeState, onStateChange, onContinue
   };
 
   const renderStoryChallenge = () => {
-    const formattedStoryText = challenge.storyText.split('\n').map((line, index) => (
-      <React.Fragment key={index}>
-        {line}
-        {index < challenge.storyText.split('\n').length - 1 && <br />}
-      </React.Fragment>
-    ));
-  
-    return (
+    return;
+    /*return (
       <div className="story-challenge">
-        <div className="story-text">{formattedStoryText}</div>
-        {challengeState.textVisible && (
-          <div className="continue-button-container">
-            <button onClick={onContinue} className="continue-button">Continue</button>
-          </div>
-        )}
+        {cleanText(challenge.description, { asJsx: true })}
       </div>
-    );
+    );*/
   };
 
   const renderMultipleChoiceChallenge = () => {
@@ -54,19 +42,24 @@ export const Challenge = ({ challenge, challengeState, onStateChange, onContinue
       return <p>No options available for this challenge.</p>;
     }
     return (
-      <form>
-        {challenge.options.map(option => (
-          <label key={option}>
-            <input
-              type="radio"
-              value={option}
-              checked={challengeState.answer === option}
-              onChange={handleInputChange}
-            />
-            {option}
-          </label>
-        ))}
-      </form>
+      <div className="multiple-choice-challenge">
+        {cleanText(challenge.description, { asJsx: true })}
+        <div className="options">
+          <form>
+            {challenge.options.map(option => (
+              <label key={option}>
+                <input
+                  type="radio"
+                  value={option}
+                  checked={challengeState.answer === option}
+                  onChange={handleInputChange}
+                />
+                {option}
+              </label>
+            ))}
+          </form>
+        </div>
+      </div>
     );
   };
 
@@ -105,27 +98,17 @@ export const Challenge = ({ challenge, challengeState, onStateChange, onContinue
 
   return (
     <div className={`challengeBody ${challengeState.textVisible ? 'visible' : ''}`}>
-      <ScrollableContent maxHeight="60vh">
+      <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 70)">
         <h2>{challenge.title}</h2>
         <div className="challenge-content">
           {challenge.description && (
             <p className="challenge-description">
-              {challenge.description.split('\n').map((line, index) => (
-                <React.Fragment key={index}>
-                  {line}
-                  {index < challenge.description.split('\n').length - 1 && <br />}
-                </React.Fragment>
-              ))}
+              {cleanText(challenge.description, { asJsx: true })}
             </p>
           )}
           {challenge.question && (
             <p className="challenge-question">
-              {challenge.question.split('\n').map((line, index) => (
-                <React.Fragment key={index}>
-                  {line}
-                  {index < challenge.question.split('\n').length - 1 && <br />}
-                </React.Fragment>
-              ))}
+              {cleanText(challenge.question, { asJsx: true })}
             </p>
           )}
           {renderChallenge()}

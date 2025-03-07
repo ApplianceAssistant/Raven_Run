@@ -8,14 +8,15 @@
     --font-family-heading: 'Staatliches', serif;
     --page-bg: #e3e0cf; // Light sandy beige to resemble aged stone
     --text-color: #3e3b31; // Dark earthy brown for readable contrast
+    --text-color-secondary: #6a5d6d; // Muted earthy brown for secondary text color
     --button-bg: #6b8e23; // Olive green for a natural, jungle-inspired touch
-    --button-bg-hint: #c8b784; // Muted sand beige for hint buttons
+    --button-bg-hint: #f78e05; // Muted sand beige for hint buttons
     --button-bg-save: #4a6e31; // Deep forest green for a "safe" tone
     --button-bg-caution: #a52a2a; // Rusty red-brown for a cautionary effect
     --button-text-color: #ffffff; // White for clarity on colored buttons
     --button-hover-bg: #556b2f; // Dark olive for a subtle hover effect
-    --button-disabled-bg: #d3d3d3; // Gray for disabled buttons
-    --button-disabled-text: #808080; // Medium gray for disabled text
+    --button-disabled-bg: #676e57; // Gray for disabled buttons
+    --button-disabled-text: #ffffff; // Medium gray for disabled text
     --slider-bg-on: #6b8e23; // Olive green matching button background for on-state
     --slider-bg-off: #b8b894; // Light stone gray for off-state
     --link-color: #4e643d; // Muted forest green for links
@@ -28,14 +29,15 @@
     &.dark-mode {
         --page-bg: #2a2c28; // Deep, forested green-gray for a nighttime jungle vibe
         --text-color: #d4d0b1; // Pale sandy gray for contrast
+        --text-color-secondary: #a8a6a6; // Soft white-gray for readability on dark backgrounds
         --button-bg: #556b2f; // Dark olive for the button background
-        --button-bg-hint: #6c6754; // Muted stone brown for hint buttons
+        --button-bg-hint: #f78e05; // Muted stone brown for hint buttons
         --button-bg-save: #3b5d25; // Deep forest green for save
         --button-bg-caution: #7b2c2c; // Dark rusty red for caution
         --button-text-color: #ffffff; // White text for readability on buttons
         --button-hover-bg: #4b5a24; // Deeper olive green on hover
-        --button-disabled-bg: #555555; // Dark gray for disabled buttons
-        --button-disabled-text: #888888; // Medium gray for disabled text
+        --button-disabled-bg: #747571; // Dark gray for disabled buttons
+        --button-disabled-text: #b8b8b8; // Medium gray for disabled text
         --slider-bg-on: #6b8e23; // Same olive green for on-state
         --slider-bg-off: #4e4e3d; // Dark earthy gray for off-state
         --link-color: #9c9f84; // Pale forest green for links

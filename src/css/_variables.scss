@@ -1,29 +1,34 @@
 // _variables.scss (Base Variables)
+@import url('https://fonts.googleapis.com/css2?family=Barrio&display=swap');
 :root {
-  --font-family: 'Roboto', sans-serif;
-  --page-bg: #f7f9fc;
-  --text-color: #333333;
-  --button-bg: #006bb5;
-  --button-bg-hint: #dfb601;
-  --button-bg-save: #009a00;
-  --button-bg-caution: #e63946;
+  --font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-heading: 'Barrio', 'Permanent Marker', sans-serif;
+  --page-bg: #f8fafd;
+  --text-color: #2d3748;
+  --text-color-secondary: #4a5568;
+  --button-bg: #3182ce;
+  --button-bg-hint: #ecc94b;
+  --button-bg-save: #48bb78;
+  --button-bg-caution: #f56565;
   --button-text-color: #ffffff;
-  --button-hover-bg: #005a8a;
-  --button-disabled-bg: #cccccc;
-  --button-disabled-text: #666666;
-  --slider-bg-on: #0069b5;
-  --slider-bg-off: #cccccc;
-  --link-color: #006bb5;
-  --border-color: #ffffff;
-  --shadow: rgba(94, 94, 94, 0.5);
-  --input-bg: #f9f9f9;
-  --input-text-color: #333333;
-  --modal-bg: #f7f9fc;
+  --button-hover-bg: #2b6cb0;
+  --button-disabled-bg: #e2e8f0;
+  --button-disabled-text: #718096;
+  --slider-bg-on: #3182ce;
+  --slider-bg-off: #e2e8f0;
+  --link-color: #3182ce;
+  --border-color: #cbd5e0;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --input-bg: #ffffff;
+  --input-text-color: #2d3748;
+  --modal-bg: #ffffff;
+  --header-height: 50px;
+  --border-radius: 8px;
 }
 
 // Breakpoints
 $breakpoint-xs: 200px;
-$breakpoint-sm: 576px;
+$breakpoint-sm: 400px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 992px;
 $breakpoint-xl: 1200px;

@@ -8,14 +8,15 @@
   --font-family-heading: 'Rubik Wet Paint', serif;
   --page-bg: #f1f1f1;
   --text-color: #2c2c2c;
+  --text-color-secondary: #6a5d6d; // Muted earthy brown for secondary text color
   --button-bg: #7a2d2d; // Dark, blood red
-  --button-bg-hint: #bababa;
+  --button-bg-hint: #f78e05;
   --button-bg-save: #4e5b44; // Muted olive green
   --button-bg-caution: #a83434;
   --button-text-color: #ffffff;
   --button-hover-bg: #5e2323; // Deeper blood red for hover
   --button-disabled-bg: #d3d3d3;
-  --button-disabled-text: #a0a0a0;
+  --button-disabled-text: #616161;
   --slider-bg-on: #a83434;
   --slider-bg-off: #bababa;
   --link-color: #7a3f3f; // Muted red for links
@@ -28,14 +29,15 @@
   &.dark-mode {
     --page-bg: #1c1c24;
     --text-color: #e7e5e5;
+    --text-color-secondary: #a09e9e; // Muted earthy brown for secondary text color
     --button-bg: #722d2d; // Deep, dark red for button
-    --button-bg-hint: #2a2a2a;
+    --button-bg-hint: #f78e05;
     --button-bg-save: #3d4e38; // Darker olive green for save
     --button-bg-caution: #b40101;
     --button-text-color: #e0e0e0;
     --button-hover-bg: #3e1414; // Darker red for hover
     --button-disabled-bg: #333333;
-    --button-disabled-text: #777777;
+    --button-disabled-text: #a09e9e;
     --slider-bg-on: #722d2d;
     --slider-bg-off: #838282;
     --link-color: #b15b5b; // Muted warm red for links

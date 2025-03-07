@@ -1,0 +1,68 @@
+// Text Content Pages Styling
+.text-content-page {
+  text-align: left;
+  padding: 0 1rem;
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    color: var(--text-color);
+  }
+
+  ul, ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    
+    li {
+      margin-bottom: 0.5rem;
+      line-height: 1.6;
+    }
+  }
+
+  a {
+    color: var(--link-color);
+    text-decoration: underline;
+    
+    &:hover {
+      color: var(--button-hover-bg);
+    }
+  }
+
+  section {
+    margin-bottom: 2rem;
+  }
+
+  .legal-links {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+// Modal version of text content
+.modal-content {
+  .text-content-page {
+    padding: 0;
+  }
+}

@@ -5,6 +5,7 @@ const LOCATION_UPDATE_INTERVAL = 1000; // 1 second in milliseconds
 
 export const useLocationWatcher = () => {
   const [userLocation, setUserLocation] = useState(null);
+  const [hasLocationError, setHasLocationError] = useState(false);
   const lastUpdateTime = useRef(0);
 
   useEffect(() => {
@@ -20,10 +21,15 @@ export const useLocationWatcher = () => {
               accuracy: position.coords.accuracy,
               timestamp: position.timestamp
             });
+            setHasLocationError(false);
             lastUpdateTime.current = currentTime;
           }
         },
-        (error) => handleError(error, 'Location Watcher'),
+        (error) => {
+          handleError(error, 'Location Watcher');
+          setHasLocationError(true);
+          setUserLocation(null);
+        },
         { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
       );
     }
@@ -35,5 +41,5 @@ export const useLocationWatcher = () => {
     };
   }, []);
 
-  return userLocation;
+  return { userLocation, hasLocationError };
 };

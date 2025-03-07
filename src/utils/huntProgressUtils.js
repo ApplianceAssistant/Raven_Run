@@ -2,10 +2,10 @@
 
 const HUNT_PROGRESS_KEY = 'huntProgress';
 
-export const saveHuntProgress = (pathId, challengeIndex) => {
+export const saveHuntProgress = (gameId, challengeIndex) => {
   const progress = {
-    pathId: parseInt(pathId, 10),
-    challengeIndex: parseInt(challengeIndex, 10),
+    gameId: gameId,
+    challengeIndex: parseInt(challengeIndex),
     timestamp: Date.now()
   };
   localStorage.setItem(HUNT_PROGRESS_KEY, JSON.stringify(progress));

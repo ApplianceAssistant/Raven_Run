@@ -1,0 +1,384 @@
+.game-card {
+    background: var(--modal-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 2px 6px 0px var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    position: relative;
+
+    &:hover {
+        transform: translateY(-4px);
+    }
+
+    &.in-progress {
+        border: 2px solid var(--success-color);
+    }
+
+    .game-image {
+        height: 120px;
+        background: var(--card-header-bg);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 5px 5px 0 0;
+        overflow: hidden;
+
+        .game-thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.85;
+            transition: opacity 0.2s ease;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+
+        .game-thumbnail-placeholder {
+            width: 100%;
+            height: 100%;
+            background: var(--card-header-bg);
+        }
+    }
+
+    .game-info {
+        padding: 15px;
+
+        h3 {
+            margin: 0 0 8px;
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .description {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            opacity: 0.8;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .meta-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+
+            .rating {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                color: var(--text-muted);
+                font-size: 0.9rem;
+
+                .stars {
+                    display: flex;
+                    gap: 2px;
+
+                    .star-icon {
+                        font-size: 1rem;
+                        transition: transform 0.2s ease;
+
+                        &.filled {
+                            color: #ffd700;
+                        }
+                    }
+                }
+            }
+
+            .tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+
+                .tag {
+                    background: var(--tag-bg);
+                    color: var(--tag-text);
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                }
+            }
+
+            .game-meta {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 4px;
+                padding-top: 8px;
+                border-top: 1px solid var(--border-color);
+                
+                .duration {
+                    color: var(--text-muted);
+                    font-size: 0.9rem;
+                    
+                    svg {
+                        margin-right: 5px;
+                    }
+                }
+
+                .offline-indicator {
+                    font-size: 0.75rem;
+                    color: var(--text-muted);
+                    opacity: 0.7;
+                    font-style: italic;
+                }
+
+                .progress-badge {
+                    color: var(--success-color);
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+}
+
+.game-card {
+    background: var(--modal-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 2px 6px 0px var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+        transform: translateY(-4px);
+    }
+
+    &.in-progress {
+        border: 2px solid #4CAF50;
+
+        .progress-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+    }
+
+    .game-image {
+        height: 70px;
+        background: var(--card-header-bg);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 5px 5px 0 0;
+        box-shadow: var(--shadow);
+
+        .difficulty-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: capitalize;
+
+            &.easy {
+                background: var(--success-color);
+            }
+
+            &.medium {
+                background: var(--warning-color);
+            }
+
+            &.hard {
+                background: var(--error-color);
+            }
+        }
+
+        .creator-name {
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            i {
+                font-size: 0.8rem;
+            }
+        }
+
+        .distance-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--accent-color);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            i {
+                margin-right: 4px;
+            }
+        }
+
+        .challenge-count {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--primary-color);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card-header-item {
+            background: var(--modal-bg);
+            opacity: 0.6;
+        }
+    }
+
+    .game-info {
+        padding: 15px;
+
+        h3 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            width: 100%;
+
+            .stars {
+                display: inline-flex;
+                font-size: 1.1rem;
+                line-height: 1;
+                justify-content: center;
+                align-items: center;
+
+                .star {
+                    position: relative;
+                    width: 1em;
+                    height: 1em;
+                    display: inline-flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin: 0;
+                    padding: 0;
+
+                    &.full::before {
+                        content: '★';
+                    }
+
+                    &.empty::before {
+                        content: '☆';
+                    }
+
+                    &.half {
+                        &::before {
+                            content: '★';
+                            position: absolute;
+                            left: 0;
+                            width: 50%;
+                            overflow: hidden;
+                        }
+
+                        &::after {
+                            content: '☆';
+                            position: absolute;
+                            left: 0;
+                        }
+                    }
+                }
+            }
+
+            .rating-count {
+                font-size: 0.9rem;
+                margin-left: 0.25rem;
+            }
+        }
+
+        .description {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .meta-info {
+            display: flex;
+            flex-direction: column;
+            margin-top: 10px;
+            gap: 5px;
+
+            .duration {
+                font-size: 0.9rem;
+
+                i {
+                    margin-right: 5px;
+                }
+            }
+
+            .tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+
+                .tag {
+                    background: var(--tag-bg);
+                    color: var(--text-color);
+                    padding: 2px 8px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                    display: inline-flex;
+                    align-items: center;
+
+                    i {
+                        margin-right: 4px;
+                    }
+                }
+            }
+
+            .downloaded {
+                background-color: var(--success-bg);
+                color: var(--success-text);
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                padding: 0.25rem 0.5rem;
+                border-radius: 4px;
+                font-size: 1rem;
+            }
+        }
+    }
+}

@@ -12,6 +12,7 @@
 .friends-list {
   margin-bottom: 20px;
   min-width: 270px;
+
   h3 {
     margin-bottom: 10px;
     text-align: center;
@@ -26,7 +27,21 @@
     padding: 5px;
     margin-bottom: 5px;
     border-radius: 4px;
-    
+
+    .friend-info {
+      flex-grow: 1;
+      margin-left: 10px;
+      align-items: center;
+    }
+  }
+
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    margin-bottom: 10px;
+    font-weight: bold;
   }
 
   .placeholder-text {
@@ -34,4 +49,42 @@
     text-align: center;
     padding: 10px;
   }
+
+  .button-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+}
+
+.checkbox-container {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  input[type="checkbox"] {
+    margin: 0;
+    width: auto;
+  }
+
+  label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+  }
+  
+}
+
+.bottom {
+  position: fixed;
+  bottom: 5px;
+}
+
+.pending-request {
+  padding: 6px 12px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  color: #666;
+  font-size: 0.9rem;
+  cursor: default;
 }

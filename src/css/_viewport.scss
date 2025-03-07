@@ -1,0 +1,46 @@
+// Viewport height calculations
+@mixin safe-height($height) {
+    // Default height
+    height: $height;
+    
+    @if $height == 100vh {
+        // Full viewport height with mobile safety
+        height: calc(var(--safe-vh, 1vh) * 100);
+    } @else {
+        // Custom height with mobile safety
+        $value: parseInt($height);
+        height: calc(var(--safe-vh, 1vh) * $value);
+    }
+}
+
+@mixin max-safe-height($height) {
+    // Default max-height
+    max-height: $height;
+    
+    @if $height == 100vh {
+        // Full viewport max-height with mobile safety
+        max-height: calc(var(--safe-vh, 1vh) * 100);
+    } @else {
+        // Custom max-height with mobile safety
+        $value: parseInt($height);
+        max-height: calc(var(--safe-vh, 1vh) * $value);
+    }
+}
+
+@mixin content-height($height: 100vh) {
+    // Accounts for header height
+    height: calc(var(--content-vh, 1vh) * 100);
+    
+    @if $height != 100vh {
+        $value: parseInt($height);
+        height: calc(var(--content-vh, 1vh) * $value);
+    }
+}
+
+// Use for elements that should be visible above the mobile browser chrome
+@mixin mobile-safe-bottom($padding: 20px) {
+    padding-bottom: $padding;
+    @supports (padding: max(0px)) {
+        padding-bottom: max(#{$padding}, env(safe-area-inset-bottom, #{$padding}));
+    }
+}

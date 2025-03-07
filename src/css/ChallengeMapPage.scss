@@ -1,0 +1,24 @@
+@import './variables';
+
+.challenge-map-page {
+  padding: 2rem;
+  max-width: 700px;
+
+  .challenge-map-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+
+    h2 {
+      margin: 0;
+      color: var(--text-color);
+    }
+  }
+
+  .challenge-map {
+    height: calc(100vh - 200px);
+    min-height: 400px;
+  }
+}

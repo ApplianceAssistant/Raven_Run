@@ -1,11 +1,15 @@
 import React from 'react';
 import { useVoiceManagement } from '../hooks/useVoiceManagement';
 
-const VoiceSelector = () => {
+const VoiceSelector = ({ onVoiceChange }) => {
   const { voices, selectedVoiceURI, isLoading, setVoice } = useVoiceManagement();
 
   const handleVoiceChange = (e) => {
-    setVoice(e.target.value);
+    const newVoice = e.target.value;
+    setVoice(newVoice);
+    if (onVoiceChange) {
+      onVoiceChange(newVoice);
+    }
   };
 
   if (isLoading) {

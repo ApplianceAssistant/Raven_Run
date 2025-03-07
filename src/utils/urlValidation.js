@@ -2,11 +2,11 @@
 
 import { getHuntProgress } from './huntProgressUtils';
 
-export const validateChallengeUrl = (pathId, challengeIndex) => {
+export const validateChallengeUrl = (gameId, challengeIndex) => {
   const huntProgress = getHuntProgress();
   
-  if (!huntProgress || huntProgress.pathId !== pathId) {
-    // If no progress or different path, start from the beginning
+  if (!huntProgress || huntProgress.gameId !== gameId) {
+    // If no progress or different game, start from the beginning
     return 0;
   }
 

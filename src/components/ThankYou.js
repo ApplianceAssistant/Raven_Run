@@ -4,7 +4,7 @@ import ScrollableContent from './ScrollableContent';
 function ThankYou() {
     return (
         <>
-            <ScrollableContent maxHeight="80vh">
+            <ScrollableContent maxHeight="calc(var(--content-vh, 1vh) * 80)">
                 <div className="base-container">
                     <h1 className="center">Thank You for Joining the CrowTours Flock!</h1>
                     <p>We're thrilled to have you as part of our community of explorers and adventure-seekers.</p>

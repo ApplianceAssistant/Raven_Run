@@ -7,8 +7,9 @@
     --font-family-heading: 'Orbitron', serif;
     --page-bg: linear-gradient(135deg, #e0f7ff, #f9e0ff); // Light blue-to-pink nebula gradient
     --text-color: #2d3142; // Dark navy for readability and contrast
+    --text-color-secondary: #6a5acd; // Spacey lavender blue for secondary text color
     --button-bg: #6a5acd; // Spacey lavender blue
-    --button-bg-hint: #b4a7e7; // Soft lavender hint button
+    --button-bg-hint: #f8a82f; // Soft lavender hint button
     --button-bg-save: #4caf50; // Bright, galaxy-green save button
     --button-bg-caution: #f56565; // Caution red, reminiscent of red giant stars
     --button-text-color: #ffffff; // White for contrast against colored buttons
@@ -27,8 +28,9 @@
     &.dark-mode {
       --page-bg: linear-gradient(145deg, #25205f, #210f38, #070016); // Deep purple-blue gradient with black for nebula effect
       --text-color: #d9dce4; // Soft white-gray for readability on dark backgrounds
+      --text-color-secondary: #a8a6a6; // Soft white-gray for readability on dark backgrounds
       --button-bg: #53358c; // Rich purple for a vibrant space feel
-      --button-bg-hint: #6c58a7; // Softened violet hint button for dark mode
+      --button-bg-hint: #f8a82f; // Softened violet hint button for dark mode
       --button-bg-save: #3f8f4a; // Galaxy green with darker tones for save
       --button-bg-caution: #b23a3a; // Deep red for caution in dark mode
       --button-text-color: #ffffff; // White text for clarity on buttons

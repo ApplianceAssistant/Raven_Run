@@ -7,8 +7,9 @@
   --font-family-heading: 'Pirata One', serif;
   --page-bg: #d5ebf8;
   --text-color: #002c46;
+  --text-color-secondary: #3f1d1d;
   --button-bg: #046096;
-  --button-bg-hint: #ffeb92;
+  --button-bg-hint: #f78e05;
   --button-text-color: #e4f8fc;
   --button-bg-save: #8ef38e;
   --button-bg-caution: #fd7f7f;
@@ -27,19 +28,20 @@
   &.dark-mode {
     --page-bg: #012438;
     --text-color: #f5dbbe;
-    --button-bg: #603311;
-    --button-bg-hint: #dfb601;
+    --text-color-secondary: #f5dbbe;
+    --button-bg: #586a9c;
+    --button-bg-hint: #f78e05;
     --button-text-color: #f5dbbe;
     --button-bg-save: #016b01;
     --button-bg-caution: #be0606;
-    --slider-bg-on: #6e360d;
+    --slider-bg-on: #586a9c;
     --slider-bg-off: #8a796b;
-    --button-hover-bg: #8b3c1a;
-    --button-disabled-bg: #cccccc;
-    --button-disabled-text: #666666;
+    --button-hover-bg: #6277af;
+    --button-disabled-bg: #586079;
+    --button-disabled-text: #31353f;
     --input-bg: #2a1614;
     --input-text-color: #f5dbbe;
-    --link-color: #8b4513;
+    --link-color: #586a9c;
     --border-color: #002c46;
     --shadow: rgba(243, 243, 243, 0.5);
   }

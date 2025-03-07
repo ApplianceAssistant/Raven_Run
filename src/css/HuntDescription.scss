@@ -1,0 +1,186 @@
+@import '../css/variables';
+
+.hunt-description {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+
+  .hunt-header {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+
+    h1 {
+      font-size: 1.5rem;
+      margin: 0 0 0.75rem 0;
+      line-height: 1.2;
+    }
+
+    .meta-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.25rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        i {
+          font-size: 1rem;
+        }
+
+        &.difficulty::before {
+          content: '⚡';
+        }
+
+        &.duration::before {
+          content: '⏱️';
+        }
+      }
+    }
+
+    .creator {
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+  }
+
+  .hunt-content {
+    padding: 1rem;
+    background: var(--modal-bg);
+    border-radius: 8px;
+
+    .game-image {
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      overflow: hidden;
+      max-height: 200px; // Default for very small screens
+
+      @include respond-to($breakpoint-xs) {
+        max-height: 250px;
+      }
+
+      @include respond-to($breakpoint-sm) {
+        max-height: 300px;
+      }
+
+      @include respond-to($breakpoint-md) {
+        max-height: 350px;
+      }
+
+      @include respond-to($breakpoint-lg) {
+        max-height: 400px;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+    }
+
+    .description {
+      font-size: 1rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      text-align: left;
+
+      p {
+        margin-bottom: 1rem;
+      }
+    }
+  }
+}
+
+.modal-overlay.legal {
+  max-height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  z-index: 9999;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal-content {
+    background: var(--modal-bg);
+    border-radius: 8px;
+    padding: 0.5rem;
+    max-width: 90%;
+    width: 600px;
+    max-height: 90vh;
+    transform: translateY(-20px);
+    opacity: 0;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    &.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .modal-body {
+      font-size: 1rem;
+      line-height: 1.6;
+
+      ol {
+        padding-left: 1.5rem;
+        margin: 1rem 0;
+
+        li {
+          margin-bottom: 1rem;
+
+          ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+
+            li {
+              margin-bottom: 0.5rem;
+            }
+          }
+        }
+      }
+    }
+
+    .legal-disclaimer {
+      z-index: 10000; // Higher than modal overlay
+      font-style: italic;
+      text-align: center;
+      margin: 0.2rem 0;
+    }
+
+    .agree-button {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+      z-index: 10000; // Higher than modal overlay
+
+      &.disabled {
+        background-color: var(--button-disabled-bg);
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+    }
+  }
+}

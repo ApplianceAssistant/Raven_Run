@@ -3,6 +3,7 @@
 .dark-mode {
   --page-bg: #121212;
   --text-color: #e2e2e2;
+  --text-color-secondary: #a8a6a6;
   --button-bg: #005f8c;
   --button-bg-hint: #dfb601;
   --button-bg-save: #007700;
@@ -10,11 +11,11 @@
   --button-text-color: #ffffff;
   --button-hover-bg: #004d73;
   --button-disabled-bg: #444444;
-  --button-disabled-text: #888888;
+  --button-disabled-text: #a8a6a6;
   --slider-bg-on: #007acc;
   --slider-bg-off: #666666;
   --link-color: #a0a8ff;
-  --border-color: #2a2a2a;
+  --border-color: #9c9c9c;
   --shadow: rgba(243, 243, 243, 0.5);
   --input-bg: #313131;
   --input-text-color: #eeeeee;

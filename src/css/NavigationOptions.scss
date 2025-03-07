@@ -1,0 +1,69 @@
+// NavigationOptions.scss
+
+.navigation-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  
+    .navigation-title {
+      font-size: 2rem;
+      margin-bottom: .5rem;
+      color: var(--text-color);
+    }
+    
+    .navigation-subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: var(--text-secondary);
+    }
+    
+    .navigation-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      width: 100%;
+      
+      .navigation-card {
+        background: var(--modal-bg);
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px var(--shadow);
+        
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        .nav-icon {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+        }
+        
+        h3 {
+          font-size: 1.5rem;
+          margin-bottom: 0.5rem;
+        }
+        
+        p {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .navigation-wrapper {
+      padding: 1rem;
+      
+      .navigation-options {
+        grid-template-columns: 1fr;
+      }
+    }
+  }

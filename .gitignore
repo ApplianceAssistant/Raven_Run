@@ -1,5 +1,6 @@
 # Dependency directories
 /node_modules
+/vendor
 /.pnp
 .pnp.js
 
@@ -9,8 +10,12 @@
 #vscode files
 .vscode/
 
-#.env files
+#uploaded files
+/permanent_uploads
+# Environment files
 .env
+.env.local
+!.env.template
 
 # Testing directories
 /coverage
@@ -18,14 +23,25 @@
 # Production build
 /build
 
-#core images
-/images
+# Configuration files
+/server/config/dev.config.php
+/server/local_dev.php
+/server/config/*.local.php
+/server/config/*.production.php
+/server/config/*.development.php
+
+# Keep config templates
+!/server/config/*.template.php
+
 # Miscellaneous
 .DS_Store
 .env.local
 .env.development
 .env.test
 .env.production.local
+
+# ssl cert
+*.pem
 
 # IDE and editor files
 .vscode/
@@ -39,7 +55,7 @@
 *.suo
 *.cache
 *.log
-*.sql
+# *.sql
 *.dat
 *.sublime-project
 *.sublime-workspace
@@ -75,3 +91,5 @@ desktop.ini
 dist
 .cache-loader
 
+#deprecated files
+/deprecated

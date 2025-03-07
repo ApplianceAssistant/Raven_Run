@@ -1,49 +1,79 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-const ScrollableContent = ({ children, maxHeight, bottomPadding = '50px' }) => {
+const ScrollableContent = ({ children, maxHeight = 'calc(var(--content-vh, 1vh) * 80)', className = '', style = {} }) => {
   const contentRef = useRef(null);
+  const bodyRef = useRef(null);
   const [scrollState, setScrollState] = useState('none');
+  const resizeObserverRef = useRef(null);
 
-  useEffect(() => {
-    const content = contentRef.current;
-
-    const handleScrollEvent = () => {
-      if (content) {
-        const { scrollTop, scrollHeight, clientHeight } = content;
-        
-        if (scrollHeight <= clientHeight) {
-          setScrollState('none');
-        } else if (scrollTop === 0) {
-          setScrollState('down');
-        } else if (scrollTop + clientHeight >= scrollHeight) {
-          setScrollState('up');
-        } else {
-          setScrollState('both');
-        }
-      }
-    };
-
-    if (content) {
-      content.addEventListener('scroll', handleScrollEvent);
-      // Initial check
-      handleScrollEvent();
-      // Re-check after a short delay to account for dynamic content
-      setTimeout(handleScrollEvent, 100);
+  const checkScrollState = () => {
+    const content = bodyRef.current;
+    if (!content) {
+      return;
     }
 
+    const { scrollTop, scrollHeight, clientHeight } = content;
+    const isScrollable = scrollHeight > clientHeight;
+
+    let newState = 'none';
+    if (!isScrollable) {
+      newState = 'none';
+    } else if (scrollTop === 0) {
+      newState = 'down';
+    } else if (scrollTop + clientHeight >= scrollHeight - 1) {
+      newState = 'up';
+    } else {
+      newState = 'both';
+    }
+
+    if (newState !== scrollState) {
+      setScrollState(newState);
+    }
+  };
+
+  useEffect(() => {
+    const content = bodyRef.current;
+    if (!content) return;
+
+
+    // Setup ResizeObserver
+    resizeObserverRef.current = new ResizeObserver(() => {
+      checkScrollState();
+    });
+    resizeObserverRef.current.observe(content);
+
+    content.addEventListener('scroll', checkScrollState);
+    window.addEventListener('resize', checkScrollState);
+
+    // Initial check after a short delay to ensure content is rendered
+    setTimeout(() => {
+      checkScrollState();
+    }, 100);
+
     return () => {
-      if (content) {
-        content.removeEventListener('scroll', handleScrollEvent);
+      content.removeEventListener('scroll', checkScrollState);
+      window.removeEventListener('resize', checkScrollState);
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
       }
     };
   }, []);
 
+  // Let the CSS handle most of the styling
+  const containerStyle = {
+    ...style,
+    ...(maxHeight ? { maxHeight } : {})
+  };
+
   return (
-    <div className="scrollable-content">
+    <div 
+      ref={contentRef}
+      className={`scrollable-content ${className}`}
+      style={containerStyle}
+    >
       <div 
-        ref={contentRef} 
-        className="bodyContent" 
-        style={{ maxHeight, paddingBottom: bottomPadding }}
+        ref={bodyRef}
+        className="bodyContent"
       >
         {children}
       </div>

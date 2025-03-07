@@ -1,34 +1,41 @@
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
+# Enable following symbolic links
+Options +FollowSymLinks
 
-  # Allow direct access to API endpoints
-   # Deny direct access to API endpoints except for GET and POST from same origin
-   RewriteCond %{REQUEST_METHOD} !^(GET|POST)$ [OR]
-   RewriteCond %{HTTP_REFERER} !^https?://crowtours\.com [NC]
-   RewriteRule ^api/ - [F]
- 
-   # Allow access to API for GET and POST from same origin
-   RewriteCond %{REQUEST_METHOD} ^(GET|POST)$
-   RewriteCond %{HTTP_REFERER} ^https?://crowtours\.com [NC]
-   RewriteRule ^api/ - [L]
+# Enable rewrite engine
+RewriteEngine On
 
-  # Allow direct access to existing files and directories
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d [OR]
-  RewriteCond %{REQUEST_FILENAME} -l
-  RewriteRule ^ - [L]
+# Set environment variables from request headers
+SetEnvIf X-Environment "^(.*)$" APP_ENV=$1
+SetEnvIf X-Base-URL "^(.*)$" BASE_URL=$1
 
-  # Rewrite all other requests to index.html for React routing
-  RewriteRule . /index.html [L]
+# Enable CORS
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Environment, X-Base-URL"
 
-  # Prevent access to .env file
-  <FilesMatch "^\.env">
-    Order allow,deny
-    Deny from all
-  </FilesMatch>
+# Handle PHP files in server/auth and server/api directories
+RewriteRule ^server/auth/(.+)\.php$ server/auth/$1.php [L,QSA]
+RewriteRule ^server/api/(.+)\.php$ server/api/$1.php [L,QSA]
 
-  # Prevent access to sensitive directories
-  RedirectMatch 403 ^/private_html/?$
-  RedirectMatch 403 ^/server/?$
-</IfModule>
+# If the request is for a static file, don't rewrite
+RewriteCond %{REQUEST_URI} \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$
+RewriteRule ^ - [L]
+
+# Prevent directory listing
+Options -Indexes
+
+# Security headers
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "SAMEORIGIN"
+Header set X-XSS-Protection "1; mode=block"
+Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+# If the request is for an existing file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Rewrite all other requests to index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]

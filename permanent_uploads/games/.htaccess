@@ -1,0 +1,20 @@
+# Deny access to all files by default
+deny from all
+
+# Allow only image files with proper naming pattern
+<Files ~ "^[0-9A-Za-z._-]+\.(jpg|jpeg|png)$">
+    allow from all
+</Files>
+
+# Prevent script execution
+<FilesMatch "\.(php|pl|py|jsp|asp|htm|html|shtml|sh|cgi)$">
+    deny from all
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes
+
+# Protect against malicious file uploads
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>

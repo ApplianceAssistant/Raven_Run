@@ -1,8 +1,9 @@
 import { Challenge, hasTargetLocation, hasHints } from '../types/challengeTypes';
+import { Game } from '../types/games';
 import { calculateDistance, getCurrentLocation, getUserUnitPreference } from '../utils/utils';
 import { kilometersToMiles, metersToFeet, getLargeDistanceUnit, getSmallDistanceUnit } from '../utils/unitConversion';
 import { isStoryChallenge, isMultipleChoiceChallenge, isTrueFalseChallenge, isTextInputChallenge, isTravelChallenge } from '../types/challengeTypes';
-import { paths } from '../data/challenges';
+import { getDownloadedGame, getAllDownloadedGames } from '../utils/localStorageUtils';
 import { getHuntProgress } from '../utils/huntProgressUtils';
 
 // Define the ChallengeState interface
@@ -80,6 +81,7 @@ export function shouldDisplayDistanceNotice(challenge: Challenge): boolean {
 
 // New function to check if the continue button should be displayed
 export function shouldDisplayContinueButton(challenge: Challenge, state: ChallengeState): boolean {
+
   switch (challenge.type) {
     case 'story':
       return state.textVisible; // Story is complete when text has been displayed
@@ -89,14 +91,16 @@ export function shouldDisplayContinueButton(challenge: Challenge, state: Challen
     case 'textInput':
       return state.isCorrect;
     case 'travel':
-      return hasTargetLocation(challenge) && state.isLocationReached;
+      const shouldShow = hasTargetLocation(challenge) && state.isLocationReached;
+      return shouldShow;
     default:
       return false; // For any other challenge types
   }
 }
 
 export function shouldDisplaySkipButton(challenge: Challenge, state: ChallengeState): boolean {
-  if (shouldDisplayContinueButton(challenge, state)) {
+
+  if (shouldDisplayContinueButton(challenge, state) || state.isLocationReached) {
     return false;
   }
 
@@ -110,7 +114,8 @@ export function shouldDisplaySkipButton(challenge: Challenge, state: ChallengeSt
   const timeElapsed = currentTime - startTime;
   const fiveMinutesInMs = 5 * 60 * 1000;
 
-  return timeElapsed >= fiveMinutesInMs;
+  const shouldShow = timeElapsed >= fiveMinutesInMs;
+  return shouldShow;
 }
 
 export function getTimeUntilSkip(state: ChallengeState): number {
@@ -138,18 +143,22 @@ export const getNextHintState = (challenge: Challenge, prevState: ChallengeState
 // Map to keep track of hint indices for each challenge
 const hintIndexMap = new Map<string, number>();
 
-export function getPath(pathId: number) {
-  return paths.find(path => path.id === pathId);
-}
+export function getGame(gameId: string) {
+  const game = getDownloadedGame(gameId);
+  if (!game) return null;
 
-export function getChallenges(pathId: number): Challenge[] {
-  const path = getPath(pathId);
-  return path ? path.challenges : [];
-}
+  // Convert challenges to proper type if needed
+  const challenges = game.challenges?.map(challenge => ({
+    ...challenge,
+    order: challenge.order || 0,
+    repeatable: challenge.repeatable || false,
+    completionFeedback: challenge.completionFeedback || ''
+  })) || [];
 
-export function getPathName(pathId: number): string {
-  const path = getPath(pathId);
-  return path ? path.name : 'Unknown Path';
+  return {
+    ...game,
+    challenges
+  };
 }
 
 export function getNextHint(challenge: Challenge): string {
@@ -165,7 +174,6 @@ export function getNextHint(challenge: Challenge): string {
 export function resetHintCycle(challengeId: string): void {
   hintIndexMap.delete(challengeId);
 }
-
 
 export function checkLocationReached(challenge: Challenge, userLocation: { latitude: number, longitude: number }): { isReached: boolean, distance: number } {
   if (!hasTargetLocation(challenge) || !challenge.radius || !userLocation || typeof userLocation.latitude !== 'number' || typeof userLocation.longitude !== 'number') {
@@ -307,9 +315,7 @@ export function shouldDisplaySubmitButton(challenge: Challenge, state: Challenge
 }
 
 export default {
-  getPath,
-  getChallenges,
-  getPathName,
+  getGame,
   checkLocationReached,
   checkAnswer,
   getNextIncorrectFeedback,
@@ -326,4 +332,5 @@ export default {
   updateDistance,
   shouldDisplayDistanceNotice,
   shouldDisplaySkipButton,
+  getTimeUntilSkip,
 };
