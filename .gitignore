@@ -55,7 +55,7 @@
 *.suo
 *.cache
 *.log
-# *.sql
+*.sql
 *.dat
 *.sublime-project
 *.sublime-workspace

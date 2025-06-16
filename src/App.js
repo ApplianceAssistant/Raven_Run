@@ -30,6 +30,7 @@ import Documentation from './components/Documentation';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import GoogleMapsProvider from './components/GoogleMapsProvider';
+import GeminiCYOA from './components/GeminiCYOA';
 
 import './css/App.scss';
 import { setupViewport } from './utils/viewport';
@@ -115,12 +116,13 @@ function AppContent() {
           <Routes>
             <Route path="/thank_you" element={<ThemeContainer theme={theme}><ThankYou /></ThemeContainer>} />
             <Route path="/" element={<ThemeContainer theme={theme}><Home /></ThemeContainer>} />
+            <Route path="/cyoa" element={<ThemeContainer theme={theme}><GeminiCYOA /></ThemeContainer>} />
+            <Route path="/log-in" element={<ThemeContainer theme={theme}><LogIn /></ThemeContainer>} />
             <Route path="/about" element={<ThemeContainer theme={theme}><About /></ThemeContainer>} />
             <Route path="/contact" element={<ThemeContainer theme={theme}><Contact /></ThemeContainer>} />
             <Route path="/game/:gameId" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />
             <Route path="/lobby" element={<ThemeContainer theme={theme}><GameLobby /></ThemeContainer>} />
             <Route path="/create-profile" element={<ThemeContainer theme={theme}><CreateProfile /></ThemeContainer>} />
-            <Route path="/log-in" element={<ThemeContainer theme={theme}><LogIn /></ThemeContainer>} />
             <Route path="/reset-password" element={<ThemeContainer theme={theme}><ResetPassword /></ThemeContainer>} />
             <Route path="/gamedescription/:gameId" element={<ThemeContainer theme={theme}><HuntDescription /></ThemeContainer>} />
             <Route path="/game/:gameId/challenge/:challengeIndex" element={<ThemeContainer theme={theme}><GamePage /></ThemeContainer>} />

@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ScrollableContent from './ScrollableContent';
-import { faUser, faGamepad, faPlus, faSearch, faTrophy, faUsers, faDiceD20, faBook, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faGamepad, faPlus, faSearch, faTrophy, faUsers, faDiceD20, faBook, faGear, faBookOpen } from '@fortawesome/free-solid-svg-icons';
 import '../css/NavigationOptions.scss';
 
 const defaultOptions = [
@@ -13,6 +13,13 @@ const defaultOptions = [
         route: '/lobby',
         icon: faSearch,
         description: 'Start an adventure'
+    },
+    {
+        id: 'cyoa',
+        label: 'Text Adventure',
+        route: '/cyoa',
+        icon: faBookOpen,
+        description: 'A story powered by AI'
     },
     {
         id: 'create',

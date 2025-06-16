@@ -1,0 +1,285 @@
+@import '../css/variables';
+
+/*
+ * Styles for the Choose Your Own Adventure (CYOA) feature.
+ */
+
+.cyoa__container {
+  min-height: 100vh;
+  color: var(--text-color);
+  font-family: 'Georgia', serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  position: relative;
+
+  &--error {
+    justify-content: center;
+    text-align: center;
+    h3 {
+      color: var(--error-color);
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.cyoa__header {
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 3rem;
+  text-align: center;
+
+  h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    background: linear-gradient(to right, #9f7aea, #ed64a6, #ef4444);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+.cyoa__main-content {
+  width: 100%;
+  max-width: 900px;
+  flex-grow: 1;
+}
+
+.cyoa__story-display {
+  backdrop-filter: blur(5px);
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  border: 1px solid var(--border-color);
+}
+
+.cyoa__story-image {
+  width: 100%;
+  height: 24rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--border-color);
+}
+
+.cyoa__story-image--placeholder {
+  width: 100%;
+  height: 24rem;
+  background-color: #4a5568;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color-secondary);
+}
+
+.cyoa__story-scenario {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.cyoa__choices-list {
+  margin-top: 2rem;
+}
+
+.cyoa__choices-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--button-text-color);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.cyoa__choices-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.cyoa__choice-button {
+  width: 100%;
+  padding: 1.25rem;
+  text-align: left;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+  background-color: var(--button-bg);
+  color: var(--button-text-color);
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--button-hover-bg);
+    transform: scale(1.03);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    transform: none;
+    cursor: not-allowed;
+  }
+
+  span {
+    font-weight: 500;
+    font-size: 1.1rem;
+  }
+}
+
+.cyoa__conclusion {
+  margin-top: 2rem;
+  padding: 2rem;
+  background-color: rgba(26, 32, 44, 0.8);
+  border-radius: 0.75rem;
+  text-align: center;
+  border: 1px solid var(--border-color);
+
+  h3 {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: var(--button-text-color);
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    white-space: pre-line;
+  }
+}
+
+.cyoa__button--primary {
+  background-color: var(--button-bg);
+  color: var(--button-text-color);
+  font-weight: bold;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.15s ease-in-out, transform 0.15s ease-in-out;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--button-hover-bg);
+    transform: scale(1.05);
+  }
+}
+
+.cyoa__button--secondary {
+  background-color: #4a5568;
+  color: var(--button-text-color);
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.15s ease-in-out, transform 0.15s ease-in-out;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: darken(#4a5568, 10%);
+    transform: scale(1.05);
+  }
+}
+
+.cyoa__footer {
+  width: 100%;
+  max-width: 900px;
+  margin-top: 3rem;
+  text-align: center;
+
+  p {
+    font-size: 0.75rem;
+    color: var(--text-color-secondary);
+    margin-top: 1rem;
+  }
+}
+
+.cyoa__loading-spinner {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(26, 32, 44, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+
+  p {
+    color: var(--text-color-secondary);
+    font-size: 1.5rem;
+    margin-top: 1.5rem;
+  }
+}
+
+.cyoa__loading-spinner-icon {
+  animation: spin 1s linear infinite;
+  border-radius: 50%;
+  width: 4rem;
+  height: 4rem;
+  border-top: 4px solid var(--button-text-color);
+  border-bottom: 4px solid var(--button-text-color);
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cyoa__theme-selector {
+  text-align: center;
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.cyoa__theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.cyoa__theme-button {
+  padding: 2rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  background-color: rgba(45, 55, 72, 0.5);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    border-color: var(--button-text-color);
+  }
+
+  span {
+    display: block;
+    font-size: 1.25rem;
+  }
+}
+
+.cyoa__theme-button-key {
+  font-size: 0.75rem !important;
+  color: var(--button-text-color);
+  margin-top: 0.25rem;
+}
