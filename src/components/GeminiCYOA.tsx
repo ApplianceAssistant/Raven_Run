@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { GameService } from '../services/GeminiCYOAService';
 import { StoryResponseFormat, StoryChoice, GameState, AdventureTheme, THEME_DETAILS } from '../types/GeminiCYOATypes';
+import ScrollableContent from './ScrollableContent'; // Import the scroll component
 import '../css/CYOA.scss';
 
 // --- UI Components (previously in GeminiCYOAInterface.tsx) ---
@@ -196,34 +197,35 @@ const GeminiCYOA: React.FC = () => {
       {isLoading && <LoadingSpinner />}
 
       <main className="cyoa__main-content">
-        {gameState === 'welcome' && <ThemeSelector />}
-        
-        {gameState === 'error' && errorMessage && (
-          <ErrorDisplay message={errorMessage} />
-        )}
+        <ScrollableContent>
+          {gameState === 'welcome' && <ThemeSelector />}
+          
+          {gameState === 'error' && errorMessage && (
+            <ErrorDisplay message={errorMessage} />
+          )}
 
-        {(gameState === 'playing' || gameState === 'ended' || (gameState === 'loading' && currentStory)) && currentStory && (
-          <>
-            <StoryDisplay scenario={currentStory.scenario} imageUrl={currentImage} />
-            {gameState === 'playing' && currentStory.choices && currentStory.choices.length > 0 && (
-              <ChoicesList choices={currentStory.choices} onChoiceSelected={handleMakeChoice} disabled={isLoading} />
-            )}
-            {gameState === 'ended' && currentStory.conclusion && (
-              <div className="cyoa__conclusion">
-                <h3>Adventure Concluded</h3>
-                <p>{currentStory.conclusion}</p>
-                <button onClick={handleRestart} className="cyoa__button--primary">Play Again?</button>
-              </div>
-            )}
-          </>
-        )}
+          {(gameState === 'playing' || gameState === 'ended' || (gameState === 'loading' && currentStory)) && currentStory && (
+            <>
+              <StoryDisplay scenario={currentStory.scenario} imageUrl={currentImage} />
+              {gameState === 'playing' && currentStory.choices && currentStory.choices.length > 0 && (
+                <ChoicesList choices={currentStory.choices} onChoiceSelected={handleMakeChoice} disabled={isLoading} />
+              )}
+              {gameState === 'ended' && currentStory.conclusion && (
+                <div className="cyoa__conclusion">
+                  <h3>Adventure Concluded</h3>
+                  <p>{currentStory.conclusion}</p>
+                  <button onClick={handleRestart} className="cyoa__button--primary">Play Again?</button>
+                </div>
+              )}
+            </>
+          )}
+        </ScrollableContent>
       </main>
 
       <footer className="cyoa__footer">
         {gameState !== 'welcome' && (
            <button onClick={handleRestart} className="cyoa__button--secondary">Restart with New Theme</button>
         )}
-        <p>Powered by Google Gemini. Adventure awaits.</p>
       </footer>
     </div>
   );

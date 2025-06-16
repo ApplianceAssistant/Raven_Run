@@ -47,7 +47,7 @@
 .cyoa__main-content {
   width: 100%;
   max-width: 900px;
-  flex-grow: 1;
+  flex-grow: .2;
 }
 
 .cyoa__story-display {
@@ -94,7 +94,7 @@
 .cyoa__choices-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--button-text-color);
+  color: var(--text-color);
   margin-bottom: 1rem;
   text-align: center;
 }
@@ -110,6 +110,7 @@
 }
 
 .cyoa__choice-button {
+    height: auto;
   width: 100%;
   padding: 1.25rem;
   text-align: left;
@@ -197,7 +198,7 @@
 .cyoa__footer {
   width: 100%;
   max-width: 900px;
-  margin-top: 3rem;
+  margin-top: 1.5rem;
   text-align: center;
 
   p {

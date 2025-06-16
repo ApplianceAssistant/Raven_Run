@@ -1,17 +1,17 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { StoryResponseFormat, AdventureTheme, THEME_DETAILS } from '../types/GeminiCYOATypes';
 
 const API_KEY = process.env.REACT_APP_GEMINI_API_KEY || '';
 
 export class GameService {
-    private ai: GoogleGenerativeAI;
+    private ai: GoogleGenAI;
 
     constructor() {
         if (!API_KEY) {
             console.error("CRITICAL: API_KEY environment variable not found. The application cannot function.");
             throw new Error("Gemini API Key (process.env.REACT_APP_GEMINI_API_KEY) is not configured. The game cannot start.");
         }
-        this.ai = new GoogleGenerativeAI(API_KEY);
+        this.ai = new GoogleGenAI({ apiKey: API_KEY });
     }
 
     private async callApiWithRetries<T,>(apiCall: () => Promise<T>, retries = 3, delayMs = 1000): Promise<T> {
@@ -29,16 +29,15 @@ export class GameService {
     }
 
     private parseStoryResponse(responseText: string): StoryResponseFormat {
-        // Simplified regex to find the JSON block without using lookbehind.
-        const jsonMatch = responseText.match(/```json\n(\{[\s\S]*?\})\n```/);
-        if (!jsonMatch || !jsonMatch[1]) {
-            console.error("Could not find or parse JSON block in response:", responseText);
-            throw new Error("The story took an unexpected turn. The format of the response was unreadable.");
+        let jsonStr = responseText.trim();
+        const fenceRegex = /^```(?:json)?\s*\n?(.*?)\n?\s*```$/s;
+        const match = jsonStr.match(fenceRegex);
+        if (match && match[1]) {
+            jsonStr = match[1].trim();
         }
-        const jsonString = jsonMatch[1];
-        
+
         try {
-            const parsed = JSON.parse(jsonString);
+            const parsed = JSON.parse(jsonStr);
             // Validate structure
             if (typeof parsed.scenario !== 'string' ||
                 typeof parsed.imagePrompt !== 'string' ||
@@ -80,14 +79,14 @@ export class GameService {
         `;
 
         const apiCall = async () => {
-            const model = this.ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-            const result = await model.generateContent(prompt);
-            const response = result.response;
-            return response.text();
+            const response: GenerateContentResponse = await this.ai.models.generateContent({
+                model: "gemini-2.5-flash-preview-04-17",
+                contents: prompt,
+                config: { responseMimeType: "application/json" }
+            });
+            return this.parseStoryResponse(response.text);
         };
-
-        const rawResponse = await this.callApiWithRetries(apiCall);
-        return this.parseStoryResponse(rawResponse);
+        return this.callApiWithRetries(apiCall);
     }
 
     async progressStory(previousScenario: string, chosenAction: string, theme: AdventureTheme): Promise<StoryResponseFormat> {
@@ -120,23 +119,33 @@ export class GameService {
             Ensure choices are not empty unless it's a conclusion.
             Ensure the JSON is valid. The scenario text should be engaging.
         `;
-        
-        const apiCall = async () => {
-            const model = this.ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-            const result = await model.generateContent(prompt);
-            const response = result.response;
-            return response.text();
-        };
 
-        const rawResponse = await this.callApiWithRetries(apiCall);
-        return this.parseStoryResponse(rawResponse);
+        const apiCall = async () => {
+            const response: GenerateContentResponse = await this.ai.models.generateContent({
+                model: "gemini-2.5-flash-preview-04-17",
+                contents: prompt,
+                config: { responseMimeType: "application/json" }
+            });
+            return this.parseStoryResponse(response.text);
+        };
+        return this.callApiWithRetries(apiCall);
     }
 
-    async generateImage(prompt: string): Promise<string> {
-        // This is a placeholder. The Gemini API for image generation (e.g., Imagen)
-        // is separate and may require a different setup or library.
-        // For now, we return a placeholder image URL.
-        console.warn("Image generation is not implemented. Returning a placeholder.");
-        return `https://placehold.co/600x400?text=${encodeURIComponent(prompt.substring(0, 50))}`;
+    async generateImage(imagePrompt: string): Promise<string> {
+        const detailedPrompt = `${imagePrompt}, detailed illustration, vibrant colors, atmospheric lighting`;
+        const apiCall = async () => {
+            const response = await this.ai.models.generateImages({
+                model: 'imagen-3.0-generate-002',
+                prompt: detailedPrompt,
+                config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
+            });
+
+            if (response.generatedImages && response.generatedImages.length > 0 && response.generatedImages[0].image.imageBytes) {
+                const base64ImageBytes = response.generatedImages[0].image.imageBytes;
+                return `data:image/jpeg;base64,${base64ImageBytes}`;
+            }
+            throw new Error("Failed to generate image or no images returned.");
+        };
+        return this.callApiWithRetries(apiCall);
     }
 }
