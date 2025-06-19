@@ -1,6 +1,14 @@
 import React from 'react';
 import { useVoiceManagement } from '../hooks/useVoiceManagement';
 
+const googleVoices = [
+  { voiceURI: 'google:echo-en-us', name: 'Echo (US English)', lang: 'en-US' },
+  { voiceURI: 'google:sierra-en-us', name: 'Sierra (US English)', lang: 'en-US' },
+  { voiceURI: 'google:zephyr-en-us', name: 'Zephyr (US English)', lang: 'en-US' },
+  { voiceURI: 'google:aurora-en-gb', name: 'Aurora (UK English)', lang: 'en-GB' },
+  { voiceURI: 'google:meadow-en-au', name: 'Meadow (AU English)', lang: 'en-AU' },
+];
+
 const VoiceSelector = ({ onVoiceChange }) => {
   const { voices, selectedVoiceURI, isLoading, setVoice } = useVoiceManagement();
 
@@ -29,11 +37,20 @@ const VoiceSelector = ({ onVoiceChange }) => {
         onChange={handleVoiceChange}
         className="stylized-select"
       >
-        {voices.map((voice) => (
-          <option key={voice.voiceURI} value={voice.voiceURI}>
-            {voice.name} ({voice.lang})
-          </option>
-        ))}
+        <optgroup label="Google AI Voices">
+          {googleVoices.map((voice) => (
+            <option key={voice.voiceURI} value={voice.voiceURI}>
+              {voice.name}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label="Device Voices">
+          {voices.map((voice) => (
+            <option key={voice.voiceURI} value={voice.voiceURI}>
+              {voice.name} ({voice.lang})
+            </option>
+          ))}
+        </optgroup>
       </select>
     </div>
   );

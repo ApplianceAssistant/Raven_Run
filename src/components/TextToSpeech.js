@@ -4,6 +4,7 @@ import { faVolumeUp, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
 import { useVoiceManagement } from '../hooks/useVoiceManagement';
 import { useSettings } from '../utils/SettingsContext';
 import { useSpeech } from '../utils/SpeechContext';
+import gameService from '../services/GeminiCYOAService';
 
 const TextToSpeech = ({ text, autoPlayTrigger }) => {
   const { settings, updateSetting } = useSettings();
@@ -14,6 +15,7 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPageLoaded, setIsPageLoaded] = useState(document.readyState === 'complete');
   const { getSelectedVoice, cancelSpeech } = useVoiceManagement();
+  const audioRef = useRef(null); // Ref to hold the Audio object
 
   const extractTextFromReactElement = (element) => {
     if (typeof element === 'string') return element;
@@ -48,6 +50,33 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
 
     return () => window.removeEventListener('load', handleLoad);
   }, []);
+
+  const playGoogleVoice = async (textToSpeak) => {
+    const voiceURI = settings.selectedVoiceURI;
+    if (!voiceURI || !voiceURI.startsWith('google:')) return;
+
+    setIsSpeaking(true);
+    try {
+      const voiceName = voiceURI.replace('google:', '');
+      const audioDataUri = await gameService.generateSpeech(textToSpeak, voiceName);
+      
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      
+      const audio = new Audio(audioDataUri);
+      audioRef.current = audio;
+      audio.play();
+      audio.onended = () => {
+        setIsSpeaking(false);
+        audioRef.current = null;
+      };
+    } catch (error) {
+      console.error("Error playing Google AI voice:", error);
+      setIsSpeaking(false);
+      // Optional: Fallback to device voice or show an error
+    }
+  };
 
   const speakSentence = useCallback(() => {
     if (!window.speechSynthesis) {
@@ -91,14 +120,29 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
   }, [getSelectedVoice]);
 
   const speak = useCallback(() => {
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-    }
+    const fullText = sentencesRef.current.join(' ');
+    const voiceURI = settings.selectedVoiceURI;
 
-    currentSentenceIndexRef.current = 0;
-    setIsSpeaking(true);
-    speakSentence();
-  }, [speakSentence]);
+    if (voiceURI && voiceURI.startsWith('google:')) {
+      playGoogleVoice(fullText);
+    } else {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+      currentSentenceIndexRef.current = 0;
+      setIsSpeaking(true);
+      speakSentence();
+    }
+  }, [settings.selectedVoiceURI, playGoogleVoice, speakSentence]);
+
+  const stop = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    cancelSpeech(); // This will stop window.speechSynthesis
+    setIsSpeaking(false);
+  }, [cancelSpeech]);
 
   useEffect(() => {
     if (!isPageLoaded) return;
@@ -118,21 +162,16 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
 
   const handleSpeak = () => {
     if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      updateSetting('autoSpeak', false);
-      setIsSpeaking(false);
+      stop();
     } else {
       speak();
-      updateSetting('autoSpeak', true);
-      setIsSpeaking(true);
     }
   };
 
   return (
-    <div className="text-to-speech">
-      <button onClick={handleSpeak} className="speak-button">
-        <FontAwesomeIcon icon={settings.autoSpeak ? faVolumeMute : faVolumeUp} />
+    <div className="tts-controls">
+      <button onClick={handleSpeak} className="tts-button">
+        <FontAwesomeIcon icon={isSpeaking ? faVolumeMute : faVolumeUp} />
       </button>
     </div>
   );

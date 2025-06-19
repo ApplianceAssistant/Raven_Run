@@ -60,73 +60,83 @@ export class GameService {
     }
 
     async startGame(theme: AdventureTheme): Promise<StoryResponseFormat> {
+        const themeDetail = THEME_DETAILS[theme];
+        const themeName = themeDetail?.name || 'a mysterious adventure';
+        // Since 'theme' is of type AdventureTheme, it's guaranteed to be a string value of the enum.
+        const themeDescription: string = theme;
+
         const prompt = `
-            You are a master storyteller for a dynamic text adventure game.
-            The user wants to start a new adventure with the theme: "${theme}".
-            Provide an engaging opening scenario.
-            Describe the scene vividly and atmospherically.
-            Then, offer 2-4 distinct and interesting choices for the player to make.
-            Format your response STRICTLY as a JSON object with the following structure:
+            Start a new choose-your-own-adventure story.
+            Theme: ${themeName} - ${themeDescription}.
+            The user wants an engaging, interactive story where their choices matter.
+            Generate the very first scenario of the story.
+            The scenario should be a few sentences long.
+            Provide a compelling image prompt relevant to the scenario.
+            Offer 2-3 distinct choices for the user to make.
+            Format the response as a single JSON object with the following structure:
             {
-              "scenario": "Your detailed description of the current situation.",
-              "imagePrompt": "A concise but evocative prompt (max 30 words) for an image generator, capturing the essence of the scenario (e.g., 'mystical forest path at dusk, fantasy art').",
-              "choices": [
-                {"id": 1, "text": "Choice 1 description"},
-                {"id": 2, "text": "Choice 2 description"}
-              ]
+              "scenario": "<string>",
+              "imagePrompt": "<string>",
+              "choices": [{"id": <number>, "text": "<string>"}, ...]
             }
-            Ensure the JSON is valid. The scenario text should be engaging and draw the player in.
+            Ensure choices are not empty. Ensure the JSON is valid.
         `;
 
         const apiCall = async () => {
             const response: GenerateContentResponse = await this.ai.models.generateContent({
                 model: "gemini-2.5-flash-preview-04-17",
-                contents: prompt,
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
                 config: { responseMimeType: "application/json" }
             });
-            return this.parseStoryResponse(response.text);
+            const textContent = response.text;
+            if (typeof textContent !== 'string') {
+                console.error("AI response text is undefined or not a string:", textContent);
+                throw new Error("Failed to get valid text content from AI response.");
+            }
+            return this.parseStoryResponse(textContent);
         };
         return this.callApiWithRetries(apiCall);
     }
 
     async progressStory(previousScenario: string, chosenAction: string, theme: AdventureTheme): Promise<StoryResponseFormat> {
+        const themeDetail = THEME_DETAILS[theme];
+        const themeName = themeDetail?.name || 'a mysterious adventure';
+        // Since 'theme' is of type AdventureTheme, it's guaranteed to be a string value of the enum.
+        const themeDescription: string = theme;
+
         const prompt = `
-            You are a master storyteller for a dynamic text adventure game.
-            The current theme is: "${theme}".
-            The previous scenario was: "${previousScenario}"
-            The player chose: "${chosenAction}"
-
-            Continue the story based on this choice.
-            Describe the new scene vividly and atmospherically.
-            Offer 2-4 distinct and interesting choices for the player to make.
-
-            As a storyteller, set the scene but don't be overly descriptive. Keep people engaged but don't be overly wordy.
-
-            If the story reaches a natural conclusion (e.g., player wins, dies, or an adventure arc ends), set "choices" to an empty array and add a "conclusion" field to the JSON.
-            The conclusion should be satisfying and reflect the player's journey.
-
-            Format your response STRICTLY as a JSON object with the following structure:
+            Continue a choose-your-own-adventure story.
+            Theme: ${themeName} - ${themeDescription}.
+            Previous scenario: "${previousScenario}"
+            User's chosen action: "${chosenAction}"
+            Generate the next scenario based on the user's choice.
+            The scenario should be a few sentences long.
+            Provide a compelling image prompt relevant to the new scenario.
+            Offer 2-3 distinct choices for the user to make.
+            If the story is naturally concluding, you can provide a "conclusion" field instead of choices.
+            Format the response as a single JSON object with the following structure:
             {
-              "scenario": "Your detailed description of the new situation.",
-              "imagePrompt": "A concise but evocative prompt (max 30 words) for an image generator, capturing the essence of the new scenario.",
-              "choices": [
-                {"id": 1, "text": "Choice 1 description"},
-                {"id": 2, "text": "Choice 2 description"}
-              ],
-              "conclusion": "Optional: A message if the story ends here."
+              "scenario": "<string>",
+              "imagePrompt": "<string>",
+              "choices": [{"id": <number>, "text": "<string>"}, ...],
+              "conclusion": "<string>" // Optional, only if the story ends
             }
-            If there is no conclusion, omit the "conclusion" field.
             Ensure choices are not empty unless it's a conclusion.
             Ensure the JSON is valid. The scenario text should be engaging.
         `;
-
+        
         const apiCall = async () => {
             const response: GenerateContentResponse = await this.ai.models.generateContent({
                 model: "gemini-2.5-flash-preview-04-17",
-                contents: prompt,
+                contents: [{ role: "user", parts: [{ text: prompt }] }],
                 config: { responseMimeType: "application/json" }
             });
-            return this.parseStoryResponse(response.text);
+            const textContent = response.text;
+            if (typeof textContent !== 'string') {
+                console.error("AI response text is undefined or not a string:", textContent);
+                throw new Error("Failed to get valid text content from AI response.");
+            }
+            return this.parseStoryResponse(textContent);
         };
         return this.callApiWithRetries(apiCall);
     }
@@ -140,7 +150,7 @@ export class GameService {
                 config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
             });
 
-            if (response.generatedImages && response.generatedImages.length > 0 && response.generatedImages[0].image.imageBytes) {
+            if (response.generatedImages && response.generatedImages.length > 0 && response.generatedImages[0].image && response.generatedImages[0].image.imageBytes) {
                 const base64ImageBytes = response.generatedImages[0].image.imageBytes;
                 return `data:image/jpeg;base64,${base64ImageBytes}`;
             }
@@ -148,4 +158,75 @@ export class GameService {
         };
         return this.callApiWithRetries(apiCall);
     }
+
+    async generateSpeech(text: string, voiceNameFromSettings: string = 'echo-en-us'): Promise<string> {
+        // Using model and settings from the user's working Python streaming example
+        const modelName = 'gemini-2.5-pro-preview-tts'; 
+        const voiceNameForAPI = 'Zephyr'; // From Python example
+        const inputText = text; // Or use a fixed test like "Good morning! Ready to start your day?"
+
+        const apiCall = async () => {
+            console.log(`Generating Google TTS (streaming) for: "${inputText.substring(0, 30)}..." with voice ${voiceNameForAPI} using model ${modelName}`);
+            
+            const requestPayload = {
+                contents: [{ role: "user", parts: [{ text: inputText }] }], 
+                generationConfig: {
+                    // temperature: 1, // Optional, from Python example
+                    responseModalities: ['audio'], // Lowercase, from Python example
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: {
+                                voiceName: voiceNameForAPI,
+                            }
+                        },
+                    }
+                }
+            };
+
+            const fullRequestObject = {
+                model: modelName,
+                ...requestPayload
+            };
+
+            console.log('Attempting Google TTS API call (streaming) with request:', JSON.stringify(fullRequestObject, null, 2));
+
+            try {
+                const stream = await this.ai.models.generateContentStream(fullRequestObject);
+                let accumulatedAudioBase64 = "";
+
+                for await (const chunk of stream) {
+                    if (chunk.candidates && 
+                        chunk.candidates.length > 0 && 
+                        chunk.candidates[0].content && 
+                        chunk.candidates[0].content.parts && 
+                        chunk.candidates[0].content.parts.length > 0 && 
+                        chunk.candidates[0].content.parts[0].inlineData && 
+                        chunk.candidates[0].content.parts[0].inlineData.data) {
+                        
+                        accumulatedAudioBase64 += chunk.candidates[0].content.parts[0].inlineData.data;
+                    } else if (chunk.text && chunk.text) { // Should not happen if only audio is requested
+                        console.warn("TTS stream returned text chunk:", chunk.text);
+                    }
+                }
+
+                if (accumulatedAudioBase64) {
+                    console.log("Successfully streamed and accumulated audio data.");
+                    return `data:audio/wav;base64,${accumulatedAudioBase64}`;
+                } else {
+                    console.error('No audio data found in stream.');
+                    throw new Error('No audio data received from Google TTS stream.');
+                }
+
+            } catch (error) {
+                console.error(`Error calling Google TTS streaming API with model ${modelName}:`, error);
+                const silent_wav_base64 = 'UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+                return `data:audio/wav;base64,${silent_wav_base64}`;
+            }
+        };
+
+        return this.callApiWithRetries(apiCall);
+    }
 }
+
+const gameService = new GameService();
+export default gameService;

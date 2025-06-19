@@ -5,6 +5,7 @@ import VoiceSelector from './VoiceSelector';
 import { useSettings } from '../utils/SettingsContext';
 import { ThemeSwitcher } from '../utils/ThemeContext';
 import { useVoiceManagement } from '../hooks/useVoiceManagement';
+import gameService from '../services/GeminiCYOAService';
 
 function Settings() {
   const { settings, updateSetting } = useSettings();
@@ -26,16 +27,31 @@ function Settings() {
     updateSetting('selectedVoiceURI', voiceURI);
   };
 
-  const testVoice = () => {
+  const testVoice = async () => {
     // Cancel any currently playing speech
     cancelSpeech();
     
-    const utterance = new SpeechSynthesisUtterance("The quick brown fox jumps over the lazy dog");
-    const voices = window.speechSynthesis.getVoices();
-    const selectedVoice = voices.find(voice => voice.voiceURI === settings.selectedVoiceURI);
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-      window.speechSynthesis.speak(utterance);
+    const testText = "The quick brown fox jumps over the lazy dog";
+    const voiceURI = settings.selectedVoiceURI;
+
+    if (voiceURI && voiceURI.startsWith('google:')) {
+      try {
+        const voiceName = voiceURI.replace('google:', '');
+        const audioDataUri = await gameService.generateSpeech(testText, voiceName);
+        const audio = new Audio(audioDataUri);
+        audio.play();
+      } catch (error) {
+        console.error("Error testing Google AI voice:", error);
+        alert("Could not play the selected AI voice. Please try another.");
+      }
+    } else {
+      const utterance = new SpeechSynthesisUtterance(testText);
+      const voices = window.speechSynthesis.getVoices();
+      const selectedVoice = voices.find(voice => voice.voiceURI === voiceURI);
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        window.speechSynthesis.speak(utterance);
+      }
     }
   };
 
