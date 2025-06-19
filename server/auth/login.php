@@ -82,7 +82,7 @@ try {
             $password = $data['password'];
 
             // Get user by email
-            $stmt = $conn->prepare('SELECT id, username, email, password, temporary_account FROM users WHERE email = ?');
+            $stmt = $conn->prepare('SELECT id, username, email, password, temporary_account, role_id FROM users WHERE email = ?');
             if (!$stmt) {
                 error_log('Prepare failed: ' . $conn->error);
                 $response = [
@@ -147,7 +147,8 @@ try {
                     'id' => $user['id'],
                     'username' => $user['username'],
                     'email' => $user['email'],
-                    'temporary_account' => (bool)$user['temporary_account']
+                    'temporary_account' => (bool)$user['temporary_account'],
+                    'role_id' => (int)$user['role_id']
                 ],
                 'token' => $token
             ];

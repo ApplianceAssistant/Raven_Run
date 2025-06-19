@@ -1,0 +1,125 @@
+// src/features/admin/AdminDashboard.scss
+@import '../../css/variables';
+
+.admin-dashboard {
+  padding: 2rem;
+  font-family: var(--font-family);
+  background-color: var(--page-bg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 10px var(--shadow);
+
+  h2 {
+    font-family: var(--font-family-heading);
+    margin-top: 0;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.admin-nav {
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+
+  button {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    @include smooth-transition;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+
+    &.active {
+      background-color: var(--button-bg);
+      color: var(--button-text-color);
+      border-color: var(--button-bg);
+    }
+  }
+}
+
+.report-section {
+  padding: 1.5rem;
+  background-color: var(--modal-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.date-filter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  input[type="date"] {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background-color: var(--input-bg);
+    color: var(--input-text-color);
+  }
+
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background-color: var(--button-bg-save);
+    color: var(--button-text-color);
+    border: none;
+    cursor: pointer;
+
+    &:disabled {
+      background-color: var(--button-disabled-bg);
+      color: var(--button-disabled-text);
+      cursor: not-allowed;
+    }
+  }
+}
+
+.error-message {
+  color: var(--error-color);
+  border: 1px solid var(--error-color);
+  background-color: #f8d7da;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+}
+
+.report-content {
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+
+    th,
+    td {
+      border: 1px solid var(--border-color);
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+
+    tr:nth-child(even) {
+      background-color: var(--page-bg);
+    }
+  }
+}

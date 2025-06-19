@@ -7,6 +7,7 @@ ini_set('error_log', __DIR__ . '/../../logs/php_errors.log');
 
 require_once (__DIR__ . '/../../utils/errorHandler.php');
 require_once (__DIR__ . '/../../auth/auth.php');
+require_once (__DIR__ . '/../../utils/db_connection.php');
 
 ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');
@@ -55,6 +56,11 @@ if (file_exists($envFile)) {
 
 try {
     debug_log("Request started");
+    
+    // Attempt to get authenticated user
+    $authenticatedUser = authenticateUser();
+    $userId = $authenticatedUser ? $authenticatedUser['id'] : null;
+    $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     
     // Get the request method
     $method = $_SERVER['REQUEST_METHOD'];
@@ -222,29 +228,30 @@ try {
 
             // Check for cURL errors
             if ($response === false) {
-                $error = curl_error($ch);
-                debug_log("cURL Error: " . $error);
+                $curlError = curl_error($ch);
+                $curlErrno = curl_errno($ch);
+                debug_log("cURL error: " . $curlError . " (errno: " . $curlErrno . ")");
                 curl_close($ch);
-                throw new Exception("Unable to connect to the AI service. Please try again later.");
+                throw new Exception("Failed to communicate with AI service: " . $curlError, $curlErrno);
             }
-            
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            if ($httpCode !== 200) {
-                debug_log("API Error - HTTP Code: " . $httpCode . ", Response: " . $response);
-                throw new Exception("The AI service is temporarily unavailable. Please try again in a few minutes.");
-            }
+            debug_log("Raw Anthropic API response:", $response);
 
-            // Parse the response
             $responseData = json_decode($response, true);
-            debug_log("Raw API Response:", [
-                'length' => strlen($response),
-                'first_100_chars' => substr($response, 0, 100),
-                'last_100_chars' => substr($response, -100),
-                'json_error' => json_last_error(),
-                'json_error_msg' => json_last_error_msg()
-            ]);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                debug_log("JSON decode error for Anthropic response: " . json_last_error_msg(), [
+                    'response_start' => substr($response, 0, 200),
+                    'response_end' => substr($response, -200)
+                ]);
+                throw new Exception('Invalid JSON response from AI service: ' . json_last_error_msg());
+            }
+            debug_log("Decoded Anthropic response data:", $responseData);
+
+            // Extract token usage - Anthropic specific
+            $inputTokens = $responseData['usage']['input_tokens'] ?? 0;
+            $outputTokens = $responseData['usage']['output_tokens'] ?? 0;
+            $modelUsed = $responseData['model'] ?? 'Anthropic Claude'; // Or a more specific model if available
 
             // Extract the content from Anthropic response
             if (!isset($responseData['content'][0]['text'])) {
@@ -340,6 +347,28 @@ try {
                 'first_suggestion_preview' => isset($formattedSuggestions[0]) ? 
                     substr($formattedSuggestions[0], 0, 50) . '...' : 'none'
             ]);
+
+            // Log AI API Usage
+            try {
+                $conn = getDbConnection();
+                if ($conn) {
+                    $stmt = $conn->prepare("INSERT INTO AiApiUsage (user_id, ip_address, model_used, input_tokens, output_tokens) VALUES (?, ?, ?, ?, ?)");
+                    if ($stmt) {
+                        $stmt->bind_param("issii", $userId, $ipAddress, $modelUsed, $inputTokens, $outputTokens);
+                        if (!$stmt->execute()) {
+                            debug_log("Failed to log AI usage to DB: " . $stmt->error);
+                        }
+                        $stmt->close();
+                    } else {
+                        debug_log("Failed to prepare AI usage logging statement: " . $conn->error);
+                    }
+                    // Do not close $conn here if it's a persistent connection managed elsewhere
+                } else {
+                    debug_log("Failed to get DB connection for AI usage logging.");
+                }
+            } catch (Exception $logDbException) {
+                debug_log("Exception while logging AI usage to DB: " . $logDbException->getMessage());
+            }
 
             echo json_encode($returnData);
 

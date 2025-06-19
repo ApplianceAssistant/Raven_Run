@@ -1,5 +1,5 @@
-import React, { useState, useEffect, createContext } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './utils/ThemeContext';
 import { SettingsProvider } from './utils/SettingsContext';
 import { SpeechProvider } from './utils/SpeechContext';
@@ -31,11 +31,34 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import GoogleMapsProvider from './components/GoogleMapsProvider';
 import GeminiCYOA from './components/GeminiCYOA';
+import AdminDashboard from './features/admin/AdminDashboard';
 
 import './css/App.scss';
 import { setupViewport } from './utils/viewport';
 
 export const AuthContext = createContext(null);
+
+// Wrapper component to protect routes that require admin access
+const AdminRoute = ({ children }) => {
+  const { user } = useContext(AuthContext);
+
+  // Debugging logs
+  console.log('[AdminRoute] Checking access...');
+  console.log('[AdminRoute] User object:', user);
+  if (user) {
+    console.log('[AdminRoute] User role_id:', user.role_id);
+    console.log('[AdminRoute] Is user admin?', user.role_id === 1);
+  }
+
+  // If user is not logged in or is not an admin, redirect to home page
+  if (!user || user.role_id !== 1) {
+    console.log('[AdminRoute] Access DENIED. Redirecting to /');
+    return <Navigate to="/" replace />;
+  }
+
+  console.log('[AdminRoute] Access GRANTED.');
+  return children;
+};
 
 function AppContent() {
   const navigate = useNavigate();
@@ -185,6 +208,16 @@ function AppContent() {
                 </ThemeContainer>
               </GameCreationProvider>
             } />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <ThemeContainer theme={theme}>
+                    <AdminDashboard />
+                  </ThemeContainer>
+                </AdminRoute>
+              }
+            />
             <Route path="/privacy" element={<ThemeContainer theme={theme}><PrivacyPolicy /></ThemeContainer>} />
             <Route path="/terms" element={<ThemeContainer theme={theme}><TermsOfService /></ThemeContainer>} />
             {/* Add a catch-all route for 404s */}

@@ -69,7 +69,7 @@ if (!function_exists('authenticateUser')) {
             }
             
             // First verify the token exists and get user info
-            $stmt = $conn->prepare('SELECT at.user_id, at.expiration, u.id, u.username, u.email 
+            $stmt = $conn->prepare('SELECT at.user_id, at.expiration, u.id, u.username, u.email, u.role_id 
                                   FROM auth_tokens at 
                                   JOIN users u ON at.user_id = u.id 
                                   WHERE at.token = ? 
@@ -102,7 +102,8 @@ if (!function_exists('authenticateUser')) {
                 return [
                     'id' => $row['id'],
                     'username' => $row['username'],
-                    'email' => $row['email']
+                    'email' => $row['email'],
+                    'role_id' => $row['role_id']
                 ];
             } else {
                 return null;
