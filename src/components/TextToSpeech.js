@@ -85,8 +85,8 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
     }
 
     try {
-      // Cancel any ongoing speech
-      cancelSpeech();
+      // DO NOT cancel here. Cancellation should happen before starting a new speech sequence.
+      // cancelSpeech();
 
       if (currentSentenceIndexRef.current >= sentencesRef.current.length) {
         setIsSpeaking(false);
@@ -108,27 +108,35 @@ const TextToSpeech = ({ text, autoPlayTrigger }) => {
         if (event.error === 'not-allowed') {
           console.debug('Speech synthesis initializing...');
         } else if (event.error === 'interrupted') {
-          console.debug('Speech synthesis interrupted, this is normal during navigation or updates');
+          // This error is expected when we intentionally stop speech to start a new one.
+          console.debug('Speech synthesis was interrupted, likely by a new speak command.');
         } else {
           console.error('SpeechSynthesisUtterance error:', event);
         }
       };
       window.speechSynthesis.speak(utterance);
     } catch (error) {
-      console.error('Error cancelling speech:', error);
+      console.error('Error in speakSentence:', error);
     }
   }, [getSelectedVoice]);
 
   const speak = useCallback(() => {
+    // First, cancel any ongoing speech from previous actions.
+    // This prevents the race condition/loop.
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+
     const fullText = sentencesRef.current.join(' ');
     const voiceURI = settings.selectedVoiceURI;
 
     if (voiceURI && voiceURI.startsWith('google:')) {
       playGoogleVoice(fullText);
     } else {
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-      }
       currentSentenceIndexRef.current = 0;
       setIsSpeaking(true);
       speakSentence();
