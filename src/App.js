@@ -40,23 +40,18 @@ export const AuthContext = createContext(null);
 
 // Wrapper component to protect routes that require admin access
 const AdminRoute = ({ children }) => {
-  const { user } = useContext(AuthContext);
+  const { user, isLoadingAuth } = useContext(AuthContext); // Added isLoadingAuth
 
-  // Debugging logs
-  console.log('[AdminRoute] Checking access...');
-  console.log('[AdminRoute] User object:', user);
-  if (user) {
-    console.log('[AdminRoute] User role_id:', user.role_id);
-    console.log('[AdminRoute] Is user admin?', user.role_id === 1);
+  // If authentication is still loading, don't render anything yet or show a loader
+  if (isLoadingAuth) {
+    return null; // Or a loading spinner
   }
 
   // If user is not logged in or is not an admin, redirect to home page
   if (!user || user.role_id !== 1) {
-    console.log('[AdminRoute] Access DENIED. Redirecting to /');
     return <Navigate to="/" replace />;
   }
 
-  console.log('[AdminRoute] Access GRANTED.');
   return children;
 };
 
