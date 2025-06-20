@@ -78,11 +78,10 @@ const AdminDashboard = () => {
     switch (activeTab) {
       case 'newMembers':
         return <ReportSection title="New Member Registrations" fetchData={adminService.getNewMembers} />;
-      // We will add cases for other reports here later
-      // case 'newHunts':
-      //   return <ReportSection title="New Scavenger Hunts" fetchData={adminService.getNewHunts} />;
-      // case 'visitors':
-      //   return <ReportSection title="Visitor Analytics" fetchData={adminService.getVisitorData} />;
+      case 'newHunts':
+        return <ReportSection title="New Scavenger Hunts" fetchData={adminService.getNewHunts} />;
+      case 'visitors':
+        return <ReportSection title="Visitor Analytics" fetchData={adminService.getVisitorData} />;
       // case 'aiUsage':
       //   return <ReportSection title="AI API Usage" fetchData={adminService.getAiUsageData} />;
       default:

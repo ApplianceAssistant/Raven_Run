@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './utils/ThemeContext';
 import { SettingsProvider } from './utils/SettingsContext';
 import { SpeechProvider } from './utils/SpeechContext';
@@ -35,6 +35,7 @@ import AdminDashboard from './features/admin/AdminDashboard';
 
 import './css/App.scss';
 import { setupViewport } from './utils/viewport';
+import trackingService from './services/trackingService';
 
 export const AuthContext = createContext(null);
 
@@ -57,6 +58,7 @@ const AdminRoute = ({ children }) => {
 
 function AppContent() {
   const navigate = useNavigate();
+  const location = useLocation(); // Get location object
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { theme } = useTheme();
   const [serverStatus, setServerStatus] = useState({
@@ -68,6 +70,12 @@ function AppContent() {
   // Initialize user to null. Auth status will be checked via API.
   const [user, setUser] = useState(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+
+  useEffect(() => {
+    const fullPath = location.pathname + location.search;
+    // console.log('Page view:', fullPath); // For debugging
+    trackingService.logPageView(fullPath);
+  }, [location.pathname, location.search]); // Re-run effect when path or search params change
 
   useEffect(() => {
     const checkConnection = async () => {

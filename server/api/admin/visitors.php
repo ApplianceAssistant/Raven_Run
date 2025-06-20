@@ -3,7 +3,7 @@
 
 // Set headers for JSON response and CORS
 header('Content-Type: application/json');
-require_once __DIR__ . '/../../utils/cors.php';
+require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../utils/db_connection.php';
 require_once __DIR__ . '/../../auth/admin-auth.php';
 
@@ -44,7 +44,6 @@ try {
     }
 
     $stmt->close();
-    $conn->close();
 
     // 4. Send the response
     echo json_encode([

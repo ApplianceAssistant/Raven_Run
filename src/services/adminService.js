@@ -72,8 +72,13 @@ export const getAiUsageData = (startDate, endDate) => {
 };
 
 const adminService = {
-  getNewMembers,
-  getNewHunts,
+  getNewMembers: (startDate, endDate) => {
+    return fetchAdminReport('new-members.php', startDate, endDate);
+  },
+
+  getNewHunts: (startDate, endDate) => {
+    return fetchAdminReport('new-hunts.php', startDate, endDate);
+  },
   getVisitorData,
   getAiUsageData,
 };

@@ -3,7 +3,7 @@
 
 // Set headers for JSON response and CORS
 header('Content-Type: application/json');
-require_once __DIR__ . '/../../utils/cors.php';
+require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../utils/db_connection.php';
 require_once __DIR__ . '/../../auth/admin-auth.php';
 
@@ -22,7 +22,7 @@ try {
     // We join with the users table to get the creator's username
     $stmt = $conn->prepare(
         "SELECT 
-            g.id, g.gameId, g.title, g.created_at, g.is_public, u.username as creator_username
+            g.id, g.gameId, g.title, g.created_at, g.is_public, u.username as creator_username, g.challenge_data
          FROM games g
          LEFT JOIN users u ON g.user_id = u.id
          WHERE g.created_at >= ? AND g.created_at <= ? 
@@ -41,11 +41,16 @@ try {
     while ($row = $result->fetch_assoc()) {
         // Convert is_public to a boolean for cleaner JSON
         $row['is_public'] = (bool)$row['is_public'];
+        
+        // Decode challenge data and count challenges
+        $challenges = json_decode($row['challenge_data'], true);
+        $row['challenge_count'] = is_array($challenges) ? count($challenges) : 0;
+        unset($row['challenge_data']); // Don't send the raw JSON to the client
+
         $newHunts[] = $row;
     }
 
     $stmt->close();
-    $conn->close();
 
     // 4. Send the response
     echo json_encode([
