@@ -141,6 +141,25 @@ try {
             // Remove password from user data
             unset($user['password']);
 
+            // Set HttpOnly cookie for the auth token
+            $cookieName = 'authToken';
+            $cookieValue = $token;
+            $expiry = time() + (86400 * 30); // 30 days
+            $path = '/';
+            $domain = ''; // Current domain
+            $secure = true; // True for HTTPS only, false for HTTP/HTTPS. Set to false for local dev if not using HTTPS.
+            $httpOnly = true;
+            $sameSite = 'Lax'; // Lax or Strict
+
+            setcookie($cookieName, $cookieValue, [
+                'expires' => $expiry,
+                'path' => $path,
+                'domain' => $domain,
+                'secure' => $secure,
+                'httponly' => $httpOnly,
+                'samesite' => $sameSite
+            ]);
+
             $response = [
                 'status' => 'success',
                 'user' => [
@@ -149,8 +168,8 @@ try {
                     'email' => $user['email'],
                     'temporary_account' => (bool)$user['temporary_account'],
                     'role_id' => (int)$user['role_id']
-                ],
-                'token' => $token
+                ]
+                // Token is no longer sent in the response body
             ];
 
             echo json_encode($response);
@@ -158,10 +177,10 @@ try {
 
         case 'logout':
             // Get the current token from the Authorization header
-            $token = getBearerToken();
+            $token = getBearerToken(); // This will need to be updated to check cookie
             if ($token) {
                 // Invalidate the token
-                if (invalidateAuthToken($token)) {
+                if (invalidateAuthToken($token)) { // This logic might also change based on cookie
                     $response = [
                         'status' => 'success',
                         'message' => 'Logged out successfully'
@@ -179,6 +198,16 @@ try {
                     'message' => 'Logged out successfully (no token found)'
                 ];
             }
+            // Clear the HttpOnly cookie
+            setcookie('authToken', '', [
+                'expires' => time() - 3600, // Set to past to expire immediately
+                'path' => '/',
+                'domain' => '',
+                'secure' => true, // Match settings from login
+                'httponly' => true,
+                'samesite' => 'Lax' // Match settings from login
+            ]);
+
             echo json_encode($response);
             break;
 

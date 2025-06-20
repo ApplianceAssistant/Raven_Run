@@ -38,11 +38,18 @@ if (!function_exists('getAuthorizationHeader')) {
 if (!function_exists('getBearerToken')) {
     function getBearerToken()
     {
-        $headers = getAuthorizationHeader();
+        // Check for the authToken cookie
+        if (isset($_COOKIE['authToken'])) {
+            return $_COOKIE['authToken'];
+        }
         
-        // HEADER: Get the access token from the header
+        // Fallback to Authorization header (optional, can be removed if strictly cookie-only)
+        // For now, let's keep it to see if any part of the system still relies on it during transition.
+        // In a final version, this fallback might be removed for stricter security.
+        $headers = getAuthorizationHeader();
         if (!empty($headers)) {
             if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
+                error_log('[Auth] Token found in Authorization header (fallback). Consider migrating fully to cookies.');
                 return $matches[1];
             }
         }

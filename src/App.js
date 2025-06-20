@@ -70,10 +70,9 @@ function AppContent() {
     message: ''
   });
 
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  // Initialize user to null. Auth status will be checked via API.
+  const [user, setUser] = useState(null);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -81,11 +80,47 @@ function AppContent() {
       setServerStatus(status);
     };
     checkConnection();
+
+    // Check authentication status on initial load
+    const checkAuthStatus = async () => {
+      setIsLoadingAuth(true);
+      try {
+        const response = await fetch(`${API_URL}/server/api/auth/status.php`, {
+          method: 'GET',
+          credentials: 'include', // Important for sending cookies
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === 'success' && data.isAuthenticated && data.user) {
+            setUser(data.user);
+            localStorage.setItem('user', JSON.stringify(data.user)); // Store user details, not token
+          } else {
+            localStorage.removeItem('user');
+            setUser(null);
+          }
+        } else {
+          // Handle non-OK responses (e.g., server error)
+          localStorage.removeItem('user');
+          setUser(null);
+          console.error('Auth status check failed:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+        localStorage.removeItem('user');
+        setUser(null);
+      }
+      setIsLoadingAuth(false);
+    };
+
+    checkAuthStatus();
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const login = (userDetails) => { // userDetails from login.php, no token property
+    setUser(userDetails);
+    localStorage.setItem('user', JSON.stringify(userDetails)); // Store details, not token
   };
 
   const logout = async () => {
@@ -125,10 +160,23 @@ function AppContent() {
 
   const authContextValue = {
     user,
+    isAuthenticated: !!user && !isLoadingAuth, // User is authenticated if user object exists and not loading
+    isLoadingAuth,
     login,
     logout,
-    isAuthenticated: !!user
+    // Keep other existing context values if any, or add new ones like serverStatus
+    serverStatus,
+    setServerStatus
   };
+
+  // Display a loading indicator while checking auth status
+  if (isLoadingAuth && !user) { // Added !user to prevent brief flash of loading if user is already in localStorage from previous session and status check is fast
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <h2>Loading application...</h2>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={authContextValue}>

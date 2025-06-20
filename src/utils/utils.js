@@ -130,7 +130,7 @@ export const handleError = (error, context) => {
 };
 
 export const authFetch = async (url, options = {}) => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  // Token is now handled by HttpOnly cookie, no need to get it from localStorage
   
   // Create a new headers object
   const headers = new Headers({
@@ -138,32 +138,21 @@ export const authFetch = async (url, options = {}) => {
       ...(options.headers || {})
   });
 
-  // Add authorization header if user has a token
-  if (user?.token) {
-      headers.set('Authorization', `Bearer ${user.token}`);
-  }
-
   try {
       const response = await fetch(url, {
           ...options,
           headers,
-          credentials: 'include', // Always include credentials
+          credentials: 'include', // Crucial: tells browser to send cookies
       });
-
-      // Check for and handle token refresh
-      const newToken = response.headers.get('X-New-Token');
-      if (newToken && user) {
-          const updatedUser = { ...user, token: newToken };
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-      }
 
       // Handle different response statuses
       if (response.status === 401) {
-          console.error('Unauthorized access detected');
+          console.error('Unauthorized access detected for URL:', url);
           // Only clear user data if we're not already on the login page
           if (!window.location.pathname.includes('/log-in')) {
-              localStorage.removeItem('user');
-              window.location.href = '/log-in';
+              localStorage.removeItem('user'); // Clear any stale user data
+              // Consider using React Router's navigate for SPA-style navigation if authFetch is used within components
+              window.location.href = '/log-in'; 
           }
           throw new Error('Unauthorized access');
       }
