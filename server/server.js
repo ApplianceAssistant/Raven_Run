@@ -14,7 +14,7 @@ const ENV = process.env.NODE_ENV || 'development';
 process.env.APP_ENV = ENV;
 
 // Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, 'logs');
+const logsDir = path.join(__dirname, 'server_logs');
 if (!fs.existsSync(logsDir)) {
   fs.mkdirSync(logsDir);
 }

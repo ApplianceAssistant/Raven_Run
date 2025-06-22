@@ -10,17 +10,18 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 
-// Set error log path and ensure UTF-8 BOM for Windows
-$logFile = __DIR__ . '/../logs/php_errors.log';
+// Set error log path to the project root's logs directory
+$logFile = __DIR__ . '/../../logs/php_errors.log';
 ini_set('error_log', $logFile);
 
 // Create logs directory if it doesn't exist
-if (!file_exists(__DIR__ . '/../logs')) {
-    mkdir(__DIR__ . '/../logs', 0777, true);
+$logDir = dirname($logFile);
+if (!file_exists($logDir)) {
+    mkdir($logDir, 0777, true);
 }
 
 // Always recreate the log file with UTF-8 BOM to ensure proper encoding
-file_put_contents($logFile, "\xEF\xBB\xBF"); // UTF-8 BOM
+// file_put_contents($logFile, "\xEF\xBB\xBF"); // UTF-8 BOM - Temporarily commented out to allow appending
 
 // Set default timezone
 date_default_timezone_set('UTC');

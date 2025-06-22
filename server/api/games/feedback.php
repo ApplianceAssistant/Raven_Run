@@ -1,8 +1,5 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 require_once (__DIR__ . '/../../utils/db_connection.php');
 require_once (__DIR__ . '/../../utils/encryption.php');
 require_once (__DIR__ . '/../../utils/errorHandler.php');

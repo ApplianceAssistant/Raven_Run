@@ -14,12 +14,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-error_log("Google OAuth Callback - Start");
-error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-error_log("Request URI: " . $_SERVER['REQUEST_URI']);
-error_log("Query String: " . $_SERVER['QUERY_STRING']);
-error_log("Full URL: " . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");
-
 // Get state from query parameters
 $state = $_GET['state'] ?? null;
 $code = $_GET['code'] ?? null;
@@ -39,31 +33,23 @@ if (!$state) {
 // Store state in session temporarily (it will be used and cleared by the OAuth process)
 $_SESSION['oauth_state'] = $state;
 
-// Debug session data
-error_log("Session Data: " . print_r($_SESSION, true));
 
 $env = $_ENV['APP_ENV'] ?? 'development';
-error_log("Environment: " . $env);
 
 // Get base URL from environment
 $base_url = $_ENV['REACT_APP_URL'];
-error_log("Using base URL: " . $base_url);
 
 // Set redirect URI
 $redirect_uri = $base_url . '/server/auth/google-callback.php';
-error_log("Using redirect URI: " . $redirect_uri);
 
 // Google OAuth configuration
 $client_id = $_ENV['GOOGLE_CLIENT_ID'];
 $client_secret = $_ENV['GOOGLE_CLIENT_SECRET'];
 
-error_log("client_id: " . $client_id);
 
 // Verify client ID and secret are set
 if (empty($client_id) || empty($client_secret)) {
     error_log("Error: Missing OAuth credentials");
-    error_log("Client ID: " . ($client_id ? 'set' : 'not set'));
-    error_log("Client Secret: " . ($client_secret ? 'set' : 'not set'));
     handleOAuthError('OAuth configuration error');
 }
 

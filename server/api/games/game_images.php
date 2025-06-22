@@ -1,8 +1,4 @@
 <?php
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 require_once(__DIR__ . '/../../utils/db_connection.php');
 require_once(__DIR__ . '/../../utils/errorHandler.php');
 require_once(__DIR__ . '/../../utils/image_cleanup.php');
@@ -49,7 +45,6 @@ try {
     
     switch ($method) {
         case 'POST':
-            error_log("Processing image upload request");
             $data = json_decode(file_get_contents('php://input'), true);
             
             if (empty($data) || empty($data['gameId']) || empty($data['image_data'])) {
@@ -81,7 +76,6 @@ try {
 
             // Process and save the image
             try {
-                error_log("Saving image for game: " . $data['gameId']);
                 $image_data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $data['image_data']));
                 $image_url = saveGameImage($data['gameId'], $image_data);
                 
@@ -90,7 +84,6 @@ try {
                 $stmt->bind_param('ss', $image_url, $data['gameId']);
                 $stmt->execute();
 
-                error_log("Successfully saved image for game: " . $data['gameId']);
                 echo json_encode([
                     'status' => 'success',
                     'image_url' => $image_url
@@ -106,7 +99,6 @@ try {
             break;
 
         case 'DELETE':
-            error_log("Processing image delete request");
             $gameId = $_GET['gameId'] ?? '';
             
             if (empty($gameId)) {
@@ -137,15 +129,12 @@ try {
             }
 
             // Delete the image
-            try {
-                error_log("Deleting image for game: " . $gameId);
-                
+            try {                
                 // Update game record to remove image URL
                 $stmt = $conn->prepare('UPDATE games SET image_url = NULL WHERE gameId = ?');
                 $stmt->bind_param('s', $gameId);
                 $stmt->execute();
 
-                error_log("Successfully deleted image for game: " . $gameId);
                 echo json_encode([
                     'status' => 'success'
                 ]);

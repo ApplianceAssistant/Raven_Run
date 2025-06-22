@@ -1,7 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 require_once (__DIR__ . '/../../utils/db_connection.php');
 require_once (__DIR__ . '/../../utils/encryption.php');
 require_once (__DIR__ . '/../../utils/errorHandler.php');
@@ -59,10 +56,8 @@ if (!$user) {
 
 // Get parameters
 $gameId = isset($_GET['gameId']) ? trim($_GET['gameId']) : null;
-error_log("searchGames.php - Received gameId: " . ($gameId ?? 'null'));
 
 $search = isset($_GET['search']) ? trim($_GET['search']) : null;
-error_log("searchGames.php - Received search: " . ($search ?? 'null'));
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
@@ -88,19 +83,14 @@ try {
 
     // If searching by gameId, we need to check friend relationships
     if ($gameId !== null) {
-        error_log("searchGames.php - Searching by gameId: " . $gameId);
-        error_log("searchGames.php - Current user ID: " . $user['id']);
-
         // First, let's check if the game exists at all
         $check_sql = "SELECT * FROM games WHERE gameId = ?";
         $check_stmt = $conn->prepare($check_sql);
         $check_stmt->bind_param('s', $gameId);
         $check_stmt->execute();
         $check_result = $check_stmt->get_result();
-        error_log("searchGames.php - Game exists check rows: " . $check_result->num_rows);
         if ($check_result->num_rows > 0) {
             $game_data = $check_result->fetch_assoc();
-            error_log("searchGames.php - Found game: " . print_r($game_data, true));
         }
 
         $sql = "SELECT DISTINCT g.*, 
@@ -124,9 +114,6 @@ try {
         $params = [$user['id'], $user['id'], $user['id'], $gameId];
         $types = 'iiis';
 
-        error_log("searchGames.php - Executing SQL: " . $sql);
-        error_log("searchGames.php - Parameters: " . print_r($params, true));
-
         // Add having clause to only show games user has access to
         $sql .= " HAVING has_access = true";
 
@@ -139,18 +126,13 @@ try {
 
         $stmt->bind_param($types, ...$params);
         if (!$stmt->execute()) {
-            error_log("searchGames.php - Execute failed: " . $stmt->error);
             throw new Exception("Failed to execute statement: " . $stmt->error);
         }
 
         $result = $stmt->get_result();
-        error_log("searchGames.php - Number of rows returned: " . $result->num_rows);
         
         $games = [];
         while ($row = $result->fetch_assoc()) {
-            error_log("searchGames.php - Processing row: " . print_r($row, true));
-            error_log("searchGames.php - Game creator ID: " . $row['user_id']);
-            error_log("searchGames.php - Has access value: " . ($row['has_access'] ? 'true' : 'false'));
             
             // Clean up the response data
             $game = [
@@ -170,10 +152,7 @@ try {
                 'image_url' => $row['image_url']
             ];
             $games[] = $game;
-            error_log("searchGames.php - Added game to array: " . print_r($game, true));
         }
-
-        error_log("searchGames.php - Final games array: " . print_r($games, true));
         
         echo json_encode([
             'status' => 'success',
@@ -419,7 +398,6 @@ try {
         
         $games = [];
         while ($row = $result->fetch_assoc()) {
-            error_log("searchGames.php - Processing row: " . print_r($row, true));
             
             // Clean up the response data
             $game = [
@@ -439,10 +417,7 @@ try {
                 'image_url' => $row['image_url']
             ];
             $games[] = $game;
-            error_log("searchGames.php - Added game to array: " . print_r($game, true));
         }
-
-        error_log("searchGames.php - Final games array: " . print_r($games, true));
         
         echo json_encode([
             'status' => 'success',

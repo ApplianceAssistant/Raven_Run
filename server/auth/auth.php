@@ -49,7 +49,6 @@ if (!function_exists('getBearerToken')) {
         $headers = getAuthorizationHeader();
         if (!empty($headers)) {
             if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
-                error_log('[Auth] Token found in Authorization header (fallback). Consider migrating fully to cookies.');
                 return $matches[1];
             }
         }

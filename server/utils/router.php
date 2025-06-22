@@ -1,7 +1,5 @@
 <?php
 // Development router for PHP's built-in server
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 // Global UTF-8 Configuration
 ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');

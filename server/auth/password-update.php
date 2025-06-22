@@ -8,12 +8,6 @@ require_once __DIR__ . '/../utils/rateLimit.php';
 require_once __DIR__ . '/../utils/errorHandler.php';
 require_once __DIR__ . '/auth.php';
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/../logs/php_errors.log');
-
 // Set content type to JSON and CORS headers
 header('Content-Type: application/json');
 
@@ -47,8 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $data = json_decode(file_get_contents('php://input'), true);
-error_log('Received password update request with data: ' . print_r($data, true));
-
 $token = $data['token'] ?? '';
 $newPassword = $data['password'] ?? '';
 
@@ -62,7 +54,6 @@ if (empty($token) || empty($newPassword)) {
 try {
     $conn = getDbConnection();
 
-    error_log('Validating token...');
     // Validate token and get user information
     $stmt = $conn->prepare('SELECT ptr.user_id, ptr.expiration, u.email 
                            FROM password_reset_tokens ptr 
@@ -85,9 +76,6 @@ try {
     $currentTime = new \DateTime('now', new \DateTimeZone('UTC'));
     $expirationTime = new \DateTime($resetRequest['expiration'], new \DateTimeZone('UTC'));
 
-    error_log('Current time (UTC): ' . $currentTime->format('Y-m-d H:i:s'));
-    error_log('Token expires (UTC): ' . $expirationTime->format('Y-m-d H:i:s'));
-
     if ($currentTime > $expirationTime) {
         error_log('Token has expired');
         http_response_code(400);
@@ -95,7 +83,6 @@ try {
         exit;
     }
 
-    error_log('Updating password...');
     // Update user's password using consistent hashing method
     $hashedPassword = hashPassword($newPassword);
     $updateStmt = $conn->prepare('UPDATE users SET password = ? WHERE id = ?');
@@ -106,9 +93,7 @@ try {
         throw new Exception('Failed to update password');
     }
 
-    error_log('Password updated successfully for user ID: ' . $resetRequest['user_id']);
 
-    error_log('Marking token as used...');
     // Mark the token as used
     $markUsedStmt = $conn->prepare('UPDATE password_reset_tokens SET used = 1 WHERE token = ?');
     $markUsedStmt->bind_param('s', $token);

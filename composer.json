@@ -8,9 +8,17 @@
         "vlucas/phpdotenv": "^5.3",
         "wildbit/postmark-php": "^5.0"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5 || ^10.0"
+    },
     "autoload": {
         "psr-4": {
             "CrowTours\\": "server/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CrowTours\\Tests\\": "server/tests/"
         }
     }
 }

@@ -1,8 +1,4 @@
 <?php
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 require_once (__DIR__ . '/../../utils/db_connection.php');
 require_once (__DIR__ . '/../../utils/encryption.php');
 require_once (__DIR__ . '/../../utils/errorHandler.php');
@@ -136,7 +132,6 @@ try {
                     try {
                         // Convert radius values in challenges to display units
                         $challenge_data = $row['challenge_data'];
-                        error_log("Processing game " . $row['gameId'] . " challenge data: " . substr($challenge_data, 0, 100) . "...");
                         
                         $challenges = json_decode($challenge_data, true);
                         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -153,10 +148,8 @@ try {
                         // Parse game settings
                         if (isset($row['game_settings']) && !empty($row['game_settings'])) {
                             $gameSettings = json_decode($row['game_settings'], true);
-                            error_log("Game settings found for game " . $row['gameId'] . ": " . $row['game_settings']);
                         } else {
                             $gameSettings = null;
-                            error_log("No game settings found for game " . $row['gameId']);
                         }
                         
                         // Format the game data
@@ -277,7 +270,6 @@ try {
                 }
 
                 $game = $result->fetch_assoc();
-                error_log("Game found: " . print_r($game, true));
 
                 // For playtest mode, allow access if user is the game creator
                 if ($isPlaytest && $game['user_id'] === $user['id']) {
@@ -296,7 +288,6 @@ try {
                 exit;
 
             } elseif ($action === 'get_games') {
-                error_log("Fetching games for user ID: " . $user['id']);
                 
                 if (!isset($user['id'])) {
                     error_log("User ID not set in get_games");
@@ -362,9 +353,7 @@ try {
 
                 $result = $stmt->get_result();
                 $games = [];
-                
-                error_log("Found " . $result->num_rows . " games");
-                
+                                
                 if ($result->num_rows === 0) {
                     error_log("No games found for user " . $user['id']);
                     echo json_encode([]);
@@ -372,13 +361,10 @@ try {
                 }
                 
                 while ($row = $result->fetch_assoc()) {
-                    try {
-                        error_log("Processing game ID: " . $row['gameId']);
-                        
+                    try {                        
                         // Parse game settings
                         if (isset($row['game_settings']) && !empty($row['game_settings'])) {
                             $gameSettings = json_decode($row['game_settings'], true);
-                            error_log("Game settings found for game " . $row['gameId'] . ": " . $row['game_settings']);
                         } else {
                             $gameSettings = null;
                             error_log("No game settings found for game " . $row['gameId']);
@@ -386,7 +372,6 @@ try {
                         
                         // Convert radius values in challenges to display units
                         $challenge_data = $row['challenge_data'];
-                        error_log("Processing challenge data: " . substr($challenge_data, 0, 100) . "...");
                         
                         $challenges = json_decode($challenge_data, true);
                         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -461,7 +446,6 @@ try {
 
             if ($action === 'save_game') {
                 $game = $data['game'];
-                error_log("Saving game data: " . json_encode($game));
                 
                 $gameId = $game['gameId'];
                 $title = $game['title'];
@@ -475,7 +459,6 @@ try {
                 // Handle game settings
                 if (isset($game['game_settings']) && !empty($game['game_settings'])) {
                     $gameSettings = json_encode($game['game_settings']);
-                    error_log("Game settings to save: " . $gameSettings);
                 } else {
                     $gameSettings = null;
                     error_log("No game settings to save");
@@ -577,7 +560,6 @@ try {
                             game_settings = ?
                         WHERE gameId = ?"
                     );
-                    error_log("Binding parameters for UPDATE. game_settings: " . ($gameSettings ?? 'null'));
                     $stmt->bind_param("ssisddddssssss", 
                         $title, 
                         $description, 
@@ -624,7 +606,6 @@ try {
                 }
 
                 if ($stmt->execute()) {
-                    error_log("Game saved successfully. Game ID: " . $gameId);
                     
                     // Get the saved game data to verify
                     $verifyStmt = $conn->prepare("SELECT * FROM games WHERE gameId = ?");
@@ -632,7 +613,6 @@ try {
                     $verifyStmt->execute();
                     $result = $verifyStmt->get_result();
                     $savedGame = $result->fetch_assoc();
-                    error_log("Saved game data: " . json_encode($savedGame));
                     
                     // Clear any previous output
                     if (ob_get_length()) ob_clean();
@@ -660,7 +640,6 @@ try {
                 $gameId = $data['gameId'] ?? '';
                 if (empty($gameId)) {
                     http_response_code(400);
-                    error_log("Game ID is required for deletion");
                     echo json_encode([
                         'status' => 'error',
                         'message' => 'Game ID is required for deletion'

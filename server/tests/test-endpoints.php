@@ -1,10 +1,7 @@
 <?php
 require_once(__DIR__ . '/../server/db_connection.php');
 
-// Test endpoint that returns available API routes
-header('Content-Type: application/json');
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+
 
 // Track included files to prevent multiple inclusions
 $GLOBALS['included_files'] = [];

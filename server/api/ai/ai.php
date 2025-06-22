@@ -1,13 +1,8 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/../../logs/php_errors.log');
-
+require_once (__DIR__ . '/../../utils/db_connection.php');
 require_once (__DIR__ . '/../../utils/errorHandler.php');
 require_once (__DIR__ . '/../../auth/auth.php');
-require_once (__DIR__ . '/../../utils/db_connection.php');
 
 ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');

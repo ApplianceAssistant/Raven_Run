@@ -1,9 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Don't display errors to client in production
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/../../../logs/php_errors.log');
-
 require_once __DIR__ . '/../../utils/db_connection.php';
 require_once __DIR__ . '/../../auth/auth.php'; // For authenticateUser()
 require_once __DIR__ . '/../../utils/errorHandler.php'; // For error handling, if you have one
@@ -11,6 +6,7 @@ require_once __DIR__ . '/../../utils/errorHandler.php'; // For error handling, i
 header('Content-Type: application/json; charset=utf-8');
 
 // Handle CORS if necessary (copy from ai.php if needed)
+/*
 if (isset($_SERVER['HTTP_ORIGIN'])) {
     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
     header('Access-Control-Allow-Credentials: true');
@@ -28,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     }
     exit(0);
 }
+*/
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405); // Method Not Allowed
@@ -36,7 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    $rawInput = file_get_contents('php://input');
+    // Allow raw input to be injected for testing purposes
+    if (!isset($rawInput)) {
+        $rawInput = file_get_contents('php://input');
+    }
     $data = json_decode($rawInput, true);
 
     if (json_last_error() !== JSON_ERROR_NONE || !isset($data['page_url'])) {
