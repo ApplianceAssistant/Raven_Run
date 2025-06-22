@@ -160,65 +160,40 @@ export class GameService {
     }
 
     async generateSpeech(text: string, voiceNameFromSettings: string = 'echo-en-us'): Promise<string> {
-        // Using model and settings from the user's working Python streaming example
-        const modelName = 'gemini-2.5-pro-preview-tts'; 
-        const voiceNameForAPI = 'Zephyr'; // From Python example
-        const inputText = text; // Or use a fixed test like "Good morning! Ready to start your day?"
+        // This function is updated to align with the non-streaming Google AI JavaScript documentation.
+        const modelName = 'gemini-2.5-flash-preview-tts';
+        // NOTE: Hardcoding voice to 'Kore' from the JS example to ensure it works.
+        const voiceNameForAPI = 'Kore';
+        const inputText = text;
 
         const apiCall = async () => {
-            console.log(`Generating Google TTS (streaming) for: "${inputText.substring(0, 30)}..." with voice ${voiceNameForAPI} using model ${modelName}`);
-            
-            const requestPayload = {
-                contents: [{ role: "user", parts: [{ text: inputText }] }], 
-                generationConfig: {
-                    // temperature: 1, // Optional, from Python example
-                    responseModalities: ['audio'], // Lowercase, from Python example
-                    speechConfig: {
-                        voiceConfig: {
-                            prebuiltVoiceConfig: {
-                                voiceName: voiceNameForAPI,
-                            }
-                        },
-                    }
-                }
-            };
-
-            const fullRequestObject = {
-                model: modelName,
-                ...requestPayload
-            };
-
-            console.log('Attempting Google TTS API call (streaming) with request:', JSON.stringify(fullRequestObject, null, 2));
+            console.log(`Generating Google TTS (non-streaming) for: "${inputText.substring(0, 30)}..." with voice ${voiceNameForAPI} using model ${modelName}`);
 
             try {
-                const stream = await this.ai.models.generateContentStream(fullRequestObject);
-                let accumulatedAudioBase64 = "";
+                const response = await this.ai.models.generateContent({
+                    model: modelName,
+                    contents: [{ parts: [{ text: inputText }] }],
+                    config: {
+                        responseModalities: ['AUDIO'],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: { voiceName: voiceNameForAPI },
+                            },
+                        },
+                    },
+                });
 
-                for await (const chunk of stream) {
-                    if (chunk.candidates && 
-                        chunk.candidates.length > 0 && 
-                        chunk.candidates[0].content && 
-                        chunk.candidates[0].content.parts && 
-                        chunk.candidates[0].content.parts.length > 0 && 
-                        chunk.candidates[0].content.parts[0].inlineData && 
-                        chunk.candidates[0].content.parts[0].inlineData.data) {
-                        
-                        accumulatedAudioBase64 += chunk.candidates[0].content.parts[0].inlineData.data;
-                    } else if (chunk.text && chunk.text) { // Should not happen if only audio is requested
-                        console.warn("TTS stream returned text chunk:", chunk.text);
-                    }
-                }
+                const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
 
-                if (accumulatedAudioBase64) {
-                    console.log("Successfully streamed and accumulated audio data.");
-                    return `data:audio/wav;base64,${accumulatedAudioBase64}`;
+                if (audioData) {
+                    console.log("Successfully received non-streaming audio data.");
+                    return `data:audio/wav;base64,${audioData}`;
                 } else {
-                    console.error('No audio data found in stream.');
-                    throw new Error('No audio data received from Google TTS stream.');
+                    console.error('No audio data found in response.', response);
+                    throw new Error('No audio data received from Google TTS API.');
                 }
-
             } catch (error) {
-                console.error(`Error calling Google TTS streaming API with model ${modelName}:`, error);
+                console.error(`Error calling Google TTS API with model ${modelName}:`, error);
                 const silent_wav_base64 = 'UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
                 return `data:audio/wav;base64,${silent_wav_base64}`;
             }
