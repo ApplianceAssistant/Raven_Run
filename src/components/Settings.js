@@ -54,6 +54,57 @@ function createWavHeader(dataLength, sampleRate = 24000, numChannels = 1, bitDep
   return new Uint8Array(header);
 }
 
+// --- Streaming Audio Player ---
+class AudioPlayer {
+  constructor(sampleRate = 24000) {
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate });
+    this.audioQueue = [];
+    this.isPlaying = false;
+    this.startTime = 0;
+  }
+
+  addChunk(chunk) {
+    this.audioQueue.push(chunk);
+    if (!this.isPlaying) {
+      this.playQueue();
+    }
+  }
+
+  async playQueue() {
+    if (this.audioQueue.length === 0) {
+      this.isPlaying = false;
+      return;
+    }
+
+    this.isPlaying = true;
+    const chunk = this.audioQueue.shift();
+
+    try {
+      const header = createWavHeader(chunk.length, this.audioContext.sampleRate);
+      const wavData = new Uint8Array(header.length + chunk.length);
+      wavData.set(header, 0);
+      wavData.set(chunk, header.length);
+
+      const audioBuffer = await this.audioContext.decodeAudioData(wavData.buffer);
+      const source = this.audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(this.audioContext.destination);
+
+      const currentTime = this.audioContext.currentTime;
+      const playAt = this.startTime > currentTime ? this.startTime : currentTime;
+      
+      source.start(playAt);
+      this.startTime = playAt + audioBuffer.duration;
+
+      source.onended = () => this.playQueue();
+    } catch (error) {
+      console.error('Error playing audio chunk:', error);
+      this.isPlaying = false; // Stop if there's an error
+    }
+  }
+}
+// --- End Streaming Audio Player ---
+
 function Settings() {
   const { settings, updateSetting } = useSettings();
   const { cancelSpeech } = useVoiceManagement();
@@ -84,32 +135,13 @@ function Settings() {
     if (voiceURI && voiceURI.startsWith('google:')) {
       try {
         const voiceName = voiceURI.replace('google:', '');
-        const audioDataUri = await gameService.generateSpeech(testText, voiceName);
-        
-        // --- Web Audio API Implementation ---
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const base64Data = audioDataUri.split(',')[1];
-        const binaryString = window.atob(base64Data);
-        const len = binaryString.length;
-        const rawPcmData = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-          rawPcmData[i] = binaryString.charCodeAt(i);
-        }
-        
-        // 1. Create the WAV header
-        const header = createWavHeader(rawPcmData.length);
-        // 2. Combine header and PCM data into a single buffer
-        const wavData = new Uint8Array(header.length + rawPcmData.length);
-        wavData.set(header, 0);
-        wavData.set(rawPcmData, header.length);
-
-        // 3. Decode the complete WAV file data
-        const audioBuffer = await audioContext.decodeAudioData(wavData.buffer);
-        const source = audioContext.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
-        source.start(0);
-        // --- End Web Audio API Implementation ---
+        console.log(`Testing Google AI voice: ${voiceName}`);
+        // --- Streaming Implementation ---
+        const player = new AudioPlayer();
+        await gameService.generateSpeech(testText, voiceName, (audioChunk) => {
+          player.addChunk(audioChunk);
+        });
+        // --- End Streaming Implementation ---
 
       } catch (error) {
         console.error("Error testing Google AI voice:", error);

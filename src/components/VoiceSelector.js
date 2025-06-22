@@ -2,11 +2,11 @@ import React from 'react';
 import { useVoiceManagement } from '../hooks/useVoiceManagement';
 
 const googleVoices = [
-  { voiceURI: 'google:echo-en-us', name: 'Echo (US English)', lang: 'en-US' },
-  { voiceURI: 'google:sierra-en-us', name: 'Sierra (US English)', lang: 'en-US' },
-  { voiceURI: 'google:zephyr-en-us', name: 'Zephyr (US English)', lang: 'en-US' },
-  { voiceURI: 'google:aurora-en-gb', name: 'Aurora (UK English)', lang: 'en-GB' },
-  { voiceURI: 'google:meadow-en-au', name: 'Meadow (AU English)', lang: 'en-AU' },
+  { voiceURI: 'google:umbriel', name: 'Umbriel (US English)', lang: 'en-US' },
+  { voiceURI: 'google:achird', name: 'Achird (US English)', lang: 'en-US' },
+  { voiceURI: 'google:zephyr', name: 'Zephyr (US English)', lang: 'en-US' },
+  { voiceURI: 'google:algenib', name: 'Algenib (US English)', lang: 'en-US' },
+  { voiceURI: 'google:puck', name: 'Puck (US English)', lang: 'en-US' },
 ];
 
 const VoiceSelector = ({ onVoiceChange }) => {

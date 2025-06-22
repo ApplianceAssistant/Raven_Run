@@ -159,18 +159,16 @@ export class GameService {
         return this.callApiWithRetries(apiCall);
     }
 
-    async generateSpeech(text: string, voiceNameFromSettings: string = 'echo-en-us'): Promise<string> {
-        // This function is updated to align with the non-streaming Google AI JavaScript documentation.
+    async generateSpeech(text: string, voiceNameFromSettings: string = 'echo-en-us', onAudioChunk: (chunk: Uint8Array) => void): Promise<void> {
         const modelName = 'gemini-2.5-flash-preview-tts';
-        // NOTE: Hardcoding voice to 'Kore' from the JS example to ensure it works.
-        const voiceNameForAPI = 'Kore';
+        const voiceNameForAPI = voiceNameFromSettings;
         const inputText = text;
 
         const apiCall = async () => {
-            console.log(`Generating Google TTS (non-streaming) for: "${inputText.substring(0, 30)}..." with voice ${voiceNameForAPI} using model ${modelName}`);
+            console.log(`Generating Google TTS (streaming) for: "${inputText.substring(0, 30)}..." with voice ${voiceNameForAPI} using model ${modelName}`);
 
             try {
-                const response = await this.ai.models.generateContent({
+                const stream = await this.ai.models.generateContentStream({
                     model: modelName,
                     contents: [{ parts: [{ text: inputText }] }],
                     config: {
@@ -183,23 +181,29 @@ export class GameService {
                     },
                 });
 
-                const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-
-                if (audioData) {
-                    console.log("Successfully received non-streaming audio data.");
-                    return `data:audio/wav;base64,${audioData}`;
-                } else {
-                    console.error('No audio data found in response.', response);
-                    throw new Error('No audio data received from Google TTS API.');
+                for await (const chunk of stream) {
+                    const audioData = chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+                    if (audioData) {
+                        // Convert base64 chunk to Uint8Array and pass to callback
+                        const binaryString = window.atob(audioData);
+                        const len = binaryString.length;
+                        const bytes = new Uint8Array(len);
+                        for (let i = 0; i < len; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        onAudioChunk(bytes);
+                    }
                 }
+                console.log("Finished streaming audio data.");
             } catch (error) {
-                console.error(`Error calling Google TTS API with model ${modelName}:`, error);
-                const silent_wav_base64 = 'UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-                return `data:audio/wav;base64,${silent_wav_base64}`;
+                console.error(`Error during Google TTS streaming with model ${modelName}:`, error);
+                throw error; // Propagate error to be handled by the caller
             }
         };
 
-        return this.callApiWithRetries(apiCall);
+        // We don't need retries for a streaming API in the same way, 
+        // as it would restart the whole stream. Call it directly.
+        return apiCall();
     }
 }
 
